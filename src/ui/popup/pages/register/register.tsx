@@ -79,7 +79,9 @@ export const RegisterInPage: FunctionComponent<{
               <Button
                 type="button"
                 color={props.numWords === NunWords.WORDS24 ? "" : "secondary"}
-                className={props.numWords === NunWords.WORDS24 ? style.pill : ""}
+                className={
+                  props.numWords === NunWords.WORDS24 ? style.pill : ""
+                }
                 onClick={() => {
                   if (
                     props.requestChaneNumWords &&

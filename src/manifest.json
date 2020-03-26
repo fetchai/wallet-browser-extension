@@ -35,5 +35,5 @@
     "injectedScript.bundle.js",
     "assets/temp-icon.svg",
     "/assets/*.mp4"
-    ]
+  ]
 }

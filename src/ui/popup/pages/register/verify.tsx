@@ -86,7 +86,6 @@ export const VerifyInPage: FunctionComponent<{
         </div>
       </div>
       <Button
-
         type="submit"
         id="green"
         disabled={suggestedWords.join(" ") !== wordsSlice.join(" ")}
