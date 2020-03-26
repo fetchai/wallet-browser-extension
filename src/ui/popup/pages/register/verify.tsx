@@ -41,6 +41,7 @@ export const VerifyInPage: FunctionComponent<{
           {suggestedWords.map((word, i) => {
             return (
               <Button
+                className="blue"
                 key={word + i.toString()}
                 onClick={() => {
                   const word = suggestedWords[i];
@@ -59,12 +60,13 @@ export const VerifyInPage: FunctionComponent<{
           })}
         </div>
       </div>
-      <hr />
+      <hr id="hr" />
       <div style={{ minHeight: "153px" }}>
         <div className={style.buttons}>
           {randomizedWords.map((word, i) => {
             return (
               <Button
+                className="blue"
                 key={word + i.toString()}
                 onClick={() => {
                   const word = randomizedWords[i];
@@ -84,8 +86,9 @@ export const VerifyInPage: FunctionComponent<{
         </div>
       </div>
       <Button
-        color="primary"
+
         type="submit"
+        id="green"
         disabled={suggestedWords.join(" ") !== wordsSlice.join(" ")}
         onClick={() => {
           props.onVerify(suggestedWords.join(" "));

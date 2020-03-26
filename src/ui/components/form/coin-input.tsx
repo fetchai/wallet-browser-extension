@@ -1,7 +1,6 @@
 import React, { FunctionComponent, useEffect, useState } from "react";
 
 import { Currency } from "../../../chain-info";
-
 import classnames from "classnames";
 import styleCoinInput from "./coin-input.module.scss";
 

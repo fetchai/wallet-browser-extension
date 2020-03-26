@@ -13,6 +13,7 @@ export const IntroInPage: FunctionComponent<{
   return (
     <div>
       <BigButton
+        top={true}
         icon="fa-plus"
         title={intl.formatMessage({
           id: "register.intro.button.new-account.title"
@@ -23,6 +24,7 @@ export const IntroInPage: FunctionComponent<{
         onClick={props.onRequestNewAccount}
       />
       <BigButton
+        top={false}
         icon="fa-download"
         title={intl.formatMessage({
           id: "register.intro.button.import-account.title"
@@ -45,13 +47,19 @@ export const IntroInPage: FunctionComponent<{
 };
 
 const BigButton: FunctionComponent<{
+  top: boolean;
   icon: string;
   title: string;
   content: string;
   onClick: () => void;
-}> = ({ icon, title, content, onClick }) => {
+}> = ({ icon, title, content, onClick, top }) => {
   return (
-    <div className={styleIntro.bigButton} onClick={onClick}>
+    <div
+      className={`${styleIntro.bigButton} ${
+        top ? styleIntro.top : styleIntro.bottom
+      }`}
+      onClick={onClick}
+    >
       <span className={`icon is-medium ${styleIntro.icon}`}>
         <i className={`fas fa-2x ${icon}`} />
       </span>

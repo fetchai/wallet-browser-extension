@@ -11,6 +11,8 @@ import {
 
 const Buffer = require("buffer/").Buffer;
 
+// import style from "./style.module.scss";
+
 export interface TextareaProps {
   label?: string;
   error?: string;

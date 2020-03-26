@@ -13,6 +13,8 @@ import { InputType } from "reactstrap/lib/Input";
 
 const Buffer = require("buffer/").Buffer;
 
+import styleInput from "./input.module.scss";
+
 export interface InputProps {
   type: Exclude<InputType, "textarea">;
   label?: string;
@@ -45,7 +47,7 @@ export const Input = forwardRef<
   return (
     <FormGroup>
       {label ? (
-        <Label for={inputId} className="form-control-label">
+        <Label for={inputId} className={styleInput.label}>
           {label}
         </Label>
       ) : null}

@@ -6,9 +6,11 @@ $fa-font-path: "~@fortawesome/fontawesome-free/webfonts";
 @import "~@fortawesome/fontawesome-free/scss/fontawesome";
 @import "~@fortawesome/fontawesome-free/scss/solid";
 
-@import url("https://fonts.googleapis.com/css?family=Nunito+Sans:300,400,700,800&display=swap");
+@import url("https://fonts.googleapis.com/css?family=Open+Sans:300,400,700,800&display=swap");
 
-$font-family-base: "Nunito Sans", sans-serif;
+$font-family-base: "Open Sans", sans-serif;
+
+
 $body-color: black;
 @import "~argon-dashboard-react/src/assets/scss/argon-dashboard-react";
 
@@ -18,20 +20,22 @@ $body-color: black;
 
 @import "var";
 
+
 html {
   width: $popup-size-width;
   height: $popup-size-height;
   margin: auto;
-  background-color: white;
-
+  background-attachment: fixed;
+  background-image: linear-gradient(to right, #1e2844, #0d0d0d);
+  height: 100%;
   overflow: auto;
 }
 
 body {
   width: $popup-size-width;
   height: $popup-size-height;
-
-  background-color: $background-color;
+  background:none;
+  color: white;
 }
 
 #app {
@@ -53,14 +57,64 @@ body {
 .valid-feedback,
 .invalid-feedback {
   position: absolute;
+  color:red;
+  &:focus {
+  border-color:pink;
+  }
+}
+
+.invalid-feedback {
+  &:focus {
+  border-color:pink;
+  }
+}
+
+.blue {
+    background-color: rgba(88, 135, 218, .3);
+    border-color: rgba(88, 135, 218, 1);
+    border-style: solid;
+    border-width:2px;
+    color: white;
+  }
+
+
+#green, .green {
+    background-color: rgba(43, 181, 162, .25);
+     border-color: rgba(43, 181, 162, 1);
+     border-style: solid;
+     border-width:1px;
+     color: white;
+  }
+
+.white-border {
+  border-style:solid;
+    border-width: 2px;
+    border-color: white;
+    border-radius: 5px;
+      font-size: 18px;
+}
+
+.white-border:focus {
+    background: none;
+    color: white;
+   border-color: white;
+      font-size: 18px;
+}
+
+#hr {
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+  border: inherit;
 }
 
 .form-control {
-  color: black;
+  color: white;
+  background: none;
 
   &:focus {
-    color: black;
+    color: white;
   }
+
 }
 
 button[data-loading="true"] {

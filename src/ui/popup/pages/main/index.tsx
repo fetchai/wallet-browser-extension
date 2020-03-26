@@ -60,18 +60,13 @@ export const MainPage: FunctionComponent = () => {
       }
       rightRenderer={<SignOutButton />}
     >
-      <Card className={classnames(style.card, "shadow")}>
+      <Card className={classnames(style.card, )}>
         <CardBody>
           <div className={style.containerAccountInner}>
             <AccountView />
             <AssetView />
             <TxButtonView />
           </div>
-        </CardBody>
-      </Card>
-      <Card className={classnames(style.card, "shadow")}>
-        <CardBody>
-          <StakeView />
         </CardBody>
       </Card>
     </HeaderLayout>

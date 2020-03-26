@@ -10,9 +10,7 @@
     "lint-test": "eslint \"src/**/*\" webpack.config.js && prettier --check \"src/**/*\" webpack.config.js",
     "lint-fix": "eslint --fix \"src/**/*\" webpack.config.js && prettier --write \"src/**/*\" webpack.config.js"
   },
-  "pre-commit": [
-    "lint-test"
-  ],
+
   "keywords": [],
   "author": "everett-protocol",
   "license": "Apache-2.0",

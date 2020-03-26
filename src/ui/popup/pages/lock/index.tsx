@@ -15,6 +15,8 @@ import style from "./style.module.scss";
 import queryString from "query-string";
 import { RouteComponentProps } from "react-router";
 
+require("../../public/assets/welcome.mp4");
+
 import { FormattedMessage, useIntl } from "react-intl";
 import {
   disableScroll,
@@ -54,7 +56,26 @@ export const LockPage: FunctionComponent<Pick<
   const [loading, setLoading] = useState(false);
 
   return (
-    <EmptyLayout style={{ backgroundColor: "white", height: "100%" }}>
+    <EmptyLayout style={{ height: "100%", padding: "0" }}>
+      <video
+        className={style.video}
+        playsinline={true}
+        autoPlay={true}
+        muted={true}
+        loop={true}
+      >
+        <source
+          src={chrome.runtime.getURL("/assets/" + "welcome.mp4")}
+          type={"video/mp4"}
+        ></source>
+      </video>
+      <div className={style.logo}>
+        <img
+          src={require("../../public/assets/fetch-logo.svg")}
+          alt="Fetch.ai's Logo"
+          className="logo"
+        ></img>
+      </div>
       <Form
         className={style.formContainer}
         onSubmit={handleSubmit(async data => {
@@ -77,12 +98,8 @@ export const LockPage: FunctionComponent<Pick<
           }
         })}
       >
-        <Banner
-          icon={require("../../public/assets/temp-icon.svg")}
-          logo={require("../../public/assets/logo-temp.png")}
-          subtitle="Wallet for the Interchain"
-        />
         <Input
+          className="white-border"
           type="password"
           label={intl.formatMessage({
             id: "lock.input.password"
@@ -95,7 +112,7 @@ export const LockPage: FunctionComponent<Pick<
             })
           })}
         />
-        <Button type="submit" color="primary" block data-loading={loading}>
+        <Button type="submit" id="green" block data-loading={loading}>
           <FormattedMessage id="lock.button.unlock" />
         </Button>
       </Form>

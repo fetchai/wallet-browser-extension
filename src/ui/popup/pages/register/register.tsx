@@ -1,16 +1,11 @@
 import React, { FunctionComponent, useEffect } from "react";
-
 import { Button, ButtonGroup, Form } from "reactstrap";
-
 import { Input, TextArea } from "../../../components/form";
-
 import useForm from "react-hook-form";
-
 import style from "./style.module.scss";
 
 import { FormattedMessage, useIntl } from "react-intl";
 import { NunWords } from "./index";
-
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const bip39 = require("bip39");
 
@@ -67,6 +62,9 @@ export const RegisterInPage: FunctionComponent<{
                 color={
                   props.numWords === NunWords.WORDS12 ? "primary" : "secondary"
                 }
+                className={
+                  props.numWords === NunWords.WORDS12 ? style.pill : ""
+                }
                 onClick={() => {
                   if (
                     props.requestChaneNumWords &&
@@ -80,9 +78,8 @@ export const RegisterInPage: FunctionComponent<{
               </Button>
               <Button
                 type="button"
-                color={
-                  props.numWords === NunWords.WORDS24 ? "primary" : "secondary"
-                }
+                color={props.numWords === NunWords.WORDS24 ? "" : "secondary"}
+                className={props.numWords === NunWords.WORDS24 ? style.pill : ""}
                 onClick={() => {
                   if (
                     props.requestChaneNumWords &&
@@ -133,6 +130,7 @@ export const RegisterInPage: FunctionComponent<{
         <Input
           label={intl.formatMessage({ id: "register.create.input.password" })}
           type="password"
+          className={style.password}
           name="password"
           ref={register({
             required: intl.formatMessage({
@@ -153,6 +151,7 @@ export const RegisterInPage: FunctionComponent<{
             id: "register.create.input.confirm-password"
           })}
           type="password"
+          className={style.password}
           name="confirmPassword"
           ref={register({
             required: intl.formatMessage({
@@ -169,7 +168,7 @@ export const RegisterInPage: FunctionComponent<{
           error={errors.confirmPassword && errors.confirmPassword.message}
         />
         <Button
-          color="primary"
+          className={style.green}
           type="submit"
           data-loading={props.isLoading}
           block

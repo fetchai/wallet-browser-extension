@@ -114,12 +114,12 @@ export const RegisterPage: FunctionComponent = observer(() => {
   return (
     <EmptyLayout
       className={style.container}
-      style={{ height: "100%", backgroundColor: "white", padding: 0 }}
+      style={{ height: "100%", padding: 0 }}
     >
       <div>
         <img
           className={style.logo}
-          src={require("../../public/assets/logo-temp.png")}
+          src={require("../../public/assets/fetch-logo.png")}
           alt="logo"
         />
       </div>

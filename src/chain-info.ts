@@ -22,10 +22,10 @@ export const Currencies: {
   readonly [currency: string]: Currency;
 } = {
   atom: {
-    coinDenom: "ATOM",
-    coinMinimalDenom: "uatom",
-    coinDecimals: 6,
-    coinGeckoId: "cosmos"
+    coinDenom: "fet",
+    coinMinimalDenom: "nanofet",
+    coinDecimals: 9,
+    coinGeckoId: "fetch-ai"
   },
   kava: {
     coinDenom: "KAVA",
@@ -65,19 +65,19 @@ export interface ChainInfo {
 
 export const NativeChainInfos: ChainInfo[] = [
   {
-    rpc: "https://node-cosmoshub-3.keplr.app/rpc",
-    rest: "https://node-cosmoshub-3.keplr.app/rest",
+    rpc: "http://127.0.0.1:26657",
+    rest: "http://127.0.0.1:1317",
     chainId: "cosmoshub-3",
     chainName: "Cosmos",
     nativeCurrency: "atom",
     walletUrl:
       process.env.NODE_ENV === "production"
         ? "https://wallet.keplr.app/#/cosmoshub-3"
-        : "http://localhost:8081/#/cosmoshub-3",
+        : "http://127.0.0.1:1317/#/cosmoshub-3",
     walletUrlForStaking:
       process.env.NODE_ENV === "production"
         ? "https://wallet.keplr.app/#/cosmoshub-3"
-        : "http://localhost:8081/#/cosmoshub-3",
+        : "http://127.0.0.1:1317/#/cosmoshub-3",
     bip44: new BIP44(44, 118, 0),
     bech32Config: defaultBech32Config("cosmos"),
     currencies: ["atom"],

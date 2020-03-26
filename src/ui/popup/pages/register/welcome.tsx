@@ -21,7 +21,7 @@ export const WelcomeInPage: FunctionComponent = () => {
         })}
       </div>
       <Button
-        color="primary"
+        id="green"
         type="submit"
         onClick={() => {
           if (typeof browser !== "undefined") {

@@ -124,8 +124,7 @@ export const TxButtonView: FunctionComponent = observer(() => {
         <DepositModal bech32Address={accountStore.bech32Address} />
       </Modal>
       <Button
-        className={styleTxButton.button}
-        color="primary"
+        className={classnames([styleTxButton.button, "blue"])}
         outline
         onClick={toggleDepositModal}
       >
@@ -138,10 +137,9 @@ export const TxButtonView: FunctionComponent = observer(() => {
        */}
       <Button
         id="btn-send"
-        className={classnames(styleTxButton.button, {
+        className={classnames(styleTxButton.button, "green", {
           disabled: accountStore.assets.length === 0
         })}
-        color="primary"
         outline
         onClick={onSendButton}
       >

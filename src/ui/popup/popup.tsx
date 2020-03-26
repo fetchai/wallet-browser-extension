@@ -29,7 +29,7 @@ import { FeePage } from "./pages/fee";
 import Modal from "react-modal";
 
 // Make sure that icon file will be included in bundle
-require("./public/assets/temp-icon.svg");
+require("./public/assets/fetch-logo.png");
 require("./public/assets/icon/icon-16.png");
 require("./public/assets/icon/icon-48.png");
 require("./public/assets/icon/icon-128.png");
@@ -75,7 +75,7 @@ const StateRenderer: FunctionComponent<RouteComponentProps> = observer(
         <div style={{ height: "100%" }}>
           <Banner
             icon={require("./public/assets/temp-icon.svg")}
-            logo={require("./public/assets/logo-temp.png")}
+            logo={require("./public/assets/fetch-logo.png")}
             subtitle="Wallet for the Interchain"
           />
         </div>
@@ -85,7 +85,7 @@ const StateRenderer: FunctionComponent<RouteComponentProps> = observer(
         <div style={{ height: "100%" }}>
           <Banner
             icon={require("./public/assets/temp-icon.svg")}
-            logo={require("./public/assets/logo-temp.png")}
+            logo={require("./public/assets/fetch-logo.png")}
             subtitle="Wallet for the Interchain"
           />
         </div>

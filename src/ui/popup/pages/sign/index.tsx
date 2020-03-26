@@ -120,7 +120,7 @@ export const SignPage: FunctionComponent<RouteComponentProps<{
             }
           : undefined
       }
-      style={{ background: "white" }}
+      style={{ background: "purple" }}
     >
       <div className={style.container}>
         <div className={classnames(style.tabs)}>

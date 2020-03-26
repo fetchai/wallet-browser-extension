@@ -15,8 +15,8 @@
       border-bottom-width: 1px;
 
       &:global(.active) {
-        border-bottom-color: #5e72e4;
-        color: #5e72e4;
+        border-bottom-color: red;
+        color: red;
       }
     }
   }
