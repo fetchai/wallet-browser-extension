@@ -2,7 +2,7 @@
   "main.account.message.available-balance": "Available Balance",
   "main.account.button.deposit": "Deposit",
   "main.account.button.send": "Send",
-  "main.account.tooltip.no-asset": "No token in your account. Deposit some tokens to send.",
+  "main.account.tooltip.no-asset": "No FET tokens",
 
   "main.stake.message.pending-staking-reward": "Pending Staking Reward",
   "main.stake.message.stake": "Stake",

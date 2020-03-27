@@ -30,9 +30,9 @@ import Modal from "react-modal";
 
 // Make sure that icon file will be included in bundle
 require("./public/assets/fetch-logo.png");
-require("./public/assets/icon/icon-16.png");
-require("./public/assets/icon/icon-48.png");
-require("./public/assets/icon/icon-128.png");
+require("./public/assets/favicon-16x16.png");
+require("./public/assets/favicon-32x32.png");
+require("./public/assets/favicon-96x96.png");
 
 configure({
   enforceActions: "always" // Make mobx to strict mode.
@@ -54,7 +54,11 @@ Modal.defaultStyles = {
   },
   overlay: {
     zIndex: 1000,
-    ...Modal.defaultStyles.overlay
+    position: "fixed",
+    top: "0px",
+    left: "0px",
+    right: "0px",
+    bottom: "0px"
   }
 };
 
