@@ -3,25 +3,20 @@
   "main.account.button.deposit": "Deposit",
   "main.account.button.send": "Send",
   "main.account.tooltip.no-asset": "No FET tokens",
-
   "main.stake.message.pending-staking-reward": "Pending Staking Reward",
   "main.stake.message.stake": "Stake",
   "main.stake.message.earning": "Earn up to 7-11% per year",
   "main.stake.button.claim-rewards": "Claim",
   "main.stake.button.stake": "Stake",
   "main.stake.tooltip.no-asset": "No funds. Deposit some tokens to stake.",
-
   "main.menu.sign-out": "Sign out",
-
   "register.button.back": "Back",
   "register.intro.button.new-account.title": "Create a new account",
   "register.intro.button.new-account.content": "Create a new wallet with a new seed",
   "register.intro.button.import-account.title": "Import existing account",
   "register.intro.button.import-account.content": "Use a 12/24 word seed to import an existing wallet",
   "register.intro.sub-content": "All sensitive information is stored only on your device.{br}This process does not require an internet connection.",
-
   "register.recover.title": "Input your seed",
-
   "register.create.title": "Mnemonic Seed",
   "register.create.toggle.word12": "12 words",
   "register.create.toggle.word24": "24 words",

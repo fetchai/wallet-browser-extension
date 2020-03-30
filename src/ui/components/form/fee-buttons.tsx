@@ -7,7 +7,6 @@ import React, {
 } from "react";
 
 import styleFeeButtons from "./fee-buttons.module.scss";
-
 import { Currency } from "../../../chain-info";
 import { Dec } from "@everett-protocol/cosmosjs/common/decimal";
 import { Coin } from "@everett-protocol/cosmosjs/common/coin";
@@ -145,8 +144,8 @@ export const FeeButtons: FunctionComponent<FeeButtonsProps> = ({
       <ButtonGroup id={inputId} className={styleFeeButtons.buttons}>
         <Button
           type="button"
+          id={feeSelect === FeeSelect.LOW ? "green-solid" : ""}
           className={styleFeeButtons.button}
-          color={feeSelect === FeeSelect.LOW ? "primary" : undefined}
           onClick={useCallback((e: MouseEvent) => {
             setFeeSelect(FeeSelect.LOW);
             e.preventDefault();
@@ -183,6 +182,7 @@ export const FeeButtons: FunctionComponent<FeeButtonsProps> = ({
         </Button>
         <Button
           type="button"
+          id={feeSelect === FeeSelect.AVERAGE ? "green-solid" : ""}
           className={styleFeeButtons.button}
           color={feeSelect === FeeSelect.AVERAGE ? "primary" : undefined}
           onClick={useCallback((e: MouseEvent) => {
@@ -222,7 +222,7 @@ export const FeeButtons: FunctionComponent<FeeButtonsProps> = ({
         <Button
           type="button"
           className={styleFeeButtons.button}
-          color={feeSelect === FeeSelect.HIGH ? "primary" : undefined}
+          id={feeSelect === FeeSelect.HIGH ? "green-solid" : ""}
           onClick={useCallback((e: MouseEvent) => {
             setFeeSelect(FeeSelect.HIGH);
             e.preventDefault();

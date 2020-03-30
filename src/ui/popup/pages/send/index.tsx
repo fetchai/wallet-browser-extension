@@ -410,6 +410,7 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
               />
               <TextArea
                 label={intl.formatMessage({ id: "send.input.memo" })}
+                className="white-border"
                 name="memo"
                 rows={2}
                 style={{ resize: "none" }}
@@ -438,7 +439,7 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
             <div style={{ flex: 1 }} />
             <Button
               type="submit"
-              color="primary"
+              className="green"
               block
               data-loading={cosmosJS.loading}
               disabled={cosmosJS.sendMsgs == null}

@@ -46,9 +46,9 @@ const DepositModal: FunctionComponent<{
       // TODO: Show success tooltip.
       notification.push({
         placement: "top-center",
-        type: "success",
+        className: "blue",
         duration: 2,
-        content: "Address copied!",
+        content: "Address copied!!!!",
         canDelete: true,
         transition: {
           duration: 0.25
@@ -103,9 +103,9 @@ export const TxButtonView: FunctionComponent = observer(() => {
 
   const onSendButton = useCallback(
     (e: MouseEvent) => {
-      if (accountStore.assets.length !== 0) {
-        history.push("/send");
-      }
+      // if (accountStore.assets.length !== 0) {
+      history.push("/send");
+      // }
 
       e.preventDefault();
     },
@@ -136,9 +136,9 @@ export const TxButtonView: FunctionComponent = observer(() => {
         To solve this problem, don't add "disabled" property to button tag and just add "disabled" class manually.
        */}
       <Button
-        id="btn-send"
+        id="green"
         className={classnames(styleTxButton.button, "green", {
-          disabled: accountStore.assets.length === 0
+          disabled: accountStore.assets.length !== 0
         })}
         outline
         onClick={onSendButton}
@@ -149,7 +149,7 @@ export const TxButtonView: FunctionComponent = observer(() => {
         <Tooltip
           placement="bottom"
           isOpen={tooltipOpen}
-          target="btn-send"
+          target="green"
           toggle={toogleTooltip}
           fade
         >

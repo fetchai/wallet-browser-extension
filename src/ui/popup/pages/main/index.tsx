@@ -9,7 +9,7 @@ import { Menu } from "./menu";
 import { AccountView } from "./account";
 import { TxButtonView } from "./tx-button";
 import { AssetView } from "./asset";
-import { StakeView } from "./stake";
+// import { StakeView } from "./stake";
 
 import classnames from "classnames";
 import { useStore } from "../../stores";

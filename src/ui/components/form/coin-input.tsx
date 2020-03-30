@@ -181,32 +181,35 @@ export const CoinInput: FunctionComponent<CoinInputProps> = props => {
           disabled={allBalance}
           autoComplete="off"
         />
-        <Input
-          type="select"
-          className={classnames(
-            "form-control-alternative",
-            styleCoinInput.select
-          )}
-          value={currency ? currency.coinDenom : ""}
-          onChange={e => {
-            const currency = getCurrencyFromDenom(e.target.value);
-            if (currency) {
-              setCurrency(currency);
-            }
-            e.preventDefault();
-          }}
-          name={select.name}
-          innerRef={select.ref as any}
-          disabled={allBalance}
-        >
-          {currencies.map((currency, i) => {
-            return (
-              <option key={i.toString()} value={currency.coinDenom}>
-                {currency.coinDenom}
-              </option>
-            );
-          })}
-        </Input>
+        <span>
+          FET
+        </span>
+        {/*<Input*/}
+        {/*  type="select"*/}
+        {/*  className={classnames(*/}
+        {/*    "form-control-alternative",*/}
+        {/*    styleCoinInput.select*/}
+        {/*  )}*/}
+        {/*  value={currency ? currency.coinDenom : ""}*/}
+        {/*  onChange={e => {*/}
+        {/*    const currency = getCurrencyFromDenom(e.target.value);*/}
+        {/*    if (currency) {*/}
+        {/*      setCurrency(currency);*/}
+        {/*    }*/}
+        {/*    e.preventDefault();*/}
+        {/*  }}*/}
+        {/*  name={select.name}*/}
+        {/*  innerRef={select.ref as any}*/}
+        {/*  disabled={allBalance}*/}
+        {/*>*/}
+        {/*  {currencies.map((currency, i) => {*/}
+        {/*    return (*/}
+        {/*      <option key={i.toString()} value={currency.coinDenom}>*/}
+        {/*        {currency.coinDenom}*/}
+        {/*      </option>*/}
+        {/*    );*/}
+        {/*  })}*/}
+        {/*</Input>*/}
       </InputGroup>
       {error ? (
         <FormFeedback style={{ display: "block" }}>{error}</FormFeedback>

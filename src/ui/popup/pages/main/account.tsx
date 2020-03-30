@@ -18,9 +18,9 @@ export const AccountView: FunctionComponent = observer(() => {
     // TODO: Show success tooltip.
     notification.push({
       placement: "top-center",
-      type: "success",
+      className: "green-solid",
       duration: 2,
-      content: "Address copied!",
+      content: "AddressZZ copied!",
       canDelete: true,
       transition: {
         duration: 0.25

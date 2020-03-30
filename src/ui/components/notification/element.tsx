@@ -3,23 +3,23 @@ import React, { FunctionComponent, useEffect } from "react";
 import { Alert } from "reactstrap";
 
 export interface NotificationElementProps {
-  type:
+  type?:
     | "primary"
     | "link"
     | "info"
     | "success"
     | "warning"
     | "danger"
-    | "default"
     | "secondary";
   content: string;
   duration: number; // Seconds
   canDelete?: boolean;
+  className?: string;
 }
 
 export const NotificationElement: FunctionComponent<NotificationElementProps & {
   onDelete: () => void;
-}> = ({ type, content, duration, canDelete, onDelete }) => {
+}> = ({ type, content, duration, canDelete, onDelete, className }) => {
   useEffect(() => {
     const timer = setTimeout(() => {
       onDelete();
@@ -29,8 +29,8 @@ export const NotificationElement: FunctionComponent<NotificationElementProps & {
 
   return (
     <Alert
-      className={type === "default" ? "alert-default" : undefined}
-      color={type !== "default" ? type : undefined}
+      className={typeof className !== "undefined" ? className : undefined}
+      color={typeof className !== "undefined" ? type : undefined}
       fade={false}
       toggle={canDelete ? onDelete : undefined}
     >

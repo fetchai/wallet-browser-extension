@@ -40,6 +40,7 @@ export class PopupWalletProvider implements WalletProvider {
   /**
    * Request access to the user's accounts. Wallet can ask the user to approve or deny access. If user deny access, it will throw error.
    */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   enable(_: Context): Promise<void> {
     // TODO
     return Promise.resolve();

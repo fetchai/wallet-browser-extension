@@ -1,5 +1,7 @@
 import React, { forwardRef, useState } from "react";
 
+import styleInput from "./textarea.module.scss";
+
 import classnames from "classnames";
 
 import {
@@ -41,7 +43,7 @@ export const TextArea = forwardRef<
   return (
     <FormGroup>
       {label ? (
-        <Label for={inputId} className="form-control-label">
+        <Label for={inputId} className={styleInput.formControlLabel}>
           {label}
         </Label>
       ) : null}

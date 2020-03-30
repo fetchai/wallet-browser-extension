@@ -99,7 +99,7 @@ export const LockPage: FunctionComponent<Pick<
         })}
       >
         <Input
-          className="white-border"
+          className="lock-border"
           type="password"
           label={intl.formatMessage({
             id: "lock.input.password"

@@ -41,6 +41,12 @@ body {
   height: $popup-size-height;
 }
 
+.white-border {
+  border-style: solid;
+  border-width: 2px;
+  border-color: white;
+}
+
 @keyframes spinAround {
   from {
     transform: rotate(0deg);
@@ -76,7 +82,9 @@ body {
 }
 
 #green,
-.green {
+.green,
+#green:disabled
+{
   background-color: rgba(43, 181, 162, 0.25);
   border-color: rgba(43, 181, 162, 1);
   border-style: solid;
@@ -84,18 +92,22 @@ body {
   color: white;
 }
 
-.white-border {
-  border-style: solid;
-  border-width: 2px;
-  border-color: white;
+#green-solid
+{
+  background-color: rgba(43, 181, 162, .25);
+  border-style: none;
+  color: white;
+}
+
+.lock-border {
+   @extend .white-border;
   border-radius: 5px;
   font-size: 18px;
 }
 
-.white-border:focus {
+.lock-border:focus {
+   @extend .white-border;
   background: none;
-  color: white;
-  border-color: white;
   font-size: 18px;
 }
 
@@ -110,7 +122,8 @@ body {
   background: none;
 
   &:focus {
-    color: white;
+     background: none;
+       @extend .white-border;
   }
 }
 

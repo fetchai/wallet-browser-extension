@@ -16,7 +16,6 @@ import {
 import { Button } from "reactstrap";
 
 import { RouteComponentProps } from "react-router";
-
 import { useTxBuilderConfig } from "../../../hooks";
 import useForm, { FormContext } from "react-hook-form";
 import { TxBuilderConfig } from "@everett-protocol/cosmosjs/core/txBuilder";
@@ -174,6 +173,7 @@ export const FeePage: FunctionComponent<RouteComponentProps<{
         <div className={style.formInnerContainer}>
           <div>
             <Input
+              className="white-border"
               type="number"
               step="1"
               label={intl.formatMessage({
@@ -200,6 +200,7 @@ export const FeePage: FunctionComponent<RouteComponentProps<{
               label={intl.formatMessage({
                 id: "fee.input.memo"
               })}
+              className="white-border"
               name="memo"
               rows={2}
               style={{ resize: "none" }}
