@@ -24,6 +24,12 @@
   z-index: 1;
 }
 
+.form-control-override {
+  &:focus {
+    color: white;
+  }
+}
+
 .logo {
   position: absolute;
   top: 1px;

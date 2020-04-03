@@ -8,6 +8,7 @@
 
   &:focus {
     box-shadow: $input-focus-alternative-box-shadow !important;
+    background: none;
 
     & + .select {
       box-shadow: $input-focus-alternative-box-shadow !important;
@@ -15,31 +16,9 @@
   }
 }
 
-.select-container {
-  &::after {
-    border-radius: 2px;
-    content: " ";
-    display: block;
-    height: 0.625em;
-    margin-top: -0.4375em;
-    pointer-events: none;
-    position: absolute;
-    top: 50%;
-    transform: rotate(-45deg);
-    transform-origin: center;
-    width: 0.625em;
-    border: 0 solid black;
-    border-bottom-width: 3px;
-    border-left-width: 3px;
-    right: 1.125em;
-    z-index: 4;
-  }
-
-  &:global(.disabled) {
-    &::after {
-      border-color: #aaaaaa;
-    }
-  }
+.fet {
+      margin: auto;
+    padding-right: 10px;
 }
 
 .select {

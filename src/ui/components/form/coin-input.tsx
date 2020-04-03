@@ -3,6 +3,7 @@ import React, { FunctionComponent, useEffect, useState } from "react";
 import { Currency } from "../../../chain-info";
 import classnames from "classnames";
 import styleCoinInput from "./coin-input.module.scss";
+import style from "./form.module.scss";
 
 import { getCurrencyFromDenom } from "../../../common/currency";
 import { Dec } from "@everett-protocol/cosmosjs/common/decimal";
@@ -130,7 +131,7 @@ export const CoinInput: FunctionComponent<CoinInputProps> = props => {
       {label ? (
         <Label
           for={inputId}
-          className="form-control-label"
+          className={style.formControlLabel}
           style={{ width: "100%" }}
         >
           {label}
@@ -165,14 +166,20 @@ export const CoinInput: FunctionComponent<CoinInputProps> = props => {
       ) : null}
       <InputGroup
         id={inputId}
-        className={classnames(styleCoinInput.selectContainer, {
-          disabled: allBalance
+        className={classnames(
+          style.formControlOverride,
+          style.whiteBorder,
+          error ? style.red : false,
+          {
+            disabled: allBalance
         })}
       >
         <Input
+          id={styleCoinInput.formControlOverride}
           className={classnames(
             "form-control-alternative",
-            styleCoinInput.input
+            styleCoinInput.input,
+            error ? style.red : false
           )}
           type="number"
           step={step}
@@ -181,35 +188,34 @@ export const CoinInput: FunctionComponent<CoinInputProps> = props => {
           disabled={allBalance}
           autoComplete="off"
         />
-        <span>
-          FET
-        </span>
-        {/*<Input*/}
-        {/*  type="select"*/}
-        {/*  className={classnames(*/}
-        {/*    "form-control-alternative",*/}
-        {/*    styleCoinInput.select*/}
-        {/*  )}*/}
-        {/*  value={currency ? currency.coinDenom : ""}*/}
-        {/*  onChange={e => {*/}
-        {/*    const currency = getCurrencyFromDenom(e.target.value);*/}
-        {/*    if (currency) {*/}
-        {/*      setCurrency(currency);*/}
-        {/*    }*/}
-        {/*    e.preventDefault();*/}
-        {/*  }}*/}
-        {/*  name={select.name}*/}
-        {/*  innerRef={select.ref as any}*/}
-        {/*  disabled={allBalance}*/}
-        {/*>*/}
-        {/*  {currencies.map((currency, i) => {*/}
-        {/*    return (*/}
-        {/*      <option key={i.toString()} value={currency.coinDenom}>*/}
-        {/*        {currency.coinDenom}*/}
-        {/*      </option>*/}
-        {/*    );*/}
-        {/*  })}*/}
-        {/*</Input>*/}
+        <span className={styleCoinInput.fet}>FET</span>
+        <Input
+          type="select"
+          style={{ display: "none" }}
+          className={classnames(
+            "form-control-alternative",
+            styleCoinInput.select
+          )}
+          value={currency ? currency.coinDenom : ""}
+          onChange={e => {
+            const currency = getCurrencyFromDenom(e.target.value);
+            if (currency) {
+              setCurrency(currency);
+            }
+            e.preventDefault();
+          }}
+          name={select.name}
+          innerRef={select.ref as any}
+          disabled={allBalance}
+        >
+          {currencies.map((currency, i) => {
+            return (
+              <option key={i.toString()} value={currency.coinDenom}>
+                {currency.coinDenom}
+              </option>
+            );
+          })}
+        </Input>
       </InputGroup>
       {error ? (
         <FormFeedback style={{ display: "block" }}>{error}</FormFeedback>

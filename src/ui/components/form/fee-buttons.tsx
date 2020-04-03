@@ -6,6 +6,7 @@ import React, {
   useState
 } from "react";
 
+import style from "./form.module.scss";
 import styleFeeButtons from "./fee-buttons.module.scss";
 import { Currency } from "../../../chain-info";
 import { Dec } from "@everett-protocol/cosmosjs/common/decimal";
@@ -137,7 +138,7 @@ export const FeeButtons: FunctionComponent<FeeButtonsProps> = ({
   return (
     <FormGroup>
       {label ? (
-        <Label for={inputId} className="form-control-label">
+        <Label for={inputId} className={style.formControlLabel}>
           {label}
         </Label>
       ) : null}

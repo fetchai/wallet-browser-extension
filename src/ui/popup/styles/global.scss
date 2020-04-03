@@ -18,6 +18,41 @@ $body-color: black;
 @import "../../../palette";
 
 @import "var";
+@import "mixin";
+
+/* Change the white to any color ;) */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0 30px #1c2846 inset !important;
+}
+
+/*Change text in autofill textbox*/
+input:-webkit-autofill {
+    -webkit-text-fill-color: white !important;
+  &.is-invalid {
+    -webkit-text-fill-color: red !important;
+  }
+}
+
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
 
 html {
   width: $popup-size-width;
@@ -47,6 +82,37 @@ body {
   border-color: white;
 }
 
+.red {
+  border-color:red !important;;
+  color:red  !important;;
+  &:focus {
+    color:red !important;
+  }
+}
+
+.is-invalid {
+   @extend .red;
+
+    &.focus {
+       border-color:red !important;
+    }
+  }
+
+.is-invalid::-webkit-input-placeholder {
+  color: red;
+
+    &.focus {
+       color: white;
+    }
+}
+
+.on-change-remove-error:focus {
+  border-style: solid !important;
+  border-width: 2px !important;
+  border-color: white!important;
+  color: white !important;
+  }
+
 @keyframes spinAround {
   from {
     transform: rotate(0deg);
@@ -62,14 +128,13 @@ body {
 .invalid-feedback {
   position: absolute;
   color: red;
-  &:focus {
-    border-color: pink;
-  }
 }
 
-.invalid-feedback {
-  &:focus {
-    border-color: pink;
+.grey-hover {
+    &:hover {
+     background-color: $grey;
+     border-color:white;
+     color: white;
   }
 }
 
@@ -79,17 +144,23 @@ body {
   border-style: solid;
   border-width: 2px;
   color: white;
+  @extend .grey-hover;
 }
 
 #green,
-.green,
-#green:disabled
+.green
 {
   background-color: rgba(43, 181, 162, 0.25);
   border-color: rgba(43, 181, 162, 1);
   border-style: solid;
   border-width: 1px;
   color: white;
+  @extend .grey-hover;
+}
+
+#green:disabled {
+  @extend .green;
+  cursor: not-allowed;
 }
 
 #green-solid
@@ -114,7 +185,7 @@ body {
 #hr {
   margin-top: 2rem;
   margin-bottom: 2rem;
-  border: inherit;
+  border: 1px solid white;
 }
 
 .form-control {
@@ -123,9 +194,12 @@ body {
 
   &:focus {
      background: none;
-       @extend .white-border;
+     color: white;
+     @extend .white-border;
   }
 }
+
+
 
 button[data-loading="true"] {
   color: transparent !important;

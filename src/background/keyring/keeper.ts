@@ -163,6 +163,9 @@ export class KeyRingKeeper {
     }
     return this.keyRing.status;
   }
+  async verifyPassword(password: string): Promise<boolean> {
+    return await this.keyRing.verifyPassword(password);
+  }
 
   setPath(chainId: string, account: number, index: number) {
     this.path = this.getChainInfo(chainId).bip44.pathString(account, index);

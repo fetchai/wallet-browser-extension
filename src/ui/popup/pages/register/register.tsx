@@ -3,6 +3,7 @@ import { Button, ButtonGroup, Form } from "reactstrap";
 import { Input, TextArea } from "../../../components/form";
 import useForm from "react-hook-form";
 import style from "./style.module.scss";
+import classnames from "classnames";
 
 import { FormattedMessage, useIntl } from "react-intl";
 import { NunWords } from "./index";
@@ -35,6 +36,8 @@ export const RegisterInPage: FunctionComponent<{
       confirmPassword: ""
     }
   });
+
+
 
   useEffect(() => {
     if (!isRecover) {
@@ -99,12 +102,27 @@ export const RegisterInPage: FunctionComponent<{
       </div>
       <Form
         className={style.formContainer}
+        onChange={() => {
+          // debugger;
+          // const lights = document.getElementsByClassName("red");
+          //
+          // while (lights.length)
+          //   lights[0].className = lights[0].className.replace(
+          //     /\bred\b/g,
+          //     "on-change-remove-error"
+          //   );
+        }}
         onSubmit={handleSubmit((data: FormData) => {
           props.onRegister(data.words, data.password, isRecover);
         })}
       >
         <TextArea
-          className={style.mnemonic}
+          className={classnames(
+            style.mnemonic,
+            errors.words && errors.words.message
+              ? "on-change-remove-error"
+              : false
+          )}
           placeholder={intl.formatMessage({
             id: "register.create.textarea.mnemonic.place-holder"
           })}
@@ -132,17 +150,21 @@ export const RegisterInPage: FunctionComponent<{
         <Input
           label={intl.formatMessage({ id: "register.create.input.password" })}
           type="password"
-          className={style.password}
+          className={classnames(
+            style.password,
+            errors.password && errors.password.message
+              ? "on-change-remove-error"
+              : false
+          )}
           name="password"
           ref={register({
             required: intl.formatMessage({
               id: "register.create.input.password.error.required"
             }),
             validate: (password: string): string | undefined => {
-              if (password.length < 8) {
-                return intl.formatMessage({
-                  id: "register.create.input.password.error.too-short"
-                });
+              const strong = strongPassword(password);
+              if (strong !== true) {
+                return strong;
               }
             }
           })}
@@ -153,7 +175,12 @@ export const RegisterInPage: FunctionComponent<{
             id: "register.create.input.confirm-password"
           })}
           type="password"
-          className={style.password}
+          className={classnames(
+            style.password,
+            errors.confirmPassword && errors.confirmPassword.message
+              ? "on-change-remove-error"
+              : false
+          )}
           name="confirmPassword"
           ref={register({
             required: intl.formatMessage({
@@ -170,7 +197,8 @@ export const RegisterInPage: FunctionComponent<{
           error={errors.confirmPassword && errors.confirmPassword.message}
         />
         <Button
-          className={style.green}
+          style={{ marginTop: "5px" }}
+          className="green"
           type="submit"
           data-loading={props.isLoading}
           block

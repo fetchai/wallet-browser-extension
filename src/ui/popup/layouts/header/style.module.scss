@@ -9,15 +9,19 @@
   padding-left: $layout-margin;
 }
 
+.logo {
+  position: absolute;
+  top: 5px;
+  width: 160px;
+}
+
 $menu-icon-size: 20px;
 $menu-icon-gap: 14px;
 
 .menu-img {
   width: $menu-icon-size;
   height: $menu-icon-size;
-
   margin-left: $menu-icon-gap;
-
   cursor: pointer;
 }
 

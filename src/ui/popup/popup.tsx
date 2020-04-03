@@ -27,6 +27,7 @@ import { KeyRingStatus } from "./stores/keyring";
 import { SignPage } from "./pages/sign";
 import { FeePage } from "./pages/fee";
 import Modal from "react-modal";
+import {SettingsPage} from "./pages/settings";
 
 // Make sure that icon file will be included in bundle
 require("./public/assets/fetch-logo.png");
@@ -78,9 +79,9 @@ const StateRenderer: FunctionComponent<RouteComponentProps> = observer(
       return (
         <div style={{ height: "100%" }}>
           <Banner
-            icon={require("./public/assets/temp-icon.svg")}
+            icon={require("./public/assets/fetch-logo.svg")}
             logo={require("./public/assets/fetch-logo.png")}
-            subtitle="Wallet for the Interchain"
+            subtitle="Wallet for the Interchain2"
           />
         </div>
       );
@@ -88,9 +89,9 @@ const StateRenderer: FunctionComponent<RouteComponentProps> = observer(
       return (
         <div style={{ height: "100%" }}>
           <Banner
-            icon={require("./public/assets/temp-icon.svg")}
+            icon={require("./public/assets/fetch-logo.svg")}
             logo={require("./public/assets/fetch-logo.png")}
-            subtitle="Wallet for the Interchain"
+            subtitle="Wallet for the Interchain1"
           />
         </div>
       );
@@ -109,6 +110,7 @@ ReactDOM.render(
             <Route exact path="/" component={StateRenderer} />
             <Route exact path="/register" component={RegisterPage} />
             <Route exact path="/send" component={SendPage} />
+            <Route exact path="/settings" component={SettingsPage} />
             <Route exact path="/fee/:id" component={FeePage} />
             <Route path="/sign/:id" component={SignPage} />
           </HashRouter>

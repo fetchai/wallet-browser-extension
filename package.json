@@ -10,7 +10,6 @@
     "lint-test": "eslint \"src/**/*\" webpack.config.js && prettier --check \"src/**/*\" webpack.config.js",
     "lint-fix": "eslint --fix \"src/**/*\" webpack.config.js && prettier --write \"src/**/*\" webpack.config.js"
   },
-
   "keywords": [],
   "author": "everett-protocol",
   "license": "Apache-2.0",
@@ -35,6 +34,7 @@
     "query-string": "^6.8.3",
     "react": "^16.9.0",
     "react-dom": "^16.9.0",
+    "react-expand-animated": "^1.0.2",
     "react-hook-form": "^3.29.3",
     "react-intl": "^3.9.3",
     "react-modal": "^3.11.1",

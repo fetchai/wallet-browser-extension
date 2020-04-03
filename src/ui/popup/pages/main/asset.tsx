@@ -1,7 +1,6 @@
 import React, { FunctionComponent } from "react";
 
 import { Dec } from "@everett-protocol/cosmosjs/common/decimal";
-
 import { observer } from "mobx-react";
 import { useStore } from "../../stores";
 import styleAsset from "./asset.module.scss";

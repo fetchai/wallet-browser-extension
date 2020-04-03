@@ -1,16 +1,10 @@
 import React, { FunctionComponent, useEffect, useState } from "react";
-
 import { Input } from "../../../components/form";
-
 import { Button, Form } from "reactstrap";
-
 import { observer } from "mobx-react";
 import { useStore } from "../../stores";
-import { Banner } from "../../components/banner";
 import useForm from "react-hook-form";
-
 import { EmptyLayout } from "../../layouts/empty-layout";
-
 import style from "./style.module.scss";
 import queryString from "query-string";
 import { RouteComponentProps } from "react-router";
@@ -23,6 +17,7 @@ import {
   enableScroll,
   fitWindow
 } from "../../../../common/window";
+import classnames from "classnames";
 
 interface FormData {
   password: string;
@@ -99,7 +94,7 @@ export const LockPage: FunctionComponent<Pick<
         })}
       >
         <Input
-          className="lock-border"
+          className={classnames(style.formControlOverride, "lock-border")}
           type="password"
           label={intl.formatMessage({
             id: "lock.input.password"

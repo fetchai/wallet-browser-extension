@@ -2,19 +2,13 @@
   "manifest_version": 2,
   "name": "Keplr",
   "description": "The Fetch.ai Web Wallet is a Chrome Extension for making interactions with the Fetch.ai Ledger super easy",
-  "version": "0.4.7",
-  "applications": {
-    "gecko": {
-      "id": "keplr-extension@keplr.app",
-      "strict_min_version": "56.0"
-    }
-  },
+  "version": "1.0.0",
    "icons": { "96": "assets/favicon-96x96.png",
            "16": "assets/favicon-16x16.png",
           "32": "assets/favicon-32x32.png" },
   "browser_action": {
     "default_popup": "popup.html",
-    "default_title": "Keplr"
+    "default_title": "Fetch.ai"
   },
   "background": {
     "scripts": ["browser-polyfill.js", "background.bundle.js"],
@@ -31,7 +25,7 @@
   ],
   "web_accessible_resources": [
     "injectedScript.bundle.js",
-    "assets/temp-icon.svg",
+    "assets/fetch-logo.svg",
     "/assets/*.mp4"
   ]
 }

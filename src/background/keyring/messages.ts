@@ -233,6 +233,36 @@ export class UnlockKeyRingMsg extends Message<{ status: KeyRingStatus }> {
   }
 }
 
+export class VerifyPasswordKeyRingMsg extends Message<{
+  success: boolean;
+}> {
+  public static type() {
+    return "verify-password-keyring";
+  }
+
+  public static create(password: string): VerifyPasswordKeyRingMsg {
+    const msg = new VerifyPasswordKeyRingMsg();
+    msg.password = password;
+    return msg;
+  }
+
+  validateBasic(): void {
+    if (!this.password) {
+      throw new Error("password not set");
+    }
+  }
+
+  public password = "";
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return VerifyPasswordKeyRingMsg.type();
+  }
+}
+
 export class SetPathMsg extends Message<{ success: boolean }> {
   public static type() {
     return "set-path";

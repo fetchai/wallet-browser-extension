@@ -55,9 +55,7 @@ const BigButton: FunctionComponent<{
 }> = ({ icon, title, content, onClick, top }) => {
   return (
     <div
-      className={`${styleIntro.bigButton} ${
-        top ? styleIntro.top : styleIntro.bottom
-      }`}
+      className={`${styleIntro.bigButton} ${top ? "green" : "blue"}`}
       onClick={onClick}
     >
       <span className={`icon is-medium ${styleIntro.icon}`}>

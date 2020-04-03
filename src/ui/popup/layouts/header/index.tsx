@@ -6,12 +6,10 @@ import { observer } from "mobx-react";
 import { useStore } from "../../stores";
 
 import style from "./style.module.scss";
-import { ToolTip } from "../../../components/tooltip";
-
-import { ChainList } from "./chain-list";
-import { Menu, useMenu, MenuButton } from "../menu";
+import { Menu, MenuButton, useMenu } from "../menu";
 
 import { motion } from "framer-motion";
+import { BackButton } from "./back-button";
 
 export interface Props {
   showChainName: boolean;
@@ -19,6 +17,7 @@ export interface Props {
   menuRenderer?: ReactNode;
   rightRenderer?: ReactNode;
   onBackButton?: () => void;
+  fetchIcon?: boolean;
 }
 
 export interface LocalProps {
@@ -32,7 +31,8 @@ export const Header: FunctionComponent<Props & LocalProps> = observer(
     menuRenderer,
     rightRenderer,
     isMenuOpen,
-    onBackButton
+    onBackButton,
+    fetchIcon
   }) => {
     const { chainStore } = useStore();
     const menu = useMenu();
@@ -44,6 +44,16 @@ export const Header: FunctionComponent<Props & LocalProps> = observer(
       <CompHeader
         left={
           <div className={style.menuContainer}>
+            {fetchIcon ? (
+              <>
+                <div className={style.logo}>
+                  <img
+                    src={require("../../public/assets/fetch-logo.svg")}
+                    alt="Fetch.ai's Logo"
+                  ></img>
+                </div>
+              </>
+            ) : null}
             {menuRenderer ? (
               <>
                 <Menu isOpen={isMenuOpen}>{menuRenderer}</Menu>
@@ -58,24 +68,13 @@ export const Header: FunctionComponent<Props & LocalProps> = observer(
               </>
             ) : null}
             {onBackButton ? (
-              <div
-                className={style["menu-img"]}
+              <BackButton
                 onClick={() => {
                   if (onBackButton) {
                     onBackButton();
                   }
                 }}
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                  <path
-                    fill="transparent"
-                    strokeWidth="2"
-                    stroke="hsl(0, 0%, 100%)"
-                    strokeLinecap="round"
-                    d="M 6.5 10 L 13.5 3.5 M 6.5 10 L 13.5 16.5"
-                  />
-                </svg>
-              </div>
+              />
             ) : null}
           </div>
         }

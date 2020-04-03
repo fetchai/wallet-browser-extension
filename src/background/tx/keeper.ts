@@ -58,7 +58,7 @@ export class BackgroundTxKeeper {
     try {
       browser.notifications.create({
         type: "basic",
-        iconUrl: browser.runtime.getURL("assets/temp-icon.svg"),
+        iconUrl: browser.runtime.getURL("assets/fetch-logo.svg"),
         title: "Tx is pending...",
         message: "Wait a second"
       });
@@ -87,7 +87,7 @@ export class BackgroundTxKeeper {
 
       browser.notifications.create({
         type: "basic",
-        iconUrl: browser.runtime.getURL("assets/temp-icon.svg"),
+        iconUrl: browser.runtime.getURL("assets/fetch-logo.svg"),
         title: "Tx succeeds",
         // TODO: Let users know the tx id?
         message: "Congratulations!"
@@ -135,7 +135,7 @@ export class BackgroundTxKeeper {
 
       browser.notifications.create({
         type: "basic",
-        iconUrl: browser.runtime.getURL("assets/temp-icon.svg"),
+        iconUrl: browser.runtime.getURL("assets/fetch-logo.svg"),
         title: "Tx failed",
         message
       });

@@ -89,6 +89,20 @@ export class KeyRing {
     ).toString();
   }
 
+  public async verifyPassword(password: string): Promise<boolean> {
+    if (!this.keyStore) return false;
+
+    try {
+      // If password is invalid, error will be thrown.
+      this.mnemonic = Buffer.from(
+        await Crypto.decrypt(this.keyStore, password)
+      ).toString();
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
+
   public async save() {
     await this.kvStore.set<KeyStore>(KeyStoreKey, this.keyStore);
   }

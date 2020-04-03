@@ -17,7 +17,8 @@ import {
   RequestTxBuilderConfigMsg,
   GetRequestedTxBuilderConfigMsg,
   ApproveTxBuilderConfigMsg,
-  RejectTxBuilderConfigMsg
+  RejectTxBuilderConfigMsg,
+  VerifyPasswordKeyRingMsg
 } from "./messages";
 import { KeyRingKeeper } from "./keeper";
 import { Address } from "@everett-protocol/cosmosjs/crypto";
@@ -47,6 +48,14 @@ export const getHandler: (keeper: KeyRingKeeper) => Handler = (
         return handleLockKeyRingMsg(keeper)(msg as LockKeyRingMsg);
       case UnlockKeyRingMsg:
         return handleUnlockKeyRingMsg(keeper)(msg as UnlockKeyRingMsg);
+      case VerifyPasswordKeyRingMsg:
+        return handleVerifyPasswordKeyRingMsg(keeper)(
+          msg as VerifyPasswordKeyRingMsg
+        );
+      case VerifyPasswordKeyRingMsg:
+        return handleVerifyPasswordKeyRingMsg(keeper)(
+          msg as VerifyPasswordKeyRingMsg
+        );
       case SetPathMsg:
         return handleSetPathMsg(keeper)(msg as SetPathMsg);
       case GetKeyMsg:
@@ -162,6 +171,16 @@ const handleUnlockKeyRingMsg: (
   return async msg => {
     return {
       status: await keeper.unlock(msg.password)
+    };
+  };
+};
+
+const handleVerifyPasswordKeyRingMsg: (
+  keeper: KeyRingKeeper
+) => InternalHandler<any> = keeper => {
+  return async msg => {
+    return {
+      success: await keeper.verifyPassword(msg.password)
     };
   };
 };

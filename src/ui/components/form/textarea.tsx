@@ -1,6 +1,6 @@
 import React, { forwardRef, useState } from "react";
 
-import styleInput from "./textarea.module.scss";
+import styleInput from "./form.module.scss";
 
 import classnames from "classnames";
 
@@ -49,7 +49,11 @@ export const TextArea = forwardRef<
       ) : null}
       <ReactStrapInput
         id={inputId}
-        className={classnames("form-control-alternative", props.className)}
+        className={classnames(
+          "form-control-alternative",
+          styleInput.formControlOverride,
+          props.className
+        )}
         type={"textarea" as any}
         innerRef={ref}
         invalid={error != null}

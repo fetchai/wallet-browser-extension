@@ -1,0 +1,20 @@
+@import "../../popup/styles/global";
+
+.form-control-label {
+  color:white;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.form-control-override {
+    color:white;
+}
+
+.white-border {
+  @extend .white-border;
+}
+
+
+.red {
+  @extend .red;
+}

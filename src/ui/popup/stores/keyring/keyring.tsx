@@ -10,7 +10,7 @@ import {
   CreateKeyMsg,
   UnlockKeyRingMsg,
   LockKeyRingMsg,
-  ClearKeyRingMsg
+  ClearKeyRingMsg, VerifyPasswordKeyRingMsg
 } from "../../../../background/keyring";
 
 import { action, observable } from "mobx";
@@ -76,6 +76,15 @@ export class KeyRingStore {
     const result = await task(sendMessage(BACKGROUND_PORT, msg));
     this.setStatus(result.status);
   }
+
+  @actionAsync
+  public async verifyPassword(password: string) {
+    const msg = VerifyPasswordKeyRingMsg.create(password);
+    const result = await task(sendMessage(BACKGROUND_PORT, msg));
+    return result.success;
+  }
+
+
 
   @actionAsync
   public async restore() {

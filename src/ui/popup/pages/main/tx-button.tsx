@@ -71,11 +71,12 @@ const DepositModal: FunctionComponent<{
         <canvas id="qrcode" ref={qrCodeRef} />
         <div style={{ flex: 1 }} />
       </div>
-      <div className={styleTxButton.address} onClick={copyAddress}>
+      <div className={styleTxButton.address}>
         <Address
           maxCharacters={28}
           lineBreakBeforePrefix={false}
           tooltipFontSize="12px"
+          bech32Address={bech32Address}
         >
           {bech32Address}
         </Address>
