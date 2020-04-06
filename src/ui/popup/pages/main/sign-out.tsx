@@ -17,7 +17,7 @@ export const SignOutButton: FunctionComponent = observer(() => {
   }, [tooltipOpen]);
 
   return (
-    <div className={style}>
+    <div className={style.wrapper}>
       <i
         id="btn-sign-out"
         className={classnames("fas", "fa-sign-out-alt", style.icon)}

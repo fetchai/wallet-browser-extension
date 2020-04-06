@@ -1,10 +1,13 @@
+@import "../../styles/var";
+
 .title {
   font-size: 24px;
   letter-spacing: -1.07px;
 }
 
 .content {
-  font-size: 16px;
-  letter-spacing: -0.71px;
-  color: #6b6b6b;
+  font-size: 15px;
+  letter-spacing: -1.71px;
+  color: $grey-main;
 }
+

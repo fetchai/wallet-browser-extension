@@ -1,10 +1,10 @@
 .wrapper {
 
-
-
   .icon {
-    font-size: 21px;
-
+        font-size: 21px;
+    position: absolute;
+    left: 5px;
+    top: 8px;
     &:hover {
       cursor: pointer;
     }

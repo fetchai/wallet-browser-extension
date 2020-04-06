@@ -1,14 +1,17 @@
+@import "../../styles/var";
+
 .container-account {
   display: flex;
   flex-direction: row;
 }
 
 .address {
-  border: solid 1px #e6e6e6;
+  border: solid 1px $grey-main;
   border-radius: 100px;
   padding: 0 16px;
   font-size: 14px;
-  color: #DCDCDC;
+  color: $grey-main;
+   line-height: 1.3;
   cursor: pointer;
   width: 100%;
 }

@@ -27,6 +27,7 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
     const [password, setPassword] = useState("");
     const [newPassword, setNewPassword] = useState("");
     const [newPasswordConfirm, setNewPasswordConfirm] = useState("");
+    const [showDeleteConfirmation, setshowDeleteConfirmation] = useState(false);
 
     const wipeFormErrors = (clearOutput = false) => {
       if (clearOutput) {
@@ -144,8 +145,18 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
       return passwordConfirmError || passwordError || newPasswordError;
     };
 
+    const handleDelete = async () => {
+      if (showDeleteConfirmation) {
+        await keyRingStore.clear();
+        history.goBack();
+      }
+      setshowDeleteConfirmation(true);
+    };
+
     const toggle = async (index: number): Promise<void> => {
       wipeFormErrors(true);
+      // wait for the expanandables before closing for better UI
+      setTimeout(setshowDeleteConfirmation.bind(null, false), 500);
       // shut the two collapsibles that are not being used.
       if (index === 1) {
         setcollapsible1(prev => !prev);
@@ -170,12 +181,23 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
             style={{ height: "24px;" }}
             className={style.backButton}
           ></BackButton>
+          <div className={style.titleWrapper}>
+            <h2>
+              {intl.formatMessage({
+                id: "settings.update-password.heading"
+              })}
+            </h2>
+          </div>
           <div className={style.security} onClick={() => toggle(1)}>
             Security & Privacy
           </div>
           <Expand open={collapsible1} duration={500} transitions={transitions}>
             <form id="form">
-              <h3 className={style.subHeading}>Change Password</h3>
+              <h3 className={style.subHeading}>
+                {intl.formatMessage({
+                  id: "settings.update-password.heading.change-password"
+                })}
+              </h3>
               <input
                 type="password"
                 className={`white-border ${style.input} ${
@@ -239,16 +261,34 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
                 {output}
               </output>
             </form>
-            <h3 className={style.subHeading}>Reset Application</h3>
+            <h3 className={style.subHeading}>
+              {" "}
+              {intl.formatMessage({
+                id: "settings.update-password.heading.reset"
+              })}
+            </h3>
+            <div className={style.warningWrapper}>
+              <span className={style.warning}>
+                {showDeleteConfirmation
+                  ? intl.formatMessage({
+                      id:
+                        "settings.update-password.button.delete-confirmation-message"
+                    })
+                  : null}
+              </span>
+            </div>
             <button
               type="submit"
               className={`blue ${style.button}`}
-              onClick={async () => {
-                await keyRingStore.clear();
-                history.goBack();
-              }}
+              onClick={handleDelete}
             >
-              Update
+              {showDeleteConfirmation
+                ? intl.formatMessage({
+                    id: "settings.update-password.button.delete"
+                  })
+                : intl.formatMessage({
+                    id: "settings.update-password.button.delete-confirm"
+                  })}
             </button>
           </Expand>
           <div className={style.about} onClick={() => toggle(2)}>

@@ -1,17 +1,26 @@
+@import "../../styles/var";
+
 .back-button {
   margin-left: 0px;
   margin-bottom: 15px;
 }
 
+.title-wrapper {
+  text-align: center;
+  margin-top: -35px;
+
+  h2 {
+    font-weight: 400;
+    color: white !important;
+  }
+}
+
 .sub-heading {
   padding-top: 0px;
   padding-top: 5px;
-  margin-bottom: 2px;
-  color: #8f8f8f;
-
-  &:hover {
-   cursor: pointer;
-  }
+  margin-bottom: 8px;
+  color: $grey-main;
+  font-size: 14px;
 }
 
 .wrapper {
@@ -26,6 +35,20 @@
 .button {
   width: 293px;
   border-radius: 5px;
+  margin-bottom: 8px;
+}
+
+.warning-wrapper {
+  text-align: center;
+  height: 23px;
+  margin-top: -13px;
+  margin-bottom: 3px;
+
+  .warning {
+    color: red;
+    font-size: 11px;
+    margin: 3px;
+  }
 }
 
 .input {
@@ -36,17 +59,25 @@
   margin-bottom: 10px;
   text-indent: 8px;
   border-width: 1px;
+  margin-bottom: 12px;
+}
+
+.heading {
+  font-weight: 600;
+  font-size: 17px;
 }
 
 .security {
-     &:hover {
-   cursor: pointer;
+  @extend .heading;
+  &:hover {
+    cursor: pointer;
   }
 }
 
 .about {
+  @extend .heading;
   margin-top: 10px;
-   &:hover {
-   cursor: pointer;
+  &:hover {
+    cursor: pointer;
   }
 }
