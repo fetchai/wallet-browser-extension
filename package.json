@@ -1,7 +1,7 @@
 {
   "name": "keplr",
   "version": "0.4.7",
-  "description": "Keplr is a browser extension wallet for the Inter blockchain ecosystem.",
+  "description": "Fetch.ai Web wallet is a browser extension wallet for the Inter blockchain ecosystem.",
   "main": "index.js",
   "scripts": {
     "build": "cross-env NODE_ENV=production webpack",
