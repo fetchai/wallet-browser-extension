@@ -41,6 +41,13 @@
   "register.welcome.content": "Open the extension and sign in to begin your interchain journey.",
   "register.welcome.button.done": "Done",
 
+   "settings.update-password.new.error.required": "New password required",
+   "settings.update-password.new.error.unchanged": "New password equals current password",
+   "settings.update-password.new.success": "Password successfully updated",
+   "settings.update-password.new.error.invalid": "Invalid password",
+   "settings.update-password.form.placeholder.original": "Old Password",
+   "settings.update-password.form.placeholder.invalid": "Invalid password",
+   "settings.update-password.form.placeholder.confirm": "Confirm New Password",
 
   "lock.input.password": "Password",
   "lock.input.password.error.required": "Empty password",

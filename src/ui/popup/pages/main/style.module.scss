@@ -10,7 +10,7 @@
   .sign-out {
     font-size: 20px;
     padding: 0 8px;
-
+    float: left; /* Float the buttons side by side */
     i {
       cursor: pointer;
 
@@ -19,18 +19,46 @@
       }
     }
   }
+
+  .sign-out2 {
+    float: left; /* Float the buttons side by side */
+  }
+
+  .settings {
+    float: left; /* Float the buttons side by side */
+  }
+}
+
+.wrapper {
+  position: absolute;
+  left: -28px;
+  top: 5px;
+
+  .settings-image {
+    width: 18px;
+    margin-right: 5px;
+
+    &:hover {
+      cursor: pointer;
+    }
+  }
 }
 
 .container-account-inner {
   display: flex;
   flex-direction: column;
   width: 100%;
-  height: 250px - 2 * $main-card-padding;
+  text-align: center;
+  height: 426px;
 }
 
 .card {
   margin-bottom: $layout-margin;
   background: none;
+
+  &.body {
+    margin-top: 5px;
+  }
 
   &:last-of-type {
     margin-bottom: 0;
@@ -38,7 +66,7 @@
 
   :global(.card-body) {
     padding: $main-card-padding;
-    background-color: rgba(255,255,255, 0.05);
+    background-color: rgba(255, 255, 255, 0.05);
     border-radius: 5px;
   }
 }

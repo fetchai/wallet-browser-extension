@@ -2,10 +2,12 @@ import React from "react";
 
 import { ToolTip } from "../tooltip";
 import { shortenAddress } from "../../../common/address";
+import style from "./address.module.scss";
 
 export interface AddressProps {
   maxCharacters: number;
   children: string;
+  dotNumber?: number;
   tooltipFontSize?: string;
   tooltipAddress?: string;
   lineBreakBeforePrefix?: boolean;
@@ -14,11 +16,9 @@ export interface AddressProps {
 
 export interface AddressState {
   copied: boolean;
-  // intl: IntlShape;
 }
 
 export class Address extends React.Component<AddressProps, AddressState> {
-  // private intl: IntlShape;
 
   constructor(props: any) {
     super(props);
@@ -48,7 +48,7 @@ export class Address extends React.Component<AddressProps, AddressState> {
     if (this.state.copied) {
       return <div key={1}>Copied!</div>;
     } else if (lineBreakBeforePrefix && tooltipAddress.length > 0) {
-      return tooltipAddress.split("1").map((item, i) => {
+      return tooltipAddress.split("1").map((item: any, i: any) => {
         if (i === 0) {
           return <div key={i}>{item + "1"}</div>;
         }
@@ -71,6 +71,7 @@ export class Address extends React.Component<AddressProps, AddressState> {
       ? this.props.tooltipAddress
       : children;
 
+    const dotNumber = this.props.dotNumber ? this.props.dotNumber : null;
     return (
       <div onClick={this.copy}>
         <ToolTip
@@ -79,14 +80,14 @@ export class Address extends React.Component<AddressProps, AddressState> {
           tooltip={
             <div
               ref={this.copyRef}
-              className="address-tooltip"
+              className={style.toolTip}
               style={{ fontSize: tooltipFontSize }}
             >
               {this.toolTipText(lineBreakBeforePrefix, tooltipAddress)}
             </div>
           }
         >
-          {shortenAddress(children, this.props.maxCharacters)}
+          {shortenAddress(children, this.props.maxCharacters, dotNumber)}
         </ToolTip>
       </div>
     );

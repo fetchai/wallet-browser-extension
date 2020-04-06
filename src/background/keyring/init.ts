@@ -7,6 +7,8 @@ import {
   SetPathMsg,
   GetKeyMsg,
   UnlockKeyRingMsg,
+  VerifyPasswordKeyRingMsg,
+     UpdatePasswordMsg,
   RequestSignMsg,
   GetRequestedMessage,
   ApproveTxBuilderConfigMsg,
@@ -35,6 +37,8 @@ export function init(
   messageManager.registerMessage(CreateKeyMsg);
   messageManager.registerMessage(LockKeyRingMsg);
   messageManager.registerMessage(UnlockKeyRingMsg);
+  messageManager.registerMessage(VerifyPasswordKeyRingMsg);
+  messageManager.registerMessage(UpdatePasswordMsg);
   messageManager.registerMessage(SetPathMsg);
   messageManager.registerMessage(GetKeyMsg);
   messageManager.registerMessage(RequestTxBuilderConfigMsg);

@@ -31,6 +31,12 @@ export const AssetView: FunctionComponent = observer(() => {
 
   return (
     <div className={styleAsset.containerAsset}>
+      <div className={styleAsset.circularLogo}>
+        <img
+          src={require("../../public/assets/fetch-circular-icon.svg")}
+          alt="Fetch.ai circular icon"
+        ></img>
+      </div>
       <div className={styleAsset.title}>
         <FormattedMessage id="main.account.message.available-balance" />
       </div>

@@ -7,19 +7,26 @@
   justify-content: space-around;
   align-items: center;
 
-  padding: 20px 0;
+  padding: 17px 0;
 
   .title {
-    font-size: 14px;
+    font-size: 17px;
     letter-spacing: -0.31px;
     text-align: center;
     color: #d3d3d3;
   }
 
+  .circular-logo {
+    width: 130px;
+    margin-bottom: 20px;
+    margin-top: 15px;
+  }
+
   .fiat {
     font-size: 36px;
     text-align: center;
-    letter-spacing: -0.8px;
+    font-wieght: 800;
+    line-height: 40px;
   }
 
   .amount {

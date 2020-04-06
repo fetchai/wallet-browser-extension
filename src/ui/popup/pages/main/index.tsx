@@ -1,20 +1,11 @@
-import React, { FunctionComponent, useCallback, useState } from "react";
-
+import React, { FunctionComponent } from "react";
 import { HeaderLayout } from "../../layouts";
-
-import { Card, CardBody, Tooltip } from "reactstrap";
-
+import { Card, CardBody } from "reactstrap";
 import style from "./style.module.scss";
-import { Menu } from "./menu";
 import { AccountView } from "./account";
 import { TxButtonView } from "./tx-button";
 import { AssetView } from "./asset";
-// import { StakeView } from "./stake";
-
 import classnames from "classnames";
-import { useStore } from "../../stores";
-import { observer } from "mobx-react";
-import { FormattedMessage } from "react-intl";
 import { SignOutButton } from "./sign-out";
 import { SettingsButton } from "./settings";
 
@@ -23,9 +14,8 @@ export const MainPage: FunctionComponent = () => {
     <HeaderLayout
       showChainName
       canChangeChainInfo
-      menuRenderer={
-        process.env.NODE_ENV === "development" ? <Menu /> : undefined
-      }
+      menuRenderer={undefined}
+      fetchIcon={true}
       rightRenderer={
         <>
           <SettingsButton />
@@ -34,7 +24,7 @@ export const MainPage: FunctionComponent = () => {
       }
     >
       <Card className={classnames(style.card)}>
-        <CardBody>
+        <CardBody className={classnames(style.body)}>
           <div className={style.containerAccountInner}>
             <AccountView />
             <AssetView />

@@ -8,20 +8,13 @@ import React, {
 } from "react";
 
 import styleTxButton from "./tx-button.module.scss";
-
 import { Button, Tooltip } from "reactstrap";
 import { Address } from "../../../components/address";
-
 import { observer } from "mobx-react";
-
 import { useStore } from "../../stores";
-
 import Modal from "react-modal";
-import { useNotification } from "../../../components/notification";
-
 import { FormattedMessage } from "react-intl";
 import { useHistory } from "react-router";
-
 import classnames from "classnames";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -37,28 +30,6 @@ const DepositModal: FunctionComponent<{
       QrCode.toCanvas(qrCodeRef.current, bech32Address);
     }
   }, [bech32Address]);
-
-  const notification = useNotification();
-
-  const copyAddress = useCallback(
-    async (e: MouseEvent) => {
-      await navigator.clipboard.writeText(bech32Address);
-      // TODO: Show success tooltip.
-      notification.push({
-        placement: "top-center",
-        className: "blue",
-        duration: 2,
-        content: "Address copied!!!!",
-        canDelete: true,
-        transition: {
-          duration: 0.25
-        }
-      });
-
-      e.preventDefault();
-    },
-    [notification, bech32Address]
-  );
 
   return (
     <div

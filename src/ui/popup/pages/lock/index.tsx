@@ -107,7 +107,12 @@ export const LockPage: FunctionComponent<Pick<
             })
           })}
         />
-        <Button type="submit" id="green" block data-loading={loading}>
+        <Button
+          type="submit"
+          id="green-no-opacity"
+          className={style.buttonUnderlay}
+          data-loading={loading}
+        >
           <FormattedMessage id="lock.button.unlock" />
         </Button>
       </Form>

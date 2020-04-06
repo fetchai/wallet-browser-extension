@@ -31,6 +31,7 @@ import {SettingsPage} from "./pages/settings";
 
 // Make sure that icon file will be included in bundle
 require("./public/assets/fetch-logo.png");
+require("./public/assets/fetch-circular-icon.svg");
 require("./public/assets/favicon-16x16.png");
 require("./public/assets/favicon-32x32.png");
 require("./public/assets/favicon-96x96.png");

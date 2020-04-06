@@ -103,6 +103,18 @@ export class KeyRing {
     }
   }
 
+  public async updatePassword(
+    password: string,
+    newPassword: string
+  ): Promise<boolean> {
+    if (!(await this.verifyPassword(password))) {
+      return false;
+    }
+    this.keyStore = await Crypto.encrypt(this.mnemonic, newPassword);
+    await this.save();
+    return true;
+  }
+
   public async save() {
     await this.kvStore.set<KeyStore>(KeyStoreKey, this.keyStore);
   }

@@ -138,6 +138,13 @@ body {
   }
 }
 
+.grey-no-opacity-hover {
+    @extend .grey-hover;
+    &:hover {
+     background-color: $grey-no-opacity
+  }
+}
+
 .blue {
   background-color: rgba(88, 135, 218, 0.3);
   border-color: rgba(88, 135, 218, 1);
@@ -163,6 +170,12 @@ body {
   cursor: not-allowed;
 }
 
+#green-no-opacity {
+   @extend .green;
+   @extend .grey-no-opacity-hover;
+  background-color: rgba(21, 49, 49, 1);
+}
+
 #green-solid
 {
   background-color: rgba(43, 181, 162, .25);
@@ -172,6 +185,9 @@ body {
 
 .lock-border {
    @extend .white-border;
+   // todo question: should we be able to see video through lock password input.
+   // uncomment beloe line across file if yes.
+   //background-image: linear-gradient(to top, #111117, #12121a) !important;
   border-radius: 5px;
   font-size: 18px;
 }
@@ -179,6 +195,7 @@ body {
 .lock-border:focus {
    @extend .white-border;
   background: none;
+    //background-image: linear-gradient(to top, #111117, #12121a) !important;;
   font-size: 18px;
 }
 
@@ -199,8 +216,6 @@ body {
   }
 }
 
-
-
 button[data-loading="true"] {
   color: transparent !important;
   pointer-events: none;
@@ -209,7 +224,6 @@ button[data-loading="true"] {
     position: absolute !important;
     left: calc(50% - (1em / 2));
     top: calc(50% - (1em / 2));
-
     -webkit-animation: spinAround 0.5s infinite linear;
     animation: spinAround 0.5s infinite linear;
     border: 2px solid #dbdbdb;

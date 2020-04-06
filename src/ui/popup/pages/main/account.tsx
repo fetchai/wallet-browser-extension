@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useCallback } from "react";
+import React, { FunctionComponent } from "react";
 
 import { Address } from "../../../components/address";
 
@@ -6,33 +6,15 @@ import styleAccount from "./account.module.scss";
 
 import { observer } from "mobx-react";
 import { useStore } from "../../stores";
-import { useNotification } from "../../../components/notification";
 
 export const AccountView: FunctionComponent = observer(() => {
   const { accountStore } = useStore();
-
-  // const notification = useNotification();
-  //
-  // const copyAddress = useCallback(async () => {
-  //   await navigator.clipboard.writeText(accountStore.bech32Address);
-  //   // TODO: Show success tooltip.
-  //   notification.push({
-  //     placement: "top-center",
-  //     className: "green-solid",
-  //     duration: 2,
-  //     content: "AddressZZ copied!",
-  //     canDelete: true,
-  //     transition: {
-  //       duration: 0.25
-  //     }
-  //   });
-  // }, [notification, accountStore.bech32Address]);
 
   return (
     <div className={styleAccount.containerAccount}>
       <div style={{ flex: 1 }} />
       <div className={styleAccount.address}>
-        <Address maxCharacters={22} lineBreakBeforePrefix={false}>
+        <Address maxCharacters={28} lineBreakBeforePrefix={false} dotNumber={9} bech32Address={accountStore.bech32Address}>
           {accountStore.isAddressFetching ? "..." : accountStore.bech32Address}
         </Address>
       </div>

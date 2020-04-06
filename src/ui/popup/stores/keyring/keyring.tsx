@@ -10,7 +10,7 @@ import {
   CreateKeyMsg,
   UnlockKeyRingMsg,
   LockKeyRingMsg,
-  ClearKeyRingMsg, VerifyPasswordKeyRingMsg
+  ClearKeyRingMsg, VerifyPasswordKeyRingMsg, UpdatePasswordMsg
 } from "../../../../background/keyring";
 
 import { action, observable } from "mobx";
@@ -84,7 +84,12 @@ export class KeyRingStore {
     return result.success;
   }
 
-
+  @actionAsync
+  public async updatePassword(password: string, newPassword: string) {
+    const msg = UpdatePasswordMsg.create(password, newPassword);
+    const result = await task(sendMessage(BACKGROUND_PORT, msg));
+    return result.success;
+  }
 
   @actionAsync
   public async restore() {
@@ -105,12 +110,6 @@ export class KeyRingStore {
    */
   @actionAsync
   public async clear() {
-    if (process.env.NODE_ENV !== "development") {
-      throw new Error(
-        "do not use the clear function unless you are in a development environment"
-      );
-    }
-
     const msg = ClearKeyRingMsg.create();
     const result = await task(sendMessage(BACKGROUND_PORT, msg));
     this.setStatus(result.status);

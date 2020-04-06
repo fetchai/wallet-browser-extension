@@ -263,6 +263,45 @@ export class VerifyPasswordKeyRingMsg extends Message<{
   }
 }
 
+export class UpdatePasswordMsg extends Message<{
+  success: boolean;
+}> {
+  public static type() {
+    return "update-password-msg";
+  }
+
+  public static create(
+    password: string,
+    newPassword: string
+  ): UpdatePasswordMsg {
+    const msg = new UpdatePasswordMsg();
+    msg.password = password;
+    msg.newPassword = newPassword;
+    return msg;
+  }
+
+  validateBasic(): void {
+    if (!this.password) {
+      throw new Error("password not set");
+    }
+
+    if (!this.newPassword) {
+      throw new Error("new password not set");
+    }
+  }
+
+  public password = "";
+  public newPassword = "";
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return UpdatePasswordMsg.type();
+  }
+}
+
 export class SetPathMsg extends Message<{ success: boolean }> {
   public static type() {
     return "set-path";

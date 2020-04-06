@@ -14,28 +14,24 @@ export const SettingsButton: FunctionComponent = observer(() => {
   }, [tooltipOpen]);
 
   return (
-    <div className={style.right}>
-      <div style={{ flex: 1 }} />
-      <div className={style.signOut}>
-        <img
-          src={require("../../public/assets/settings-icon.svg")}
-          id="btn-settings"
-          className="fas fa-sign-out-alt"
-          onClick={() => {
-            history.push("/settings");
-          }}
-        ></img>
-        <Tooltip
-          placement="bottom"
-          isOpen={tooltipOpen}
-          target="btn-settings"
-          toggle={toggleTooltip}
-          fade
-        >
-          <FormattedMessage id="main.menu.settings" />
-        </Tooltip>
-      </div>
-      <div style={{ flex: 1 }} />
+    <div className={style.wrapper}>
+      <img
+        src={require("../../public/assets/settings-icon.svg")}
+        id="btn-settings"
+        className={`fas fa-sign-out-alt ${style.settingsImage}`}
+        onClick={() => {
+          history.push("/settings");
+        }}
+      ></img>
+      <Tooltip
+        placement="bottom"
+        isOpen={tooltipOpen}
+        target="btn-settings"
+        toggle={toggleTooltip}
+        fade
+      >
+        <FormattedMessage id="main.menu.settings" />
+      </Tooltip>
     </div>
   );
 });

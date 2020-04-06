@@ -7,6 +7,7 @@ import classnames from "classnames";
 
 import { FormattedMessage, useIntl } from "react-intl";
 import { NunWords } from "./index";
+import { strongPassword } from "../../../../common/strong-password";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const bip39 = require("bip39");
 
@@ -36,8 +37,6 @@ export const RegisterInPage: FunctionComponent<{
       confirmPassword: ""
     }
   });
-
-
 
   useEffect(() => {
     if (!isRecover) {
@@ -164,7 +163,9 @@ export const RegisterInPage: FunctionComponent<{
             validate: (password: string): string | undefined => {
               const strong = strongPassword(password);
               if (strong !== true) {
-                return strong;
+                return intl.formatMessage({
+                  id: strong
+                });
               }
             }
           })}

@@ -1,8 +1,52 @@
 .back-button {
-      margin-left: 0px;
-    margin-bottom: 10px;
+  margin-left: 0px;
+  margin-bottom: 15px;
 }
 
-.subheading {
+.sub-heading {
+  padding-top: 0px;
+  padding-top: 5px;
+  margin-bottom: 2px;
+  color: #8f8f8f;
 
+  &:hover {
+   cursor: pointer;
+  }
+}
+
+.wrapper {
+  background-color: rgba(255, 255, 255, 0.05);
+  padding: 10px;
+  border-radius: 10px;
+  margin-top: 5px;
+  overflow: hidden;
+  height: 426px;
+}
+
+.button {
+  width: 293px;
+  border-radius: 5px;
+}
+
+.input {
+  color: white;
+  background: none;
+  border-radius: 5px;
+  width: 293px;
+  margin-bottom: 10px;
+  text-indent: 8px;
+  border-width: 1px;
+}
+
+.security {
+     &:hover {
+   cursor: pointer;
+  }
+}
+
+.about {
+  margin-top: 10px;
+   &:hover {
+   cursor: pointer;
+  }
 }

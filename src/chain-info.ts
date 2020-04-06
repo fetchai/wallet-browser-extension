@@ -22,7 +22,7 @@ export const Currencies: {
   readonly [currency: string]: Currency;
 } = {
   atom: {
-    coinDenom: "fet",
+    coinDenom: "FET",
     coinMinimalDenom: "nanofet",
     coinDecimals: 9,
     coinGeckoId: "fetch-ai"
