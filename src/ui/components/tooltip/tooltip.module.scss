@@ -1,4 +1,5 @@
-$arrow-size: 9px;
+$arrow-size: 5px;
+$arrow-large-size: 19px;
 $dark: rgba(0, 0, 0, 0.75);
 $bright:  lightgray;
 
@@ -9,8 +10,19 @@ $bright:  lightgray;
   }
 
   .popper {
+
+    &.large-arrow {
+      $arrow-size: $arrow-large-size;
+    }
+
     margin-top: $arrow-size;
     margin-bottom: $arrow-size;
+
+    &.large{
+      margin-top: $arrow-size;
+    margin-bottom: $arrow-size;
+    }
+
     background-color: $dark;
     padding: 4px;
     border-radius: 10px;

@@ -3,6 +3,7 @@ import React from "react";
 import { ToolTip } from "../tooltip";
 import { shortenAddress } from "../../../common/address";
 import style from "./address.module.scss";
+import classnames from "classnames";
 
 export interface AddressProps {
   maxCharacters: number;
@@ -19,7 +20,6 @@ export interface AddressState {
 }
 
 export class Address extends React.Component<AddressProps, AddressState> {
-
   constructor(props: any) {
     super(props);
     this.copy = this.copy.bind(this);
@@ -75,12 +75,13 @@ export class Address extends React.Component<AddressProps, AddressState> {
     return (
       <div onClick={this.copy}>
         <ToolTip
-          trigger="hover"
+          show={true}
+          trigger="static"
           options={{ placement: "bottom" }}
           tooltip={
             <div
               ref={this.copyRef}
-              className={style.toolTip}
+              className={classnames(style.toolTip)}
               style={{ fontSize: tooltipFontSize }}
             >
               {this.toolTipText(lineBreakBeforePrefix, tooltipAddress)}

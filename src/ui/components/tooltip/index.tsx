@@ -114,7 +114,7 @@ export class ToolTip extends React.Component<ToolTipProps, ToolTipState> {
         {/* Parent div of tooltip */}
         <div
           ref={this.tooltipRef}
-          className="popper"
+          className="popper large-arrow"
           style={{
             visibility: show ? "visible" : "hidden",
             opacity: show ? 1 : 0

@@ -5,7 +5,9 @@ import { Tooltip } from "reactstrap";
 import { FormattedMessage } from "react-intl";
 import { useHistory } from "react-router";
 import classnames from "classnames";
-import style from "./sign-out.module.scss";
+import style from "./style.module.scss";
+import signOutStyle from "./sign-out.module.scss";
+import {ToolTip} from "../../../components/tooltip";
 
 export const SignOutButton: FunctionComponent = observer(() => {
   const { keyRingStore } = useStore();
@@ -17,24 +19,32 @@ export const SignOutButton: FunctionComponent = observer(() => {
   }, [tooltipOpen]);
 
   return (
-    <div className={style.wrapper}>
-      <i
+    <div className={signOutStyle.wrapper}>
+
+
+         <ToolTip
+        show={true}
+        trigger="static"
+        options={{ placement: "bottom" }}
+        tooltip={
+          <div
+            className={classnames(style.toolTip)}
+            style={{ fontSize: "10px" }}
+          >
+            <FormattedMessage id="main.menu.sign-out" />
+          </div>
+        }
+      >
+            <i
         id="btn-sign-out"
-        className={classnames("fas", "fa-sign-out-alt", style.icon)}
+        className={classnames("fas", "fa-sign-out-alt", signOutStyle.icon)}
         onClick={() => {
           keyRingStore.lock();
           history.goBack();
         }}
       />
-      <Tooltip
-        placement="bottom"
-        isOpen={tooltipOpen}
-        target="btn-sign-out"
-        toggle={toggleTooltip}
-        fade
-      >
-        <FormattedMessage id="main.menu.sign-out" />
-      </Tooltip>
+      </ToolTip>
+
     </div>
   );
 });
