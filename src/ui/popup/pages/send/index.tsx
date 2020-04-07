@@ -130,20 +130,20 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
       setAllBalance(allBalance);
     }, []);
 
-    // const fee = watch("fee");
-    // const amount = watch("amount");
-    // const denom = watch("denom");
+    const fee = watch("fee");
+    const amount = watch("amount");
+    const denom = watch("denom");
 
-    const balanceValidate = (fee: string, denom: string) => {
+    const balanceValidate = (fee: Coin | undefined, denom: string) => {
       if (allBalance) {
         setValue("amount", "");
 
         const currency = getCurrencyFromDenom(denom);
         if (fee && denom && currency) {
           let allAmount = new Int(0);
-          for (const balacne of accountStore.assets) {
-            if (balacne.denom === currency.coinMinimalDenom) {
-              allAmount = balacne.amount;
+          for (const balance of accountStore.assets) {
+            if (balance.denom === currency.coinMinimalDenom) {
+              allAmount = balance.amount;
               break;
             }
           }
@@ -166,21 +166,25 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
       }
     };
 
-    const amountValidate = (amount, denom, fee) => {
+    const amountValidate = (
+      amount: string,
+      denom: string,
+      fee: Coin | undefined
+    ) => {
       const feeAmount = fee ? fee.amount : new Int(0);
       const currency = getCurrencyFromDenom(denom);
       try {
         if (currency && amount) {
           let find = false;
-          for (const balacne of accountStore.assets) {
-            if (balacne.denom === currency.coinMinimalDenom) {
+          for (const balance of accountStore.assets) {
+            if (balance.denom === currency.coinMinimalDenom) {
               let precision = new Dec(1);
               for (let i = 0; i < currency.coinDecimals; i++) {
                 precision = precision.mul(new Dec(10));
               }
 
               const amountInt = new Dec(amount).mul(precision).truncate();
-              if (amountInt.add(feeAmount).gt(balacne.amount)) {
+              if (amountInt.add(feeAmount).gt(balance.amount)) {
                 setError(
                   "amount",
                   "not-enough-fund",
@@ -270,12 +274,6 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
           <form
             //TODO change denom back from this to selected currency rather than being just called FET.
             onSubmit={e => {
-              debugger;
-              let denom = "FET";
-              //
-              let fee = e.target.elements[0].value;
-              let amount = e.target.elements[1].value;
-              debugger;
               balanceValidate(fee, denom);
               amountValidate(amount, denom, fee);
               // React form hook doesn't block submitting when error is delivered outside.
@@ -405,7 +403,9 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
                   currencies={getCurrencies(chainStore.chainInfo.currencies)}
                   label={intl.formatMessage({ id: "send.input.amount" })}
                   balances={undefined}
-                  className={style.amount}
+                  onChange={() => {
+                    clearError("amount");
+                  }}
                   balanceText={intl.formatMessage({
                     id: "send.input-button.balance"
                   })}

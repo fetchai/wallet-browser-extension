@@ -28,6 +28,7 @@ export const AssetView: FunctionComponent = observer(() => {
     accountStore.assets,
     nativeCurrency.coinMinimalDenom
   );
+ debugger;
 
   return (
     <div className={styleAsset.containerAsset}>

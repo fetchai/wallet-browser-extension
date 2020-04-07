@@ -120,7 +120,7 @@ export const SignPage: FunctionComponent<RouteComponentProps<{
             }
           : undefined
       }
-      style={{ background: "purple" }}
+      style={{ background: "none" }}
     >
       <div className={style.container}>
         <div className={classnames(style.tabs)}>
@@ -160,7 +160,7 @@ export const SignPage: FunctionComponent<RouteComponentProps<{
         <div style={{ flex: 1 }} />
         <div className={style.buttons}>
           <Button
-            className={style.button}
+            className={classnames(style.button, "blue")}
             color="danger"
             disabled={
               signing.message == null ||
@@ -176,7 +176,7 @@ export const SignPage: FunctionComponent<RouteComponentProps<{
             })}
           </Button>
           <Button
-            className={style.button}
+            className={classnames(style.button, "green")}
             color="primary"
             disabled={
               signing.message == null ||

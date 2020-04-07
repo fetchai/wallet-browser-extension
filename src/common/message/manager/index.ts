@@ -58,10 +58,6 @@ export class MessageManager {
       }
 
       const msgCls = this.registeredMsgType.get(message.type);
-      debugger;
-      debugger;
-      debugger;
-      debugger;
       if (!msgCls) {
         sendResponse({
           error: `Unregistered msg type ${message.type}`

@@ -6,9 +6,11 @@
 .input {
   box-shadow: $input-alternative-box-shadow !important;
 
+  border:none;
   &:focus {
     box-shadow: $input-focus-alternative-box-shadow !important;
     background: none;
+    border:none;
 
     & + .select {
       box-shadow: $input-focus-alternative-box-shadow !important;

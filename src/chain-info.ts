@@ -21,10 +21,10 @@ export interface Currency {
 export const Currencies: {
   readonly [currency: string]: Currency;
 } = {
-  atom: {
-    coinDenom: "FET",
-    coinMinimalDenom: "nanofet",
-    coinDecimals: 9,
+  stake: {
+    coinDenom: "stake",
+    coinMinimalDenom: "stake",
+    coinDecimals: 6,
     coinGeckoId: "fetch-ai"
   },
   kava: {
@@ -67,9 +67,9 @@ export const NativeChainInfos: ChainInfo[] = [
   {
     rpc: "http://127.0.0.1:26657",
     rest: "http://127.0.0.1:1317",
-    chainId: "cosmoshub-3",
-    chainName: "Cosmos",
-    nativeCurrency: "atom",
+    chainId: "testing",
+    chainName: "testing",
+    nativeCurrency: "stake",
     walletUrl:
       process.env.NODE_ENV === "production"
         ? "https://wallet.keplr.app/#/cosmoshub-3"
@@ -80,8 +80,8 @@ export const NativeChainInfos: ChainInfo[] = [
         : "http://127.0.0.1:1317/#/cosmoshub-3",
     bip44: new BIP44(44, 118, 0),
     bech32Config: defaultBech32Config("cosmos"),
-    currencies: ["atom"],
-    feeCurrencies: ["atom"],
+    currencies: ["stake"],
+    feeCurrencies: ["stake"],
     coinType: 118
   },
   {

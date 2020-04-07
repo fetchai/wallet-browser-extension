@@ -23,6 +23,9 @@
 
 .amount {
   border:none;
+   &:focus {
+   border:none;
+  }
 }
 
 .red {
