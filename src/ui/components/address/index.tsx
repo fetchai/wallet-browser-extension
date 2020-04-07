@@ -75,8 +75,7 @@ export class Address extends React.Component<AddressProps, AddressState> {
     return (
       <div onClick={this.copy}>
         <ToolTip
-          show={true}
-          trigger="static"
+          trigger="hover"
           options={{ placement: "bottom" }}
           tooltip={
             <div

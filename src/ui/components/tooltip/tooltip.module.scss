@@ -10,11 +10,6 @@ $bright:  lightgray;
   }
 
   .popper {
-
-    &.large-arrow {
-      $arrow-size: $arrow-large-size;
-    }
-
     margin-top: $arrow-size;
     margin-bottom: $arrow-size;
 

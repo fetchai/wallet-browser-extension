@@ -130,11 +130,11 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
       setAllBalance(allBalance);
     }, []);
 
-    const fee = watch("fee");
-    const amount = watch("amount");
-    const denom = watch("denom");
+    // const fee = watch("fee");
+    // const amount = watch("amount");
+    // const denom = watch("denom");
 
-    useEffect(() => {
+    const balanceValidate = (fee: string, denom: string) => {
       if (allBalance) {
         setValue("amount", "");
 
@@ -164,9 +164,9 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
           }
         }
       }
-    }, [fee, accountStore.assets, allBalance, setValue, denom]);
+    };
 
-    useEffect(() => {
+    const amountValidate = (amount, denom, fee) => {
       const feeAmount = fee ? fee.amount : new Int(0);
       const currency = getCurrencyFromDenom(denom);
       try {
@@ -211,7 +211,7 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
       } catch {
         clearError("amount");
       }
-    }, [accountStore.assets, amount, clearError, denom, fee, intl, setError]);
+    };
 
     const recipient = watch("recipient");
     const ens = useENS(chainStore.chainInfo, recipient);
@@ -268,7 +268,16 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
             className={style.backButton}
           ></BackButton>
           <form
+            //TODO change denom back from this to selected currency rather than being just called FET.
             onSubmit={e => {
+              debugger;
+              let denom = "FET";
+              //
+              let fee = e.target.elements[0].value;
+              let amount = e.target.elements[1].value;
+              debugger;
+              balanceValidate(fee, denom);
+              amountValidate(amount, denom, fee);
               // React form hook doesn't block submitting when error is delivered outside.
               // So, jsut check if errors exists manually, and if it exists, do nothing.
               if (errors.amount && errors.amount.message) {
@@ -343,6 +352,9 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
               <div>
                 <Input
                   type="text"
+                  onChange={() => {
+                    clearError("recipient");
+                  }}
                   className={classnames(
                     "white-border",
                     hasError(errors, ens) ? style.red : false
@@ -393,6 +405,7 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
                   currencies={getCurrencies(chainStore.chainInfo.currencies)}
                   label={intl.formatMessage({ id: "send.input.amount" })}
                   balances={undefined}
+                  className={style.amount}
                   balanceText={intl.formatMessage({
                     id: "send.input-button.balance"
                   })}
