@@ -59,7 +59,7 @@ html {
   height: $popup-size-height;
   margin: auto;
   background-attachment: fixed;
-  background-image: linear-gradient(to top, #0d0d0d, #1e2844);
+  background-image: linear-gradient(to top, #0d0d0d, $fetch-blue);
   height: 100%;
   overflow: auto;
 }
@@ -178,7 +178,7 @@ body {
   background-color: rgba(21, 49, 49, 1);
 }
 
-#green-solid
+ #green-solid, .green-solid
 {
   cursor: pointer;
   background-color: rgba(43, 181, 162, .25) !important;

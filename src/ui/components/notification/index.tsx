@@ -3,6 +3,7 @@ import React, { FunctionComponent } from "react";
 import { Variants } from "framer-motion";
 
 import "./style.scss";
+import style from "./style.scss";
 import { NotificationElementProps } from "./element";
 import { NotificationContainer } from "./container";
 import { useNotificationStore } from "./store";
@@ -76,6 +77,10 @@ export const NotificationProvider: FunctionComponent = observer(props => {
   const notificationStore = useNotificationStore();
 
   const push = (property: NotificationProperty): string | undefined => {
+    // all bootstrap notifications have been given property hide and hidden as part of fetch
+    // modification because they don't fit with our new GUI.
+    // property["className"] = style.hide;
+
     if (!property.id) {
       const arr = new Uint8Array(8);
       crypto.getRandomValues(arr);
@@ -91,7 +96,6 @@ export const NotificationProvider: FunctionComponent = observer(props => {
     } else {
       throw new Error("Invalid placement for notification");
     }
-
     return property.id;
   };
 

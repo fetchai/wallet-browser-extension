@@ -87,12 +87,12 @@
   "fee.button.set": "Set Fee",
 
   "sign.tab.details": "Details",
-  "sign.tab.data": "Data",
+  "sign.tab.data": "Raw",
   "sign.list.messages.label": "Messages",
   "sign.info.fee": "Fee",
   "sign.info.memo": "Memo",
   "sign.button.approve": "Approve",
-  "sign.button.reject": "Reject",
+  "sign.button.cancel": "Cancel",
 
   "sign.list.message.cosmos-sdk/MsgSend.title": "Send",
   "sign.list.message.cosmos-sdk/MsgSend.content": "<b>{recipient}</b> will receive <b>{amount}</b>",
@@ -102,8 +102,8 @@
   "sign.list.message.cosmos-sdk/MsgUndelegate.content": "Undelegate <b>{amount}</b> from <b>{validator}</b>{br}Asset will be liquid after unbonding period",
   "sign.list.message.cosmos-sdk/MsgWithdrawDelegatorReward.title": "Claim Staking Reward",
   "sign.list.message.cosmos-sdk/MsgWithdrawDelegatorReward.content": "Claim pending staking reward from <b>{validator}</b>",
-
   "fee-buttons.select.low": "Low",
   "fee-buttons.select.average": "Average",
-  "fee-buttons.select.high": "High"
+  "fee-buttons.select.high": "High",
+  "strap-line": "Make it happen"
 }

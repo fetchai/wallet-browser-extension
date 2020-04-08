@@ -6,12 +6,10 @@ import { AppIntlProvider } from "./language";
 import "./styles/global.scss";
 
 import { HashRouter, Route, RouteComponentProps } from "react-router-dom";
-
 import { RegisterPage } from "./pages/register";
 import { MainPage } from "./pages/main";
 import { LockPage } from "./pages/lock";
 import { SendPage } from "./pages/send";
-
 import { Banner } from "./components/banner";
 
 import {
@@ -21,13 +19,13 @@ import {
 
 import { configure } from "mobx";
 import { observer } from "mobx-react";
-
+import { useIntl } from "react-intl";
 import { StoreProvider, useStore } from "./stores";
 import { KeyRingStatus } from "./stores/keyring";
 import { SignPage } from "./pages/sign";
 import { FeePage } from "./pages/fee";
 import Modal from "react-modal";
-import {SettingsPage} from "./pages/settings";
+import { SettingsPage } from "./pages/settings";
 
 // Make sure that icon file will be included in bundle
 require("./public/assets/fetch-logo.png");
@@ -67,6 +65,7 @@ Modal.defaultStyles = {
 const StateRenderer: FunctionComponent<RouteComponentProps> = observer(
   ({ location }) => {
     const { keyRingStore } = useStore();
+    const intl = useIntl();
 
     if (keyRingStore.status === KeyRingStatus.UNLOCKED) {
       return <MainPage />;
@@ -80,9 +79,10 @@ const StateRenderer: FunctionComponent<RouteComponentProps> = observer(
       return (
         <div style={{ height: "100%" }}>
           <Banner
-            icon={require("./public/assets/fetch-logo.svg")}
-            logo={require("./public/assets/fetch-logo.png")}
-            subtitle="Wallet for the Interchain2"
+            logo={require("./public/assets/fetch-logo.svg")}
+            subtitle={intl.formatMessage({
+              id: "strap-line"
+            })}
           />
         </div>
       );
@@ -90,9 +90,10 @@ const StateRenderer: FunctionComponent<RouteComponentProps> = observer(
       return (
         <div style={{ height: "100%" }}>
           <Banner
-            icon={require("./public/assets/fetch-logo.svg")}
             logo={require("./public/assets/fetch-logo.png")}
-            subtitle="Wallet for the Interchain1"
+            subtitle={intl.formatMessage({
+              id: "strap-line"
+            })}
           />
         </div>
       );

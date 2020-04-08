@@ -15,7 +15,7 @@ export interface CoinInputProps {
   currencies: Currency[];
   balances?: Coin[];
   balanceText?: string;
-
+  clearError?: any;
   className?: string;
   label?: string;
   error?: string;
@@ -49,7 +49,8 @@ export const CoinInput: FunctionComponent<CoinInputProps> = props => {
     error,
     input,
     select,
-    onChangeAllBanace
+    onChangeAllBanace,
+    clearError
   } = props;
 
   const [currency, setCurrency] = useState<Currency | undefined>();
@@ -172,7 +173,8 @@ export const CoinInput: FunctionComponent<CoinInputProps> = props => {
           error ? style.red : false,
           {
             disabled: allBalance
-        })}
+          }
+        )}
       >
         <Input
           id={styleCoinInput.formControlOverride}
@@ -181,6 +183,10 @@ export const CoinInput: FunctionComponent<CoinInputProps> = props => {
             styleCoinInput.input,
             error ? style.red : false
           )}
+
+          onChange={() => {
+            clearError("amount");
+          }}
           type="number"
           step={step}
           name={input.name}
@@ -188,7 +194,7 @@ export const CoinInput: FunctionComponent<CoinInputProps> = props => {
           disabled={allBalance}
           autoComplete="off"
         />
-        <span className={styleCoinInput.fet}>FET</span>
+        <span className={styleCoinInput.fet}>stake</span>
         <Input
           type="select"
           style={{ display: "none" }}

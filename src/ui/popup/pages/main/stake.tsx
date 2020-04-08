@@ -137,6 +137,7 @@ export const StakeView: FunctionComponent = observer(() => {
               notification.push({
                 placement: "top-center",
                 type: "warning",
+                className: styleStake.hide,
                 duration: 5,
                 content: `Fail to withdraw rewards: ${e.message}`,
                 canDelete: true,

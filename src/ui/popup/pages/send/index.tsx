@@ -220,12 +220,6 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
     const recipient = watch("recipient");
     const ens = useENS(chainStore.chainInfo, recipient);
 
-    useEffect(() => {
-      if (isValidENS(recipient)) {
-        triggerValidation({ name: "recipient" });
-      }
-    }, [ens, recipient, triggerValidation]);
-
     const switchENSErrorToIntl = (e: Error) => {
       if (e instanceof InvalidENSNameError) {
         return intl.formatMessage({
@@ -274,6 +268,10 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
           <form
             //TODO change denom back from this to selected currency rather than being just called FET.
             onSubmit={e => {
+              if (isValidENS(recipient)) {
+                triggerValidation({ name: "recipient" });
+              }
+
               balanceValidate(fee, denom);
               amountValidate(amount, denom, fee);
               // React form hook doesn't block submitting when error is delivered outside.
@@ -327,14 +325,15 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
                         },
                         e => {
                           history.replace("/");
+
                           notification.push({
                             type: "danger",
                             content: e.toString(),
-                            duration: 5,
+                            duration: 90,
                             canDelete: true,
                             placement: "top-center",
                             transition: {
-                              duration: 0.25
+                              duration: 3
                             }
                           });
                         },
@@ -355,6 +354,7 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
                   }}
                   className={classnames(
                     "white-border",
+                    style.offWhiteAutoFill,
                     hasError(errors, ens) ? style.red : false
                   )}
                   label={intl.formatMessage({ id: "send.input.recipient" })}
@@ -402,10 +402,8 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
                 <CoinInput
                   currencies={getCurrencies(chainStore.chainInfo.currencies)}
                   label={intl.formatMessage({ id: "send.input.amount" })}
+                  clearError={clearError}
                   balances={undefined}
-                  onChange={() => {
-                    clearError("amount");
-                  }}
                   balanceText={intl.formatMessage({
                     id: "send.input-button.balance"
                   })}
@@ -441,7 +439,11 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
                 />
                 <TextArea
                   label={intl.formatMessage({ id: "send.input.memo" })}
-                  className={classnames("white-border", style.input)}
+                  className={classnames(
+                    "white-border",
+                    style.offWhiteAutoFill,
+                    style.input
+                  )}
                   name="memo"
                   rows={2}
                   style={{ resize: "none" }}

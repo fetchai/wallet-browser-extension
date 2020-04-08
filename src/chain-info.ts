@@ -9,7 +9,7 @@ export interface Currency {
   coinMinimalDenom: string;
   coinDecimals: number;
   /**
-   * This is used to fetch asset's fiat value from coingecko.
+   * This is used to stakech asset's fiat value from coingecko.
    * You can get id from https://api.coingecko.com/api/v3/coins/list.
    */
   coinGeckoId?: string;
@@ -49,7 +49,6 @@ export interface ChainInfo {
   readonly walletUrlForStaking?: string;
   readonly bip44: BIP44;
   readonly bech32Config: Bech32Config;
-
   readonly currencies: string[];
   /**
    * This indicates which coin or token can be used for fee to send transaction.

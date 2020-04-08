@@ -60,7 +60,7 @@ export class BackgroundTxKeeper {
         type: "basic",
         iconUrl: browser.runtime.getURL("assets/fetch-logo.svg"),
         title: "Tx is pending...",
-        message: "Wait a second"
+        message: ""
       });
 
       if (mode === "commit") {
@@ -88,9 +88,9 @@ export class BackgroundTxKeeper {
       browser.notifications.create({
         type: "basic",
         iconUrl: browser.runtime.getURL("assets/fetch-logo.svg"),
-        title: "Tx succeeds",
+        title: "Transaction succeeded",
         // TODO: Let users know the tx id?
-        message: "Congratulations!"
+        message: ""
       });
     } catch (e) {
       console.log(e);
@@ -136,7 +136,7 @@ export class BackgroundTxKeeper {
       browser.notifications.create({
         type: "basic",
         iconUrl: browser.runtime.getURL("assets/fetch-logo.svg"),
-        title: "Tx failed",
+        title: "Transaction failed",
         message
       });
     }

@@ -1,22 +1,44 @@
-# Keplr Browser Extension
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Twitter: everettprotocol](https://img.shields.io/twitter/follow/everettprotocol.svg?style=social)](https://twitter.com/everettprotocol)
+## usage
 
-> Keplr is a browser extension wallet for the Inter blockchain ecosystem.
->
-This repository is still under development
+git clone the repository
 
-## Dev
-```sh
-npm run dev
+```
+npm install
 ``` 
-Extension's build output is placed in `/dist`, and you can check out [this page](https://developer.chrome.com/extensions/getstarted) for installing the developing extension.  
 
-You can add your chain by adding the chain infomation into `chain-info.ts`. 
+```
+npm run dev
+```
 
-## Author
+### Run Cosmos locally
 
-👤 **everett-protocol**
+- Run a local instance of GAIA, with an account with a currency called "stake" specified in the genesis file. 
+- Ensure the Cosmos RPC is started on the correct port as follows
 
-* Twitter: [@everettprotocol](https://twitter.com/everettprotocol)
-* Github: [@everett-protocol](https://github.com/everett-protocol)
+```
+gaiad start --rpc.laddr tcp://0.0.0.0:26657 
+```
+
+- If it is started on a different port change port ("26657") number in src/chain-info.ts to the desired port
+- Navigate to chrome://extensions; select "developer mode"; select "Load unpacked"; choose /dist 
+- After creating an account use gaiacli to add funds to that address 
+
+```
+ gaiacli tx send <from address> <your address>  10000000stake --chain-id testing
+```
+
+
+### changing this currency in chain-info (optional)
+
+- To change currency name replace all instances of string "stake" in src/chain-info.ts file from to named currency eg fet
+- In src/ui/components/form/coin-input.tsx Change FET in line <span className={styleCoinInput.fet}>FET</span> to your chosen currency name eg stake
+- Available balance current price refers to value of fet from coingecko. 
+- To change the currency change the "coinGeckoId" variable in src/chain-info.ts to the coin gecko id of the desired currency. 
+- After making changes rebuild with the following command
+
+```
+npm run dev
+```
+
+
+

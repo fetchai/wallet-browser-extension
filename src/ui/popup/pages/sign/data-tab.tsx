@@ -1,5 +1,4 @@
 import React, { FunctionComponent } from "react";
-
 import style from "./style.module.scss";
 
 export const DataTab: FunctionComponent<{
@@ -13,6 +12,5 @@ export const DataTab: FunctionComponent<{
       prettyMessage = message;
     }
   }
-
   return <pre className={style.message}>{prettyMessage}</pre>;
 };

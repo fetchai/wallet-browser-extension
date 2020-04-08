@@ -21,6 +21,14 @@
   height: calc(2.75rem + 2px) !important;
 }
 
+
+.off-white-Auto-fill:-webkit-autofill,
+.off-white-Auto-fill:-webkit-autofill:hover,
+.off-white-Auto-fill:-webkit-autofill:focus,
+.off-white-Auto-fill:-webkit-autofill:active  {
+    -webkit-box-shadow: 0 0 0 30px #2b3246 inset !important;
+}
+
 .amount {
   border:none;
    &:focus {

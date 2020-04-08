@@ -109,9 +109,7 @@ export const TxButtonView: FunctionComponent = observer(() => {
        */}
       <Button
         id="green"
-        className={classnames(styleTxButton.button, "green", {
-          disabled: accountStore.assets.length !== 0
-        })}
+        className={classnames(styleTxButton.button, "green")}
         outline
         onClick={onSendButton}
       >
