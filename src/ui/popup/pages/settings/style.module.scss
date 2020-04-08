@@ -67,17 +67,15 @@
   font-size: 17px;
 }
 
-.security {
+.main-button {
   @extend .heading;
+   margin-top: 10px;
   &:hover {
     cursor: pointer;
   }
 }
 
-.about {
-  @extend .heading;
+.about-section {
   margin-top: 10px;
-  &:hover {
-    cursor: pointer;
-  }
+    margin-left: 5px;
 }

@@ -10,7 +10,11 @@ import {
   CreateKeyMsg,
   UnlockKeyRingMsg,
   LockKeyRingMsg,
-  ClearKeyRingMsg, VerifyPasswordKeyRingMsg, UpdatePasswordMsg
+  ClearKeyRingMsg,
+  VerifyPasswordKeyRingMsg,
+  GetMneumonicgMsg,
+  UpdatePasswordMsg,
+  GetKeyFileMsg
 } from "../../../../background/keyring";
 
 import { action, observable } from "mobx";
@@ -18,6 +22,7 @@ import { actionAsync, task } from "mobx-utils";
 
 import { BACKGROUND_PORT } from "../../../../common/message/constant";
 import { RootStore } from "../root";
+import { KeyStore } from "../../../../background/keyring/crypto";
 
 /*
  Actual key ring logic is managed in persistent background. Refer "src/common/message" and "src/background/keyring"
@@ -78,10 +83,23 @@ export class KeyRingStore {
   }
 
   @actionAsync
-  public async verifyPassword(password: string) {
-    const msg = VerifyPasswordKeyRingMsg.create(password);
+  public async verifyPassword(
+    password: string,
+    keyFile: KeyStore | null = null
+  ) {
+    const msg = VerifyPasswordKeyRingMsg.create(password, keyFile);
     const result = await task(sendMessage(BACKGROUND_PORT, msg));
     return result.success;
+  }
+
+  @actionAsync
+  public async getMneumonic(
+    password: string,
+    keyFile: KeyStore
+  ) {
+    const msg = GetMneumonicgMsg.create(password, keyFile);
+    const result = await task(sendMessage(BACKGROUND_PORT, msg));
+    return result.mneumonic;
   }
 
   @actionAsync
@@ -89,6 +107,13 @@ export class KeyRingStore {
     const msg = UpdatePasswordMsg.create(password, newPassword);
     const result = await task(sendMessage(BACKGROUND_PORT, msg));
     return result.success;
+  }
+
+  @actionAsync
+  public async getKeyFile() {
+    const msg = GetKeyFileMsg.create();
+    const result = await task(sendMessage(BACKGROUND_PORT, msg));
+    return result.file;
   }
 
   @actionAsync

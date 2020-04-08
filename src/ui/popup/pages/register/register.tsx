@@ -101,16 +101,6 @@ export const RegisterInPage: FunctionComponent<{
       </div>
       <Form
         className={style.formContainer}
-        onChange={() => {
-          // debugger;
-          // const lights = document.getElementsByClassName("red");
-          //
-          // while (lights.length)
-          //   lights[0].className = lights[0].className.replace(
-          //     /\bred\b/g,
-          //     "on-change-remove-error"
-          //   );
-        }}
         onSubmit={handleSubmit((data: FormData) => {
           props.onRegister(data.words, data.password, isRecover);
         })}

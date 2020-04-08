@@ -16,11 +16,13 @@ import { Button } from "reactstrap";
 
 import { KeyRingStore } from "../../stores/keyring";
 import { WelcomeInPage } from "./welcome";
-import { FormattedMessage } from "react-intl";
+import { FormattedMessage, useIntl } from "react-intl";
 
 enum RegisterState {
   INIT,
   REGISTER,
+  RECOVERY_CHOICE,
+  UPLOAD,
   RECOVER,
   VERIFY
 }
@@ -49,7 +51,7 @@ export const RegisterPage: FunctionComponent = observer(() => {
   const [words, setWords] = useState("");
   const [numWords, setNumWords] = useState<NunWords>(NunWords.WORDS12);
   const [password, setPassword] = useState("");
-
+  const intl = useIntl();
   const { keyRingStore } = useStore();
 
   const register = useCallback(
@@ -130,14 +132,61 @@ export const RegisterPage: FunctionComponent = observer(() => {
       {keyRingStore.status === KeyRingStatus.EMPTY &&
       state === RegisterState.INIT ? (
         <IntroInPage
-          onRequestNewAccount={() => {
-            generateMnemonic(numWords);
-            setState(RegisterState.REGISTER);
+          topButton={{
+            title: intl.formatMessage({
+              id: "register.intro.button.new-account.title"
+            }),
+            content: intl.formatMessage({
+              id: "register.intro.button.new-account.content"
+            }),
+            onClick: () => {
+              generateMnemonic(numWords);
+              setState(RegisterState.REGISTER);
+            }
           }}
-          onRequestRecoverAccount={() => {
-            setState(RegisterState.RECOVER);
+          bottomButton={{
+            title: intl.formatMessage({
+              id: "register.intro.button.import-account.title"
+            }),
+            content: intl.formatMessage({
+              id: "register.intro.button.import-account.content"
+            }),
+            onClick: () => {
+              setState(RegisterState.RECOVERY_CHOICE);
+            }
           }}
         />
+      ) : null}
+      {keyRingStore.status === KeyRingStatus.EMPTY &&
+      state === RegisterState.RECOVERY_CHOICE ? (
+        <>
+          <IntroInPage
+            topButton={{
+              title: intl.formatMessage({
+                id: "register.intro.button.recover-choice.menumonic.title"
+              }),
+              content: intl.formatMessage({
+                id: "register.intro.button.recover-choice.menumonic.content"
+              }),
+              onClick: () => {
+                generateMnemonic(numWords);
+                setState(RegisterState.UPLOAD);
+              }
+            }}
+            bottomButton={{
+              title: intl.formatMessage({
+                id: "register.intro.button.recover-choice.file.content"
+              }),
+              content: intl.formatMessage({
+                id: "register.intro.button.recover-choice.file.title"
+              }),
+              onClick: () => {
+                setState(RegisterState.RECOVER);
+              }
+            }}
+          />
+          <BackButton onClick={onBackToInit} />
+        </>
       ) : null}
       {keyRingStore.status === KeyRingStatus.EMPTY &&
       state === RegisterState.REGISTER ? (

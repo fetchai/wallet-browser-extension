@@ -8,6 +8,7 @@ import {
   TxBuilderConfigPrimitiveWithChainId
 } from "./types";
 import { AsyncApprover } from "../../common/async-approver";
+import { KeyStore } from "./crypto";
 
 export class EnableKeyRingMsg extends Message<{
   status: KeyRingStatus;
@@ -170,7 +171,7 @@ export class CreateKeyMsg extends Message<{ status: KeyRingStatus }> {
     }
 
     if (!this.password) {
-      throw new Error("password not set");
+      throw new Error("password not set1");
     }
   }
 
@@ -220,7 +221,7 @@ export class UnlockKeyRingMsg extends Message<{ status: KeyRingStatus }> {
 
   validateBasic(): void {
     if (!this.password) {
-      throw new Error("password not set");
+      throw new Error("password not set2");
     }
   }
 
@@ -240,19 +241,24 @@ export class VerifyPasswordKeyRingMsg extends Message<{
     return "verify-password-keyring";
   }
 
-  public static create(password: string): VerifyPasswordKeyRingMsg {
+  public static create(
+    password: string,
+    keyFile: KeyStore | null = null
+  ): VerifyPasswordKeyRingMsg {
     const msg = new VerifyPasswordKeyRingMsg();
     msg.password = password;
+    msg.keyFile = keyFile;
     return msg;
   }
 
   validateBasic(): void {
     if (!this.password) {
-      throw new Error("password not set");
+      throw new Error("password not set3");
     }
   }
 
   public password = "";
+  public keyFile: KeyStore | null = null;
 
   route(): string {
     return ROUTE;
@@ -260,6 +266,44 @@ export class VerifyPasswordKeyRingMsg extends Message<{
 
   type(): string {
     return VerifyPasswordKeyRingMsg.type();
+  }
+}
+export class GetMneumonicgMsg extends Message<{
+  mneumonic: string;
+}> {
+  public static type() {
+    return "get mneumonic";
+  }
+
+  public static create(
+    password: string,
+    keyFile: KeyStore
+  ): GetMneumonicgMsg {
+    const msg = new GetMneumonicgMsg();
+    msg.password = password;
+    msg.keyFile = keyFile;
+    return msg;
+  }
+
+  validateBasic(): void {
+    if (!this.password) {
+      throw new Error("password not set3");
+    }
+
+    if (this.keyFile === null) {
+      throw new Error("password not set3");
+    }
+  }
+
+  public password = "";
+  public keyFile: KeyStore | null = null;
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return GetMneumonicgMsg.type();
   }
 }
 
@@ -282,11 +326,12 @@ export class UpdatePasswordMsg extends Message<{
 
   validateBasic(): void {
     if (!this.password) {
-      throw new Error("password not set");
+      debugger;
+      throw new Error("password not set4");
     }
 
     if (!this.newPassword) {
-      throw new Error("new password not set");
+      throw new Error("new password not set5");
     }
   }
 
@@ -302,6 +347,31 @@ export class UpdatePasswordMsg extends Message<{
   }
 }
 
+export class GetKeyFileMsg extends Message<{
+  file: any;
+}> {
+  public static type() {
+    return "get-key-file-msg";
+  }
+
+  public static create(): GetKeyFileMsg {
+    return new GetKeyFileMsg();
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  validateBasic(): void {
+    debugger;
+  }
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return GetKeyFileMsg.type();
+  }
+}
+
 export class SetPathMsg extends Message<{ success: boolean }> {
   public static type() {
     return "set-path";
@@ -312,6 +382,9 @@ export class SetPathMsg extends Message<{ success: boolean }> {
     account: number,
     index: number
   ): SetPathMsg {
+    debugger;
+    debugger;
+    debugger;
     const msg = new SetPathMsg();
     msg.chainId = chainId;
     msg.account = account;

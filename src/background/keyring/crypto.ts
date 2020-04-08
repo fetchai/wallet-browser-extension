@@ -17,7 +17,7 @@ interface ScryptParams {
  * But, the encryped data is not the private key, but the mnemonic words.
  */
 export interface KeyStore {
-  version: "1";
+  version: string;
   crypto: {
     cipher: "aes-128-ctr";
     cipherparams: {
@@ -26,7 +26,7 @@ export interface KeyStore {
     ciphertext: string;
     kdf: "scrypt";
     kdfparams: ScryptParams;
-    mac: string;
+    mac?: string;
   };
 }
 
@@ -78,7 +78,8 @@ export class Crypto {
 
   public static async decrypt(
     keyStore: KeyStore,
-    password: string
+    password: string,
+    ignoreMac: boolean = false
   ): Promise<Uint8Array> {
     const derivedKey = await Crypto.scrpyt(password, keyStore.crypto.kdfparams);
 
@@ -92,7 +93,8 @@ export class Crypto {
         Buffer.from(keyStore.crypto.ciphertext, "hex")
       ])
     );
-    if (!mac.equals(Buffer.from(keyStore.crypto.mac, "hex"))) {
+
+    if (!ignoreMac && !mac.equals(Buffer.from(keyStore.crypto.mac, "hex"))) {
       throw new Error("Unmatched mac");
     }
 

@@ -17,7 +17,14 @@
   "register.intro.button.new-account.title": "Create a new account",
   "register.intro.button.new-account.content": "Create a new wallet with a new seed",
   "register.intro.button.import-account.title": "Import existing account",
-  "register.intro.button.import-account.content": "Use a 12/24 word seed to import an existing wallet",
+
+  "register.intro.button.recover-choice.menumonic.title": "Use word seed",
+  "register.intro.button.recover-choice.menumonic.content": "Use a 12/24 word seed to import an existing wallet",
+
+  "register.intro.button.recover-choice.file.content": "Use key file",
+  "register.intro.button.recover-choice.file.title": "Use an encrypted key file and password to import an existing wallet",
+
+  "register.intro.button.import-account.content": "Use a word seed or a local file to import an existing wallet",
   "register.intro.sub-content": "All sensitive information is stored only on your device.{br}This process does not require an internet connection.",
   "register.recover.title": "Input your seed",
   "register.create.title": "Mnemonic Seed",
@@ -55,6 +62,9 @@
   "settings.update-password.button.delete": "Confirm",
   "settings.update-password.button.delete-confirm": "Reset Application",
   "settings.update-password.button.delete-confirmation-message": "Deleted Key file cannot be recovered",
+  "settings.download.key.name": "key-file",
+  "settings.update-password.heading.download": "Download encrypted key file",
+  "settings.update-password.button.download": "Download",
 
 
   "lock.input.password": "Password",

@@ -18,7 +18,10 @@ import {
   GetRequestedTxBuilderConfigMsg,
   ApproveTxBuilderConfigMsg,
   RejectTxBuilderConfigMsg,
-  VerifyPasswordKeyRingMsg, UpdatePasswordMsg
+  VerifyPasswordKeyRingMsg,
+  UpdatePasswordMsg,
+  GetKeyFileMsg,
+  GetMneumonicgMsg
 } from "./messages";
 import { KeyRingKeeper } from "./keeper";
 import { Address } from "@everett-protocol/cosmosjs/crypto";
@@ -52,10 +55,12 @@ export const getHandler: (keeper: KeyRingKeeper) => Handler = (
         return handleVerifyPasswordKeyRingMsg(keeper)(
           msg as VerifyPasswordKeyRingMsg
         );
+      case GetMneumonicgMsg:
+        return handleGetMneumonicgMsg(keeper)(msg as GetMneumonicgMsg);
       case UpdatePasswordMsg:
-        return handleUpdatePasswordMsg(keeper)(
-          msg as  UpdatePasswordMsg
-        );
+        return handleUpdatePasswordMsg(keeper)(msg as UpdatePasswordMsg);
+      case GetKeyFileMsg:
+        return handleGetKeyFileMsg(keeper)(msg as GetKeyFileMsg);
       case SetPathMsg:
         return handleSetPathMsg(keeper)(msg as SetPathMsg);
       case GetKeyMsg:
@@ -180,7 +185,17 @@ const handleVerifyPasswordKeyRingMsg: (
 ) => InternalHandler<any> = keeper => {
   return async msg => {
     return {
-      success: await keeper.verifyPassword(msg.password)
+      success: await keeper.verifyPassword(msg.password, msg.keyFile)
+    };
+  };
+};
+
+const handleGetMneumonicgMsg: (
+  keeper: KeyRingKeeper
+) => InternalHandler<any> = keeper => {
+  return async msg => {
+    return {
+      mneumonic: await keeper.getMneumonicgMsg(msg.password, msg.keyFile)
     };
   };
 };
@@ -191,6 +206,16 @@ const handleUpdatePasswordMsg: (
   return async msg => {
     return {
       success: await keeper.updatePassword(msg.password, msg.newPassword)
+    };
+  };
+};
+
+const handleGetKeyFileMsg: (
+  keeper: KeyRingKeeper
+) => InternalHandler<any> = keeper => {
+  return async () => {
+    return {
+      file: await keeper.handleGetKeyFile()
     };
   };
 };

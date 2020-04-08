@@ -8,9 +8,10 @@ import {
   GetKeyMsg,
   UnlockKeyRingMsg,
   VerifyPasswordKeyRingMsg,
-     UpdatePasswordMsg,
-  RequestSignMsg,
+  GetMneumonicgMsg,
+  UpdatePasswordMsg,
   GetRequestedMessage,
+  RequestSignMsg,
   ApproveTxBuilderConfigMsg,
   RejectTxBuilderConfigMsg,
   ApproveSignMsg,
@@ -19,7 +20,8 @@ import {
   LockKeyRingMsg,
   ClearKeyRingMsg,
   RequestTxBuilderConfigMsg,
-  GetRequestedTxBuilderConfigMsg
+  GetRequestedTxBuilderConfigMsg,
+  GetKeyFileMsg
 } from "./messages";
 import { ROUTE } from "./constants";
 import { getHandler } from "./handler";
@@ -38,6 +40,7 @@ export function init(
   messageManager.registerMessage(LockKeyRingMsg);
   messageManager.registerMessage(UnlockKeyRingMsg);
   messageManager.registerMessage(VerifyPasswordKeyRingMsg);
+  messageManager.registerMessage(GetKeyFileMsg);
   messageManager.registerMessage(UpdatePasswordMsg);
   messageManager.registerMessage(SetPathMsg);
   messageManager.registerMessage(GetKeyMsg);

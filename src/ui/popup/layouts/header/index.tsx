@@ -69,6 +69,7 @@ export const Header: FunctionComponent<Props & LocalProps> = observer(
             ) : null}
             {onBackButton ? (
               <BackButton
+                stroke={4}
                 onClick={() => {
                   if (onBackButton) {
                     onBackButton();

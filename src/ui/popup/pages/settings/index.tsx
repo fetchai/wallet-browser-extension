@@ -20,6 +20,7 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
 
     const [collapsible1, setcollapsible1] = useState(false);
     const [collapsible2, setcollapsible2] = useState(false);
+    const [collapsible3, setcollapsible3] = useState(false);
     const [passwordConfirmError, setPasswordConfirmError] = useState(false);
     const [passwordError, setPasswordError] = useState(false);
     const [newPasswordError, setNewPasswordError] = useState(false);
@@ -124,6 +125,20 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
       }
     };
 
+    const downloadKeyFile = async () => {
+      debugger;
+      const json = await keyRingStore.getKeyFile();
+      debugger;
+      const element = document.createElement("a");
+      const file = new Blob([JSON.stringify(json)], { type: "text/plain" });
+      element.href = URL.createObjectURL(file);
+      element.download = intl.formatMessage({
+        id: "settings.download.key.name"
+      });
+      document.body.appendChild(element);
+      element.click();
+    };
+
     /**
      * Main controlling logic for updating one's password. Determines if password form is valid and calls update method if true, else we
      * display error message(s).
@@ -168,6 +183,12 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
       } else {
         setcollapsible2(false);
       }
+
+      if (index === 3) {
+        setcollapsible3(prev => !prev);
+      } else {
+        setcollapsible3(false);
+      }
     };
 
     return (
@@ -188,7 +209,28 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
               })}
             </h2>
           </div>
-          <div className={style.security} onClick={() => toggle(1)}>
+          <div className={style.mainButton} onClick={() => toggle(3)}>
+            General
+          </div>
+          <Expand open={collapsible3} duration={500} transitions={transitions}>
+            <h3 className={style.subHeading}>
+              {" "}
+              {intl.formatMessage({
+                id: "settings.update-password.heading.download"
+              })}
+            </h3>
+            <button
+              type="button"
+              className={`green ${style.button}`}
+              onClick={downloadKeyFile}
+            >
+              {intl.formatMessage({
+                id: "settings.update-password.button.download"
+              })}
+            </button>
+          </Expand>
+
+          <div className={style.mainButton} onClick={() => toggle(1)}>
             Security & Privacy
           </div>
           <Expand open={collapsible1} duration={500} transitions={transitions}>
@@ -291,14 +333,16 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
                   })}
             </button>
           </Expand>
-          <div className={style.about} onClick={() => toggle(2)}>
+          <div className={style.mainButton} onClick={() => toggle(2)}>
             About
           </div>
           <Expand open={collapsible2} duration={500} transitions={transitions}>
-            <p className={style.about}>FET Wallet Version {VERSION}</p>
-            <p className={style.about}>
-              Developed and Designed by Fetch.ai Cambridge
-            </p>
+            <div className={style.aboutSection}>
+              <p className={style.about}>FET Wallet Version {VERSION}</p>
+              <p className={style.about}>
+                Developed and Designed by Fetch.ai Cambridge
+              </p>
+            </div>
           </Expand>
         </div>
       </HeaderLayout>

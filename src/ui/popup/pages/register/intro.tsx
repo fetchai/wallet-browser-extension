@@ -4,35 +4,32 @@ import styleIntro from "./intro.module.scss";
 
 import { FormattedMessage, useIntl } from "react-intl";
 
+interface ButtonContent {
+  title: string;
+  content: string;
+  onClick: () => void;
+}
+
 export const IntroInPage: FunctionComponent<{
-  onRequestNewAccount: () => void;
-  onRequestRecoverAccount: () => void;
+  topButton: ButtonContent;
+  bottomButton: ButtonContent;
 }> = props => {
-  const intl = useIntl();
 
   return (
     <div>
       <BigButton
         top={true}
         icon="fa-plus"
-        title={intl.formatMessage({
-          id: "register.intro.button.new-account.title"
-        })}
-        content={intl.formatMessage({
-          id: "register.intro.button.new-account.content"
-        })}
-        onClick={props.onRequestNewAccount}
+        title={props.topButton.title}
+        content={props.topButton.content}
+        onClick={props.topButton.onClick}
       />
       <BigButton
         top={false}
         icon="fa-download"
-        title={intl.formatMessage({
-          id: "register.intro.button.import-account.title"
-        })}
-        content={intl.formatMessage({
-          id: "register.intro.button.import-account.content"
-        })}
-        onClick={props.onRequestRecoverAccount}
+        title={props.bottomButton.title}
+        content={props.bottomButton.content}
+        onClick={props.bottomButton.onClick}
       />
       <div className={styleIntro.subContent}>
         <FormattedMessage

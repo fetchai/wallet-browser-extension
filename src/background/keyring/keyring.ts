@@ -31,12 +31,12 @@ export class KeyRing {
 
   private _mnemonic: string;
 
-  private keyStore: KeyStore | null;
+  private _keyStore: KeyStore | null;
 
   constructor(private readonly kvStore: KVStore) {
     this.loaded = false;
     this._mnemonic = "";
-    this.keyStore = null;
+    this._keyStore = null;
   }
 
   private get mnemonic(): string {
@@ -48,12 +48,16 @@ export class KeyRing {
     this.cached = new Map();
   }
 
+  public get keyStore(): KeyStore | null {
+    return this._keyStore;
+  }
+
   public get status(): KeyRingStatus {
     if (!this.loaded) {
       return KeyRingStatus.NOTLOADED;
     }
 
-    if (!this.keyStore) {
+    if (!this._keyStore) {
       return KeyRingStatus.EMPTY;
     } else if (this.mnemonic) {
       return KeyRingStatus.UNLOCKED;
@@ -68,34 +72,54 @@ export class KeyRing {
 
   public async createKey(mnemonic: string, password: string) {
     this.mnemonic = mnemonic;
-    this.keyStore = await Crypto.encrypt(this.mnemonic, password);
+    this._keyStore = await Crypto.encrypt(this.mnemonic, password);
   }
 
   public lock() {
     if (this.status !== KeyRingStatus.UNLOCKED) {
       throw new Error("Key ring is not unlocked");
     }
-
     this.mnemonic = "";
   }
 
   public async unlock(password: string) {
-    if (!this.keyStore) {
+    if (!this._keyStore) {
       throw new Error("Key ring not initialized");
     }
     // If password is invalid, error will be thrown.
     this.mnemonic = Buffer.from(
-      await Crypto.decrypt(this.keyStore, password)
+      await Crypto.decrypt(this._keyStore, password)
     ).toString();
   }
 
-  public async verifyPassword(password: string): Promise<boolean> {
-    if (!this.keyStore) return false;
+  public async getMneumonic(
+    password: string,
+    keyFile: KeyStore
+  ): Promise<string | false> {
+    // If password is invalid, error will be thrown.
+    // verify password is correct before using this.
+    try {
+      this.mnemonic = Buffer.from(
+        await Crypto.decrypt(keyFile, password)
+      ).toString();
+    } catch (e) {
+      return false;
+    }
+    return this.mnemonic;
+  }
+
+  public async verifyPassword (
+    password: string,
+    keyFile: KeyStore | null = null
+  ): Promise<boolean> {
+    if (!this._keyStore && keyFile === null) return false;
+
+    const k = keyFile !== null ? keyFile : this._keyStore;
 
     try {
       // If password is invalid, error will be thrown.
       this.mnemonic = Buffer.from(
-        await Crypto.decrypt(this.keyStore, password)
+        await Crypto.decrypt(k as KeyStore, password)
       ).toString();
       return true;
     } catch (error) {
@@ -110,21 +134,21 @@ export class KeyRing {
     if (!(await this.verifyPassword(password))) {
       return false;
     }
-    this.keyStore = await Crypto.encrypt(this.mnemonic, newPassword);
+    this._keyStore = await Crypto.encrypt(this.mnemonic, newPassword);
     await this.save();
     return true;
   }
 
   public async save() {
-    await this.kvStore.set<KeyStore>(KeyStoreKey, this.keyStore);
+    await this.kvStore.set<KeyStore>(KeyStoreKey, this._keyStore);
   }
 
   public async restore() {
     const keyStore = await this.kvStore.get<KeyStore>(KeyStoreKey);
     if (!keyStore) {
-      this.keyStore = null;
+      this._keyStore = null;
     } else {
-      this.keyStore = keyStore;
+      this._keyStore = keyStore;
     }
     this.loaded = true;
   }
@@ -134,7 +158,7 @@ export class KeyRing {
    * Make sure to use this only in development env for testing.
    */
   public async clear() {
-    this.keyStore = null;
+    this._keyStore = null;
     this.mnemonic = "";
     this.cached = new Map();
 

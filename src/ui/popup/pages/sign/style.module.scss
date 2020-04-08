@@ -14,9 +14,10 @@
       border-bottom-color: #dbdbdb;
       border-bottom-style: solid;
       border-bottom-width: 1px;
+      color: lightgrey;
 
       &:global(.active) {
-        color: lightgrey;
+        color: white;
       }
     }
   }

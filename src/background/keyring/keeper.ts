@@ -16,6 +16,7 @@ import {
 import { KVStore } from "../../common/kvstore";
 
 import { openWindow } from "../../common/window";
+import { KeyStore } from "./crypto";
 
 export interface KeyHex {
   algo: string;
@@ -163,12 +164,27 @@ export class KeyRingKeeper {
     }
     return this.keyRing.status;
   }
-  async verifyPassword(password: string): Promise<boolean> {
-    return await this.keyRing.verifyPassword(password);
+
+  async verifyPassword(
+    password: string,
+    keyFile: KeyStore | null = null
+  ): Promise<boolean> {
+    return await this.keyRing.verifyPassword(password, keyFile);
+  }
+
+  async getMneumonicgMsg(
+    password: string,
+    keyFile: KeyStore
+  ): Promise<string | false> {
+    return await this.keyRing.getMneumonic(password, keyFile);
   }
 
   async updatePassword(password: string, newPassword: string) {
     return await this.keyRing.updatePassword(password, newPassword);
+  }
+
+  async handleGetKeyFile(): Promise<KeyStore | null> {
+    return this.keyRing.keyStore as KeyStore;
   }
 
   setPath(chainId: string, account: number, index: number) {
