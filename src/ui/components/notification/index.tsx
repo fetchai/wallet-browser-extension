@@ -3,7 +3,6 @@ import React, { FunctionComponent } from "react";
 import { Variants } from "framer-motion";
 
 import "./style.scss";
-import style from "./style.scss";
 import { NotificationElementProps } from "./element";
 import { NotificationContainer } from "./container";
 import { useNotificationStore } from "./store";
