@@ -110,6 +110,10 @@ export const RegisterPage: FunctionComponent = observer(() => {
     setState(RegisterState.INIT);
   }, []);
 
+ const onBackToChooseRecoverMethod = useCallback(() => {
+    setState(RegisterState.RECOVERY_CHOICE);
+  }, []);
+
   const onBackToRegister = useCallback(() => {
     setState(RegisterState.REGISTER);
   }, []);
@@ -171,7 +175,7 @@ export const RegisterPage: FunctionComponent = observer(() => {
               }),
               onClick: () => {
                 generateMnemonic(numWords);
-                setState(RegisterState.UPLOAD);
+                setState(RegisterState.RECOVER);
               }
             }}
             bottomButton={{
@@ -182,7 +186,7 @@ export const RegisterPage: FunctionComponent = observer(() => {
                 id: "register.intro.button.recover-choice.file.title"
               }),
               onClick: () => {
-                setState(RegisterState.RECOVER);
+                setState(RegisterState.UPLOAD);
               }
             }}
           />
@@ -192,8 +196,12 @@ export const RegisterPage: FunctionComponent = observer(() => {
       {keyRingStore.status === KeyRingStatus.EMPTY &&
       state === RegisterState.UPLOAD ? (
         <>
-          <Recover onRegister={onRegister} />
-          <BackButton onClick={onBackToInit} />
+          <Recover
+            onRegister={onRegister}
+            getMneumonic={keyRingStore.getMneumonic}
+            verifyPassword={keyRingStore.verifyPassword}
+          />
+          <BackButton onClick={onBackToChooseRecoverMethod} />
         </>
       ) : null}{" "}
       {keyRingStore.status === KeyRingStatus.EMPTY &&
@@ -222,7 +230,7 @@ export const RegisterPage: FunctionComponent = observer(() => {
             isRecover={true}
             isLoading={accountIsCreating}
           />
-          <BackButton onClick={onBackToInit} />
+          <BackButton onClick={onBackToChooseRecoverMethod} />
         </>
       ) : null}
       {keyRingStore.status === KeyRingStatus.EMPTY &&

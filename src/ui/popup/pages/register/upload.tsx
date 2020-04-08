@@ -1,12 +1,13 @@
 import React, { Component } from "react";
 import style from "./style.module.scss";
 import classnames from "classnames";
-import { FormattedMessage, useIntl } from "react-intl";
+// import { FormattedMessage, useIntl } from "react-intl";
 import { strongPassword } from "../../../../common/strong-password";
 import { validJSONString } from "../../../../common/utils/valid-json-string";
-import { useStore } from "../../stores";
-import { RootStore } from "../../stores/root";
+// import { useStore } from "../../stores";
+// import { RootStore } from "../../stores/root";
 import { KeyStore } from "../../../../background/keyring/crypto";
+import { Label } from "reactstrap";
 
 const FILE_REQUIRED_ERROR_MESSAGE = "File required";
 const INCORRECT_PASSWORD_OR_ADDRESS_ERROR_MESSAGE =
@@ -21,8 +22,6 @@ type State = {
   file: File | Blob | null | string;
   password: string;
   fileName: string;
-  collapsible1: boolean;
-  collapsible2: boolean;
   errorMessage: string;
   passwordError: boolean;
   fileError: boolean;
@@ -30,6 +29,8 @@ type State = {
 
 type Props = {
   onRegister: any;
+  verifyPassword: any;
+  getMneumonic: any;
 };
 
 export default class Recover extends React.Component<Props, State> {
@@ -39,19 +40,27 @@ export default class Recover extends React.Component<Props, State> {
     recovered: boolean
   ) => void;
   private keyRingStore: any;
+  private verifyPassword:
+    | any
+    | ((password: string, keyFile?: KeyStore | null) => Promise<boolean>)
+    | ((password: string, keyFile?: KeyStore | null) => Promise<boolean>);
+  private getMneumonic:
+    | any
+    | ((password: string, keyFile: KeyStore) => Promise<string | false>)
+    | ((password: string, keyFile: KeyStore) => Promise<string>);
 
   constructor(props: any) {
     super(props);
     this.onRegister = props.onRegister;
-    this.keyRingStore = useStore();
+    this.verifyPassword = props.verifyPassword;
+    this.getMneumonic = props.getMneumonic;
+    // this.keyRingStore = useStore();
   }
 
   public readonly state: State = {
     file: null,
     password: "",
     fileName: "",
-    collapsible1: true,
-    collapsible2: false,
     errorMessage: "",
     passwordError: false,
     fileError: false
@@ -195,28 +204,37 @@ export default class Recover extends React.Component<Props, State> {
   async handleSubmit() {
     let error = false;
     let file;
-
     if (!this.validPassword()) error = true;
     if (!(await this.validFile())) error = true;
-    else {
+
+    if (!error) {
       file = await this.readFile(this.state.file as File);
       if (
-        !(await this.keyRingStore.verifyPassword(this.state.password, file))
+        !(await this.verifyPassword(
+          this.state.password,
+          JSON.parse(file as string)
+        ))
       ) {
         error = true;
+        this.setState({
+          errorMessage: "Incorrect password",
+          passwordError: true
+        });
       }
     }
 
-    if (error) {
-      this.setState({
-        errorMessage: "Incorrect password",
-        passwordError: true
-      });
-    } else {
-      const mneumonic = await this.keyRingStore.getMneumonic(
+    if (!error) {
+      const mneumonic = await this.getMneumonic(
         this.state.password,
-        file
+        JSON.parse(file as string)
       );
+
+      if (mneumonic === false) {
+        this.setState({
+          errorMessage: "Error occured"
+        });
+      }
+
       this.onRegister(mneumonic, this.state.password, true);
     }
   }
@@ -224,62 +242,62 @@ export default class Recover extends React.Component<Props, State> {
   render() {
     return (
       // eslint-disable-next-line react/prop-types
-      <div id="my-extension-root-inner" className="OverlayMain">
-        <div className="OverlayMainInner">
-          <h2>Recover</h2>
-          <hr></hr>
-          <form id="form" className={"recover-form"}>
-            <legend className="recover-legend">
-              Upload File with Password
-            </legend>
+      <div id="my-extension-root-inner" className={style.formContainer}>
+        <div className={style.title}>Recover</div>
+        <hr></hr>
+        <form id="form" className={style.formContainer}>
+          <Label for="file" className={style.label} style={{ width: "100%" }}>
+            Upload File with Password
+          </Label>
+          <button
+            className={classnames(
+              style.recoverInput,
+              this.state.fileError ? style.redUploadButton : style.uploadButton
+            )}
+            onClick={this.openUploadFile}
+          >
+            {this.state.fileName === "" ? "" : "selected"}
+          </button>
+          <input
+            id="file"
+            className={style.hide}
+            id="file"
+            type="file"
+            onChange={this.handleFileChange}
+          ></input>
+           <Label for="password" className={style.label} style={{ width: "100%" }}>
+            Password
+          </Label>
+          <input
+            type="password"
+            className={classnames(
+              style.recoverInput,
+              this.state.passwordError ? "red" : false
+            )}
+            id="password"
+            name="password"
+            value={this.state.password}
+            onChange={this.handleChange}
+          ></input>
+          <output
+            className={`recover-output ${this.hasError() ? "red" : ""}`}
+            id="output"
+          >
+            {this.state.errorMessage}
+          </output>
+          <div className={style.output}>
             <button
-              className={`recover-input   ${
-                this.state.fileError
-                  ? style.redUploadButton
-                  : style.uploadButton
-              }`}
-              onClick={this.openUploadFile}
+              type="submit"
+              className={classnames(style.recoverButton, "green")}
+              onClick={event => {
+                event.preventDefault();
+                this.handleSubmit();
+              }}
             >
-              {this.state.fileName === "" ? "" : "selected"}
+              Upload
             </button>
-            <input
-              label="file"
-              className={style.hide}
-              id="file"
-              type="file"
-              onChange={this.handleFileChange}
-            ></input>
-            <input
-              type="password"
-              className={`recover-input ${
-                this.state.passwordError ? "red" : ""
-              }`}
-              placeholder="Password"
-              id="password"
-              name="password"
-              value={this.state.password}
-              onChange={this.handleChange.bind(this)}
-            ></input>
-            <output
-              className={`recover-output ${this.hasError() ? "red" : ""}`}
-              id="output"
-            >
-              {this.state.errorMessage}
-            </output>
-            <div className="small-button-container">
-              <button
-                type="submit"
-                className="recover-upload-button"
-                onClick={event => {
-                  event.preventDefault();
-                  this.handleSubmit();
-                }}
-              >
-                Upload
-              </button>
-            </div>
-          </form>
-        </div>
+          </div>
+        </form>
       </div>
     );
   }

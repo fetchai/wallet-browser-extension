@@ -268,7 +268,8 @@ export class VerifyPasswordKeyRingMsg extends Message<{
     return VerifyPasswordKeyRingMsg.type();
   }
 }
-export class GetMneumonicgMsg extends Message<{
+
+export class GetMneumonicMsg extends Message<{
   mneumonic: string;
 }> {
   public static type() {
@@ -278,8 +279,8 @@ export class GetMneumonicgMsg extends Message<{
   public static create(
     password: string,
     keyFile: KeyStore
-  ): GetMneumonicgMsg {
-    const msg = new GetMneumonicgMsg();
+  ): GetMneumonicMsg {
+    const msg = new GetMneumonicMsg();
     msg.password = password;
     msg.keyFile = keyFile;
     return msg;
@@ -303,7 +304,7 @@ export class GetMneumonicgMsg extends Message<{
   }
 
   type(): string {
-    return GetMneumonicgMsg.type();
+    return GetMneumonicMsg.type();
   }
 }
 

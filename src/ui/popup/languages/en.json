@@ -18,11 +18,11 @@
   "register.intro.button.new-account.content": "Create a new wallet with a new seed",
   "register.intro.button.import-account.title": "Import existing account",
 
-  "register.intro.button.recover-choice.menumonic.title": "Use word seed",
+  "register.intro.button.recover-choice.menumonic.title": "Using a word seed",
   "register.intro.button.recover-choice.menumonic.content": "Use a 12/24 word seed to import an existing wallet",
 
-  "register.intro.button.recover-choice.file.content": "Use key file",
-  "register.intro.button.recover-choice.file.title": "Use an encrypted key file and password to import an existing wallet",
+  "register.intro.button.recover-choice.file.content": "Using a key file",
+  "register.intro.button.recover-choice.file.title": "Use an encrypted key file and your previous password to import an existing wallet",
 
   "register.intro.button.import-account.content": "Use a word seed or a local file to import an existing wallet",
   "register.intro.sub-content": "All sensitive information is stored only on your device.{br}This process does not require an internet connection.",

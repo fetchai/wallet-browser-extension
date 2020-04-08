@@ -21,7 +21,7 @@ import {
   VerifyPasswordKeyRingMsg,
   UpdatePasswordMsg,
   GetKeyFileMsg,
-  GetMneumonicgMsg
+  GetMneumonicMsg
 } from "./messages";
 import { KeyRingKeeper } from "./keeper";
 import { Address } from "@everett-protocol/cosmosjs/crypto";
@@ -55,8 +55,8 @@ export const getHandler: (keeper: KeyRingKeeper) => Handler = (
         return handleVerifyPasswordKeyRingMsg(keeper)(
           msg as VerifyPasswordKeyRingMsg
         );
-      case GetMneumonicgMsg:
-        return handleGetMneumonicgMsg(keeper)(msg as GetMneumonicgMsg);
+      case GetMneumonicMsg:
+        return handleGetMneumonicMsg(keeper)(msg as GetMneumonicMsg);
       case UpdatePasswordMsg:
         return handleUpdatePasswordMsg(keeper)(msg as UpdatePasswordMsg);
       case GetKeyFileMsg:
@@ -190,7 +190,7 @@ const handleVerifyPasswordKeyRingMsg: (
   };
 };
 
-const handleGetMneumonicgMsg: (
+const handleGetMneumonicMsg: (
   keeper: KeyRingKeeper
 ) => InternalHandler<any> = keeper => {
   return async msg => {
