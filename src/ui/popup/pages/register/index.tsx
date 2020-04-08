@@ -17,6 +17,7 @@ import { Button } from "reactstrap";
 import { KeyRingStore } from "../../stores/keyring";
 import { WelcomeInPage } from "./welcome";
 import { FormattedMessage, useIntl } from "react-intl";
+import Recover from "./upload";
 
 enum RegisterState {
   INIT,
@@ -188,6 +189,13 @@ export const RegisterPage: FunctionComponent = observer(() => {
           <BackButton onClick={onBackToInit} />
         </>
       ) : null}
+      {keyRingStore.status === KeyRingStatus.EMPTY &&
+      state === RegisterState.UPLOAD ? (
+        <>
+          <Recover onRegister={onRegister} />
+          <BackButton onClick={onBackToInit} />
+        </>
+      ) : null}{" "}
       {keyRingStore.status === KeyRingStatus.EMPTY &&
       state === RegisterState.REGISTER ? (
         <>

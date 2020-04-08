@@ -28,9 +28,9 @@ type State = {
   fileError: boolean;
 };
 
-const RecoverProps = {};
-
-type Props = typeof RecoverProps;
+type Props = {
+  onRegister: any;
+};
 
 export default class Recover extends React.Component<Props, State> {
   private onRegister: (
@@ -194,11 +194,12 @@ export default class Recover extends React.Component<Props, State> {
    */
   async handleSubmit() {
     let error = false;
+    let file;
 
     if (!this.validPassword()) error = true;
     if (!(await this.validFile())) error = true;
     else {
-      const file = await this.readFile(this.state.file as File);
+      file = await this.readFile(this.state.file as File);
       if (
         !(await this.keyRingStore.verifyPassword(this.state.password, file))
       ) {
@@ -212,6 +213,11 @@ export default class Recover extends React.Component<Props, State> {
         passwordError: true
       });
     } else {
+      const mneumonic = await this.keyRingStore.getMneumonic(
+        this.state.password,
+        file
+      );
+      this.onRegister(mneumonic, this.state.password, true);
     }
   }
 
