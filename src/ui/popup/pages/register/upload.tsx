@@ -1,25 +1,20 @@
-import React, { Component } from "react";
+import React from "react";
 import style from "./style.module.scss";
 import classnames from "classnames";
 // import { FormattedMessage, useIntl } from "react-intl";
 import { strongPassword } from "../../../../common/strong-password";
 import { validJSONString } from "../../../../common/utils/valid-json-string";
-// import { useStore } from "../../stores";
-// import { RootStore } from "../../stores/root";
 import { KeyStore } from "../../../../background/keyring/crypto";
 import { Label } from "reactstrap";
 
 const FILE_REQUIRED_ERROR_MESSAGE = "File required";
-const INCORRECT_PASSWORD_OR_ADDRESS_ERROR_MESSAGE =
-  "Incorrect Password or Address";
 const INCORRECT_FILE_TYPE_ERROR_MESSAGE = "Incorrect file type";
 const PASSWORD_REQUIRED_ERROR_MESSAGE = "Password required";
 const UNREADABLE_FILE_ERROR_MESSAGE = "Unable to read file";
-const WEAK_PASSWORD_ERROR_MESSAGE =
-  "Incorrect Password: Password too weak (14 chars including letter, number, special character and uppercase letter";
+const WEAK_PASSWORD_ERROR_MESSAGE = "Incorrect Password";
 
 type State = {
-  file: File | Blob | null | string;
+  file: File | null | string;
   password: string;
   fileName: string;
   errorMessage: string;
@@ -39,7 +34,7 @@ export default class Recover extends React.Component<Props, State> {
     password: string,
     recovered: boolean
   ) => void;
-  private keyRingStore: any;
+
   private verifyPassword:
     | any
     | ((password: string, keyFile?: KeyStore | null) => Promise<boolean>)
@@ -54,7 +49,6 @@ export default class Recover extends React.Component<Props, State> {
     this.onRegister = props.onRegister;
     this.verifyPassword = props.verifyPassword;
     this.getMneumonic = props.getMneumonic;
-    // this.keyRingStore = useStore();
   }
 
   public readonly state: State = {
@@ -193,10 +187,7 @@ export default class Recover extends React.Component<Props, State> {
 
   /**
    * Main logic processing of page. Checks if password is correct and file is of correct form and decrypts if true,
-   * Setting error message(s) otherwise. If an Address is not provided it does not then log user in but shows dialog
-   * to confirm issue regarding decryption without providing an address. If address is provided it checks if file decrypts
-   * create private key corresponding to the given address. If this is the case it sets encrypted key_file and address in storage,
-   * sets the logged_in flag and then redirects to the account page. If this is not the case then it displays an error message to that effect.
+   * Setting error message(s) otherwise.
    *
    * @param event
    * @returns {Promise<void>}
@@ -242,10 +233,9 @@ export default class Recover extends React.Component<Props, State> {
   render() {
     return (
       // eslint-disable-next-line react/prop-types
-      <div id="my-extension-root-inner" className={style.formContainer}>
-        <div className={style.title}>Recover</div>
-        <hr></hr>
-        <form id="form" className={style.formContainer}>
+      <div id="my-extension-root-inner">
+        <div className={style.recoverTitle}>Recover</div>
+        <form id="form" className={style.recoveryForm}>
           <Label for="file" className={style.label} style={{ width: "100%" }}>
             Upload File with Password
           </Label>
@@ -261,11 +251,14 @@ export default class Recover extends React.Component<Props, State> {
           <input
             id="file"
             className={style.hide}
-            id="file"
             type="file"
             onChange={this.handleFileChange}
           ></input>
-           <Label for="password" className={style.label} style={{ width: "100%" }}>
+          <Label
+            for="password"
+            className={style.label}
+            style={{ width: "100%" }}
+          >
             Password
           </Label>
           <input
@@ -280,7 +273,7 @@ export default class Recover extends React.Component<Props, State> {
             onChange={this.handleChange}
           ></input>
           <output
-            className={`recover-output ${this.hasError() ? "red" : ""}`}
+            className={classnames(style.output, this.hasError() ? "red" : "")}
             id="output"
           >
             {this.state.errorMessage}
