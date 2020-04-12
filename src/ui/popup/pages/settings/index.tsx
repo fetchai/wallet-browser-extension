@@ -345,15 +345,12 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
               <button
                 type="submit"
                 className={`green ${style.button}`}
-                onClick={event => {
-                  event.preventDefault();
-                  handlePasswordUpdate()
-                }}
+                onClick={handlePasswordUpdate}
               >
                 Update
               </button>
               <output
-                className={`change_password_error ${hasError() ? "red" : ""} `}
+                className={`change_password_error ${style.output} ${hasError() ? "red" : ""} `}
                 id="output"
               >
                 {output}
