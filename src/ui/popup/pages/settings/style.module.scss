@@ -21,7 +21,7 @@ $settings-width: 293px;
 :global(.light-mode) {
   .title-wrapper {
      h2 {
-      color: black !important;
+      color:  $light-mode-grey !important;
   }
   }
 }
@@ -47,7 +47,7 @@ $settings-width: 293px;
 
 :global(.light-mode) {
   .wrapper {
-     background-color: rgb(234, 241, 243);
+     background-color: rgb(236, 241, 243);
   }
 }
 
@@ -100,9 +100,9 @@ $settings-width: 293px;
   }
 }
 
-:global(.main-button) {
+:global(.light-mode) {
  .main-button  {
-     color: black;
+     color:  $light-mode-grey;
   }
 }
 

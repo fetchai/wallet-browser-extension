@@ -1,6 +1,7 @@
 import React, {
   FunctionComponent,
   useCallback,
+  useEffect,
   useMemo,
   useState
 } from "react";
@@ -56,6 +57,7 @@ import {
   useENS
 } from "../../../hooks/use-ens";
 import { SignOutButton } from "../main/sign-out";
+import { lightModeEnabled } from "../../light-mode";
 
 interface FormData {
   recipient: string;
@@ -87,6 +89,16 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
       clearError,
       triggerValidation
     } = formMethods;
+
+    const [lightMode, setLightMode] = useState(false);
+
+    useEffect(() => {
+      const isEnabled = async () => {
+        const enabled = await lightModeEnabled();
+        setLightMode(enabled);
+      };
+      isEnabled();
+    }, [lightMode, setLightMode]);
 
     register(
       { name: "fee" },
@@ -254,6 +266,7 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
         canChangeChainInfo={false}
         fetchIcon={true}
         rightRenderer={<SignOutButton />}
+        lightMode={lightMode}
       >
         <div className={style.wrapper}>
           <BackButton
@@ -263,6 +276,7 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
             stroke={4}
             style={{ height: "24px;" }}
             className={style.backButton}
+            lightMode={lightMode}
           ></BackButton>
           <form
             //TODO change denom back from this to selected currency rather than being just called FET.

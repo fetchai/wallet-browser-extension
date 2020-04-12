@@ -8,14 +8,7 @@
 
  :global(.light-mode) {
    .form-control-label {
-     color: black;
-   }
- }
-
-
- :global(.light-mode) {
-   .form-control-label {
-     color:white;
+     color: $light-mode-grey;
    }
  }
 
@@ -23,13 +16,11 @@
     color:white;
 }
 
-
  :global(.light-mode) {
    .form-control-override {
-     color:black;
+     color: $light-mode-grey;
    }
  }
-
 
 .white-border {
   @extend .white-border;
@@ -37,7 +28,7 @@
 
  :global(.light-mode) {
    .white-border {
-     @extend .black-border;
+     @extend .blue-border;
    }
  }
 

@@ -327,7 +327,6 @@ export class UpdatePasswordMsg extends Message<{
 
   validateBasic(): void {
     if (!this.password) {
-      debugger;
       throw new Error("password not set4");
     }
 
@@ -361,7 +360,6 @@ export class GetKeyFileMsg extends Message<{
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   validateBasic(): void {
-    debugger;
   }
 
   route(): string {
@@ -383,9 +381,6 @@ export class SetPathMsg extends Message<{ success: boolean }> {
     account: number,
     index: number
   ): SetPathMsg {
-    debugger;
-    debugger;
-    debugger;
     const msg = new SetPathMsg();
     msg.chainId = chainId;
     msg.account = account;

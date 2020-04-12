@@ -71,10 +71,13 @@
   }
 }
 
-
 :global(.light-mode) {
   .card > :global(.card-body) {
      background-color: rgb(234, 241, 243);
+
+    &:global(deposit-modal) {
+      background-color: rgb(240, 245, 247)
+    }
   }
 }
 

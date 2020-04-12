@@ -18,6 +18,7 @@ import {
   fitWindow
 } from "../../../../common/window";
 import classnames from "classnames";
+import { lightModeEnabled, setLightMode } from "../../light-mode";
 
 interface FormData {
   password: string;
@@ -28,9 +29,26 @@ export const LockPage: FunctionComponent<Pick<
   "location"
 >> = observer(({ location }) => {
   const intl = useIntl();
-
   const query = queryString.parse(location.search);
   const external = query.external ?? false;
+
+  // ignore light-mode when lock page mounted.
+  useEffect(() => {
+    console.log("mount");
+    setLightMode(false, false);
+  }, []);
+
+  // reset light mode from storage when lock page unmounted
+  useEffect(
+    () => () => {
+      const revertLightMode = async () => {
+        const enabled = await lightModeEnabled();
+        await setLightMode(enabled, false);
+      };
+      revertLightMode();
+    },
+    []
+  );
 
   useEffect(() => {
     if (external) {
@@ -65,11 +83,11 @@ export const LockPage: FunctionComponent<Pick<
         ></source>
       </video>
       <div className={style.logo}>
-        <svg
+        <img
           src={require("../../public/assets/fetch-logo.svg")}
           alt="Fetch.ai's Logo"
           className="logo"
-        ></>
+        ></img>
       </div>
       <Form
         className={style.formContainer}

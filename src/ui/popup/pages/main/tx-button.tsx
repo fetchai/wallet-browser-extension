@@ -16,7 +16,6 @@ import Modal from "react-modal";
 import { FormattedMessage } from "react-intl";
 import { useHistory } from "react-router";
 import classnames from "classnames";
-
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const QrCode = require("qrcode");
 
@@ -72,6 +71,12 @@ export const TxButtonView: FunctionComponent = observer(() => {
   }, [tooltipOpen]);
 
   const history = useHistory();
+
+  useEffect(() => {
+    document.body.style.backgroundColor = isDepositOpen
+      ? "rgb(234, 241, 243)"
+      : "transparent";
+  }, [isDepositOpen]);
 
   const onSendButton = useCallback(
     (e: MouseEvent) => {

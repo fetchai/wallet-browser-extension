@@ -5,7 +5,6 @@ import { getCurrencyFromDenom, getCurrencyFromMinimalDenom } from "../currency";
 
 export class CoinUtils {
   static amountOf(coins: Coin[], denom: string): Int {
-    debugger;
     const coin = coins.find(coin => {
       return coin.denom === denom;
     });

@@ -3,8 +3,6 @@ import { RouteComponentProps } from "react-router-dom";
 import { HeaderLayout } from "../../layouts";
 import { BackButton } from "../../layouts";
 import { observer } from "mobx-react";
-
-import styleLight from "../../light-mode.module.scss";
 import style from "./style.module.scss";
 // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
 // @ts-ignore
@@ -40,19 +38,12 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
     const [lightMode, setLightMode] = useState(false);
 
     useEffect(() => {
-      //https://medium.com/javascript-in-plain-english/how-to-use-async-function-in-react-hook-useeffect-typescript-js-6204a788a435
       const isEnabled = async () => {
         const enabled = await lightModeEnabled();
         setLightMode(enabled);
       };
       isEnabled();
     }, [lightMode, setLightMode]);
-
-    const toggleLightMode = () => {
-      const mode = !lightMode;
-      setLightMode(mode);
-      setLightModeModule(mode);
-    };
 
     const wipeFormErrors = (clearOutput = false) => {
       if (clearOutput) {
@@ -256,7 +247,10 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
                 type="button"
                 id={lightMode ? "green-solid" : ""}
                 className={lightMode ? style.pill : ""}
-                onClick={toggleLightMode}
+                onClick={() => {
+                  setLightMode(true);
+                  setLightModeModule(true);
+                }}
               >
                 <FormattedMessage id="settings.light-mode.pill.light" />
               </Button>
@@ -264,12 +258,14 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
                 type="button"
                 id={lightMode ? "" : "green-solid"}
                 className={lightMode ? "" : style.pill}
-                onClick={toggleLightMode}
+                onClick={() => {
+                  setLightMode(false);
+                  setLightModeModule(false);
+                }}
               >
                 <FormattedMessage id="settings.light-mode.pill.dark" />
               </Button>
             </ButtonGroup>
-
             <h3 className={style.subHeading}>
               {" "}
               {intl.formatMessage({

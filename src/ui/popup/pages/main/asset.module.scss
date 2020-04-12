@@ -30,6 +30,8 @@
     line-height: 40px;
   }
 
+
+
   .amount {
     position: relative;
     display: flex;
@@ -50,3 +52,10 @@
     min-width: 140px;
   }
 }
+
+:global(.light-mode) {
+  .container-asset > .fiat {
+   color: $light-mode-grey;
+  }
+}
+

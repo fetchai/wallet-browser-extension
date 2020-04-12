@@ -30,16 +30,36 @@ textarea:-webkit-autofill:focus,
 select:-webkit-autofill,
 select:-webkit-autofill:hover,
 select:-webkit-autofill:focus {
-    -webkit-box-shadow: 0 0 0 30px #1c2846 inset !important;
+  -webkit-box-shadow: 0 0 0 30px #1c2846 inset !important;
 }
+
 
 /*Change text in autofill textbox*/
 input:-webkit-autofill {
-    -webkit-text-fill-color: white !important;
+  -webkit-text-fill-color: white !important;
   &.is-invalid {
     -webkit-text-fill-color: red !important;
   }
 }
+
+.light-mode {
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  textarea:-webkit-autofill,
+  textarea:-webkit-autofill:hover,
+  textarea:-webkit-autofill:focus,
+  select:-webkit-autofill,
+  select:-webkit-autofill:hover,
+  select:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0 30px rgb(236, 241, 243) inset !important;
+  }
+
+  input:-webkit-autofill {
+    -webkit-text-fill-color: #5b6065 !important;
+  }
+}
+
 
 /* Chrome, Safari, Edge, Opera */
 input::-webkit-outer-spin-button,
@@ -49,10 +69,9 @@ input::-webkit-inner-spin-button {
 }
 
 /* Firefox */
-input[type=number] {
+input[type="number"] {
   -moz-appearance: textfield;
 }
-
 
 html {
   width: $popup-size-width;
@@ -71,8 +90,8 @@ html {
 
 .light-mode {
   html {
-     background-image: none;
-     background-color: white;
+    background-image: none;
+    background-color: white;
   }
 }
 
@@ -84,11 +103,10 @@ body {
 }
 
 .light-mode {
- body {
-      color: black;
+  body {
+    color: $light-mode-blue;
   }
 }
-
 
 #app {
   width: $popup-size-width;
@@ -101,51 +119,51 @@ body {
   border-color: white;
 }
 
-.black-border{
-  border-color: black;
+.blue-border {
+  border-color: $light-mode-blue;
 }
 
 .light-mode {
   .white-border {
-     @extend .black-border;
+    @extend .blue-border;
   }
 }
 
 .red {
-  border-color:red !important;;
-  color:red  !important;;
+  border-color: red !important;
+  color: red !important;
   &:focus {
-    color:red !important;
+    color: red !important;
   }
 }
 
 .is-invalid {
-   @extend .red;
+  @extend .red;
 
-    &.focus {
-       border-color:red !important;
-    }
+  &.focus {
+    border-color: red !important;
   }
+}
 
 .is-invalid::-webkit-input-placeholder {
   color: red;
 
-    &.focus {
-       color: white;
-    }
+  &.focus {
+    color: white;
+  }
 }
 
 .on-change-remove-error:focus {
   border-style: solid !important;
   border-width: 2px !important;
-  border-color: white!important;
+  border-color: white !important;
   color: white !important;
-  }
+}
 
 .light-mode {
   .on-change-remove-error:focus {
-    border-color: black !important;
-    color: black !important;
+    border-color: $light-mode-blue !important;
+    color: $light-mode-blue !important;
   }
 }
 
@@ -167,17 +185,17 @@ body {
 }
 
 .grey-hover {
-    &:hover {
-     background-color: $grey;
-     border-color:white;
-     color: white;
+  &:hover {
+    background-color: $grey;
+    border-color: white;
+    color: white;
   }
 }
 
 .grey-no-opacity-hover {
-    @extend .grey-hover;
-    &:hover {
-     background-color: $grey-no-opacity
+  @extend .grey-hover;
+  &:hover {
+    background-color: $grey-no-opacity;
   }
 }
 
@@ -193,15 +211,13 @@ body {
 
 .light-mode {
   .blue {
-     border-style: none;
+    border-style: none;
     background-color: rgb(89, 130, 212);
   }
 }
 
-
 #green,
-.green
-{
+.green {
   background-color: rgba(43, 181, 162, 0.25);
   border-color: rgba(43, 181, 162, 1);
   border-style: solid;
@@ -212,12 +228,12 @@ body {
 }
 
 .light-mode {
-  #green, .green {
-     border-style: none;
+  #green,
+  .green {
+    border-style: none;
     background-color: rgb(48, 175, 156);
   }
 }
-
 
 #green:disabled {
   @extend .green;
@@ -225,40 +241,39 @@ body {
 }
 
 #green-no-opacity {
-   @extend .green;
-   @extend .grey-no-opacity-hover;
+  @extend .green;
+  @extend .grey-no-opacity-hover;
   background-color: rgba(21, 49, 49, 1);
 }
 
- #green-solid, .green-solid
-{
+#green-solid,
+.green-solid {
   cursor: pointer;
-  background-color: rgba(43, 181, 162, .25) !important;
+  background-color: rgba(43, 181, 162, 0.25) !important;
   border-style: none;
   color: white;
 }
 
- .light-mode {
-  #green-solid, .green-solid {
-    background-color: rgb(48, 175, 156);
+.light-mode {
+  #green-solid,
+  .green-solid {
+    background-color: rgb(48, 175, 156) !important;
   }
 }
 
 .lock-border {
-   @extend .white-border;
-   // todo question: should we be able to see video through lock password input.
-   // uncomment beloe line across file if yes.
-   //background-image: linear-gradient(to top, #111117, #12121a) !important;
+  @extend .white-border;
+  // todo question: should we be able to see video through lock password input.
+  // uncomment beloe line across file if yes.
+  //background-image: linear-gradient(to top, #111117, #12121a) !important;
   border-radius: 5px;
   font-size: 18px;
 }
 
-
-
 .lock-border:focus {
-   @extend .white-border;
+  @extend .white-border;
   background: none;
-    //background-image: linear-gradient(to top, #111117, #12121a) !important;;
+  //background-image: linear-gradient(to top, #111117, #12121a) !important;;
   font-size: 18px;
 }
 
@@ -270,7 +285,7 @@ body {
 
 .light-mode {
   #hr {
-    border-color:black;
+    border-color: $light-mode-grey;
   }
 }
 
@@ -279,19 +294,19 @@ body {
   background: none;
 
   &:focus {
-     background: none;
-     color: white;
-     @extend .white-border;
+    background: none;
+    color: white;
+    @extend .white-border;
   }
 }
 
 .light-mode {
   .form-control {
-    color: black;
+    color: $light-mode-grey;
 
     &:focus {
-      @extend .black-border;
-       color: black;
+      @extend .blue-border;
+      color: $light-mode-grey;
     }
   }
 }

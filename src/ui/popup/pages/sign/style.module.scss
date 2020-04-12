@@ -22,6 +22,18 @@
     }
   }
 
+:global(.light-mode) {
+  .tabs {
+     ul {
+      //color:  $light-mode-grey !important;
+  }
+
+    ul > &:global(.active) {
+        color:  $light-mode-grey !important;
+      }
+  }
+}
+
   .tab {
     cursor: pointer;
     text-decoration: none;

@@ -1,4 +1,4 @@
-import React, { FunctionComponent } from "react";
+import React, { FunctionComponent, useEffect, useState } from "react";
 
 import { Dec } from "@everett-protocol/cosmosjs/common/decimal";
 import { observer } from "mobx-react";
@@ -10,9 +10,20 @@ import { getCurrency } from "../../../../common/currency";
 
 import { FormattedMessage } from "react-intl";
 import { ToolTip } from "../../../components/tooltip";
+import { lightModeEnabled } from "../../light-mode";
 
 export const AssetView: FunctionComponent = observer(() => {
   const { chainStore, accountStore, priceStore } = useStore();
+
+  const [lightMode, setLightMode] = useState(false);
+
+  useEffect(() => {
+    const isEnabled = async () => {
+      const enabled = await lightModeEnabled();
+      setLightMode(enabled);
+    };
+    isEnabled();
+  }, [lightMode, setLightMode]);
 
   const fiat = priceStore.getValue(
     "usd",
@@ -28,13 +39,16 @@ export const AssetView: FunctionComponent = observer(() => {
     accountStore.assets,
     nativeCurrency.coinMinimalDenom
   );
- debugger;
 
   return (
     <div className={styleAsset.containerAsset}>
       <div className={styleAsset.circularLogo}>
         <img
-          src={require("../../public/assets/fetch-circular-icon.svg")}
+          src={
+            lightMode
+              ? require("../../public/assets/fetch-circular-icon-black.svg")
+              : require("../../public/assets/fetch-circular-icon.svg")
+          }
           alt="Fetch.ai circular icon"
         ></img>
       </div>

@@ -7,8 +7,6 @@ const STORAGE_KEY = "light-mode";
 import React from "react";
 import classnames from "classnames";
 
-import style from "./light-mode.module.scss";
-
 type State = {
   lightMode: boolean;
 };
@@ -63,7 +61,7 @@ const lightModeEnabled = async (): Promise<boolean> => {
   );
 };
 
-function setLightMode(light: boolean) {
+function setLightMode(light: boolean, save = true) {
   setBackgroundImage(light);
   const el: HTMLElement = document.getElementById("light") as HTMLElement;
   if (light && !el.classList.contains(CLASS_NAME)) {
@@ -72,7 +70,9 @@ function setLightMode(light: boolean) {
     el.classList.remove(CLASS_NAME);
   }
 
-  chrome.storage.sync.set({ [STORAGE_KEY]: light });
+  if(save){
+    chrome.storage.sync.set({ [STORAGE_KEY]: light });
+  }
 }
 
 export { setLightMode, lightModeEnabled, LightMode };
