@@ -1,4 +1,4 @@
-import React, { FunctionComponent, ReactNode } from "react";
+import React, { FunctionComponent, ReactNode, useEffect } from "react";
 
 import { Header as CompHeader } from "../../components/header";
 
@@ -18,6 +18,7 @@ export interface Props {
   rightRenderer?: ReactNode;
   onBackButton?: () => void;
   fetchIcon?: boolean;
+  lightMode: boolean;
 }
 
 export interface LocalProps {
@@ -32,13 +33,18 @@ export const Header: FunctionComponent<Props & LocalProps> = observer(
     rightRenderer,
     isMenuOpen,
     onBackButton,
-    fetchIcon
+    fetchIcon,
+    lightMode
   }) => {
     const { chainStore } = useStore();
     const menu = useMenu();
 
     const chainInfoChangable =
       canChangeChainInfo && chainStore.chainList.length > 1;
+
+    useEffect(() => {
+      console.log("counter updated");
+    }, [lightMode]);
 
     return (
       <CompHeader
@@ -48,7 +54,11 @@ export const Header: FunctionComponent<Props & LocalProps> = observer(
               <>
                 <div className={style.logo}>
                   <img
-                    src={require("../../public/assets/fetch-logo.svg")}
+                    src={
+                      lightMode
+                        ? require("../../public/assets/fetch-logo-black.svg")
+                        : require("../../public/assets/fetch-logo.svg")
+                    }
                     alt="Fetch.ai's Logo"
                   ></img>
                 </div>

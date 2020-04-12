@@ -25,7 +25,8 @@
   ],
   "web_accessible_resources": [
     "injectedScript.bundle.js",
-    "assets/fetch-logo.svg",
+    "assets/fetch-logo.png",
+
     "/assets/*.mp4"
   ]
 }

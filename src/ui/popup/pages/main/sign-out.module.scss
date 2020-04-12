@@ -1,5 +1,4 @@
 .wrapper {
-
   .icon {
         font-size: 21px;
     position: absolute;
@@ -8,5 +7,11 @@
     &:hover {
       cursor: pointer;
     }
+  }
+}
+
+  :global(.light-mode) {
+  .wrapper > .icon {
+    color: black;
   }
 }

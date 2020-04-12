@@ -4,16 +4,13 @@ import { EmptyLayout } from "../../layouts/empty-layout";
 
 import { RegisterInPage } from "./register";
 import { VerifyInPage } from "./verify";
-
+import classnames from "classnames";
 import { observer } from "mobx-react";
 import { useStore } from "../../stores";
 import { IntroInPage } from "./intro";
-
 import style from "./style.module.scss";
 import { KeyRingStatus } from "../../../../background/keyring";
-
 import { Button } from "reactstrap";
-
 import { KeyRingStore } from "../../stores/keyring";
 import { WelcomeInPage } from "./welcome";
 import { FormattedMessage, useIntl } from "react-intl";
@@ -120,13 +117,13 @@ export const RegisterPage: FunctionComponent = observer(() => {
 
   return (
     <EmptyLayout
-      className={style.container}
+      className={classnames(style.container)}
       style={{ height: "100%", padding: 0 }}
     >
       <div>
         <img
           className={style.logo}
-          src={require("../../public/assets/fetch-logo.png")}
+          src={require("../../public/assets/fetch-logo.svg")}
           alt="logo"
         />
       </div>

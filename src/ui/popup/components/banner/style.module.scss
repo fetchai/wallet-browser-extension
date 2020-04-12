@@ -46,6 +46,15 @@
   width: 150px;
 }
 
+.light-mode {
+.logo {
+   img {
+    filter: invert(1);
+  }
+}
+}
+
+
 .subtitle {
   font-size: 18px;
       position: absolute;

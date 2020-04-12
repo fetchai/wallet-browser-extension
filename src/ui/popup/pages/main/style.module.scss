@@ -71,6 +71,14 @@
   }
 }
 
+
+:global(.light-mode) {
+  .card > :global(.card-body) {
+     background-color: rgb(234, 241, 243);
+  }
+}
+
+
 .tool-tip {
 background-color: lightgrey;
   color: black;

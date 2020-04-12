@@ -59,9 +59,21 @@ html {
   height: $popup-size-height;
   margin: auto;
   background-attachment: fixed;
-  background-image: linear-gradient(to top, #0d0d0d, $fetch-blue);
+
   height: 100%;
   overflow: auto;
+}
+//
+//
+//.testing {
+//  background-image: linear-gradient(to top, #0d0d0d, #1e2844);
+//}
+
+.light-mode {
+  html {
+     background-image: none;
+     background-color: white;
+  }
 }
 
 body {
@@ -70,6 +82,13 @@ body {
   background: none;
   color: white;
 }
+
+.light-mode {
+ body {
+      color: black;
+  }
+}
+
 
 #app {
   width: $popup-size-width;
@@ -80,6 +99,16 @@ body {
   border-style: solid;
   border-width: 2px;
   border-color: white;
+}
+
+.black-border{
+  border-color: black;
+}
+
+.light-mode {
+  .white-border {
+     @extend .black-border;
+  }
 }
 
 .red {
@@ -112,6 +141,13 @@ body {
   border-color: white!important;
   color: white !important;
   }
+
+.light-mode {
+  .on-change-remove-error:focus {
+    border-color: black !important;
+    color: black !important;
+  }
+}
 
 @keyframes spinAround {
   from {
@@ -155,6 +191,14 @@ body {
   @extend .grey-hover;
 }
 
+.light-mode {
+  .blue {
+     border-style: none;
+    background-color: rgb(89, 130, 212);
+  }
+}
+
+
 #green,
 .green
 {
@@ -166,6 +210,14 @@ body {
   cursor: pointer;
   @extend .grey-hover;
 }
+
+.light-mode {
+  #green, .green {
+     border-style: none;
+    background-color: rgb(48, 175, 156);
+  }
+}
+
 
 #green:disabled {
   @extend .green;
@@ -186,6 +238,12 @@ body {
   color: white;
 }
 
+ .light-mode {
+  #green-solid, .green-solid {
+    background-color: rgb(48, 175, 156);
+  }
+}
+
 .lock-border {
    @extend .white-border;
    // todo question: should we be able to see video through lock password input.
@@ -194,6 +252,8 @@ body {
   border-radius: 5px;
   font-size: 18px;
 }
+
+
 
 .lock-border:focus {
    @extend .white-border;
@@ -208,6 +268,12 @@ body {
   border: 1px solid white;
 }
 
+.light-mode {
+  #hr {
+    border-color:black;
+  }
+}
+
 .form-control {
   color: white;
   background: none;
@@ -216,6 +282,17 @@ body {
      background: none;
      color: white;
      @extend .white-border;
+  }
+}
+
+.light-mode {
+  .form-control {
+    color: black;
+
+    &:focus {
+      @extend .black-border;
+       color: black;
+    }
   }
 }
 

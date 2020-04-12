@@ -24,6 +24,7 @@ import {
   enableScroll,
   fitWindow
 } from "../../../../common/window";
+import { lightModeEnabled, setLightMode } from "../../light-mode";
 
 enum Tab {
   Details,
@@ -35,6 +36,7 @@ export const SignPage: FunctionComponent<RouteComponentProps<{
 }>> = ({ history, match, location }) => {
   const query = queryString.parse(location.search);
   const external = query.external ?? false;
+  const [lightMode, setLightMode] = useState(false);
 
   useEffect(() => {
     if (external) {
@@ -43,7 +45,13 @@ export const SignPage: FunctionComponent<RouteComponentProps<{
     } else {
       enableScroll();
     }
-  }, [external]);
+
+    const isEnabled = async () => {
+      const enabled = await lightModeEnabled();
+      setLightMode(enabled);
+    };
+    isEnabled();
+  }, [external, lightMode, setLightMode]);
 
   const id = match.params.id;
 
@@ -121,6 +129,7 @@ export const SignPage: FunctionComponent<RouteComponentProps<{
           : undefined
       }
       style={{ background: "none" }}
+      lightMode={lightMode}
     >
       <div className={style.container}>
         <div className={classnames(style.tabs)}>

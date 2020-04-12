@@ -1,4 +1,7 @@
 @import "../../styles/var";
+@import "../../light-mode.module";
+
+$settings-width: 293px;
 
 .back-button {
   margin-left: 0px;
@@ -14,6 +17,16 @@
     color: white !important;
   }
 }
+
+:global(.light-mode) {
+  .title-wrapper {
+     h2 {
+      color: black !important;
+  }
+  }
+}
+
+
 
 .sub-heading {
   padding-top: 0px;
@@ -32,8 +45,14 @@
   height: 426px;
 }
 
+:global(.light-mode) {
+  .wrapper {
+     background-color: rgb(234, 241, 243);
+  }
+}
+
 .button {
-  width: 293px;
+  width: $settings-width;
   border-radius: 5px;
   margin-bottom: 8px;
 }
@@ -55,11 +74,17 @@
   color: white;
   background: none;
   border-radius: 5px;
-  width: 293px;
+  width: $settings-width;
   margin-bottom: 10px;
   text-indent: 8px;
   border-width: 1px;
   margin-bottom: 12px;
+}
+
+:global(.light-mode) {
+ .input  {
+     color: black;
+  }
 }
 
 .heading {
@@ -75,7 +100,26 @@
   }
 }
 
+:global(.main-button) {
+ .main-button  {
+     color: black;
+  }
+}
+
 .about-section {
   margin-top: 10px;
     margin-left: 5px;
+}
+
+.pill-group {
+  width: 100%;
+
+  button {
+    height: 30px;
+    width: $settings-width/2;
+     border-radius: 5px;
+  margin-bottom: 8px;
+    height: 24px;
+    line-height: 4px;
+  }
 }

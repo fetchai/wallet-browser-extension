@@ -1,16 +1,24 @@
-import React, { FunctionComponent, useState } from "react";
+import React, { FunctionComponent, useState, useEffect } from "react";
 import { RouteComponentProps } from "react-router-dom";
 import { HeaderLayout } from "../../layouts";
 import { BackButton } from "../../layouts";
 import { observer } from "mobx-react";
+
+import styleLight from "../../light-mode.module.scss";
 import style from "./style.module.scss";
+// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
 // @ts-ignore
 import Expand from "react-expand-animated";
 import { VERSION } from "../../../../config";
 import { useStore } from "../../stores";
-import { useIntl } from "react-intl";
+import { FormattedMessage, useIntl } from "react-intl";
 import { strongPassword } from "../../../../common/strong-password";
 import flushPromises from "flush-promises";
+import {
+  lightModeEnabled,
+  setLightMode as setLightModeModule
+} from "../../light-mode";
+import { Button, ButtonGroup } from "reactstrap";
 
 export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
   ({ history }) => {
@@ -29,6 +37,22 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
     const [newPassword, setNewPassword] = useState("");
     const [newPasswordConfirm, setNewPasswordConfirm] = useState("");
     const [showDeleteConfirmation, setshowDeleteConfirmation] = useState(false);
+    const [lightMode, setLightMode] = useState(false);
+
+    useEffect(() => {
+      //https://medium.com/javascript-in-plain-english/how-to-use-async-function-in-react-hook-useeffect-typescript-js-6204a788a435
+      const isEnabled = async () => {
+        const enabled = await lightModeEnabled();
+        setLightMode(enabled);
+      };
+      isEnabled();
+    }, [lightMode, setLightMode]);
+
+    const toggleLightMode = () => {
+      const mode = !lightMode;
+      setLightMode(mode);
+      setLightModeModule(mode);
+    };
 
     const wipeFormErrors = (clearOutput = false) => {
       if (clearOutput) {
@@ -126,9 +150,7 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
     };
 
     const downloadKeyFile = async () => {
-      debugger;
       const json = await keyRingStore.getKeyFile();
-      debugger;
       const element = document.createElement("a");
       const file = new Blob([JSON.stringify(json)], { type: "text/plain" });
       element.href = URL.createObjectURL(file);
@@ -192,7 +214,12 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
     };
 
     return (
-      <HeaderLayout showChainName canChangeChainInfo={false} fetchIcon={true}>
+      <HeaderLayout
+        showChainName
+        canChangeChainInfo={false}
+        fetchIcon={true}
+        lightMode={lightMode}
+      >
         <div className={style.wrapper}>
           <BackButton
             onClick={() => {
@@ -201,24 +228,55 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
             stroke={4}
             style={{ height: "24px;" }}
             className={style.backButton}
+            lightMode={lightMode}
           ></BackButton>
           <div className={style.titleWrapper}>
             <h2>
               {intl.formatMessage({
-                id: "settings.update-password.heading"
+                id: "settings.heading"
               })}
             </h2>
           </div>
           <div className={style.mainButton} onClick={() => toggle(3)}>
             General
           </div>
-          <Expand open={collapsible3} duration={500} transitions={transitions}>
+          <Expand open={!collapsible3} duration={500} transitions={transitions}>
+            <h3 className={style.subHeading}>
+              {" "}
+              {intl.formatMessage({
+                id: "settings.light-mode.pill.title"
+              })}
+            </h3>
+
+            <ButtonGroup
+              className={style.pillGroup}
+              style={{ marginBottom: "4px" }}
+            >
+              <Button
+                type="button"
+                id={lightMode ? "green-solid" : ""}
+                className={lightMode ? style.pill : ""}
+                onClick={toggleLightMode}
+              >
+                <FormattedMessage id="settings.light-mode.pill.light" />
+              </Button>
+              <Button
+                type="button"
+                id={lightMode ? "" : "green-solid"}
+                className={lightMode ? "" : style.pill}
+                onClick={toggleLightMode}
+              >
+                <FormattedMessage id="settings.light-mode.pill.dark" />
+              </Button>
+            </ButtonGroup>
+
             <h3 className={style.subHeading}>
               {" "}
               {intl.formatMessage({
                 id: "settings.update-password.heading.download"
               })}
             </h3>
+
             <button
               type="button"
               className={`green ${style.button}`}
@@ -291,11 +349,13 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
               <button
                 type="submit"
                 className={`green ${style.button}`}
-                onClick={handlePasswordUpdate}
+                onClick={event => {
+                  event.preventDefault();
+                  setLightMode(true);
+                }}
               >
                 Update
               </button>
-
               <output
                 className={`change_password_error ${hasError() ? "red" : ""} `}
                 id="output"

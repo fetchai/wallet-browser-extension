@@ -65,11 +65,11 @@ export const LockPage: FunctionComponent<Pick<
         ></source>
       </video>
       <div className={style.logo}>
-        <img
+        <svg
           src={require("../../public/assets/fetch-logo.svg")}
           alt="Fetch.ai's Logo"
           className="logo"
-        ></img>
+        ></>
       </div>
       <Form
         className={style.formContainer}

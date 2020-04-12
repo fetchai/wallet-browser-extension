@@ -17,6 +17,18 @@ $input-height: 46px;
     width: 325px;
   }
 
+
+.light-mode {
+.logo {
+  img {
+    filter: invert(1);
+  }
+
+}
+}
+
+
+
   .title {
     font-size: 24px;
     letter-spacing: -1.07px;

@@ -6,14 +6,40 @@
     font-weight: 600;
 }
 
+ :global(.light-mode) {
+   .form-control-label {
+     color: black;
+   }
+ }
+
+
+ :global(.light-mode) {
+   .form-control-label {
+     color:white;
+   }
+ }
+
 .form-control-override {
     color:white;
 }
+
+
+ :global(.light-mode) {
+   .form-control-override {
+     color:black;
+   }
+ }
+
 
 .white-border {
   @extend .white-border;
 }
 
+ :global(.light-mode) {
+   .white-border {
+     @extend .black-border;
+   }
+ }
 
 .red {
   @extend .red;

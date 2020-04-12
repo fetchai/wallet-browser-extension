@@ -4,6 +4,7 @@ import ReactDOM from "react-dom";
 import { AppIntlProvider } from "./language";
 
 import "./styles/global.scss";
+import "../popup/pages/settings/style.module.scss";
 
 import { HashRouter, Route, RouteComponentProps } from "react-router-dom";
 import { RegisterPage } from "./pages/register";
@@ -26,9 +27,10 @@ import { SignPage } from "./pages/sign";
 import { FeePage } from "./pages/fee";
 import Modal from "react-modal";
 import { SettingsPage } from "./pages/settings";
+import { LightMode } from "./light-mode";
 
 // Make sure that icon file will be included in bundle
-require("./public/assets/fetch-logo.png");
+require("./public/assets/fetch-logo.svg");
 require("./public/assets/fetch-circular-icon.svg");
 require("./public/assets/favicon-16x16.png");
 require("./public/assets/favicon-32x32.png");
@@ -90,7 +92,7 @@ const StateRenderer: FunctionComponent<RouteComponentProps> = observer(
       return (
         <div style={{ height: "100%" }}>
           <Banner
-            logo={require("./public/assets/fetch-logo.png")}
+            logo={require("./public/assets/fetch-logo.svg")}
             subtitle={intl.formatMessage({
               id: "strap-line"
             })}
@@ -104,21 +106,23 @@ const StateRenderer: FunctionComponent<RouteComponentProps> = observer(
 );
 
 ReactDOM.render(
-  <AppIntlProvider>
-    <StoreProvider>
-      <NotificationStoreProvider>
-        <NotificationProvider>
-          <HashRouter>
-            <Route exact path="/" component={StateRenderer} />
-            <Route exact path="/register" component={RegisterPage} />
-            <Route exact path="/send" component={SendPage} />
-            <Route exact path="/settings" component={SettingsPage} />
-            <Route exact path="/fee/:id" component={FeePage} />
-            <Route path="/sign/:id" component={SignPage} />
-          </HashRouter>
-        </NotificationProvider>
-      </NotificationStoreProvider>
-    </StoreProvider>
-  </AppIntlProvider>,
+  <LightMode>
+    <AppIntlProvider>
+      <StoreProvider>
+        <NotificationStoreProvider>
+          <NotificationProvider>
+            <HashRouter>
+              <Route exact path="/" component={StateRenderer} />
+              <Route exact path="/register" component={RegisterPage} />
+              <Route exact path="/send" component={SendPage} />
+              <Route exact path="/settings" component={SettingsPage} />
+              <Route exact path="/fee/:id" component={FeePage} />
+              <Route path="/sign/:id" component={SignPage} />
+            </HashRouter>
+          </NotificationProvider>
+        </NotificationStoreProvider>
+      </StoreProvider>
+    </AppIntlProvider>
+  </LightMode>,
   document.getElementById("app")
 );

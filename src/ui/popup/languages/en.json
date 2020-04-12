@@ -56,7 +56,12 @@
    "settings.update-password.form.placeholder.invalid": "Invalid password",
    "settings.update-password.form.placeholder.confirm": "Confirm New Password",
 
-  "settings.update-password.heading": "Settings",
+
+   "settings.light-mode.pill.title": "Switch Theme",
+   "settings.light-mode.pill.light": "Light",
+   "settings.light-mode.pill.dark": "Dark",
+
+  "settings.heading": "Settings",
   "settings.update-password.heading.change-password": "Change Password",
   "settings.update-password.heading.reset": "Reset Application",
   "settings.update-password.button.delete": "Confirm",
