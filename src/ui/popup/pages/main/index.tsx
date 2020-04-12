@@ -14,7 +14,6 @@ export const MainPage: FunctionComponent = () => {
   const [lightMode, setLightMode] = useState(false);
 
   useEffect(() => {
-    //https://medium.com/javascript-in-plain-english/how-to-use-async-function-in-react-hook-useeffect-typescript-js-6204a788a435
     const isEnabled = async () => {
       const enabled = await lightModeEnabled();
       setLightMode(enabled);

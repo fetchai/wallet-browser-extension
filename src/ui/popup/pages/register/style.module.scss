@@ -17,18 +17,6 @@ $input-height: 46px;
     width: 325px;
   }
 
-
-.light-mode {
-.logo {
-  img {
-    filter: invert(1);
-  }
-
-}
-}
-
-
-
   .title {
     font-size: 24px;
     letter-spacing: -1.07px;
@@ -61,14 +49,6 @@ $input-height: 46px;
     border-width: 2px;
     border-color: white;
     resize: none;
-
-    &:read-only {
-      //background-color: none;
-    }
-
-    &[readonly] {
-      //background-color: none;
-    }
   }
 
   .password {

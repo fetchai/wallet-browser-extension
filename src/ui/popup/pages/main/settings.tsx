@@ -11,9 +11,6 @@ export const SettingsButton: FunctionComponent<Props> = observer(
   ({ lightMode }) => {
     const history = useHistory();
 
-    useEffect(() => {
-      console.log("counter updated");
-    }, [lightMode]);
 
     return (
       <div className={style.wrapper}>

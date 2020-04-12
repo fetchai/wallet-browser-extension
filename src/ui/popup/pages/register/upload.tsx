@@ -1,7 +1,6 @@
 import React from "react";
 import style from "./style.module.scss";
 import classnames from "classnames";
-// import { FormattedMessage, useIntl } from "react-intl";
 import { strongPassword } from "../../../../common/strong-password";
 import { validJSONString } from "../../../../common/utils/valid-json-string";
 import { KeyStore } from "../../../../background/keyring/crypto";
