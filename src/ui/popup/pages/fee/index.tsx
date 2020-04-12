@@ -2,7 +2,8 @@ import React, {
   FunctionComponent,
   useCallback,
   useEffect,
-  useMemo
+  useMemo,
+  useState
 } from "react";
 
 import { HeaderLayout } from "../../layouts/header-layout";
@@ -38,6 +39,7 @@ import {
 } from "../../../../common/window";
 
 import { FormattedMessage, useIntl } from "react-intl";
+import { lightModeEnabled } from "../../light-mode";
 
 interface FormData {
   gas: string;
@@ -50,8 +52,16 @@ export const FeePage: FunctionComponent<RouteComponentProps<{
 }>> = observer(({ match, location, history }) => {
   const query = queryString.parse(location.search);
   const external = query.external ?? false;
-
   const intl = useIntl();
+  const [lightMode, setLightMode] = useState(false);
+
+  useEffect(() => {
+    const isEnabled = async () => {
+      const enabled = await lightModeEnabled();
+      setLightMode(enabled);
+    };
+    isEnabled();
+  }, [lightMode, setLightMode]);
 
   useEffect(() => {
     if (external) {
@@ -152,6 +162,7 @@ export const FeePage: FunctionComponent<RouteComponentProps<{
             }
           : undefined
       }
+      lightMode={lightMode}
     >
       <form
         className={style.formContainer}

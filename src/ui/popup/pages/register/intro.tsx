@@ -1,8 +1,9 @@
-import React, { FunctionComponent } from "react";
+import React, { FunctionComponent, useEffect } from "react";
 
 import styleIntro from "./intro.module.scss";
 
-import { FormattedMessage, useIntl } from "react-intl";
+import { FormattedMessage } from "react-intl";
+import { setLightMode } from "../../light-mode";
 
 interface ButtonContent {
   title: string;
@@ -14,6 +15,10 @@ export const IntroInPage: FunctionComponent<{
   topButton: ButtonContent;
   bottomButton: ButtonContent;
 }> = props => {
+  useEffect(() => {
+    // no light-mode from signup.
+    setLightMode(false, true);
+  }, []);
 
   return (
     <div>

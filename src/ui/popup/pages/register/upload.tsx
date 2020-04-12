@@ -75,7 +75,7 @@ export default class Recover extends React.Component<Props, State> {
     return this.state.fileError || this.state.passwordError;
   };
 
-  openUploadFile = async (event: Event): Promise<void> => {
+  openUploadFile = async (event: any): Promise<void> => {
     event.preventDefault();
     (document.getElementById("file") as HTMLElement).click();
   };

@@ -1,7 +1,5 @@
 import React, { FunctionComponent, useCallback, useState } from "react";
-
 import { EmptyLayout } from "../../layouts/empty-layout";
-
 import { RegisterInPage } from "./register";
 import { VerifyInPage } from "./verify";
 import classnames from "classnames";
@@ -107,7 +105,7 @@ export const RegisterPage: FunctionComponent = observer(() => {
     setState(RegisterState.INIT);
   }, []);
 
- const onBackToChooseRecoverMethod = useCallback(() => {
+  const onBackToChooseRecoverMethod = useCallback(() => {
     setState(RegisterState.RECOVERY_CHOICE);
   }, []);
 

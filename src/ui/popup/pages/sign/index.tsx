@@ -24,7 +24,7 @@ import {
   enableScroll,
   fitWindow
 } from "../../../../common/window";
-import { lightModeEnabled, setLightMode } from "../../light-mode";
+import { lightModeEnabled } from "../../light-mode";
 
 enum Tab {
   Details,
