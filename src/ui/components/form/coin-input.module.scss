@@ -18,6 +18,18 @@
   }
 }
 
+:global(.light-mode) {
+ .input {
+   box-shadow: none !important;
+   &:focus {
+     box-shadow: none !important;
+   }
+      & + .select {
+        box-shadow: none !important;
+      }
+   }
+ }
+
 .fet {
       margin: auto;
     padding-right: 10px;

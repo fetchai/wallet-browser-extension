@@ -228,10 +228,10 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
               })}
             </h2>
           </div>
-          <div className={style.mainButton} onClick={() => toggle(3)}>
+          <div className={style.mainButton} onClick={() => toggle(1)}>
             General
           </div>
-          <Expand open={!collapsible3} duration={500} transitions={transitions}>
+          <Expand open={collapsible1} duration={500} transitions={transitions}>
             <h3 className={style.subHeading}>
               {" "}
               {intl.formatMessage({
@@ -284,10 +284,10 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
             </button>
           </Expand>
 
-          <div className={style.mainButton} onClick={() => toggle(1)}>
+          <div className={style.mainButton} onClick={() => toggle(2)}>
             Security & Privacy
           </div>
-          <Expand open={collapsible1} duration={500} transitions={transitions}>
+          <Expand open={collapsible2} duration={500} transitions={transitions}>
             <form id="form">
               <h3 className={style.subHeading}>
                 {intl.formatMessage({
@@ -347,7 +347,7 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
                 className={`green ${style.button}`}
                 onClick={event => {
                   event.preventDefault();
-                  setLightMode(true);
+                  handlePasswordUpdate()
                 }}
               >
                 Update
@@ -389,10 +389,10 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
                   })}
             </button>
           </Expand>
-          <div className={style.mainButton} onClick={() => toggle(2)}>
+          <div className={style.mainButton} onClick={() => toggle(3)}>
             About
           </div>
-          <Expand open={collapsible2} duration={500} transitions={transitions}>
+          <Expand open={collapsible3} duration={500} transitions={transitions}>
             <div className={style.aboutSection}>
               <p className={style.about}>FET Wallet Version {VERSION}</p>
               <p className={style.about}>
