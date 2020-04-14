@@ -20,7 +20,7 @@ gaiad start --rpc.laddr tcp://0.0.0.0:26657
 ```
 
 - If it is started on a different port change port ("26657") number in src/chain-info.ts to the desired port
-- Navigate to chrome://extensions; select "developer mode"; select "Load unpacked"; choose /dist 
+- Navigate to chrome://extensions in chrome broswer select "developer mode"; select "Load unpacked"; choose /dist 
 - After creating an account use gaiacli to add funds to that address 
 
 ```
