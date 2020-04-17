@@ -171,7 +171,7 @@ export class CreateKeyMsg extends Message<{ status: KeyRingStatus }> {
     }
 
     if (!this.password) {
-      throw new Error("password not set1");
+      throw new Error("password not set");
     }
   }
 
@@ -221,7 +221,7 @@ export class UnlockKeyRingMsg extends Message<{ status: KeyRingStatus }> {
 
   validateBasic(): void {
     if (!this.password) {
-      throw new Error("password not set2");
+      throw new Error("password not set");
     }
   }
 
@@ -253,7 +253,7 @@ export class VerifyPasswordKeyRingMsg extends Message<{
 
   validateBasic(): void {
     if (!this.password) {
-      throw new Error("password not set3");
+      throw new Error("password not set");
     }
   }
 
@@ -288,11 +288,11 @@ export class GetMneumonicMsg extends Message<{
 
   validateBasic(): void {
     if (!this.password) {
-      throw new Error("password not set3");
+      throw new Error("password not set");
     }
 
     if (this.keyFile === null) {
-      throw new Error("password not set3");
+      throw new Error("password not set");
     }
   }
 
@@ -327,11 +327,11 @@ export class UpdatePasswordMsg extends Message<{
 
   validateBasic(): void {
     if (!this.password) {
-      throw new Error("password not set4");
+      throw new Error("password not set");
     }
 
     if (!this.newPassword) {
-      throw new Error("new password not set5");
+      throw new Error("new password not set");
     }
   }
 

@@ -101,9 +101,7 @@ export const FeePage: FunctionComponent<RouteComponentProps<{
   const onConfigInit = useCallback(
     (chainId: string, config: TxBuilderConfig) => {
       chainStore.setChain(chainId);
-
       setValue("gas", config.gas.toString());
-
       // Always returns the fee by fee buttons.
       /*if (config.fee instanceof Coin) {
         setValue("fee", config.fee);

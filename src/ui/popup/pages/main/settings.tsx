@@ -11,7 +11,6 @@ export const SettingsButton: FunctionComponent<Props> = observer(
   ({ lightMode }) => {
     const history = useHistory();
 
-
     return (
       <div className={style.wrapper}>
         <img
