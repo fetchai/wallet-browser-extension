@@ -194,7 +194,7 @@ export const CoinInput: FunctionComponent<CoinInputProps> = props => {
           disabled={allBalance}
           autoComplete="off"
         />
-        <span className={styleCoinInput.fet}>stake</span>
+        <span className={styleCoinInput.fet}>ufet</span>
         <Input
           type="select"
           style={{ display: "none" }}
