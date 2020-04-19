@@ -5,11 +5,12 @@ import classnames from "classnames";
 import styleCoinInput from "./coin-input.module.scss";
 import style from "./form.module.scss";
 
-import { getCurrencyFromDenom } from "../../../common/currency";
+import { getCurrency, getCurrencyFromDenom } from "../../../common/currency";
 import { Dec } from "@everett-protocol/cosmosjs/common/decimal";
 import { ElementLike } from "react-hook-form/dist/types";
 import { Coin } from "@everett-protocol/cosmosjs/common/coin";
 import { FormFeedback, FormGroup, Input, InputGroup, Label } from "reactstrap";
+import { useStore } from "../../popup/stores";
 
 export interface CoinInputProps {
   currencies: Currency[];
@@ -28,6 +29,7 @@ export interface CoinInputProps {
   select: {
     name: string;
     ref: React.RefObject<HTMLSelectElement> | ElementLike | null;
+    callBack: any;
   };
 
   onChangeAllBanace?: (allBalance: boolean) => void;
@@ -53,11 +55,21 @@ export const CoinInput: FunctionComponent<CoinInputProps> = props => {
     clearError
   } = props;
 
+  const { chainStore, accountStore } = useStore();
+
   const [currency, setCurrency] = useState<Currency | undefined>();
   const [step, setStep] = useState<string | undefined>();
   const [balance, setBalance] = useState<DecCoin | undefined>();
 
   const [allBalance, setAllBalance] = useState(false);
+
+  const nativeCurrency = getCurrency(
+    chainStore.chainInfo.nativeCurrency
+  ) as Currency;
+
+  const [selectedCurrency, setSelectedCurrency] = useState(
+    nativeCurrency.coinDenom
+  );
 
   useEffect(() => {
     // If curreny currency is undefined, or new currencies don't have the matched current currency,
@@ -118,6 +130,14 @@ export const CoinInput: FunctionComponent<CoinInputProps> = props => {
     }
   }, [currency]);
 
+  const currencyChange = (event: any) => {
+    const selectedCurency = event.target.value;
+    const currency = getCurrencyFromDenom(selectedCurency);
+    setCurrency(currency);
+    setSelectedCurrency(selectedCurency);
+    select.callBack(selectedCurency);
+  };
+
   const canAllBalance =
     onChangeAllBanace && balance && balance.dec.gt(new Dec(0));
 
@@ -126,6 +146,23 @@ export const CoinInput: FunctionComponent<CoinInputProps> = props => {
     crypto.getRandomValues(bytes);
     return `input-${Buffer.from(bytes).toString("hex")}`;
   });
+
+  const getDropDownOptions = () => {
+    const options = [];
+    for (const coins of accountStore.assets) {
+      if (coins.denom !== nativeCurrency.coinDenom) {
+        options.push(coins.denom);
+      }
+    }
+
+    return options.map((value, index) => {
+      return (
+        <option key={index + 1} value={value}>
+          {value}
+        </option>
+      );
+    });
+  };
 
   return (
     <FormGroup className={className}>
@@ -183,7 +220,6 @@ export const CoinInput: FunctionComponent<CoinInputProps> = props => {
             styleCoinInput.input,
             error ? style.red : false
           )}
-
           onChange={() => {
             clearError("amount");
           }}
@@ -194,34 +230,18 @@ export const CoinInput: FunctionComponent<CoinInputProps> = props => {
           disabled={allBalance}
           autoComplete="off"
         />
-        <span className={styleCoinInput.fet}>stake</span>
-        <Input
-          type="select"
-          style={{ display: "none" }}
-          className={classnames(
-            "form-control-alternative",
-            styleCoinInput.select
-          )}
-          value={currency ? currency.coinDenom : ""}
-          onChange={e => {
-            const currency = getCurrencyFromDenom(e.target.value);
-            if (currency) {
-              setCurrency(currency);
-            }
-            e.preventDefault();
-          }}
-          name={select.name}
-          innerRef={select.ref as any}
-          disabled={allBalance}
+        <select
+          value={selectedCurrency}
+          id="currency"
+          name="denom"
+          className={styleCoinInput.select}
+          onChange={currencyChange}
         >
-          {currencies.map((currency, i) => {
-            return (
-              <option key={i.toString()} value={currency.coinDenom}>
-                {currency.coinDenom}
-              </option>
-            );
-          })}
-        </Input>
+          <option key={1} value={nativeCurrency.coinDenom}>
+            {nativeCurrency.coinDenom}
+          </option>
+          {getDropDownOptions()}
+        </select>
       </InputGroup>
       {error ? (
         <FormFeedback style={{ display: "block" }}>{error}</FormFeedback>

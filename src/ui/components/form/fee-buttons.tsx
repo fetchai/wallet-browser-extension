@@ -51,7 +51,8 @@ export interface FeeButtonsProps {
   price: Dec;
   gas: number;
   gasPriceStep: GasPriceStep;
-
+  coinDenom: string;
+  coinMinimalDenom: string;
   name: string;
 }
 
@@ -65,11 +66,11 @@ export const FeeButtons: FunctionComponent<FeeButtonsProps> = ({
   label,
   feeSelectLabels = { low: "Low", average: "Average", high: "High" },
   error,
-  currency,
-  price,
   gas,
   gasPriceStep,
-  name
+  name,
+  coinDenom,
+  coinMinimalDenom
 }) => {
   const { setValue } = useFormContext();
 
@@ -79,42 +80,29 @@ export const FeeButtons: FunctionComponent<FeeButtonsProps> = ({
   const [feeHigh, setFeeHigh] = useState<Coin | undefined>();
 
   useEffect(() => {
-    if (price.gt(new Dec(0))) {
-      let precision = new Dec(1);
-      for (let i = 0; i < currency.coinDecimals; i++) {
-        precision = precision.mul(new Dec(10));
-      }
+    const feeLow = new Coin(
+      coinMinimalDenom,
+      gasPriceStep.low.mul(new Dec(gas.toString())).truncate()
+    );
+    setFeeLow(feeLow);
 
-      const feeLow = new Coin(
-        currency.coinMinimalDenom,
-        gasPriceStep.low.mul(new Dec(gas.toString())).truncate()
-      );
-      setFeeLow(feeLow);
+    const feeAverage = new Coin(
+      coinMinimalDenom,
+      gasPriceStep.average.mul(new Dec(gas.toString())).truncate()
+    );
+    setFeeAverage(feeAverage);
 
-      const feeAverage = new Coin(
-        currency.coinMinimalDenom,
-        gasPriceStep.average.mul(new Dec(gas.toString())).truncate()
-      );
-      setFeeAverage(feeAverage);
-
-      const feeHigh = new Coin(
-        currency.coinMinimalDenom,
-        gasPriceStep.high.mul(new Dec(gas.toString())).truncate()
-      );
-      setFeeHigh(feeHigh);
-    } else {
-      setFeeLow(undefined);
-      setFeeAverage(undefined);
-      setFeeHigh(undefined);
-    }
+    const feeHigh = new Coin(
+      coinMinimalDenom,
+      gasPriceStep.high.mul(new Dec(gas.toString())).truncate()
+    );
+    setFeeHigh(feeHigh);
   }, [
-    currency.coinDecimals,
-    currency.coinMinimalDenom,
+    coinMinimalDenom,
     gas,
     gasPriceStep.average,
     gasPriceStep.high,
-    gasPriceStep.low,
-    price
+    gasPriceStep.low
   ]);
 
   useEffect(() => {
@@ -157,18 +145,7 @@ export const FeeButtons: FunctionComponent<FeeButtonsProps> = ({
             className={classnames(styleFeeButtons.fiat, {
               "text-muted": feeSelect !== FeeSelect.LOW
             })}
-          >
-            {price.gt(new Dec(0)) && feeLow
-              ? `$${DecUtils.removeTrailingZerosFromDecStr(
-                  new Dec(feeLow.amount)
-                    .quoTruncate(
-                      DecUtils.getPrecisionDec(currency.coinDecimals)
-                    )
-                    .mul(price)
-                    .toString(4)
-                )}`
-              : "?"}
-          </div>
+          ></div>
           <div
             className={classnames(styleFeeButtons.coin, {
               "text-muted": feeSelect !== FeeSelect.LOW
@@ -177,7 +154,7 @@ export const FeeButtons: FunctionComponent<FeeButtonsProps> = ({
             {feeLow
               ? `${DecUtils.removeTrailingZerosFromDecStr(
                   CoinUtils.parseDecAndDenomFromCoin(feeLow).amount
-                )}${currency.coinDenom}`
+                )}${coinDenom}`
               : "loading"}
           </div>
         </Button>
@@ -196,18 +173,7 @@ export const FeeButtons: FunctionComponent<FeeButtonsProps> = ({
             className={classnames(styleFeeButtons.fiat, {
               "text-muted": feeSelect !== FeeSelect.AVERAGE
             })}
-          >
-            {price.gt(new Dec(0)) && feeAverage
-              ? `$${DecUtils.removeTrailingZerosFromDecStr(
-                  new Dec(feeAverage.amount)
-                    .quoTruncate(
-                      DecUtils.getPrecisionDec(currency.coinDecimals)
-                    )
-                    .mul(price)
-                    .toString(4)
-                )}`
-              : "?"}
-          </div>
+          ></div>
           <div
             className={classnames(styleFeeButtons.coin, {
               "text-muted": feeSelect !== FeeSelect.AVERAGE
@@ -216,7 +182,7 @@ export const FeeButtons: FunctionComponent<FeeButtonsProps> = ({
             {feeAverage
               ? `${DecUtils.removeTrailingZerosFromDecStr(
                   CoinUtils.parseDecAndDenomFromCoin(feeAverage).amount
-                )}${currency.coinDenom}`
+                )}${coinDenom}`
               : "loading"}
           </div>
         </Button>
@@ -234,18 +200,7 @@ export const FeeButtons: FunctionComponent<FeeButtonsProps> = ({
             className={classnames(styleFeeButtons.fiat, {
               "text-muted": feeSelect !== FeeSelect.HIGH
             })}
-          >
-            {price.gt(new Dec(0)) && feeHigh
-              ? `$${DecUtils.removeTrailingZerosFromDecStr(
-                  new Dec(feeHigh.amount)
-                    .quoTruncate(
-                      DecUtils.getPrecisionDec(currency.coinDecimals)
-                    )
-                    .mul(price)
-                    .toString(4)
-                )}`
-              : "?"}
-          </div>
+          ></div>
           <div
             className={classnames(styleFeeButtons.coin, {
               "text-muted": feeSelect !== FeeSelect.HIGH
@@ -254,7 +209,7 @@ export const FeeButtons: FunctionComponent<FeeButtonsProps> = ({
             {feeHigh
               ? `${DecUtils.removeTrailingZerosFromDecStr(
                   CoinUtils.parseDecAndDenomFromCoin(feeHigh).amount
-                )}${currency.coinDenom}`
+                )}${coinDenom}`
               : "loading"}
           </div>
         </Button>

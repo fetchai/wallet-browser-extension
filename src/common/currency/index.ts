@@ -21,6 +21,16 @@ export function getCurrencies(types: string[]): Currency[] {
   return currencies;
 }
 
+export function currencyExists(denom: string): boolean {
+  for (const key in Currencies) {
+    const currency = Currencies[key];
+    if (currency.coinDenom === denom) {
+      return true;
+    }
+  }
+  return false;
+}
+
 export function getCurrencyFromDenom(denom: string): Currency | undefined {
   if (!denom) {
     return undefined;

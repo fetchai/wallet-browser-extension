@@ -36,16 +36,22 @@
 }
 
 .select {
+
+  background-color: inherit;
+  color: white;
   box-shadow: $input-alternative-box-shadow !important;
   border: none;
   text-align-last: center;
 
   flex: 0 !important;
-  min-width: 100px;
+  min-width: 75px;
+    margin-right: 10px;
+  & option {
+    background-color: #1e2844;
+    color: white;
+    border-radius: 5px;
+  }
 
-  -moz-appearance: none;
-  -webkit-appearance: none;
-  appearance: none;
 }
 
 .balance {

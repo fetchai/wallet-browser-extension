@@ -35,6 +35,7 @@ import { observer } from "mobx-react";
 import { useCosmosJS } from "../../../hooks";
 import { TxBuilderConfig } from "@everett-protocol/cosmosjs/core/txBuilder";
 import {
+  currencyExists,
   getCurrencies,
   getCurrency,
   getCurrencyFromDenom
@@ -58,6 +59,7 @@ import {
 } from "../../../hooks/use-ens";
 import { SignOutButton } from "../main/sign-out";
 import { lightModeEnabled } from "../../light-mode";
+import { Currency } from "../../../../chain-info";
 
 interface FormData {
   recipient: string;
@@ -112,6 +114,16 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
     const notification = useNotification();
 
     const { chainStore, accountStore, priceStore } = useStore();
+
+    const nativeCurrency = getCurrency(
+      chainStore.chainInfo.nativeCurrency
+    ) as Currency;
+
+    const [denom, setdenom] = useState(nativeCurrency.coinDenom);
+    const [coinMinimalDenom, setcoinMinimalDenom] = useState(
+      nativeCurrency.coinDenom
+    );
+
     const [walletProvider] = useState(
       new PopupWalletProvider(undefined, {
         onRequestSignature: (id: string) => {
@@ -125,15 +137,14 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
 
     const [gasForSendMsg] = useState(80000);
 
-    const feeCurrency = useMemo(() => {
-      return getCurrency(chainStore.chainInfo.feeCurrencies[0]);
-    }, [chainStore.chainInfo.feeCurrencies]);
-
-    const feePrice = priceStore.getValue("usd", feeCurrency?.coinGeckoId);
-
-    const feeValue = useMemo(() => {
-      return feePrice ? feePrice.value : new Dec(0);
-    }, [feePrice]);
+    useEffect(() => {
+      if (currencyExists(denom)) {
+        const minimal = getCurrencyFromDenom(denom) as Currency;
+        setcoinMinimalDenom(minimal.coinMinimalDenom);
+      } else {
+        setcoinMinimalDenom(denom);
+      }
+    }, [denom]);
 
     const [allBalance, setAllBalance] = useState(false);
 
@@ -143,7 +154,6 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
 
     const fee = watch("fee");
     const amount = watch("amount");
-    const denom = watch("denom");
 
     const balanceValidate = (fee: Coin | undefined, denom: string) => {
       if (allBalance) {
@@ -284,8 +294,9 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
               if (isValidENS(recipient)) {
                 triggerValidation({ name: "recipient" });
               }
-
+              debugger;
               balanceValidate(fee, denom);
+
               amountValidate(amount, denom, fee);
               // React form hook doesn't block submitting when error is delivered outside.
               // So, jsut check if errors exists manually, and if it exists, do nothing.
@@ -302,10 +313,7 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
               }
 
               handleSubmit(async (data: FormData) => {
-                const coin = CoinUtils.getCoinFromDecimals(
-                  data.amount,
-                  data.denom
-                );
+                const coin = CoinUtils.getCoinFromDecimals(data.amount, denom);
 
                 await useBech32ConfigPromise(
                   chainStore.chainInfo.bech32Config,
@@ -443,6 +451,7 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
                   }}
                   select={{
                     name: "denom",
+                    callBack: setdenom,
                     ref: register({
                       required: intl.formatMessage({
                         id: "send.input.amount.error.required"
@@ -475,10 +484,10 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
                         id: "fee-buttons.select.high"
                       })
                     }}
+                    coinDenom={denom}
+                    coinMinimalDenom={coinMinimalDenom}
                     name="fee"
                     error={errors.fee && errors.fee.message}
-                    currency={feeCurrency!}
-                    price={feeValue}
                     gasPriceStep={DefaultGasPriceStep}
                     gas={gasForSendMsg}
                   />

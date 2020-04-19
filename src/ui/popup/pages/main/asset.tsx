@@ -5,20 +5,18 @@ import { observer } from "mobx-react";
 import { useStore } from "../../stores";
 import styleAsset from "./asset.module.scss";
 import { CoinUtils } from "../../../../common/coin-utils";
-import {Currencies, Currency} from "../../../../chain-info";
+import { Currencies, Currency } from "../../../../chain-info";
 import { getCurrency } from "../../../../common/currency";
 
 import { FormattedMessage } from "react-intl";
 import { ToolTip } from "../../../components/tooltip";
 import { lightModeEnabled } from "../../light-mode";
-import {Coin} from "@everett-protocol/cosmosjs/common/coin";
-import {Int} from "@everett-protocol/cosmosjs/common/int";
+import { Int } from "@everett-protocol/cosmosjs/common/int";
 
 export const AssetView: FunctionComponent = observer(() => {
   const { chainStore, accountStore, priceStore } = useStore();
 
   const [lightMode, setLightMode] = useState(false);
-
 
   useEffect(() => {
     const isEnabled = async () => {
@@ -38,73 +36,86 @@ export const AssetView: FunctionComponent = observer(() => {
     chainStore.chainInfo.nativeCurrency
   ) as Currency;
 
-  const [selectedCurrency, setSelectedCurrency] = useState(nativeCurrency.coinDenom);
+  const [selectedCurrency, setSelectedCurrency] = useState(
+    nativeCurrency.coinDenom
+  );
 
   const coinAmount = CoinUtils.amountOf(
     accountStore.assets,
     nativeCurrency.coinMinimalDenom
   );
 
+  const getCurrencyInDollars = () => {
+    if (!fiat || selectedCurrency !== chainStore.chainInfo.nativeCurrency)
+      return "";
+    else
+      return !fiat.value.equals(new Dec(0))
+        ? "$" +
+            parseFloat(
+              fiat.value
+                .mul(new Dec(coinAmount, nativeCurrency.coinDecimals))
+                .toString()
+            ).toLocaleString()
+        : "?";
+  };
 
- const currencyChange = (event: any) => {
-     debugger;
-         const selectedCurency = event.target.value
-     setSelectedCurrency(selectedCurency)
-  }
+  const currencyChange = (event: any) => {
+    const selectedCurency = event.target.value;
+    setSelectedCurrency(selectedCurency);
+  };
 
-
-
-  const getAmount = (denom) => {
-      for (const coin: Coin of accountStore.assets) {
-          if (coins.denom === denom) return coins.amount;
-      }
-      return undefined;
+  const getAmount = denom => {
+    for (const coin of accountStore.assets) {
+      if (typeof coin !== "undefined" && coin.denom === denom)
+        return coin.amount;
     }
+    return undefined;
+  };
 
-
-  const getDecimalsFromDenom = (coinDenom) => {
-        debugger;
-      for (const currency in Currencies) {
-        debugger;
-          // if(typeof currency[coinDenom] !== "undefined"){
-          //     return currency.coinDecimals
-          // }
+  const getDecimalsFromDenom = (coinDenom: string) => {
+    for (const currency in Currencies) {
+      if (Currencies[currency].coinDenom === coinDenom) {
+        return Currencies[currency].coinDecimals;
       }
-       return undefined;
     }
+    return undefined;
+  };
 
-
-
- const getCurrencyAmount = () => {
-
-     const selected = selectedCurrency
+  const getCurrencyAmount = () => {
+    const selected = selectedCurrency;
+    debugger;
     const amount = getAmount(selected);
-   const decimals = getDecimalsFromDenom(selected);
 
-   // if the asset is specified in the configs can shrink else we just return raw.
-     return (typeof decimals !== "undefined")?
-    CoinUtils.shrinkDecimals(
-        (amount as Int),
-                decimals,
-                0,
-                6
-              ) : amount;
- }
+    if (typeof amount === "undefined") {
+      return "0";
+    }
 
+    const decimals = getDecimalsFromDenom(selected);
+
+    if (typeof decimals === "undefined") {
+      return amount.toString();
+    }
+    // if the asset is specified in the configs can shrink else we just return raw.
+    return CoinUtils.shrinkDecimals(amount as Int, decimals as number, 0, 6);
+  };
 
   const getDropDownOptions = () => {
-       const options = [];
-  for (const coins: Coin of accountStore.assets) {
-            if (coins.denom !== nativeCurrency.coinDenom) {
-                options.push(coins.denom)
-            }
-          }
+    const options = [];
+    for (const coins of accountStore.assets) {
+      if (coins.denom !== nativeCurrency.coinDenom) {
+        options.push(coins.denom);
+      }
+    }
 
-return options.map((value, index) => {
-         let k = index + 1;
-       return (<option key={k} value={value}>{value}</option>);
-  })
-  }
+    return options.map((value, index) => {
+      let k = index + 1;
+      return (
+        <option key={k} value={value}>
+          {value}
+        </option>
+      );
+    });
+  };
 
   return (
     <div className={styleAsset.containerAsset}>
@@ -121,29 +132,21 @@ return options.map((value, index) => {
       <div className={styleAsset.title}>
         <FormattedMessage id="main.account.message.available-balance" />
       </div>
-      <div className={styleAsset.fiat}>
-        {selectedCurrency === nativeCurrency &&
-        fiat &&
-        !fiat.value.equals(new Dec(0))
-          ? "$" +
-            parseFloat(
-              fiat.value
-                .mul(new Dec(coinAmount, nativeCurrency.coinDecimals))
-                .toString()
-            ).toLocaleString()
-          : "?"}
-      </div>
+      <div className={styleAsset.fiat}>{getCurrencyInDollars()}</div>
       {/* TODO: Show the information that account is fetching. */}
       <div className={styleAsset.amount}>
         <div>
-          {!(accountStore.assets.length === 0) ?
-          getCurrencyAmount()
-            : "0"}{" "}
+          {!(accountStore.assets.length === 0) ? getCurrencyAmount() : "0"}{" "}
           {accountStore.assets.length > 1 ? (
-          <select id="currency" name="cars" onChange={currencyChange}>
-            <option key = {1} value={nativeCurrency.coinDenom}>{nativeCurrency.coinDenom}</option>
+            <select id="currency" onChange={currencyChange}>
+              <option key={1} value={nativeCurrency.coinDenom}>
+                {nativeCurrency.coinDenom}
+              </option>
               {getDropDownOptions()}
-          </select> : nativeCurrency.coinDenom}
+            </select>
+          ) : (
+            nativeCurrency.coinDenom
+          )}
         </div>
         <div className={styleAsset.indicatorIcon}>
           {accountStore.isAssetFetching ? (

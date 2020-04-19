@@ -63,8 +63,8 @@ export interface ChainInfo {
 
 export const NativeChainInfos: ChainInfo[] = [
   {
-    rpc: "http://127.0.0.1:3000",
-    rest: "http://127.0.0.1:3000",
+    rpc: "http://127.0.0.1:26657",
+    rest: "http://127.0.0.1:26657",
     chainId: "testing",
     chainName: "testing",
     nativeCurrency: "stake",
