@@ -27,11 +27,10 @@ export const Currencies: {
     coinDecimals: 6,
     coinGeckoId: "fetch-ai"
   },
-  kava: {
-    coinDenom: "KAVA",
-    coinMinimalDenom: "ukava",
-    coinDecimals: 6,
-    coinGeckoId: "kava"
+  testers: {
+    coinDenom: "testers",
+    coinMinimalDenom: "testers",
+    coinDecimals: 0
   }
 };
 
@@ -64,8 +63,8 @@ export interface ChainInfo {
 
 export const NativeChainInfos: ChainInfo[] = [
   {
-    rpc: "http://127.0.0.1:26657",
-    rest: "http://127.0.0.1:1317",
+    rpc: "http://127.0.0.1:3000",
+    rest: "http://127.0.0.1:3000",
     chainId: "testing",
     chainName: "testing",
     nativeCurrency: "stake",
@@ -82,26 +81,6 @@ export const NativeChainInfos: ChainInfo[] = [
     currencies: ["stake"],
     feeCurrencies: ["stake"],
     coinType: 118
-  },
-  {
-    rpc: "https://node-kava-2.keplr.app/rpc",
-    rest: "https://node-kava-2.keplr.app/rest",
-    chainId: "kava-2",
-    chainName: "Kava",
-    nativeCurrency: "kava",
-    walletUrl:
-      process.env.NODE_ENV === "production"
-        ? "https://wallet.keplr.app/#/kava-2"
-        : "http://localhost:8081/#/kava-2",
-    walletUrlForStaking:
-      process.env.NODE_ENV === "production"
-        ? "https://wallet.keplr.app/#/kava-2"
-        : "http://localhost:8081/#/kava-2",
-    bip44: new BIP44(44, 118, 0),
-    bech32Config: defaultBech32Config("kava"),
-    currencies: ["kava"],
-    feeCurrencies: ["kava"],
-    coinType: 459
   }
 ];
 
@@ -116,13 +95,6 @@ export interface AccessOrigin {
 export const ExtensionAccessOrigins: AccessOrigin[] = [
   {
     chainId: "cosmoshub-3",
-    origins:
-      process.env.NODE_ENV === "production"
-        ? ["https://wallet.keplr.app"]
-        : ["http://localhost:8081"]
-  },
-  {
-    chainId: "kava-2",
     origins:
       process.env.NODE_ENV === "production"
         ? ["https://wallet.keplr.app"]

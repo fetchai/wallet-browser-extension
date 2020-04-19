@@ -5,17 +5,19 @@ import { observer } from "mobx-react";
 import { useStore } from "../../stores";
 import styleAsset from "./asset.module.scss";
 import { CoinUtils } from "../../../../common/coin-utils";
-import { Currency } from "../../../../chain-info";
+import {Currencies, Currency} from "../../../../chain-info";
 import { getCurrency } from "../../../../common/currency";
 
 import { FormattedMessage } from "react-intl";
 import { ToolTip } from "../../../components/tooltip";
 import { lightModeEnabled } from "../../light-mode";
+import {Coin} from "@everett-protocol/cosmosjs/common/coin";
 
 export const AssetView: FunctionComponent = observer(() => {
   const { chainStore, accountStore, priceStore } = useStore();
 
   const [lightMode, setLightMode] = useState(false);
+
 
   useEffect(() => {
     const isEnabled = async () => {
@@ -35,10 +37,73 @@ export const AssetView: FunctionComponent = observer(() => {
     chainStore.chainInfo.nativeCurrency
   ) as Currency;
 
+  const [selectedCurrency, setSelectedCurrency] = useState(nativeCurrency.coinDenom);
+
   const coinAmount = CoinUtils.amountOf(
     accountStore.assets,
     nativeCurrency.coinMinimalDenom
   );
+
+
+ const currencyChange = (event: any) => {
+     debugger;
+         const selectedCurency = event.target.value
+     setSelectedCurrency(selectedCurency)
+  }
+
+
+
+  const getAmount = (denom) => {
+      for (const coins of accountStore.assets) {
+          if (coins.denom === denom) return coins.amount;
+      }
+      return undefined;
+    }
+
+
+  const getDecimalsFromDenom = (coinDenom) => {
+        debugger;
+      for (const currency in Currencies) {
+        debugger;
+          if(typeof currency[coinDenom] !== "undefined"){
+              return currency.coinDecimals
+          }
+      }
+       return undefined;
+    }
+
+
+
+ const getCurrencyAmount = () => {
+
+     const selected = selectedCurrency
+    const amount = getAmount(selected);
+   const decimals = getDecimalsFromDenom(selected);
+
+   // if the asset is specified in the configs can shrink else we just return raw.
+     return (typeof decimals !== "undefined")?
+    CoinUtils.shrinkDecimals(
+                amount,
+                decimals,
+                0,
+                6
+              ) : amount;
+ }
+
+
+  const getDropDownOptions = () => {
+       const options = [];
+  for (const coins: Coin of accountStore.assets) {
+            if (coins.denom !== nativeCurrency.coinDenom) {
+                options.push(coins.denom)
+            }
+          }
+
+return options.map((value, index) => {
+         let k = index + 1;
+       return (<option key={k} value={value}>{value}</option>);
+  })
+  }
 
   return (
     <div className={styleAsset.containerAsset}>
@@ -56,7 +121,9 @@ export const AssetView: FunctionComponent = observer(() => {
         <FormattedMessage id="main.account.message.available-balance" />
       </div>
       <div className={styleAsset.fiat}>
-        {fiat && !fiat.value.equals(new Dec(0))
+        {selectedCurrency === nativeCurrency &&
+        fiat &&
+        !fiat.value.equals(new Dec(0))
           ? "$" +
             parseFloat(
               fiat.value
@@ -68,15 +135,14 @@ export const AssetView: FunctionComponent = observer(() => {
       {/* TODO: Show the information that account is fetching. */}
       <div className={styleAsset.amount}>
         <div>
-          {!(accountStore.assets.length === 0)
-            ? CoinUtils.shrinkDecimals(
-                coinAmount,
-                nativeCurrency.coinDecimals,
-                0,
-                6
-              )
+          {!(accountStore.assets.length === 0) ?
+          getCurrencyAmount()
             : "0"}{" "}
-          {nativeCurrency.coinDenom}
+          {accountStore.assets.length > 1 ? (
+          <select id="currency" name="cars" onChange={currencyChange}>
+            <option key = {1} value={nativeCurrency.coinDenom}>{nativeCurrency.coinDenom}</option>
+              {getDropDownOptions()}
+          </select> : nativeCurrency.coinDenom}
         </div>
         <div className={styleAsset.indicatorIcon}>
           {accountStore.isAssetFetching ? (

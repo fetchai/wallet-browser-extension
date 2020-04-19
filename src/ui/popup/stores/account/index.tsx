@@ -185,7 +185,6 @@ export class AccountStore {
           this.bech32Address
         )
       );
-
       this.assets = account.getCoins();
       this.lastAssetFetchingError = undefined;
       // Save the assets to storage.
@@ -220,7 +219,6 @@ export class AccountStore {
     for (const coin of assets) {
       coinStrs.push(coin.toString());
     }
-
     await browser.storage.local.set({
       assets: {
         [bech32Address]: coinStrs.join(",")
