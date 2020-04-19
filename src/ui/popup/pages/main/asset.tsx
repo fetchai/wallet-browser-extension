@@ -12,6 +12,7 @@ import { FormattedMessage } from "react-intl";
 import { ToolTip } from "../../../components/tooltip";
 import { lightModeEnabled } from "../../light-mode";
 import {Coin} from "@everett-protocol/cosmosjs/common/coin";
+import {Int} from "@everett-protocol/cosmosjs/common/int";
 
 export const AssetView: FunctionComponent = observer(() => {
   const { chainStore, accountStore, priceStore } = useStore();
@@ -54,7 +55,7 @@ export const AssetView: FunctionComponent = observer(() => {
 
 
   const getAmount = (denom) => {
-      for (const coins of accountStore.assets) {
+      for (const coin: Coin of accountStore.assets) {
           if (coins.denom === denom) return coins.amount;
       }
       return undefined;
@@ -65,9 +66,9 @@ export const AssetView: FunctionComponent = observer(() => {
         debugger;
       for (const currency in Currencies) {
         debugger;
-          if(typeof currency[coinDenom] !== "undefined"){
-              return currency.coinDecimals
-          }
+          // if(typeof currency[coinDenom] !== "undefined"){
+          //     return currency.coinDecimals
+          // }
       }
        return undefined;
     }
@@ -83,7 +84,7 @@ export const AssetView: FunctionComponent = observer(() => {
    // if the asset is specified in the configs can shrink else we just return raw.
      return (typeof decimals !== "undefined")?
     CoinUtils.shrinkDecimals(
-                amount,
+        (amount as Int),
                 decimals,
                 0,
                 6
