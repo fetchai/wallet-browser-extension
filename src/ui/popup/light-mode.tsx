@@ -2,6 +2,8 @@
  * Default styles are dark mode, we add toggle to light mode hence light mode
  *
  */
+import { validJSONString } from "../../common/utils/valid-json-string";
+
 const CLASS_NAME = "light-mode";
 const STORAGE_KEY = "light-mode";
 import React from "react";
@@ -22,7 +24,7 @@ class LightMode extends React.Component<Props, State> {
     // set light mode status from local storage
     chrome.storage.sync.get(STORAGE_KEY, result => {
       let mode = result[STORAGE_KEY];
-      mode = Boolean(JSON.parse(mode));
+      mode = validJSONString(mode) ? Boolean(JSON.parse(mode)) : false;
       this.setState({
         lightMode: mode
       });
@@ -70,7 +72,7 @@ function setLightMode(light: boolean, save = true) {
     el.classList.remove(CLASS_NAME);
   }
 
-  if(save){
+  if (save) {
     chrome.storage.sync.set({ [STORAGE_KEY]: light });
   }
 }

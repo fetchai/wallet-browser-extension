@@ -7,7 +7,7 @@ import styleAsset from "./asset.module.scss";
 import { CoinUtils } from "../../../../common/coin-utils";
 import { Currencies, Currency } from "../../../../chain-info";
 import { getCurrency } from "../../../../common/currency";
-
+import classnames from "classnames";
 import { FormattedMessage } from "react-intl";
 import { ToolTip } from "../../../components/tooltip";
 import { lightModeEnabled } from "../../light-mode";
@@ -44,6 +44,16 @@ export const AssetView: FunctionComponent = observer(() => {
     accountStore.assets,
     nativeCurrency.coinMinimalDenom
   );
+
+  const dollarCurrencyIsDisplayed = () => {
+    const test =
+      fiat &&
+      selectedCurrency === chainStore.chainInfo.nativeCurrency &&
+      !fiat.value.equals(new Dec(0));
+
+    debugger;
+    return test;
+  };
 
   const getCurrencyInDollars = () => {
     if (!fiat || selectedCurrency !== chainStore.chainInfo.nativeCurrency)
@@ -131,11 +141,20 @@ export const AssetView: FunctionComponent = observer(() => {
       <div className={styleAsset.title}>
         <FormattedMessage id="main.account.message.available-balance" />
       </div>
-      <div className={styleAsset.fiat}>{getCurrencyInDollars()}</div>
+      <div
+        className={classnames(
+          styleAsset.fiat,
+          dollarCurrencyIsDisplayed() ? "" : styleAsset.hide
+        )}
+      >
+        {getCurrencyInDollars()}
+      </div>
       {/* TODO: Show the information that account is fetching. */}
       <div className={styleAsset.amount}>
         <div>
-          {!(accountStore.assets.length === 0) ? getCurrencyAmount() : "0"}{" "}
+          <span className={dollarCurrencyIsDisplayed() ? "" : styleAsset.block}>
+            {!(accountStore.assets.length === 0) ? getCurrencyAmount() : "0"}{" "}
+          </span>
           {accountStore.assets.length > 1 ? (
             <select
               id="currency"

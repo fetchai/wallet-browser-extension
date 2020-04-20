@@ -2,7 +2,7 @@
 @import "~argon-dashboard-react/src/assets/scss/argon-dashboard/custom/functions";
 @import "~argon-dashboard-react/src/assets/scss/argon-dashboard/custom/mixins";
 @import "~argon-dashboard-react/src/assets/scss/argon-dashboard/custom/variables";
-
+@import "../../popup/styles/var";
 
 .input {
   box-shadow: $input-alternative-box-shadow !important;
@@ -32,7 +32,7 @@
  }
 
 .fet {
-      margin: auto;
+    margin: auto;
     padding-right: 10px;
 }
 
@@ -58,9 +58,10 @@
 
 :global(.light-mode) {
   .select {
-     color: $light-mode-grey
+     color: $light-mode-grey;
      & option {
          background-color: #eaf1f3;
+          color: $light-mode-grey;
     }
   }
 }

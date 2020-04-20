@@ -31,16 +31,6 @@
     }
   }
 
-:global(.light-mode) {
-  .select {
-     background-color: yellow;
-     & option {
-         //background-color: #eaf1f3;
-         background-color: red;
-    }
-  }
-}
-
   .circular-logo {
     width: 130px;
     margin-bottom: 20px;
@@ -79,9 +69,27 @@
   }
 }
 
+.block {
+  display:block;
+}
+
+.hide {
+  display:none;
+}
+
 :global(.light-mode) {
   .container-asset > .fiat {
    color: $light-mode-grey;
+  }
+}
+
+:global(.light-mode) {
+  .select {
+    color: $light-mode-grey;
+     & option {
+         background-color: #eaf1f3;
+       color: $light-mode-grey;
+    }
   }
 }
 
