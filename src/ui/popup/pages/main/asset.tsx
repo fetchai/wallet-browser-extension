@@ -64,7 +64,7 @@ export const AssetView: FunctionComponent = observer(() => {
     setSelectedCurrency(selectedCurency);
   };
 
-  const getAmount = denom => {
+  const getAmount = (denom: string) => {
     for (const coin of accountStore.assets) {
       if (typeof coin !== "undefined" && coin.denom === denom)
         return coin.amount;
@@ -83,7 +83,6 @@ export const AssetView: FunctionComponent = observer(() => {
 
   const getCurrencyAmount = () => {
     const selected = selectedCurrency;
-    debugger;
     const amount = getAmount(selected);
 
     if (typeof amount === "undefined") {
@@ -108,7 +107,7 @@ export const AssetView: FunctionComponent = observer(() => {
     }
 
     return options.map((value, index) => {
-      let k = index + 1;
+      const k = index + 1;
       return (
         <option key={k} value={value}>
           {value}
@@ -138,7 +137,11 @@ export const AssetView: FunctionComponent = observer(() => {
         <div>
           {!(accountStore.assets.length === 0) ? getCurrencyAmount() : "0"}{" "}
           {accountStore.assets.length > 1 ? (
-            <select id="currency" onChange={currencyChange}>
+            <select
+              id="currency"
+              className={styleAsset.select}
+              onChange={currencyChange}
+            >
               <option key={1} value={nativeCurrency.coinDenom}>
                 {nativeCurrency.coinDenom}
               </option>

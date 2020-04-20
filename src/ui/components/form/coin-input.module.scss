@@ -3,6 +3,7 @@
 @import "~argon-dashboard-react/src/assets/scss/argon-dashboard/custom/mixins";
 @import "~argon-dashboard-react/src/assets/scss/argon-dashboard/custom/variables";
 
+
 .input {
   box-shadow: $input-alternative-box-shadow !important;
 
@@ -50,8 +51,18 @@
     background-color: #1e2844;
     color: white;
     border-radius: 5px;
+    border-color: white;
   }
 
+}
+
+:global(.light-mode) {
+  .select {
+     color: $light-mode-grey
+     & option {
+         background-color: #eaf1f3;
+    }
+  }
 }
 
 .balance {

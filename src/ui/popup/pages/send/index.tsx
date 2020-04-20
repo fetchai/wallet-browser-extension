@@ -35,8 +35,7 @@ import { observer } from "mobx-react";
 import { useCosmosJS } from "../../../hooks";
 import { TxBuilderConfig } from "@everett-protocol/cosmosjs/core/txBuilder";
 import {
-  currencyExists,
-  getCurrencies,
+    getCurrencies,
   getCurrency,
   getCurrencyFromDenom
 } from "../../../../common/currency";
@@ -120,9 +119,6 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
     ) as Currency;
 
     const [denom, setdenom] = useState(nativeCurrency.coinDenom);
-    const [coinMinimalDenom, setcoinMinimalDenom] = useState(
-      nativeCurrency.coinDenom
-    );
 
     const [walletProvider] = useState(
       new PopupWalletProvider(undefined, {
@@ -137,14 +133,15 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
 
     const [gasForSendMsg] = useState(80000);
 
-    useEffect(() => {
-      if (currencyExists(denom)) {
-        const minimal = getCurrencyFromDenom(denom) as Currency;
-        setcoinMinimalDenom(minimal.coinMinimalDenom);
-      } else {
-        setcoinMinimalDenom(denom);
-      }
-    }, [denom]);
+    const feeCurrency = useMemo(() => {
+      return getCurrency(chainStore.chainInfo.feeCurrencies[0]);
+    }, [chainStore.chainInfo.feeCurrencies]);
+
+    const feePrice = priceStore.getValue("usd", feeCurrency?.coinGeckoId);
+
+    const feeValue = useMemo(() => {
+      return feePrice ? feePrice.value : new Dec(0);
+    }, [feePrice]);
 
     const [allBalance, setAllBalance] = useState(false);
 
@@ -484,10 +481,10 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
                         id: "fee-buttons.select.high"
                       })
                     }}
-                    coinDenom={denom}
-                    coinMinimalDenom={coinMinimalDenom}
                     name="fee"
                     error={errors.fee && errors.fee.message}
+                    currency={feeCurrency!}
+                    price={feeValue}
                     gasPriceStep={DefaultGasPriceStep}
                     gas={gasForSendMsg}
                   />

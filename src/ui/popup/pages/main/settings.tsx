@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useEffect } from "react";
+import React, { FunctionComponent } from "react";
 import { observer } from "mobx-react";
 import style from "./style.module.scss";
 import { useHistory } from "react-router";

@@ -7,7 +7,7 @@ export interface BackButtonProps {
   stroke?: number;
   style?: CSSProperties;
   className?: string;
-  lightMode: boolean;
+  lightMode?: boolean;
 }
 
 type BackButtonState = {
@@ -18,10 +18,9 @@ export class BackButton extends Component<BackButtonProps, BackButtonState> {
   constructor(props: Readonly<BackButtonProps>) {
     super(props);
     this.state = {
-      lightMode: props.lightMode
+      lightMode: props.lightMode ? props.lightMode : false
     };
   }
-
 
   UNSAFE_componentWillReceiveProps(nextProps: BackButtonProps) {
     if (nextProps.lightMode !== this.props.lightMode) {

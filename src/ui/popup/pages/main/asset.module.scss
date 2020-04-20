@@ -17,6 +17,30 @@
     color: $grey-main;
   }
 
+  .select {
+
+    border-style: none;
+    padding-bottom: 3px;
+    background-color: inherit;
+    color: #9ab4bf;
+
+    & option {
+      background-color: #1e2844;
+    color: #9ab4bf;
+
+    }
+  }
+
+:global(.light-mode) {
+  .select {
+     background-color: yellow;
+     & option {
+         //background-color: #eaf1f3;
+         background-color: red;
+    }
+  }
+}
+
   .circular-logo {
     width: 130px;
     margin-bottom: 20px;
@@ -28,6 +52,8 @@
     text-align: center;
     font-wieght: 800;
     line-height: 40px;
+    height: 40px;
+    padding-bottom: 3px;
   }
 
 

@@ -3,8 +3,6 @@ import React, { FunctionComponent, ReactNode, useEffect } from "react";
 import { Header as CompHeader } from "../../components/header";
 
 import { observer } from "mobx-react";
-import { useStore } from "../../stores";
-
 import style from "./style.module.scss";
 import { Menu, MenuButton, useMenu } from "../menu";
 
@@ -27,8 +25,6 @@ export interface LocalProps {
 
 export const Header: FunctionComponent<Props & LocalProps> = observer(
   ({
-    showChainName,
-    canChangeChainInfo,
     menuRenderer,
     rightRenderer,
     isMenuOpen,
@@ -36,11 +32,7 @@ export const Header: FunctionComponent<Props & LocalProps> = observer(
     fetchIcon,
     lightMode
   }) => {
-    const { chainStore } = useStore();
     const menu = useMenu();
-
-    const chainInfoChangable =
-      canChangeChainInfo && chainStore.chainList.length > 1;
 
     useEffect(() => {
       console.log("counter updated");
