@@ -12,8 +12,9 @@ npm run dev
 
 ### Run Cosmos locally
 
-- Run a local instance of GAIA, with an account with a currency called "stake" specified in the genesis file. 
-- Ensure the Cosmos RPC is started on the correct port as follows
+- Run a local instance of GAIA, with an account with a currency called "stake" specified in the genesis file.
+- This can be achieved by following the installation instructions [here](https://hub.cosmos.network/master/gaia-tutorials/installation.html), and then these instructions for [starting](https://hub.cosmos.network/master/gaia-tutorials/deploy-testnet.html) a node. 
+- Ensure the Cosmos RPC is started on the correct port by modifying the final command as follows
 
 ```
 gaiad start --rpc.laddr tcp://0.0.0.0:26657 
@@ -24,9 +25,10 @@ gaiad start --rpc.laddr tcp://0.0.0.0:26657
 - After creating an account use gaiacli to add funds to that address 
 
 ```
- gaiacli tx send <from address> <your address>  10000000stake --chain-id testing
+ gaiacli tx send validator <your address>  10000000stake --chain-id testing
 ```
 
+where `<your address>` is copied from the browser extension. 
 
 ### changing this currency in chain-info (optional)
 
