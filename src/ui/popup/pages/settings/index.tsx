@@ -14,7 +14,8 @@ import { strongPassword } from "../../../../common/strong-password";
 import flushPromises from "flush-promises";
 import {
   lightModeEnabled,
-  setLightMode as setLightModeModule
+  setLightMode as setLightModeModule,
+  STORAGE_KEY
 } from "../../light-mode";
 import { Button, ButtonGroup } from "reactstrap";
 
@@ -176,6 +177,7 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
     const handleDelete = async () => {
       if (showDeleteConfirmation) {
         await keyRingStore.clear();
+        chrome.storage.sync.remove(STORAGE_KEY);
         history.goBack();
       }
       setshowDeleteConfirmation(true);
@@ -350,7 +352,9 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
                 Update
               </button>
               <output
-                className={`change_password_error ${style.output} ${hasError() ? "red" : ""} `}
+                className={`change_password_error ${style.output} ${
+                  hasError() ? "red" : ""
+                } `}
                 id="output"
               >
                 {output}

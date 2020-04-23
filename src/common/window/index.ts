@@ -27,7 +27,7 @@ export function openWindow(url: string) {
   } else {
     window.open(
       url,
-      "Keplr",
+      "Fetch",
       `width=${option.width}px,height=${option.height}px,scrollbars=0`,
       true
     );

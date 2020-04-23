@@ -13,7 +13,6 @@ export const Banner: FunctionComponent<Props> = ({ logo, subtitle }) => {
     <div className={classmames(style.container, style.flexVertical)}>
       <video
         className={style.video}
-        playsinline={true}
         autoPlay={true}
         muted={true}
         loop={true}

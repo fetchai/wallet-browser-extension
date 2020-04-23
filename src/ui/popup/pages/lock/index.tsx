@@ -72,7 +72,6 @@ export const LockPage: FunctionComponent<Pick<
     <EmptyLayout style={{ height: "100%", padding: "0" }}>
       <video
         className={style.video}
-        playsinline={true}
         autoPlay={true}
         muted={true}
         loop={true}

@@ -5,7 +5,7 @@
 import { validJSONString } from "../../common/utils/valid-json-string";
 
 const CLASS_NAME = "light-mode";
-const STORAGE_KEY = "light-mode";
+export const STORAGE_KEY = "light-mode";
 import React from "react";
 import classnames from "classnames";
 

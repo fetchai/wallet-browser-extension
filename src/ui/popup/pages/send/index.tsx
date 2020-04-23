@@ -281,7 +281,7 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
               history.goBack();
             }}
             stroke={4}
-            style={{ height: "24px;" }}
+            style={{ height: "24px" }}
             className={style.backButton}
             lightMode={lightMode}
           ></BackButton>
@@ -291,7 +291,6 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
               if (isValidENS(recipient)) {
                 triggerValidation({ name: "recipient" });
               }
-              debugger;
               balanceValidate(fee, denom);
 
               amountValidate(amount, denom, fee);

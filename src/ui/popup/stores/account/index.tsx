@@ -8,12 +8,11 @@ import {
 } from "../../../../background/keyring";
 
 import { action, observable } from "mobx";
-import { actionAsync, task } from "mobx-utils";
+import { actionAsync, asyncAction, task } from "mobx-utils";
 import { BACKGROUND_PORT } from "../../../../common/message/constant";
 import { Coin } from "@everett-protocol/cosmosjs/common/coin";
-import { queryAccount } from "@everett-protocol/cosmosjs/core/query";
 import { RootStore } from "../root";
-import Axios, { CancelTokenSource } from "axios";
+import Axios, { CancelToken, CancelTokenSource } from "axios";
 import { AutoFetchingAssetsInterval } from "../../../../config";
 
 export class AccountStore {
@@ -68,6 +67,26 @@ export class AccountStore {
     this.bip44Index = 0;
 
     this.keyRingStatus = KeyRingStatus.NOTLOADED;
+  }
+
+  @actionAsync
+  private async Balance(
+    rpc: string,
+    bech32Address: string,
+    cancelToken: CancelToken
+  ) {
+    debugger;
+    // const url = `${rpc}/bank/balances/${bech32Address}`;
+    const url =
+      "http://localhost:1317/bank/balances/cosmos1zzrd6sanpje6kg2gt5lgjssfkmxk6grg8weyyg";
+    const coins: Coin[] = [];
+
+    const resp = await Axios.get(url);
+    if (resp.status !== 200) return "hello";
+    resp.data.result.forEach((el: any) => {
+      coins.push(new Coin(el.denom, el.amount));
+    });
+    return coins;
   }
 
   // This will be called by chain store.
@@ -171,25 +190,32 @@ export class AccountStore {
       this.lastFetchingCancleToken = undefined;
     }
     this.lastFetchingCancleToken = Axios.CancelToken.source();
-
     this.isAssetFetching = true;
 
     try {
       const account = await task(
-        queryAccount(
-          this.chainInfo.bech32Config,
-          Axios.create({
-            baseURL: this.chainInfo.rpc,
-            cancelToken: this.lastFetchingCancleToken.token
-          }),
-          this.bech32Address
+        this.Balance(
+          this.chainInfo.rest,
+          this.bech32Address,
+          this.lastFetchingCancleToken.token
         )
       );
-      this.assets = account.getCoins();
+
+      debugger;
+      // queryAccount(
+      //   this.chainInfo.bech32Config,
+      //   Axios.create({
+      //     baseURL: this.chainInfo.rpc,
+      //     cancelToken: this.lastFetchingCancleToken.token
+      //   }),
+      //   this.bech32Address
+      // )
+      // );
+
+      this.assets = account;
       this.lastAssetFetchingError = undefined;
       // Save the assets to storage.
       await task(this.saveAssetsToStorage(this.bech32Address, this.assets));
-
     } catch (e) {
       if (!Axios.isCancel(e)) {
         if (

@@ -50,8 +50,6 @@ export const AssetView: FunctionComponent = observer(() => {
       fiat &&
       selectedCurrency === chainStore.chainInfo.nativeCurrency &&
       !fiat.value.equals(new Dec(0));
-
-    debugger;
     return test;
   };
 
