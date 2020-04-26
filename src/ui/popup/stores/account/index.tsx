@@ -1,4 +1,4 @@
-import { ChainInfo } from "../../../../chain-info";
+import {ChainInfo, Currency} from "../../../../chain-info";
 
 import { sendMessage } from "../../../../common/message";
 import {
@@ -14,6 +14,9 @@ import { Coin } from "@everett-protocol/cosmosjs/common/coin";
 import { RootStore } from "../root";
 import Axios, { CancelToken, CancelTokenSource } from "axios";
 import { AutoFetchingAssetsInterval } from "../../../../config";
+import {getCurrencyFromMinimalDenom, isMinimalDenomOfCurrency} from "../../../../common/currency";
+import { CoinUtils } from "../../../../common/coin-utils";
+import {API} from "../../../../common/api/api";
 
 export class AccountStore {
   @observable
@@ -69,25 +72,7 @@ export class AccountStore {
     this.keyRingStatus = KeyRingStatus.NOTLOADED;
   }
 
-  @actionAsync
-  private async Balance(
-    rpc: string,
-    bech32Address: string,
-    cancelToken: CancelToken
-  ) {
-    debugger;
-    // const url = `${rpc}/bank/balances/${bech32Address}`;
-    const url =
-      "http://localhost:1317/bank/balances/cosmos1zzrd6sanpje6kg2gt5lgjssfkmxk6grg8weyyg";
-    const coins: Coin[] = [];
 
-    const resp = await Axios.get(url);
-    if (resp.status !== 200) return "hello";
-    resp.data.result.forEach((el: any) => {
-      coins.push(new Coin(el.denom, el.amount));
-    });
-    return coins;
-  }
 
   // This will be called by chain store.
   @actionAsync
@@ -193,28 +178,18 @@ export class AccountStore {
     this.isAssetFetching = true;
 
     try {
-      const account = await task(
-        this.Balance(
+      let coins = await task(
+        API.getBalance(
           this.chainInfo.rest,
           this.bech32Address,
           this.lastFetchingCancleToken.token
         )
       );
 
-      debugger;
-      // queryAccount(
-      //   this.chainInfo.bech32Config,
-      //   Axios.create({
-      //     baseURL: this.chainInfo.rpc,
-      //     cancelToken: this.lastFetchingCancleToken.token
-      //   }),
-      //   this.bech32Address
-      // )
-      // );
-
-      this.assets = account;
+      coins = CoinUtils.convertCoinsFromMinimalDenomAmount(coins);
+      this.assets = coins;
       this.lastAssetFetchingError = undefined;
-      // Save the assets to storage.
+      // Save the assets to storage
       await task(this.saveAssetsToStorage(this.bech32Address, this.assets));
     } catch (e) {
       if (!Axios.isCancel(e)) {

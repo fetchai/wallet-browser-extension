@@ -1,7 +1,14 @@
 import { Coin } from "@everett-protocol/cosmosjs/common/coin";
 import { Int } from "@everett-protocol/cosmosjs/common/int";
 import { Dec } from "@everett-protocol/cosmosjs/common/decimal";
-import { getCurrencyFromDenom, getCurrencyFromMinimalDenom } from "../currency";
+import {
+  getCurrencyFromDenom,
+  getCurrencyFromMinimalDenom,
+  isMinimalDenomOfCurrency
+} from "../currency";
+// @ts-ignore
+import { BN } from "bn.js";
+import { Currency } from "../../chain-info";
 
 export class CoinUtils {
   static amountOf(coins: Coin[], denom: string): Int {
@@ -22,6 +29,45 @@ export class CoinUtils {
     });
   }
 
+  /**
+   * converts amount of currency in minimal denom to amount in regular denom
+   *
+   * @param currency
+   * @param amount
+   */
+
+  static convertMinimalDenomAmountToDenomAmount(
+    currency: Currency,
+    amount: Int
+  ) {
+    if (currency.coinDecimals === 0) return amount;
+    // no power method in this , but this is workaround.
+    const multiplier = "1" + "0".repeat(currency.coinDecimals);
+    return amount.div(new Int(multiplier));
+  }
+
+  /**
+   * Takes an array of coins and looks at each to see if they are consisting of the minimal denom of another currency eg
+   * if we have 20000000 ufet we convert to 20 fet if decimal points are 6 (specified in the Configs).
+   *
+   * @param coins
+   */
+
+  static convertCoinsFromMinimalDenomAmount(coins: Coin[]): Coin[] {
+    coins = coins.map(coin => {
+      if (isMinimalDenomOfCurrency(coin)) {
+        const curr = getCurrencyFromMinimalDenom(coin.denom) as Currency;
+        const amount = CoinUtils.convertMinimalDenomAmountToDenomAmount(
+          curr,
+          coin.amount
+        );
+
+        return new Coin(curr.coinDenom, amount);
+      }
+      return coin;
+    });
+    return coins;
+  }
   static getCoinFromDecimals(decAmountStr: string, denom: string): Coin {
     const currency = getCurrencyFromDenom(denom);
     if (!currency) {

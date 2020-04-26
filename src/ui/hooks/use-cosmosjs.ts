@@ -17,11 +17,10 @@ import { TxBuilderConfig } from "@everett-protocol/cosmosjs/core/txBuilder";
 import { Api } from "@everett-protocol/cosmosjs/core/api";
 import { defaultTxEncoder } from "@everett-protocol/cosmosjs/common/stdTx";
 import { stdTxBuilder } from "@everett-protocol/cosmosjs/common/stdTxBuilder";
-import { Account } from "@everett-protocol/cosmosjs/core/account";
-import { queryAccount } from "@everett-protocol/cosmosjs/core/query";
 import { RequestBackgroundTxMsg } from "../../background/tx";
 import { sendMessage } from "../../common/message";
 import { BACKGROUND_PORT } from "../../common/message/constant";
+import { API } from "../../common/api/api";
 
 const Buffer = require("buffer/").Buffer;
 
@@ -99,15 +98,9 @@ export const useCosmosJS = <R extends Rest = Rest>(
         txEncoder: defaultTxEncoder,
         txBuilder: stdTxBuilder,
         restFactory: memorizedRestFactory,
-        queryAccount: (
-          context: Context,
-          address: string | Uint8Array
-        ): Promise<Account> => {
-          return queryAccount(
-            context.get("bech32Config"),
-            context.get("rpcInstance"),
-            address
-          );
+        queryAccount: async (context, address) => {
+          debugger;
+          return API.queryAccount(chainInfo.rest, walletProvider, context);
         },
         bech32Config: chainInfo.bech32Config,
         bip44: chainInfo.bip44,
@@ -116,11 +109,13 @@ export const useCosmosJS = <R extends Rest = Rest>(
     );
 
     if (!api.wallet) {
-      if (isSubscribed) {
+      if (!isSubscribed) {
+      } else {
         setError(new Error("their is no wallet"));
       }
     } else {
       (async () => {
+        debugger;
         await api.enable();
         const keys = await api.getKeys();
         const addresses: string[] = [];

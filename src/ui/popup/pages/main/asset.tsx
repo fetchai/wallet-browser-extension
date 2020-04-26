@@ -11,7 +11,8 @@ import classnames from "classnames";
 import { FormattedMessage } from "react-intl";
 import { ToolTip } from "../../../components/tooltip";
 import { lightModeEnabled } from "../../light-mode";
-import { Int } from "@everett-protocol/cosmosjs/common/int";
+import { autorun } from "mobx";
+import { insertCommas } from "../../../../common/utils/insert-commas";
 
 export const AssetView: FunctionComponent = observer(() => {
   const { chainStore, accountStore, priceStore } = useStore();
@@ -40,9 +41,16 @@ export const AssetView: FunctionComponent = observer(() => {
     nativeCurrency.coinDenom
   );
 
+  // correct use of reaction: reacts to length and title changes
+autorun(() => {
+    if (accountStore.assets.length === 1) {
+      setSelectedCurrency(accountStore.assets[0].denom);
+    }
+  });
+
   const coinAmount = CoinUtils.amountOf(
     accountStore.assets,
-    nativeCurrency.coinMinimalDenom
+    nativeCurrency.coinDenom
   );
 
   const dollarCurrencyIsDisplayed = () => {
@@ -54,17 +62,22 @@ export const AssetView: FunctionComponent = observer(() => {
   };
 
   const getCurrencyInDollars = () => {
-    if (!fiat || selectedCurrency !== chainStore.chainInfo.nativeCurrency)
+    if (!fiat || selectedCurrency !== chainStore.chainInfo.nativeCurrency) {
       return "";
-    else
-      return !fiat.value.equals(new Dec(0))
-        ? "$" +
-            parseFloat(
-              fiat.value
-                .mul(new Dec(coinAmount, nativeCurrency.coinDecimals))
-                .toString()
-            ).toLocaleString()
-        : "?";
+    } else if (
+      accountStore.assets.length === 1 &&
+      accountStore.assets[0].denom !== nativeCurrency.coinDenom
+    ) {
+      return "";
+    }
+    return !fiat.value.equals(new Dec(0))
+      ? "$" +
+          parseFloat(
+            fiat.value
+              .mul(new Dec(coinAmount))
+              .toString()
+          ).toLocaleString()
+      : "?";
   };
 
   const currencyChange = (event: any) => {
@@ -80,30 +93,26 @@ export const AssetView: FunctionComponent = observer(() => {
     return undefined;
   };
 
-  const getDecimalsFromDenom = (coinDenom: string) => {
-    for (const currency in Currencies) {
-      if (Currencies[currency].coinDenom === coinDenom) {
-        return Currencies[currency].coinDecimals;
-      }
-    }
-    return undefined;
-  };
-
   const getCurrencyAmount = () => {
     const selected = selectedCurrency;
     const amount = getAmount(selected);
+    return typeof amount !== "undefined"
+      ? insertCommas(amount.toString())
+      : "0";
+  };
 
-    if (typeof amount === "undefined") {
-      return "0";
+  /**
+   * If there is just one currency to display (ie only one type of asset)
+   * we look through the stored assets and get its name, otherwise we just display
+   * the native asset ( which will be none ).
+   *
+   */
+
+  const getSingleCurrencyDisplay = () => {
+    if (accountStore.assets.length === 0) {
+      return nativeCurrency.coinDenom;
     }
-
-    const decimals = getDecimalsFromDenom(selected);
-
-    if (typeof decimals === "undefined") {
-      return amount.toString();
-    }
-    // if the asset is specified in the configs can shrink else we just return raw.
-    return CoinUtils.shrinkDecimals(amount as Int, decimals as number, 0, 6);
+    return accountStore.assets[0].denom;
   };
 
   const getDropDownOptions = () => {
@@ -165,11 +174,11 @@ export const AssetView: FunctionComponent = observer(() => {
               {getDropDownOptions()}
             </select>
           ) : (
-            nativeCurrency.coinDenom
+            getSingleCurrencyDisplay()
           )}
         </div>
         <div className={styleAsset.indicatorIcon}>
-          {accountStore.isAssetFetching ? (
+          {accountStore.isAssetFetching && !accountStore.assets.length ? (
             <i className="fas fa-spinner fa-spin" />
           ) : accountStore.lastAssetFetchingError ? (
             <ToolTip

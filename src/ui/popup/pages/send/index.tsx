@@ -35,7 +35,7 @@ import { observer } from "mobx-react";
 import { useCosmosJS } from "../../../hooks";
 import { TxBuilderConfig } from "@everett-protocol/cosmosjs/core/txBuilder";
 import {
-    getCurrencies,
+  getCurrencies,
   getCurrency,
   getCurrencyFromDenom
 } from "../../../../common/currency";
@@ -195,14 +195,18 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
         if (currency && amount) {
           let find = false;
           for (const balance of accountStore.assets) {
-            if (balance.denom === currency.coinMinimalDenom) {
+            if (balance.denom === currency.coinDenom) {
               let precision = new Dec(1);
               for (let i = 0; i < currency.coinDecimals; i++) {
                 precision = precision.mul(new Dec(10));
               }
 
+              const balanceMinimalDenom = new Dec(balance.amount)
+                .mul(precision)
+                .truncate();
               const amountInt = new Dec(amount).mul(precision).truncate();
-              if (amountInt.add(feeAmount).gt(balance.amount)) {
+
+              if (amountInt.add(feeAmount).gt(balanceMinimalDenom)) {
                 setError(
                   "amount",
                   "not-enough-fund",
@@ -223,7 +227,7 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
               "amount",
               "not-enough-fund",
               intl.formatMessage({
-                id: "send.input.amount.error.insufficient"
+                id: "send.input.amount.error.no-funds"
               })
             );
           }
@@ -310,7 +314,6 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
 
               handleSubmit(async (data: FormData) => {
                 const coin = CoinUtils.getCoinFromDecimals(data.amount, denom);
-
                 await useBech32ConfigPromise(
                   chainStore.chainInfo.bech32Config,
                   async () => {

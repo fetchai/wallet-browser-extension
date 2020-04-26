@@ -87,6 +87,7 @@
   "send.input.amount": "Amount",
   "send.input.amount.error.required": "Amount is required",
   "send.input.amount.error.insufficient": "Insufficient funds",
+  "send.input.amount.error.no-funds": " no funds",
   "send.input.memo": "Memo (Optional)",
   "send.input.fee": "Fee",
   "send.input.fee.error.required": "Fee required",

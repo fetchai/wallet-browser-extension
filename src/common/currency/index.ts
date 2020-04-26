@@ -1,4 +1,5 @@
 import { Currencies, Currency } from "../../chain-info";
+import { Coin } from "@everett-protocol/cosmosjs/common/coin";
 
 export function getCurrency(type: string): Currency | undefined {
   return Currencies[type];
@@ -21,10 +22,15 @@ export function getCurrencies(types: string[]): Currency[] {
   return currencies;
 }
 
-export function currencyExists(denom: string): boolean {
+/**
+ * Checks is the amount is a minimal denom of another currency.
+ *
+ * @param coin
+ */
+export function isMinimalDenomOfCurrency(coin: Coin): boolean {
   for (const key in Currencies) {
     const currency = Currencies[key];
-    if (currency.coinDenom === denom) {
+    if (currency.coinMinimalDenom === coin.denom) {
       return true;
     }
   }
