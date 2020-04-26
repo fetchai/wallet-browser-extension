@@ -30,8 +30,6 @@ const handleQueryAccountMsg: (
   keeper: APIKeeper
 ) => InternalHandler<QueryAccountMsg> = keeper => {
   return async msg => {
-    return {
-      base: await APIKeeper.queryAccount(msg.rest, msg.bech32Address)
-    };
+    return await APIKeeper.queryAccount(msg.rest, msg.bech32Address)
   };
 };

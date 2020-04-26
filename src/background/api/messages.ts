@@ -48,8 +48,8 @@ export class QueryAccountMsg extends Message<{}> {
     return "get-account";
   }
 
-  public static create(rest: string, bech32Address: string): GetBalanceMsg {
-    const msg = new GetBalanceMsg();
+  public static create(rest: string, bech32Address: string): QueryAccountMsg {
+    const msg = new QueryAccountMsg();
     msg.rest = rest;
     msg.bech32Address = bech32Address;
     return msg;
@@ -71,6 +71,6 @@ export class QueryAccountMsg extends Message<{}> {
   }
 
   type(): string {
-    return GetBalanceMsg.type();
+    return QueryAccountMsg.type();
   }
 }

@@ -20,6 +20,10 @@ import { stdTxBuilder } from "@everett-protocol/cosmosjs/common/stdTxBuilder";
 import { RequestBackgroundTxMsg } from "../../background/tx";
 import { sendMessage } from "../../common/message";
 import { BACKGROUND_PORT } from "../../common/message/constant";
+import { GetKeyMsg } from "../../background/keyring";
+import { task } from "mobx-utils";
+import { QueryAccountMsg } from "../../background/api";
+import {BaseAccount} from "@everett-protocol/cosmosjs/common/baseAccount";
 
 const Buffer = require("buffer/").Buffer;
 
@@ -101,9 +105,16 @@ export const useCosmosJS = <R extends Rest = Rest>(
           const keys = await walletProvider.getKeys(context);
           const bech32Address = keys[0].bech32Address;
 
+          const queryAccountMsg = QueryAccountMsg.create(
+            chainInfo.rest,
+            bech32Address
+          );
+          const baseAccountJson = await sendMessage(
+            BACKGROUND_PORT,
+            queryAccountMsg
+          );
 
-
-          // return API.queryAccount(chainInfo.rest, bech32Address);
+          return BaseAccount.fromJSON(baseAccountJson);
         },
         bech32Config: chainInfo.bech32Config,
         bip44: chainInfo.bip44,
@@ -118,7 +129,6 @@ export const useCosmosJS = <R extends Rest = Rest>(
       }
     } else {
       (async () => {
-        debugger;
         await api.enable();
         const keys = await api.getKeys();
         const addresses: string[] = [];
