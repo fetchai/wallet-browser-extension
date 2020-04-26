@@ -20,7 +20,6 @@ import { stdTxBuilder } from "@everett-protocol/cosmosjs/common/stdTxBuilder";
 import { RequestBackgroundTxMsg } from "../../background/tx";
 import { sendMessage } from "../../common/message";
 import { BACKGROUND_PORT } from "../../common/message/constant";
-import { API } from "../../common/api/api";
 
 const Buffer = require("buffer/").Buffer;
 
@@ -98,9 +97,13 @@ export const useCosmosJS = <R extends Rest = Rest>(
         txEncoder: defaultTxEncoder,
         txBuilder: stdTxBuilder,
         restFactory: memorizedRestFactory,
-        queryAccount: async (context, address) => {
-          debugger;
-          return API.queryAccount(chainInfo.rest, walletProvider, context);
+        queryAccount: async context => {
+          const keys = await walletProvider.getKeys(context);
+          const bech32Address = keys[0].bech32Address;
+
+
+
+          // return API.queryAccount(chainInfo.rest, bech32Address);
         },
         bech32Config: chainInfo.bech32Config,
         bip44: chainInfo.bip44,

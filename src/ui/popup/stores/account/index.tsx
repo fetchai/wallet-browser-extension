@@ -1,4 +1,4 @@
-import {ChainInfo, Currency} from "../../../../chain-info";
+import { ChainInfo, Currency } from "../../../../chain-info";
 
 import { sendMessage } from "../../../../common/message";
 import {
@@ -8,15 +8,14 @@ import {
 } from "../../../../background/keyring";
 
 import { action, observable } from "mobx";
-import { actionAsync, asyncAction, task } from "mobx-utils";
+import { actionAsync, task } from "mobx-utils";
 import { BACKGROUND_PORT } from "../../../../common/message/constant";
 import { Coin } from "@everett-protocol/cosmosjs/common/coin";
 import { RootStore } from "../root";
 import Axios, { CancelToken, CancelTokenSource } from "axios";
 import { AutoFetchingAssetsInterval } from "../../../../config";
-import {getCurrencyFromMinimalDenom, isMinimalDenomOfCurrency} from "../../../../common/currency";
 import { CoinUtils } from "../../../../common/coin-utils";
-import {API} from "../../../../common/api/api";
+import { GetBalanceMsg } from "../../../../background/api";
 
 export class AccountStore {
   @observable
@@ -71,8 +70,6 @@ export class AccountStore {
 
     this.keyRingStatus = KeyRingStatus.NOTLOADED;
   }
-
-
 
   // This will be called by chain store.
   @actionAsync
@@ -177,14 +174,10 @@ export class AccountStore {
     this.lastFetchingCancleToken = Axios.CancelToken.source();
     this.isAssetFetching = true;
 
+    const msg = GetBalanceMsg.create(this.chainInfo.rest, this.bech32Address);
+
     try {
-      let coins = await task(
-        API.getBalance(
-          this.chainInfo.rest,
-          this.bech32Address,
-          this.lastFetchingCancleToken.token
-        )
-      );
+      let coins = (await task(await sendMessage(BACKGROUND_PORT, msg))).coins;
 
       coins = CoinUtils.convertCoinsFromMinimalDenomAmount(coins);
       this.assets = coins;

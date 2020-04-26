@@ -42,7 +42,7 @@ export const AssetView: FunctionComponent = observer(() => {
   );
 
   // correct use of reaction: reacts to length and title changes
-autorun(() => {
+  autorun(() => {
     if (accountStore.assets.length === 1) {
       setSelectedCurrency(accountStore.assets[0].denom);
     }
