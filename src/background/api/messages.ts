@@ -1,6 +1,6 @@
 import { Message } from "../../common/message";
 import { ROUTE } from "../api/constants";
-import {Coin} from "@everett-protocol/cosmosjs/common/coin";
+import { Coin } from "@everett-protocol/cosmosjs/common/coin";
 
 export class GetBalanceMsg extends Message<{
   coins: Coin[];
@@ -19,7 +19,6 @@ export class GetBalanceMsg extends Message<{
     return msg;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
   validateBasic(): void {
     if (!this.rest) {
       throw new Error("rpc not set");
@@ -39,7 +38,6 @@ export class GetBalanceMsg extends Message<{
   }
 }
 
-
 export class QueryAccountMsg extends Message<{}> {
   public bech32Address: string = "";
   public rest: string = "";
@@ -55,7 +53,6 @@ export class QueryAccountMsg extends Message<{}> {
     return msg;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
   validateBasic(): void {
     if (!this.rest) {
       throw new Error("rpc not set");

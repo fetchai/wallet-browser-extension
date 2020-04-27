@@ -18,7 +18,7 @@ export const getHandler: (keeper: APIKeeper) => Handler = keeper => {
 
 const handleGetBalanceMsg: (
   keeper: any
-) => (msg: any) => Promise<{ balance: Coin[] }> = keeper => {
+) => (msg: any) => Promise<{ balance: Coin[] }> = () => {
   return async msg => {
     return {
       balance: await APIKeeper.getBalance(msg.rest, msg.bech32Address)
@@ -28,7 +28,7 @@ const handleGetBalanceMsg: (
 
 const handleQueryAccountMsg: (
   keeper: APIKeeper
-) => InternalHandler<QueryAccountMsg> = keeper => {
+) => InternalHandler<QueryAccountMsg> = () => {
   return async msg => {
     return await APIKeeper.queryAccount(msg.rest, msg.bech32Address)
   };
