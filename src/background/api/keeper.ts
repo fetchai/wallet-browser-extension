@@ -66,6 +66,7 @@ export class APIKeeper {
     return resp.data.result.value;
   }
 
+
   /**
    *  Same contract as method of cosmosjs of same name,  which did not work
    *  with fetch.ai testnet, because path it relied on "custom/acc/account" does not exist on

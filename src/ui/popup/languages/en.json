@@ -80,6 +80,8 @@
   "send.input.recipient": "Recipient",
   "send.input.recipient.error.required": "Recipient is required",
   "send.input.recipient.error.invalid": "Invalid address",
+  "send.input.recipient.error.invalid.ethereum": "Invalid Ethereum address",
+
   "send.input.recipient.error.ens-invalid-name": "Invalid ENS name format",
   "send.input.recipient.error.ens-not-found": "ENS name not found",
   "sned.input.recipient.error.ens-unknown-error": "Failed to get address from ENS",

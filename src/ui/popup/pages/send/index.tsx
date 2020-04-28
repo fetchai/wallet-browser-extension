@@ -47,6 +47,8 @@ import { Dec } from "@everett-protocol/cosmosjs/common/decimal";
 import { useNotification } from "../../../components/notification";
 import { Int } from "@everett-protocol/cosmosjs/common/int";
 
+import Web3 from "web3";
+
 import { useIntl } from "react-intl";
 import { Button } from "reactstrap";
 
@@ -59,6 +61,10 @@ import {
 import { SignOutButton } from "../main/sign-out";
 import { lightModeEnabled } from "../../light-mode";
 import { Currency } from "../../../../chain-info";
+import { LedgerWalletProvider } from "../../../../../../cosmosjs/src/core/ledgerWallet";
+import { GaiaApi } from "../../../../../../cosmosjs/src/gaia/api";
+import {LockMsg, MsgLock} from "./lockMessage";
+import {ETHEREUM_CHAIN_ID, TOKEN_CONTRACT} from "../../../../config";
 
 interface FormData {
   recipient: string;
@@ -97,6 +103,7 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
     const toggleCosmosBeingSent = () => {
       const cosmos = isCosmosBeingSent;
       setisCosmosBeingSent(!cosmos);
+      triggerValidation({ name: "recipient" });
     };
 
     useEffect(() => {
@@ -269,12 +276,15 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
     };
 
     const hasError = (errors: any, ens: any) => {
-      return (
-        (isValidENS(recipient) &&
-          ens.error &&
-          switchENSErrorToIntl(ens.error)) ||
-        (errors.recipient && errors.recipient.message)
-      );
+      if (!isCosmosBeingSent)
+        return errors.recipient && errors.recipient.message;
+      else
+        return (
+          (isValidENS(recipient) &&
+            ens.error &&
+            switchENSErrorToIntl(ens.error)) ||
+          (errors.recipient && errors.recipient.message)
+        );
     };
 
     return (
@@ -320,6 +330,48 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
 
               handleSubmit(async (data: FormData) => {
                 const coin = CoinUtils.getCoinFromDecimals(data.amount, denom);
+                if (!isCosmosBeingSent) {
+                  // Here you can see the type of transport
+                  // https://github.com/LedgerHQ/ledgerjs
+                  /*
+    // You should not use local wallet provider in production
+    const wallet = new LocalWalletProvider(
+    "anger river nuclear pig enlist fish demand dress library obtain concert nasty wolf episode ring bargain rely off vibrant iron cram witness extra enforce"
+  );
+  */
+
+                  const api = new GaiaApi({
+                    chainId: chainStore.chainInfo.chainId,
+                    walletProvider: walletProvider,
+                    rpc: chainStore.chainInfo.rpc,
+                    rest: chainStore.chainInfo.rest
+                  });
+
+                  // You should sign in before using your wallet
+                  await api.enable();
+                  await api.sendMsgs(
+                    [
+                      new LockMsg(
+                        ETHEREUM_CHAIN_ID,
+                        TOKEN_CONTRACT,
+                         AccAddress.fromBech32(accountStore.bech32Address),
+                        recipient,
+                        [coin]
+                      )
+                    ],
+                    {
+                      // If account number or sequence is omitted, they are calculated automatically
+                      gas: bigInteger(60000),
+                      memo: "",
+                      fee: data.fee as Coin
+                    },
+                    "commit"
+                  );
+
+                  return;
+                }
+
+
                 await useBech32ConfigPromise(
                   chainStore.chainInfo.bech32Config,
                   async () => {
@@ -380,7 +432,7 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
                       name="react-tips"
                       value="option1"
                       checked={isCosmosBeingSent}
-                      onClick={toggleCosmosBeingSent}
+                      onChange={toggleCosmosBeingSent}
                     />
                     {intl.formatMessage({ id: "send.input.radio.cosmos" })}
                   </label>{" "}
@@ -388,9 +440,9 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
                     <input
                       type="radio"
                       name="react-tips"
-                      value="option1"
+                      value="option2"
                       checked={!isCosmosBeingSent}
-                      onClick={toggleCosmosBeingSent}
+                      onChange={toggleCosmosBeingSent}
                     />
                     {intl.formatMessage({ id: "send.input.radio.ethereum" })}
                   </label>
@@ -424,6 +476,14 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
                       id: "send.input.recipient.error.required"
                     }),
                     validate: async (value: string) => {
+                      if (!isCosmosBeingSent) {
+                        return Web3.utils.isAddress(value)
+                          ? undefined
+                          : intl.formatMessage({
+                              id: "send.input.recipient.error.invalid.ethereum"
+                            });
+                      }
+
                       if (!isValidENS(value)) {
                         // This is not react hook.
                         // eslint-disable-next-line react-hooks/rules-of-hooks
