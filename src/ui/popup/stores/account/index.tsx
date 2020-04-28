@@ -1,4 +1,4 @@
-import { ChainInfo, Currency } from "../../../../chain-info";
+import { ChainInfo } from "../../../../chain-info";
 
 import { sendMessage } from "../../../../common/message";
 import {
@@ -113,7 +113,6 @@ export class AccountStore {
     this.bip44Index = index;
 
     await task(this.fetchAccount());
-
     this.fetchAssetsByInterval();
   }
 

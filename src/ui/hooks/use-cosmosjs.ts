@@ -20,10 +20,8 @@ import { stdTxBuilder } from "@everett-protocol/cosmosjs/common/stdTxBuilder";
 import { RequestBackgroundTxMsg } from "../../background/tx";
 import { sendMessage } from "../../common/message";
 import { BACKGROUND_PORT } from "../../common/message/constant";
-import { GetKeyMsg } from "../../background/keyring";
-import { task } from "mobx-utils";
 import { QueryAccountMsg } from "../../background/api";
-import {BaseAccount} from "@everett-protocol/cosmosjs/common/baseAccount";
+import { BaseAccount } from "@everett-protocol/cosmosjs/common/baseAccount";
 
 const Buffer = require("buffer/").Buffer;
 

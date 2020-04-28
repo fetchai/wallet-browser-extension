@@ -18,6 +18,18 @@
     margin-bottom: 10px;
 }
 
+.radio-buttons {
+position: absolute;
+    right: 33px;
+    font-size: 13px;
+    top: 117px;
+
+  .radio-buttons-label-left {
+    margin-right: 25px;
+
+  }
+}
+
 .form-inner-container {
   height: 100%;
   display: flex;

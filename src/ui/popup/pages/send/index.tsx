@@ -92,6 +92,12 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
     } = formMethods;
 
     const [lightMode, setLightMode] = useState(false);
+    const [isCosmosBeingSent, setisCosmosBeingSent] = useState(false);
+
+    const toggleCosmosBeingSent = () => {
+      const cosmos = isCosmosBeingSent;
+      setisCosmosBeingSent(!cosmos);
+    };
 
     useEffect(() => {
       const isEnabled = async () => {
@@ -367,6 +373,28 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
           >
             <div className={style.formInnerContainer}>
               <div>
+                <div className={style.radioButtons}>
+                  <label className={style.radioButtonsLabelLeft}>
+                    <input
+                      type="radio"
+                      name="react-tips"
+                      value="option1"
+                      checked={isCosmosBeingSent}
+                      onClick={toggleCosmosBeingSent}
+                    />
+                    {intl.formatMessage({ id: "send.input.radio.cosmos" })}
+                  </label>{" "}
+                  <label className={style.radioButtonsLabelRight}>
+                    <input
+                      type="radio"
+                      name="react-tips"
+                      value="option1"
+                      checked={!isCosmosBeingSent}
+                      onClick={toggleCosmosBeingSent}
+                    />
+                    {intl.formatMessage({ id: "send.input.radio.ethereum" })}
+                  </label>
+                </div>
                 <Input
                   type="text"
                   onChange={() => {

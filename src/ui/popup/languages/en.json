@@ -93,6 +93,8 @@
   "send.input.fee.error.required": "Fee required",
   "send.input-button.balance": "Balance",
   "send.button.send": "Send",
+  "send.input.radio.ethereum": "ethereum",
+  "send.input.radio.cosmos": "cosmos",
 
 
   "fee.input.gas": "Gas",
