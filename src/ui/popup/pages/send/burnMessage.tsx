@@ -1,7 +1,7 @@
-import { Msg } from "../../../../../../cosmosjs/src/core/tx";
-import { Coin } from "../../../../../../cosmosjs/src/common/coin";
-import { Int } from "../../../../../../cosmosjs/src/common/int";
-import {AccAddress} from "@everett-protocol/cosmosjs/common/address";
+import { AccAddress } from "@everett-protocol/cosmosjs/common/address";
+import { Coin } from "@everett-protocol/cosmosjs/common/coin";
+import { Msg } from "@everett-protocol/cosmosjs/core/tx";
+import { Int } from "@everett-protocol/cosmosjs/common/int";
 
 export class LockMsg extends Msg {
   public readonly ethereumChainID: string;
@@ -9,6 +9,7 @@ export class LockMsg extends Msg {
   public readonly ethereumReceiver: string;
   public readonly tokenContract: string;
   public readonly cosmosSender: AccAddress;
+
 
   constructor(
     ethereumChainID: string,

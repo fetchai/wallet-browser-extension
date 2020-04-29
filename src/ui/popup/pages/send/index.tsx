@@ -61,10 +61,17 @@ import {
 import { SignOutButton } from "../main/sign-out";
 import { lightModeEnabled } from "../../light-mode";
 import { Currency } from "../../../../chain-info";
-import { LedgerWalletProvider } from "../../../../../../cosmosjs/src/core/ledgerWallet";
-import { GaiaApi } from "../../../../../../cosmosjs/src/gaia/api";
-import {LockMsg, MsgLock} from "./lockMessage";
-import {ETHEREUM_CHAIN_ID, TOKEN_CONTRACT} from "../../../../config";
+import { registerLockCodec } from "./transfer-msg";
+import { ETHEREUM_CHAIN_ID, TOKEN_CONTRACT } from "../../../../config";
+import { GaiaApi } from "@everett-protocol/cosmosjs/gaia/api";
+import { BurnMessage, LockMessage } from "./transfer-msg";
+import * as CmnCdc from "../../../../../../cosmosjs/src/common/codec";
+import * as Crypto from "../../../../../../cosmosjs/src/crypto";
+import { Codec } from "@node-a-team/ts-amino";
+import { QueryAccountMsg } from "../../../../background/api";
+import { sendMessage } from "../../../../common/message/send";
+import { BACKGROUND_PORT } from "../../../../common/message/constant";
+import { BaseAccount } from "@everett-protocol/cosmosjs/common/baseAccount";
 
 interface FormData {
   recipient: string;
@@ -332,32 +339,55 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
                 const coin = CoinUtils.getCoinFromDecimals(data.amount, denom);
                 if (!isCosmosBeingSent) {
                   // Here you can see the type of transport
-                  // https://github.com/LedgerHQ/ledgerjs
-                  /*
-    // You should not use local wallet provider in production
-    const wallet = new LocalWalletProvider(
-    "anger river nuclear pig enlist fish demand dress library obtain concert nasty wolf episode ring bargain rely off vibrant iron cram witness extra enforce"
-  );
-  */
+                  const api = new GaiaApi(
+                    {
+                      chainId: chainStore.chainInfo.chainId,
+                      walletProvider: walletProvider,
+                      rpc: chainStore.chainInfo.rpc,
+                      rest: chainStore.chainInfo.rest
+                    },
+                    {
+                      queryAccount: async context => {
+                        const keys = await walletProvider.getKeys(context);
+                        const bech32Address = keys[0].bech32Address;
 
-                  const api = new GaiaApi({
-                    chainId: chainStore.chainInfo.chainId,
-                    walletProvider: walletProvider,
-                    rpc: chainStore.chainInfo.rpc,
-                    rest: chainStore.chainInfo.rest
-                  });
+                        const queryAccountMsg = QueryAccountMsg.create(
+                          chainStore.chainInfo.rest,
+                          bech32Address
+                        );
+                        const baseAccountJson = await sendMessage(
+                          BACKGROUND_PORT,
+                          queryAccountMsg
+                        );
 
+                        return BaseAccount.fromJSON(baseAccountJson);
+                      },
+
+                      registerCodec: (codec: Codec) => {
+                        registerLockCodec(codec);
+                        // registerBurnCodec(codec);
+                      }
+                    }
+                  );
+                  debugger;
                   // You should sign in before using your wallet
                   await api.enable();
                   await api.sendMsgs(
                     [
-                      new LockMsg(
-                        ETHEREUM_CHAIN_ID,
-                        TOKEN_CONTRACT,
-                         AccAddress.fromBech32(accountStore.bech32Address),
+                      new LockMessage(
+                        [coin],
+                        AccAddress.fromBech32(accountStore.bech32Address),
                         recipient,
-                        [coin]
+                        ETHEREUM_CHAIN_ID,
+                        TOKEN_CONTRACT
                       )
+                      // new BurnMessage(
+                      //   [coin],
+                      //   AccAddress.fromBech32(accountStore.bech32Address),
+                      //   recipient,
+                      //   ETHEREUM_CHAIN_ID,
+                      //   TOKEN_CONTRACT
+                      // )
                     ],
                     {
                       // If account number or sequence is omitted, they are calculated automatically
@@ -370,7 +400,6 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
 
                   return;
                 }
-
 
                 await useBech32ConfigPromise(
                   chainStore.chainInfo.bech32Config,
