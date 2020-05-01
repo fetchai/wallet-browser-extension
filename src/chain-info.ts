@@ -66,7 +66,7 @@ export interface ChainInfo {
 
 export const NativeChainInfos: ChainInfo[] = [
   {
-    rpc: "http://127.0.0.1:26657",
+    rpc: "http://172.18.0.2:26657",
     rest: "http://127.0.0.1:1317",
     chainId: "gaiadrb-sandbox",
     chainName: "gaiadrb-sandbox",

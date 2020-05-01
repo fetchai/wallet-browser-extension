@@ -105,12 +105,12 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
     } = formMethods;
 
     const [lightMode, setLightMode] = useState(false);
+    // flag specifying if cosmos being sent, or is ethereum being sent
     const [isCosmosBeingSent, setisCosmosBeingSent] = useState(false);
 
     const toggleCosmosBeingSent = () => {
       const cosmos = isCosmosBeingSent;
       setisCosmosBeingSent(!cosmos);
-      triggerValidation({ name: "recipient" });
     };
 
     useEffect(() => {
@@ -337,69 +337,6 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
 
               handleSubmit(async (data: FormData) => {
                 const coin = CoinUtils.getCoinFromDecimals(data.amount, denom);
-                if (!isCosmosBeingSent) {
-                  // Here you can see the type of transport
-                  const api = new GaiaApi(
-                    {
-                      chainId: chainStore.chainInfo.chainId,
-                      walletProvider: walletProvider,
-                      rpc: chainStore.chainInfo.rpc,
-                      rest: chainStore.chainInfo.rest
-                    },
-                    {
-                      queryAccount: async context => {
-                        const keys = await walletProvider.getKeys(context);
-                        const bech32Address = keys[0].bech32Address;
-
-                        const queryAccountMsg = QueryAccountMsg.create(
-                          chainStore.chainInfo.rest,
-                          bech32Address
-                        );
-                        const baseAccountJson = await sendMessage(
-                          BACKGROUND_PORT,
-                          queryAccountMsg
-                        );
-
-                        return BaseAccount.fromJSON(baseAccountJson);
-                      },
-
-                      registerCodec: (codec: Codec) => {
-                        registerLockCodec(codec);
-                        // registerBurnCodec(codec);
-                      }
-                    }
-                  );
-                  debugger;
-                  // You should sign in before using your wallet
-                  await api.enable();
-                  await api.sendMsgs(
-                    [
-                      new LockMessage(
-                        [coin],
-                        AccAddress.fromBech32(accountStore.bech32Address),
-                        recipient,
-                        ETHEREUM_CHAIN_ID,
-                        TOKEN_CONTRACT
-                      )
-                      // new BurnMessage(
-                      //   [coin],
-                      //   AccAddress.fromBech32(accountStore.bech32Address),
-                      //   recipient,
-                      //   ETHEREUM_CHAIN_ID,
-                      //   TOKEN_CONTRACT
-                      // )
-                    ],
-                    {
-                      // If account number or sequence is omitted, they are calculated automatically
-                      gas: bigInteger(60000),
-                      memo: "",
-                      fee: data.fee as Coin
-                    },
-                    "commit"
-                  );
-
-                  return;
-                }
 
                 await useBech32ConfigPromise(
                   chainStore.chainInfo.bech32Config,
@@ -410,11 +347,24 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
                     if (!recipient) {
                       throw new Error("Fail to fetch address from ENS");
                     }
-                    const msg = new MsgSend(
-                      AccAddress.fromBech32(accountStore.bech32Address),
-                      AccAddress.fromBech32(recipient),
-                      [coin]
-                    );
+
+                    let msg;
+
+                    if (isCosmosBeingSent) {
+                      msg = new MsgSend(
+                        AccAddress.fromBech32(accountStore.bech32Address),
+                        AccAddress.fromBech32(recipient),
+                        [coin]
+                      );
+                    } else {
+                      msg = new LockMessage(
+                        AccAddress.fromBech32(accountStore.bech32Address),
+                        [coin],
+                        ETHEREUM_CHAIN_ID,
+                        recipient,
+                        TOKEN_CONTRACT
+                      );
+                    }
 
                     const config: TxBuilderConfig = {
                       gas: bigInteger(gasForSendMsg),

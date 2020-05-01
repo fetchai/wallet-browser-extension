@@ -176,7 +176,9 @@ export class AccountStore {
     const msg = GetBalanceMsg.create(this.chainInfo.rest, this.bech32Address);
 
     try {
-      let coins = (await task(await sendMessage(BACKGROUND_PORT, msg))).coins;
+      const result = await task(await sendMessage(BACKGROUND_PORT, msg));
+
+      let coins = result.coins;
 
       coins = CoinUtils.convertCoinsFromMinimalDenomAmount(coins);
       this.assets = coins;

@@ -1,40 +1,45 @@
 import { AccAddress } from "@everett-protocol/cosmosjs/common/address";
 import { Coin } from "@everett-protocol/cosmosjs/common/coin";
 import { Msg } from "@everett-protocol/cosmosjs/core/tx";
-import { Int } from "@everett-protocol/cosmosjs/common/int";
-import { Codec, Type } from "@node-a-team/ts-amino";
-import { DefineStruct, Field } from "@node-a-team/ts-amino/dist/amino";
+import { Codec, Type, Amino } from "@node-a-team/ts-amino";
+const { DefineStruct, Field } = Amino;
 
 @DefineStruct()
 export class LockMessage extends Msg {
+  @Field.Defined(0, {
+    jsonName: "cosmos_sender"
+  })
+  public cosmosSender: AccAddress;
+
   @Field.Slice(
     1,
-    { type: Type.Defined },
+    {
+      type: Type.Defined
+    },
     {
       jsonName: "amount"
     }
   )
-  @Field.Defined(4, {
-    jsonName: "cosmos_sender"
-  })
-  @Field.Defined(0, {
+  public amount: Coin[];
+
+  @Field.String(2, {
     jsonName: "ethereum_chain_id"
   })
-  @Field.Defined(2, {
+  public ethereumChainID: string;
+
+  @Field.String(3, {
+    jsonName: "ethereum_receiver"
+  })
+  public ethereumReceiver: string;
+
+  @Field.String(4, {
     jsonName: "token_contract_address"
   })
-  @Field.Defined(3, {
-    jsonName: "token_contract"
-  })
-  public readonly amount: Coin[];
-  public readonly cosmosSender: AccAddress;
-  public readonly ethereumChainID: string;
-  public readonly ethereumReceiver: string;
-  public readonly tokenContract: string;
+  public tokenContract: string;
 
   constructor(
-    amount: Coin[],
     cosmosSender: AccAddress,
+    amount: Coin[],
     ethereumChainID: string,
     ethereumReceiver: string,
     tokenContract: string
@@ -52,11 +57,11 @@ export class LockMessage extends Msg {
   }
 
   public validateBasic(): void {
-    for (const coin of this.amount) {
-      if (coin.amount.lte(new Int(0))) {
-        throw new Error("Send amount is invalid");
-      }
-    }
+    //   for (const coin of this.amount) {
+    //     if (coin.amount.lte(new Int(0))) {
+    //       throw new Error("Send amount is invalid");
+    //     }
+    //   }
   }
 }
 
@@ -65,7 +70,7 @@ export class LockMessage extends Msg {
 // export class BurnMessage extends TransferMsg {}
 
 export function registerLockCodec(codec: Codec) {
-  codec.registerConcrete("cosmos-sdk/lock", LockMessage.prototype);
+  codec.registerConcrete("cosmos-sdk/MsgLock", LockMessage.prototype);
 }
 
 // export function registerBurnCodec(codec: Codec) {

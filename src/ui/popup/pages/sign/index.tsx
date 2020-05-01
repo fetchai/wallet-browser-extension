@@ -96,6 +96,7 @@ export const SignPage: FunctionComponent<RouteComponentProps<{
   }, [signing.reject, signing.id, external]);
 
   const onApproveClick = useCallback(async () => {
+    debugger;
     if (signing.approve) {
       await signing.approve();
     }

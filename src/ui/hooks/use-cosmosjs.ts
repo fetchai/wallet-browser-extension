@@ -13,7 +13,7 @@ import * as Gov from "@everett-protocol/cosmosjs/x/gov";
 import { Rest } from "@everett-protocol/cosmosjs/core/rest";
 import { useCallback, useEffect, useState } from "react";
 import { Msg } from "@everett-protocol/cosmosjs/core/tx";
-import { TxBuilderConfig } from "@everett-protocol/cosmosjs/core/txBuilder";
+import {TxBuilder, TxBuilderConfig} from "@everett-protocol/cosmosjs/core/txBuilder";
 import { Api } from "@everett-protocol/cosmosjs/core/api";
 import { defaultTxEncoder } from "@everett-protocol/cosmosjs/common/stdTx";
 import { stdTxBuilder } from "@everett-protocol/cosmosjs/common/stdTxBuilder";
@@ -22,6 +22,7 @@ import { sendMessage } from "../../common/message";
 import { BACKGROUND_PORT } from "../../common/message/constant";
 import { QueryAccountMsg } from "../../background/api";
 import { BaseAccount } from "@everett-protocol/cosmosjs/common/baseAccount";
+import { registerLockCodec } from "../popup/pages/send/transfer-msg";
 
 const Buffer = require("buffer/").Buffer;
 
@@ -76,6 +77,7 @@ export const useCosmosJS = <R extends Rest = Rest>(
         Staking.registerCodec(codec);
         Slashing.registerCodec(codec);
         Gov.registerCodec(codec);
+        registerLockCodec(codec);
       }),
     [opts?.registerCodec]
   );

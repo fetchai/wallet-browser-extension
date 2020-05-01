@@ -10,7 +10,7 @@ export interface MessageObj {
 }
 
 interface MsgSend {
-  type: "cosmos-sdk/MsgSend";
+  type: "cosmos-sdk/MsgSend5";
   value: {
     amount: [
       {

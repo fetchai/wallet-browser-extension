@@ -19,7 +19,6 @@ KeyRing.init(messageManager, keyRingKeeper);
 const backgroundTxKeeper = new BackgroundTx.BackgroundTxKeeper(keyRingKeeper);
 BackgroundTx.init(messageManager, backgroundTxKeeper);
 
-debugger;
 const APIKeeper = new API.APIKeeper();
 API.init(messageManager, APIKeeper);
 
