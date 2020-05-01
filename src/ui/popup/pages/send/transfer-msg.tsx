@@ -22,25 +22,25 @@ export class LockMessage extends Msg {
   )
   public amount: Coin[];
 
-  @Field.String(2, {
+  @Field.Uint(2, {
     jsonName: "ethereum_chain_id"
   })
-  public ethereumChainID: string;
+  public ethereumChainID: number;
 
   @Field.String(3, {
-    jsonName: "ethereum_receiver"
-  })
-  public ethereumReceiver: string;
-
-  @Field.String(4, {
     jsonName: "token_contract_address"
   })
   public tokenContract: string;
 
+  @Field.String(4, {
+    jsonName: "ethereum_receiver"
+  })
+  public ethereumReceiver: string;
+
   constructor(
     cosmosSender: AccAddress,
     amount: Coin[],
-    ethereumChainID: string,
+    ethereumChainID: number,
     ethereumReceiver: string,
     tokenContract: string
   ) {
@@ -70,7 +70,7 @@ export class LockMessage extends Msg {
 // export class BurnMessage extends TransferMsg {}
 
 export function registerLockCodec(codec: Codec) {
-  codec.registerConcrete("cosmos-sdk/MsgLock", LockMessage.prototype);
+  codec.registerConcrete("ethbridge/MsgLock", LockMessage.prototype);
 }
 
 // export function registerBurnCodec(codec: Codec) {
