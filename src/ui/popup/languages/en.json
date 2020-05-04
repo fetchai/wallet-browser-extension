@@ -24,6 +24,11 @@
   "register.intro.button.recover-choice.file.content": "Using a key file",
   "register.intro.button.recover-choice.file.title": "Use an encrypted key file and your previous password to import an existing wallet",
 
+  "register.intro.button.recover-choice.hardware.content": "Using a hardware wallet",
+  "register.intro.button.recover-choice.hardware.title": "Use a hardware wallet such as a Ledger Nano X or S",
+
+  "register.intro.button.import-hardware.error.no-cosmos-app": "Install Ledger Cosmos Application",
+
   "register.intro.button.import-account.content": "Use a word seed or a local file to import an existing wallet",
   "register.intro.sub-content": "All sensitive information is stored only on your device.{br}This process does not require an internet connection.",
   "register.recover.title": "Input your seed",

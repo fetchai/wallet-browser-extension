@@ -14,7 +14,7 @@ export class LockMessage extends Msg {
   @Field.Slice(
     1,
     {
-      type: Type.Defined
+      type: Type.Uint
     },
     {
       jsonName: "amount"

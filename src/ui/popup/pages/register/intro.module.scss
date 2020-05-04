@@ -37,9 +37,9 @@
     }
   }
 
-  &:not(:last-of-type) {
-    margin-bottom: 21px;
-  }
+  //&:not(:last-of-type) {
+  //  margin-bottom: 21px;
+  //}
 }
 
 .sub-content {
@@ -61,4 +61,9 @@
   border-color: rgba(88, 135, 218, 1);
   border-style: solid;
   border-width: 3px;
+}
+
+.error {
+  color: red;
+  height: 21px;
 }

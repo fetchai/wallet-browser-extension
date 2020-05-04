@@ -3,7 +3,6 @@
  *
  */
 import { validJSONString } from "../../common/utils/valid-json-string";
-
 const CLASS_NAME = "light-mode";
 export const STORAGE_KEY = "light-mode";
 import React from "react";
@@ -49,9 +48,24 @@ class LightMode extends React.Component<Props, State> {
 }
 
 const setBackgroundImage = (light: boolean) => {
-  document.body.style.backgroundImage = light
-    ? "none"
-    : "linear-gradient(to top, #0d0d0d, #1e2844)";
+  debugger;
+
+  if (light) {
+    document
+      .getElementsByTagName("HTML")[0]
+      .setAttribute("style", "background-image: none");
+  } else {
+    document
+      .getElementsByTagName("HTML")[0]
+      .setAttribute(
+        "style",
+        "background-image: linear-gradient(to top,  #0d0d0d, #1e2844)"
+      );
+  }
+
+  // document.body.style.backgroundImage = light
+  //   ? "none"
+  //   : "linear-gradient(to top, red, #1e2844)";
 };
 
 const lightModeEnabled = async (): Promise<boolean> => {

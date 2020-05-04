@@ -78,7 +78,6 @@ export class AccountStore {
 
     if (this.keyRingStatus === KeyRingStatus.UNLOCKED) {
       await task(this.fetchAccount());
-
       this.fetchAssetsByInterval();
     }
   }

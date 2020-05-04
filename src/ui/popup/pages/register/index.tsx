@@ -13,12 +13,15 @@ import { KeyRingStore } from "../../stores/keyring";
 import { WelcomeInPage } from "./welcome";
 import { FormattedMessage, useIntl } from "react-intl";
 import Recover from "./upload";
+import { Hardware } from "./hardware";
+import Ledger from "@lunie/cosmos-ledger/lib/cosmos-ledger";
 
 enum RegisterState {
   INIT,
   REGISTER,
   RECOVERY_CHOICE,
   UPLOAD,
+  HARDWARE_UPLOAD,
   RECOVER,
   VERIFY
 }
@@ -47,6 +50,29 @@ export const RegisterPage: FunctionComponent = observer(() => {
   const [words, setWords] = useState("");
   const [numWords, setNumWords] = useState<NunWords>(NunWords.WORDS12);
   const [password, setPassword] = useState("");
+  const [hardwareErrorMessage, setHardwareErrorMessage] = useState("");
+
+  const RegisterThroughHardwareWallet = async () => {
+    const ledger = new Ledger();
+
+    let error = false;
+    await ledger.connect().catch(error => {
+      debugger;
+      error = true;
+      sethardwareErrorMessage(error.message);
+    });
+
+    if(error) return false;
+
+    const publicKey = await ledger.getPubKey().catch(error => {
+      debugger;
+      error = true;
+      setHardwareErrorMessage(error.message);
+    });
+
+    return error ? false : true;
+  };
+
   const intl = useIntl();
   const { keyRingStore } = useStore();
 
@@ -173,6 +199,19 @@ export const RegisterPage: FunctionComponent = observer(() => {
                 setState(RegisterState.RECOVER);
               }
             }}
+            middleButton={{
+              title: intl.formatMessage({
+                id: "register.intro.button.recover-choice.hardware.title"
+              }),
+              content: intl.formatMessage({
+                id: "register.intro.button.recover-choice.hardware.content"
+              }),
+              errorMessage: hardwareErrorMessage,
+              onClick: async () => {
+                const hasHardwareWallet = await RegisterThroughHardwareWallet();
+                if (hasHardwareWallet) setState(RegisterState.HARDWARE_UPLOAD);
+              }
+            }}
             bottomButton={{
               title: intl.formatMessage({
                 id: "register.intro.button.recover-choice.file.content"
@@ -196,6 +235,13 @@ export const RegisterPage: FunctionComponent = observer(() => {
             getMneumonic={keyRingStore.getMneumonic}
             verifyPassword={keyRingStore.verifyPassword}
           />
+          <BackButton onClick={onBackToChooseRecoverMethod} />
+        </>
+      ) : null}{" "}
+      {keyRingStore.status === KeyRingStatus.EMPTY &&
+      state === RegisterState.HARDWARE_UPLOAD ? (
+        <>
+          <Hardware />
           <BackButton onClick={onBackToChooseRecoverMethod} />
         </>
       ) : null}{" "}
