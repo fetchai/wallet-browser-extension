@@ -37,6 +37,15 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
     const [newPasswordConfirm, setNewPasswordConfirm] = useState("");
     const [showDeleteConfirmation, setshowDeleteConfirmation] = useState(false);
     const [lightMode, setLightMode] = useState(false);
+    const [keyFile, setKeyFile] = useState("");
+
+    useEffect(() => {
+      const getFile = async () => {
+        const json = await keyRingStore.getKeyFile();
+        setKeyFile(JSON.stringify(json));
+      };
+      getFile();
+    }, []);
 
     useEffect(() => {
       const isEnabled = async () => {
@@ -142,9 +151,10 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
     };
 
     const downloadKeyFile = async () => {
-      const json = await keyRingStore.getKeyFile();
+      if (!keyFile) return;
+
       const element = document.createElement("a");
-      const file = new Blob([JSON.stringify(json)], { type: "text/plain" });
+      const file = new Blob([keyFile], { type: "text/plain" });
       element.href = URL.createObjectURL(file);
       element.download = intl.formatMessage({
         id: "settings.download.key.name"
@@ -268,22 +278,29 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
                 <FormattedMessage id="settings.light-mode.pill.dark" />
               </Button>
             </ButtonGroup>
-            <h3 className={style.subHeading}>
-              {" "}
-              {intl.formatMessage({
-                id: "settings.update-password.heading.download"
-              })}
-            </h3>
+            /** if wallet is from ledger nano then you cannot download key**/
+            {keyFile ? (
+              <>
+                <h3 className={style.subHeading}>
+                  {" "}
+                  {intl.formatMessage({
+                    id: "settings.update-password.heading.download"
+                  })}
+                </h3>
 
-            <button
-              type="button"
-              className={`green ${style.button}`}
-              onClick={downloadKeyFile}
-            >
-              {intl.formatMessage({
-                id: "settings.update-password.button.download"
-              })}
-            </button>
+                <button
+                  type="button"
+                  className={`green ${style.button}`}
+                  onClick={downloadKeyFile}
+                >
+                  {intl.formatMessage({
+                    id: "settings.update-password.button.download"
+                  })}
+                </button>
+              </>
+            ) : (
+              ""
+            )}
           </Expand>
 
           <div className={style.mainButton} onClick={() => toggle(2)}>

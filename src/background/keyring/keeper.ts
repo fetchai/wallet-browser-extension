@@ -154,7 +154,7 @@ export class KeyRingKeeper {
     publicKeyHex: string,
     password: string
   ): Promise<KeyRingStatus> {
-    await this.keyRing.createKey(publicKeyHex, password);
+    await this.keyRing.createHardwareKey(publicKeyHex, password);
     return this.keyRing.status;
   }
 

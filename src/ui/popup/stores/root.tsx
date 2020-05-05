@@ -7,7 +7,6 @@ import { PriceStore } from "./price";
 export class RootStore {
   public chainStore: ChainStore;
   public keyRingStore: KeyRingStore;
-  public hardwareKeyRing: HardwareKeyRingStore;
   public accountStore: AccountStore;
   public priceStore: PriceStore;
 
@@ -15,13 +14,11 @@ export class RootStore {
     // Order is important.
     this.accountStore = new AccountStore(this);
     this.keyRingStore = new KeyRingStore(this);
-    this.hardwareKeyRingStore = new HardwareKeyRingStore(this);
     this.priceStore = new PriceStore();
     this.chainStore = new ChainStore(this);
 
     this.chainStore.init();
     this.keyRingStore.restore();
-    this.hardwareKeyRing.restore();
   }
 
   public setChainInfo(info: ChainInfo) {

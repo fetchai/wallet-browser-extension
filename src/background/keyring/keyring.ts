@@ -64,7 +64,7 @@ export class KeyRing {
       return KeyRingStatus.NOTLOADED;
     }
 
-    if (!this._keyStore) {
+    if (!this._keyStore && !this._hardwareStore) {
       return KeyRingStatus.EMPTY;
     } else if (this.mnemonic || this._publicKeyHex) {
       return KeyRingStatus.UNLOCKED;
@@ -120,7 +120,7 @@ export class KeyRing {
     if (!this._keyStore && !this._hardwareStore) {
       throw new Error("Key ring not initialized");
     }
-
+debugger;
     if (this._hardwareStore) {
       this.unlockHardwareWallet(password);
     } else {

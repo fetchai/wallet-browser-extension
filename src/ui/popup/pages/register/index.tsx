@@ -15,7 +15,6 @@ import { FormattedMessage, useIntl } from "react-intl";
 import Recover from "./upload";
 import { Hardware } from "./hardware";
 import Ledger from "@lunie/cosmos-ledger/lib/cosmos-ledger";
-import {PubKeySecp256k1} from "@everett-protocol/cosmosjs/crypto";
 
 enum RegisterState {
   INIT,
@@ -73,6 +72,19 @@ export const RegisterPage: FunctionComponent = observer(() => {
       setAccountIsCreating(true);
       try {
         await keyRingStore.createKey(words, password);
+        await keyRingStore.save();
+      } finally {
+        setAccountIsCreating(false);
+      }
+    },
+    [keyRingStore]
+  );
+
+  const registerFromHarwareWallet = useCallback(
+    async (publicKeyHex: string, password: string) => {
+      setAccountIsCreating(true);
+      try {
+        await keyRingStore.createHardwareKey(publicKeyHex, password);
         await keyRingStore.save();
       } finally {
         setAccountIsCreating(false);
@@ -234,7 +246,7 @@ export const RegisterPage: FunctionComponent = observer(() => {
       {keyRingStore.status === KeyRingStatus.EMPTY &&
       state === RegisterState.HARDWARE_UPLOAD ? (
         <>
-          <Hardware />
+          <Hardware onRegister={registerFromHarwareWallet} />
           <BackButton onClick={onBackToChooseRecoverMethod} />
         </>
       ) : null}{" "}

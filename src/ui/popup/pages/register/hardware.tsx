@@ -7,10 +7,13 @@ import { observer } from "mobx-react";
 import { useIntl } from "react-intl";
 import flushPromises from "flush-promises";
 import Ledger from "@lunie/cosmos-ledger/lib/cosmos-ledger";
-import {PubKeySecp256k1} from "@everett-protocol/cosmosjs/crypto";
+import { PubKeySecp256k1 } from "@everett-protocol/cosmosjs/crypto";
 
+export interface Props {
+  onRegister: (publicKeyHex: string, password: string) => void;
+}
 
-export const Hardware: FunctionComponent = observer(() => {
+export const Hardware: FunctionComponent<Props> = observer(({ onRegister }) => {
   let connectToHardwareWalletInterval: NodeJS.Timeout;
   let getPublicKeyFromConnectedHardwareWalletInterval: NodeJS.Timeout;
 
@@ -20,7 +23,7 @@ export const Hardware: FunctionComponent = observer(() => {
   const [hardwareErrorMessage, setHardwareErrorMessage] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
   const [passwordErrorMessage, setPasswordErrorMessage] = useState("");
-  const [publicKey, setPublicKey] = useState();
+  const [publicKeyHex, setPublicKeyHex] = useState();
   const [address, setAddress] = useState("");
   const [
     passwordConfirmErrorMessage,
@@ -32,6 +35,7 @@ export const Hardware: FunctionComponent = observer(() => {
     await flushPromises();
     if (!validPassword()) return;
     if (!passwordConfirmValidate()) return;
+    onRegister(publicKeyHex, password);
   };
 
   //on mount
@@ -109,9 +113,11 @@ export const Hardware: FunctionComponent = observer(() => {
       wipeFormErrors();
       await flushPromises();
       setHardwareErrorMessage("");
+      clearInterval(getPublicKeyFromConnectedHardwareWalletInterval);
       const pubKeySecp256k1 = new PubKeySecp256k1(publicKey);
-      setPublicKey(pubKeySecp256k1)
+      setPublicKeyHex(pubKeySecp256k1.toString('hex'));
       setAddress(pubKeySecp256k1.toAddress().toBech32("cosmos"));
+
     }
   };
 
@@ -134,9 +140,18 @@ export const Hardware: FunctionComponent = observer(() => {
 
   return (
     <div id="my-extension-root-inner">
-      <div className={style.hardwareTitle}>Login with Ledger Nano Running Cosmos Application</div>
+      <div className={style.hardwareTitle}>
+        Login with Ledger Nano Running Cosmos Application
+      </div>
       <form id="form" className={style.recoveryForm}>
-        {address.length ? <><span>Address: </span><output>{address}</output></> : ""}
+        {address.length ? (
+          <>
+            <span>Address: </span>
+            <output>{address}</output>
+          </>
+        ) : (
+          ""
+        )}
         <Label for="password" className={style.label} style={{ width: "100%" }}>
           Password
         </Label>
@@ -195,9 +210,9 @@ export const Hardware: FunctionComponent = observer(() => {
               handleSubmit();
             }}
           >
-              intl.formatMessage({
-          id: strong
-        })
+            {intl.formatMessage({
+              id: "register.intro.button.recover-choice.hardware.submit"
+            })}
           </button>
         </div>
       </form>

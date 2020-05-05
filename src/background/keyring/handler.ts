@@ -48,7 +48,7 @@ export const getHandler: (keeper: KeyRingKeeper) => Handler = (
       case CreateKeyMsg:
         return handleCreateKeyMsg(keeper)(msg as CreateKeyMsg);
       case CreateHardwareKeyMsg:
-        return handleCreateHardwareKeyMsg(keeper)(msg as CreateKeyMsg);
+        return handleCreateHardwareKeyMsg(keeper)(msg as CreateHardwareKeyMsg);
       case LockKeyRingMsg:
         return handleLockKeyRingMsg(keeper)(msg as LockKeyRingMsg);
       case UnlockKeyRingMsg:
@@ -167,7 +167,7 @@ const handleCreateHardwareKeyMsg: (
 ) => InternalHandler<CreateHardwareKeyMsg> = keeper => {
   return async msg => {
     return {
-      status: await keeper.createHardwareKey(msg.mnemonic, msg.password)
+      status: await keeper.createHardwareKey(msg.publicKeyHex, msg.password)
     };
   };
 };
