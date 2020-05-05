@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useState } from "react";
+import React, { FunctionComponent, useEffect, useState } from "react";
 import style from "./style.module.scss";
 import { Label } from "reactstrap";
 import classnames from "classnames";
@@ -7,13 +7,21 @@ import { observer } from "mobx-react";
 import { useIntl } from "react-intl";
 import flushPromises from "flush-promises";
 import Ledger from "@lunie/cosmos-ledger/lib/cosmos-ledger";
+import {PubKeySecp256k1} from "@everett-protocol/cosmosjs/crypto";
+
 
 export const Hardware: FunctionComponent = observer(() => {
+  let connectToHardwareWalletInterval: NodeJS.Timeout;
+  let getPublicKeyFromConnectedHardwareWalletInterval: NodeJS.Timeout;
+
+  const ledger = new Ledger();
   const intl = useIntl();
   const [password, setPassword] = useState("");
   const [hardwareErrorMessage, setHardwareErrorMessage] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
   const [passwordErrorMessage, setPasswordErrorMessage] = useState("");
+  const [publicKey, setPublicKey] = useState();
+  const [address, setAddress] = useState("");
   const [
     passwordConfirmErrorMessage,
     setPasswordConfirmErrorMessage
@@ -25,6 +33,23 @@ export const Hardware: FunctionComponent = observer(() => {
     if (!validPassword()) return;
     if (!passwordConfirmValidate()) return;
   };
+
+  //on mount
+  useEffect(() => {
+    connectToHardwareWalletInterval = setInterval(
+      connectToHardwareWallet,
+      1000
+    );
+  }, []);
+
+  //on unmount clear intervals
+  useEffect(
+    () => () => {
+      clearInterval(connectToHardwareWalletInterval);
+      clearInterval(getPublicKeyFromConnectedHardwareWalletInterval);
+    },
+    []
+  );
 
   const wipeFormErrors = () => {
     setPasswordErrorMessage("");
@@ -56,7 +81,6 @@ export const Hardware: FunctionComponent = observer(() => {
           id: "register.create.input.password.error.required"
         })
       );
-
       return false;
     }
 
@@ -73,38 +97,52 @@ export const Hardware: FunctionComponent = observer(() => {
     return true;
   };
 
-  const getAddressFromHardwareWallet = async () => {
-    const ledger = new Ledger();
-
+  const getPublicKeyFromConnectedHardwareWallet = async () => {
     let error = false;
-    await ledger.connect().catch(err => {
-      debugger;
-      error = true;
-      setHardwareErrorMessage(err.message);
-    });
-
-    if (error) return false;
 
     const publicKey = await ledger.getPubKey().catch(err => {
-      debugger;
       error = true;
       setHardwareErrorMessage(err.message);
     });
-debugger;
 
+    if (!error) {
+      wipeFormErrors();
+      await flushPromises();
+      setHardwareErrorMessage("");
 
-    return error ? false : true;
+      const pubKeySecp256k1 = new PubKeySecp256k1(publicKey);
+      setPublicKey(pubKeySecp256k1)
+      setAddress(pubKeySecp256k1.toAddress().toBech32("cosmos"));
+    }
+  };
+
+  const connectToHardwareWallet = async () => {
+    let error = false;
+    await ledger.connect().catch(err => {
+      error = true;
+      setHardwareErrorMessage(err.message);
+    });
+
+    if (!error) {
+      // lets start trying to get the public key now.
+      clearInterval(connectToHardwareWalletInterval);
+      getPublicKeyFromConnectedHardwareWalletInterval = setInterval(
+        getPublicKeyFromConnectedHardwareWallet,
+        1000
+      );
+    }
   };
 
   return (
     <div id="my-extension-root-inner">
-      <div className={style.hardwareTitle}>Recover</div>
+      <div className={style.hardwareTitle}>Login with Ledger Nano Running Cosmos Application</div>
       <form id="form" className={style.recoveryForm}>
-        <output></output>
+        {address.length ? <><span>Address: </span><output>{address}</output></> : ""}
         <Label for="password" className={style.label} style={{ width: "100%" }}>
           Password
         </Label>
         <input
+          disabled={hardwareErrorMessage.length !== 0}
           type="password"
           className={classnames(
             style.recoverInput,
@@ -128,6 +166,7 @@ debugger;
         </output>
         <input
           type="password"
+          disabled={hardwareErrorMessage.length !== 0}
           className={classnames(
             style.recoverInput,
             passwordConfirmErrorMessage.length !== 0 ? "red" : false
@@ -157,7 +196,9 @@ debugger;
               handleSubmit();
             }}
           >
-            Upload
+              intl.formatMessage({
+          id: strong
+        })
           </button>
         </div>
       </form>

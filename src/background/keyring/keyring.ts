@@ -1,4 +1,4 @@
-import { Crypto, KeyStore } from "./crypto";
+import { Crypto, HardwareStore, KeyStore } from "./crypto";
 import { generateWalletFromMnemonic } from "@everett-protocol/cosmosjs/utils/key";
 import { PrivKey } from "@everett-protocol/cosmosjs/crypto";
 import { KVStore } from "../../common/kvstore";
@@ -33,10 +33,16 @@ export class KeyRing {
 
   private _keyStore: KeyStore | null;
 
+  private _hardwareStore: HardwareStore | null;
+
+  private _publicKeyHex: string;
+
   constructor(private readonly kvStore: KVStore) {
     this.loaded = false;
     this._mnemonic = "";
+    this._publicKeyHex = "";
     this._keyStore = null;
+    this._hardwareStore = null;
   }
 
   private get mnemonic(): string {
@@ -59,7 +65,7 @@ export class KeyRing {
 
     if (!this._keyStore) {
       return KeyRingStatus.EMPTY;
-    } else if (this.mnemonic) {
+    } else if (this.mnemonic || this._publicKeyHex) {
       return KeyRingStatus.UNLOCKED;
     } else {
       return KeyRingStatus.LOCKED;
@@ -75,21 +81,43 @@ export class KeyRing {
     this._keyStore = await Crypto.encrypt(this.mnemonic, password);
   }
 
+  /**
+   * If user signs in with hardware wallet we store their public key and a salted hash of password instead
+   * of hash of mneumonic
+   *
+   * @param publicKeyHex
+   * @param password
+   */
+  public async createHardwareKey(publicKeyHex: string, password: string) {
+    const buff = Buffer.from(publicKeyHex + password);
+    const hash = Crypto.sha256(buff).toString("hex");
+    this._publicKeyHex = publicKeyHex;
+    this._hardwareStore = { hash: hash, publicKeyHex: publicKeyHex };
+  }
+
   public lock() {
     if (this.status !== KeyRingStatus.UNLOCKED) {
       throw new Error("Key ring is not unlocked");
     }
     this.mnemonic = "";
+    this._publicKeyHex = "";
   }
 
   public async unlock(password: string) {
-    if (!this._keyStore) {
+    if (!this._keyStore && !this._hardwareStore) {
       throw new Error("Key ring not initialized");
     }
-    // If password is invalid, error will be thrown.
-    this.mnemonic = Buffer.from(
-      await Crypto.decrypt(this._keyStore, password)
-    ).toString();
+
+    if (this._hardwareStore) {
+      this._publicKeyHex = Buffer.from(
+        await Crypto.decrypt(this._hardwareStore, password)
+      ).toString();
+    } else {
+      // If password is invalid, error will be thrown.
+      this.mnemonic = Buffer.from(
+        await Crypto.decrypt(this._keyStore, password)
+      ).toString();
+    }
   }
 
   public async getMneumonic(
@@ -108,7 +136,7 @@ export class KeyRing {
     return this.mnemonic;
   }
 
-  public async verifyPassword (
+  public async verifyPassword(
     password: string,
     keyFile: KeyStore | null = null
   ): Promise<boolean> {

@@ -30,6 +30,14 @@ export interface KeyStore {
   };
 }
 
+// if user logins in with hardware wallet then we store alternate details
+// aka a hash of their password, and their public key
+
+export interface HardwareStore {
+  hash: string;
+  publicKeyHex: string;
+}
+
 export class Crypto {
   public static async encrypt(
     text: string,

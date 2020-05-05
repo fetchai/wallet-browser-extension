@@ -184,6 +184,43 @@ export class CreateKeyMsg extends Message<{ status: KeyRingStatus }> {
   }
 }
 
+export class CreateHardwareKeyMsg extends Message<{ status: KeyRingStatus }> {
+  public static type() {
+    return "create-hardware-key";
+  }
+
+  public static create(
+    publicKeyHex: string,
+    password: string
+  ): CreateHardwareKeyMsg {
+    const msg = new CreateHardwareKeyMsg();
+    msg.publicKeyHex = publicKeyHex;
+    msg.password = password;
+    return msg;
+  }
+
+  public publicKeyHex = "";
+  public password = "";
+
+  validateBasic(): void {
+    if (!this.publicKeyHex) {
+      throw new Error("hex public key not set");
+    }
+
+    if (!this.password) {
+      throw new Error("password not set");
+    }
+  }
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return CreateHardwareKeyMsg.type();
+  }
+}
+
 export class LockKeyRingMsg extends Message<{ status: KeyRingStatus }> {
   public static type() {
     return "lock-keyring";
@@ -276,10 +313,7 @@ export class GetMneumonicMsg extends Message<{
     return "get mneumonic";
   }
 
-  public static create(
-    password: string,
-    keyFile: KeyStore
-  ): GetMneumonicMsg {
+  public static create(password: string, keyFile: KeyStore): GetMneumonicMsg {
     const msg = new GetMneumonicMsg();
     msg.password = password;
     msg.keyFile = keyFile;
@@ -359,8 +393,7 @@ export class GetKeyFileMsg extends Message<{
   }
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  validateBasic(): void {
-  }
+  validateBasic(): void {}
 
   route(): string {
     return ROUTE;

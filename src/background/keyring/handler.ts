@@ -21,7 +21,7 @@ import {
   VerifyPasswordKeyRingMsg,
   UpdatePasswordMsg,
   GetKeyFileMsg,
-  GetMneumonicMsg
+  GetMneumonicMsg, CreateHardwareKeyMsg
 } from "./messages";
 import { KeyRingKeeper } from "./keeper";
 import { Address } from "@everett-protocol/cosmosjs/crypto";
@@ -47,6 +47,8 @@ export const getHandler: (keeper: KeyRingKeeper) => Handler = (
         return handleClearKeyRingMsg(keeper)(msg as ClearKeyRingMsg);
       case CreateKeyMsg:
         return handleCreateKeyMsg(keeper)(msg as CreateKeyMsg);
+      case CreateHardwareKeyMsg:
+        return handleCreateHardwareKeyMsg(keeper)(msg as CreateKeyMsg);
       case LockKeyRingMsg:
         return handleLockKeyRingMsg(keeper)(msg as LockKeyRingMsg);
       case UnlockKeyRingMsg:
@@ -156,6 +158,16 @@ const handleCreateKeyMsg: (
   return async msg => {
     return {
       status: await keeper.createKey(msg.mnemonic, msg.password)
+    };
+  };
+};
+
+const handleCreateHardwareKeyMsg: (
+  keeper: KeyRingKeeper
+) => InternalHandler<CreateHardwareKeyMsg> = keeper => {
+  return async msg => {
+    return {
+      status: await keeper.createHardwareKey(msg.mnemonic, msg.password)
     };
   };
 };

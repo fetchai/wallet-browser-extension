@@ -58,7 +58,6 @@ export const RegisterPage: FunctionComponent = observer(() => {
 
     let error = false;
     await ledger.connect().catch(err => {
-      debugger;
       error = true;
       setHardwareErrorMessage(err.message);
     });
