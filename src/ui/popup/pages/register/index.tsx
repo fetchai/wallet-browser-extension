@@ -15,6 +15,7 @@ import { FormattedMessage, useIntl } from "react-intl";
 import Recover from "./upload";
 import { Hardware } from "./hardware";
 import Ledger from "@lunie/cosmos-ledger/lib/cosmos-ledger";
+import {PubKeySecp256k1} from "@everett-protocol/cosmosjs/crypto";
 
 enum RegisterState {
   INIT,
@@ -56,18 +57,10 @@ export const RegisterPage: FunctionComponent = observer(() => {
     const ledger = new Ledger();
 
     let error = false;
-    await ledger.connect().catch(error => {
+    await ledger.connect().catch(err => {
       debugger;
       error = true;
-      sethardwareErrorMessage(error.message);
-    });
-
-    if(error) return false;
-
-    const publicKey = await ledger.getPubKey().catch(error => {
-      debugger;
-      error = true;
-      setHardwareErrorMessage(error.message);
+      setHardwareErrorMessage(err.message);
     });
 
     return error ? false : true;
@@ -210,6 +203,7 @@ export const RegisterPage: FunctionComponent = observer(() => {
               onClick: async () => {
                 const hasHardwareWallet = await RegisterThroughHardwareWallet();
                 if (hasHardwareWallet) setState(RegisterState.HARDWARE_UPLOAD);
+                debugger;
               }
             }}
             bottomButton={{

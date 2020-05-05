@@ -6,10 +6,12 @@ import { strongPassword } from "../../../../common/strong-password";
 import { observer } from "mobx-react";
 import { useIntl } from "react-intl";
 import flushPromises from "flush-promises";
+import Ledger from "@lunie/cosmos-ledger/lib/cosmos-ledger";
 
 export const Hardware: FunctionComponent = observer(() => {
   const intl = useIntl();
   const [password, setPassword] = useState("");
+  const [hardwareErrorMessage, setHardwareErrorMessage] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
   const [passwordErrorMessage, setPasswordErrorMessage] = useState("");
   const [
@@ -71,17 +73,28 @@ export const Hardware: FunctionComponent = observer(() => {
     return true;
   };
 
-  // ledgerSigner = async (signMessage: any) => {
-  //   const ledger = new Ledger();
-  //   await ledger.connect();
-  //   const publicKey = await ledger.getPubKey();
-  //   const signature = await ledger.sign(signMessage);
-  //
-  //   return {
-  //     signature,
-  //     publicKey
-  //   };
-  // };
+  const getAddressFromHardwareWallet = async () => {
+    const ledger = new Ledger();
+
+    let error = false;
+    await ledger.connect().catch(err => {
+      debugger;
+      error = true;
+      setHardwareErrorMessage(err.message);
+    });
+
+    if (error) return false;
+
+    const publicKey = await ledger.getPubKey().catch(err => {
+      debugger;
+      error = true;
+      setHardwareErrorMessage(err.message);
+    });
+debugger;
+
+
+    return error ? false : true;
+  };
 
   return (
     <div id="my-extension-root-inner">
@@ -135,7 +148,6 @@ export const Hardware: FunctionComponent = observer(() => {
         >
           {passwordConfirmErrorMessage}
         </output>
-
         <div className={style.output}>
           <button
             type="submit"
