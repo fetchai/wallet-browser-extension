@@ -109,7 +109,6 @@ export const Hardware: FunctionComponent = observer(() => {
       wipeFormErrors();
       await flushPromises();
       setHardwareErrorMessage("");
-
       const pubKeySecp256k1 = new PubKeySecp256k1(publicKey);
       setPublicKey(pubKeySecp256k1)
       setAddress(pubKeySecp256k1.toAddress().toBech32("cosmos"));

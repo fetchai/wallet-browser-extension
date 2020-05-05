@@ -14,7 +14,8 @@ import {
   VerifyPasswordKeyRingMsg,
   GetMneumonicMsg,
   UpdatePasswordMsg,
-  GetKeyFileMsg
+  GetKeyFileMsg,
+  CreateHardwareKeyMsg
 } from "../../../../background/keyring";
 
 import { action, observable } from "mobx";
@@ -68,6 +69,19 @@ export class KeyRingStore {
     this.setStatus(result.status);
   }
 
+  /**
+   * Creates key from hardware, storing a password and public key.
+   *
+   * @param publicKeyHex
+   * @param password
+   */
+  @actionAsync
+  public async createHardwareKey(publicKeyHex: string, password: string) {
+    const msg = CreateHardwareKeyMsg.create(publicKeyHex, password);
+    const result = await task(sendMessage(BACKGROUND_PORT, msg));
+    this.setStatus(result.status);
+  }
+
   @actionAsync
   public async lock() {
     const msg = LockKeyRingMsg.create();
@@ -93,10 +107,7 @@ export class KeyRingStore {
   }
 
   @actionAsync
-  public async getMneumonic(
-    password: string,
-    keyFile: KeyStore
-  ) {
+  public async getMneumonic(password: string, keyFile: KeyStore) {
     const msg = GetMneumonicMsg.create(password, keyFile);
     const result = await task(sendMessage(BACKGROUND_PORT, msg));
     return result.mneumonic;

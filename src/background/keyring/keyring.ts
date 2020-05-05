@@ -19,6 +19,7 @@ export interface Key {
 }
 
 const KeyStoreKey = "key-store";
+const HardwareStoreKey = "hardware-store";
 
 /*
  Keyring stores keys in persistent backround.
@@ -103,20 +104,64 @@ export class KeyRing {
     this._publicKeyHex = "";
   }
 
+  /**
+   * The original way the wallet unlocking worked was storing a hash of thee meumonic, and if this decrypted to the key file with the password then we could unlock the wallet.
+   *
+   * When hardware wallet support was added we no longer saved the encrypted key or mneumonic so we added the hash of the hex public key and password and compared it to
+   * saved hash, using saved public key hex.
+   *
+   * This method unlocks by one of the two above methods.
+   *
+   * Previously the flag for being logged in was having the mneumonic set, but this has now been changed to having either the meumonic set or the publicKeyHex set.
+   *
+   * @param password
+   */
   public async unlock(password: string) {
     if (!this._keyStore && !this._hardwareStore) {
       throw new Error("Key ring not initialized");
     }
 
     if (this._hardwareStore) {
-      this._publicKeyHex = Buffer.from(
-        await Crypto.decrypt(this._hardwareStore, password)
-      ).toString();
+      this.unlockHardwareWallet(password);
     } else {
-      // If password is invalid, error will be thrown.
+      this.unlockRegularWallet(password);
+    }
+  }
+
+  /**
+   * used to unlock a wallet linked to hardware eg ledger nano.
+   *
+   * @param password
+   */
+  private async unlockHardwareWallet(password: string): Promise<boolean> {
+    if (!this._hardwareStore) throw new Error("no hardwareStore initialized");
+
+    const buff = Buffer.from(this._hardwareStore.publicKeyHex + password);
+    const hash = Crypto.sha256(buff).toString("hex");
+
+    if (hash === this._hardwareStore.hash) {
+      // this logs them in, from their account created with a hardware wallet.
+      this._publicKeyHex = this._hardwareStore.publicKeyHex;
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * used to unlock a regular wallet which has saved key.
+   *
+   * @param password
+   */
+  private async unlockRegularWallet(password: string) {
+    if (!this._keyStore) throw new Error("no keyStore initialized");
+    // If password is invalid, error will be thrown else mmneumonic will be set, and they will have been logged in through regular login.
+    try {
       this.mnemonic = Buffer.from(
         await Crypto.decrypt(this._keyStore, password)
       ).toString();
+      return true;
+    } catch (error) {
+      return false;
     }
   }
 
@@ -140,6 +185,14 @@ export class KeyRing {
     password: string,
     keyFile: KeyStore | null = null
   ): Promise<boolean> {
+    if (keyFile !== null && !this._hardwareStore)
+      throw new Error("keyfile cannot exist with hardware-associated wallet");
+
+    // if it is hardware-assiciated wallet we unlock it this way.
+    if (this._hardwareStore) {
+      return await this.unlockHardwareWallet(password);
+    }
+
     if (!this._keyStore && keyFile === null) return false;
 
     const k = keyFile !== null ? keyFile : this._keyStore;
@@ -168,17 +221,40 @@ export class KeyRing {
   }
 
   public async save() {
-    await this.kvStore.set<KeyStore>(KeyStoreKey, this._keyStore);
+    if (this._keyStore)
+      await this.kvStore.set<KeyStore>(KeyStoreKey, this._keyStore);
+
+    if (this._hardwareStore)
+      await this.kvStore.set<HardwareStore>(
+        HardwareStoreKey,
+        this._hardwareStore
+      );
   }
 
   public async restore() {
+    this.restoreRegularWallet();
+    this.restoreHardwareAssociatedWallet();
+    this.loaded = true;
+  }
+
+  private async restoreRegularWallet() {
     const keyStore = await this.kvStore.get<KeyStore>(KeyStoreKey);
     if (!keyStore) {
       this._keyStore = null;
     } else {
       this._keyStore = keyStore;
     }
-    this.loaded = true;
+  }
+
+  private async restoreHardwareAssociatedWallet() {
+    const hardwareStore = await this.kvStore.get<HardwareStore>(
+      HardwareStoreKey
+    );
+    if (!hardwareStore) {
+      this._hardwareStore = null;
+    } else {
+      this._hardwareStore = hardwareStore;
+    }
   }
 
   /**
@@ -187,7 +263,9 @@ export class KeyRing {
    */
   public async clear() {
     this._keyStore = null;
+    this._hardwareStore = null;
     this.mnemonic = "";
+    this._publicKeyHex = "";
     this.cached = new Map();
 
     await this.save();
