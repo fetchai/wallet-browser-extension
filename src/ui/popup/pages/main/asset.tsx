@@ -54,7 +54,6 @@ export const AssetView: FunctionComponent = observer(() => {
   );
 
   const dollarCurrencyIsDisplayed = () => {
-    debugger;
     const test =
       fiat &&
       selectedCurrency === chainStore.chainInfo.nativeCurrency &&

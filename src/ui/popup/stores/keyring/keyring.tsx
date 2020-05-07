@@ -15,7 +15,8 @@ import {
   GetMneumonicMsg,
   UpdatePasswordMsg,
   GetKeyFileMsg,
-  CreateHardwareKeyMsg
+  CreateHardwareKeyMsg,
+  IsHardwareLinkedMsg
 } from "../../../../background/keyring";
 
 import { action, observable } from "mobx";
@@ -71,6 +72,7 @@ export class KeyRingStore {
 
   /**
    * Creates key from hardware, storing a password and public key.
+   * Hardware wallet sign up is slightly different to regular sign up since we don't save a meumonic.
    *
    * @param publicKeyHex
    * @param password
@@ -90,10 +92,11 @@ export class KeyRingStore {
   }
 
   @actionAsync
-  public async unlock(password: string) {
+  public async unlock(password: string): Promise<KeyRingStatus> {
     const msg = UnlockKeyRingMsg.create(password);
     const result = await task(sendMessage(BACKGROUND_PORT, msg));
     this.setStatus(result.status);
+    return result.status;
   }
 
   @actionAsync
@@ -142,12 +145,21 @@ export class KeyRingStore {
 
   /**
    * Clear key ring data.
-   * This will throw unless you are in a development env.
-   */
+   *
+   * */
   @actionAsync
   public async clear() {
     const msg = ClearKeyRingMsg.create();
     const result = await task(sendMessage(BACKGROUND_PORT, msg));
     this.setStatus(result.status);
+  }
+
+  /**
+   * Checks if wallet is associated with hardware wallet, and thus cannot be signed internally.
+   */
+  @actionAsync
+  public async isHardwareLinked(): Promise<boolean> {
+    const msg = IsHardwareLinkedMsg.create();
+    return (await task(sendMessage(BACKGROUND_PORT, msg))).result;
   }
 }

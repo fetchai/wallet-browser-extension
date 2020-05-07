@@ -59,7 +59,7 @@
    "settings.update-password.new.success": "Password successfully updated",
    "settings.update-password.new.error.invalid": "Invalid password",
    "settings.update-password.form.placeholder.original": "Old Password",
-   "settings.update-password.form.placeholder.invalid": "Invalid password",
+   "settings.update-password.form.placeholder.new": "New password",
    "settings.update-password.form.placeholder.confirm": "Confirm New Password",
 
 

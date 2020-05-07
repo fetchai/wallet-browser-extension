@@ -19,6 +19,7 @@ import {
 } from "../../../../common/window";
 import classnames from "classnames";
 import { lightModeEnabled, setLightMode } from "../../light-mode";
+import { KeyRingStatus } from "../../stores/keyring";
 
 interface FormData {
   password: string;
@@ -34,7 +35,6 @@ export const LockPage: FunctionComponent<Pick<
 
   // ignore light-mode when lock page mounted.
   useEffect(() => {
-    console.log("mount");
     setLightMode(false, false);
   }, []);
 
@@ -70,12 +70,7 @@ export const LockPage: FunctionComponent<Pick<
 
   return (
     <EmptyLayout style={{ height: "100%", padding: "0" }}>
-      <video
-        className={style.video}
-        autoPlay={true}
-        muted={true}
-        loop={true}
-      >
+      <video className={style.video} autoPlay={true} muted={true} loop={true}>
         <source
           src={chrome.runtime.getURL("/assets/" + "welcome.mp4")}
           type={"video/mp4"}
@@ -92,13 +87,17 @@ export const LockPage: FunctionComponent<Pick<
         className={style.formContainer}
         onSubmit={handleSubmit(async data => {
           setLoading(true);
+          let status;
           try {
-            await keyRingStore.unlock(data.password);
+            status = await keyRingStore.unlock(data.password);
             if (external) {
               window.close();
             }
           } catch (e) {
             console.log("Fail to decrypt: " + e.message);
+          }
+
+          if (status === KeyRingStatus.LOCKED) {
             setError(
               "password",
               "invalid",
@@ -106,8 +105,9 @@ export const LockPage: FunctionComponent<Pick<
                 id: "lock.input.password.error.invalid"
               })
             );
-            setLoading(false);
           }
+
+          setLoading(false);
         })}
       >
         <Input

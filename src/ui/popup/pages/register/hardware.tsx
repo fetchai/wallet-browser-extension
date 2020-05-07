@@ -117,7 +117,6 @@ export const Hardware: FunctionComponent<Props> = observer(({ onRegister }) => {
       const pubKeySecp256k1 = new PubKeySecp256k1(publicKey);
       setPublicKeyHex(pubKeySecp256k1.toString('hex'));
       setAddress(pubKeySecp256k1.toAddress().toBech32("cosmos"));
-
     }
   };
 

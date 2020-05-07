@@ -137,11 +137,16 @@ export class KeyRingKeeper {
 
   /**
    * This will clear all key ring data.
-   * Make sure to use this only in development env for testing.
    */
   async clear(): Promise<KeyRingStatus> {
     await this.keyRing.clear();
     return this.keyRing.status;
+  }
+  /**
+   * Is the wallet linked to a hardware device eg nano
+   */
+  isHardwareLinked(): boolean {
+    return this.keyRing._hardwareStore !== null;
   }
 
   async createKey(mnemonic: string, password: string): Promise<KeyRingStatus> {

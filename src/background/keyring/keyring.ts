@@ -1,6 +1,6 @@
 import { Crypto, HardwareStore, KeyStore } from "./crypto";
 import { generateWalletFromMnemonic } from "@everett-protocol/cosmosjs/utils/key";
-import { PrivKey } from "@everett-protocol/cosmosjs/crypto";
+import { PrivKey, PubKeySecp256k1 } from "@everett-protocol/cosmosjs/crypto";
 import { KVStore } from "../../common/kvstore";
 
 const Buffer = require("buffer/").Buffer;
@@ -34,7 +34,7 @@ export class KeyRing {
 
   private _keyStore: KeyStore | null;
 
-  private _hardwareStore: HardwareStore | null;
+  public _hardwareStore: HardwareStore | null;
 
   private _publicKeyHex: string;
 
@@ -120,16 +120,16 @@ export class KeyRing {
     if (!this._keyStore && !this._hardwareStore) {
       throw new Error("Key ring not initialized");
     }
-debugger;
+
     if (this._hardwareStore) {
-      this.unlockHardwareWallet(password);
+      await this.unlockHardwareWallet(password);
     } else {
-      this.unlockRegularWallet(password);
+      await this.unlockRegularWallet(password);
     }
   }
 
   /**
-   * used to unlock a wallet linked to hardware eg ledger nano.
+   * used to unlock a wallet linked to hardware-linked wallet eg ledger nano.
    *
    * @param password
    */
@@ -190,6 +190,7 @@ debugger;
 
     // if it is hardware-assiciated wallet we unlock it this way.
     if (this._hardwareStore) {
+      debugger;
       return await this.unlockHardwareWallet(password);
     }
 
@@ -215,25 +216,30 @@ debugger;
     if (!(await this.verifyPassword(password))) {
       return false;
     }
-    this._keyStore = await Crypto.encrypt(this.mnemonic, newPassword);
+
+    if (this._publicKeyHex) {
+      this.createHardwareKey(this._publicKeyHex, newPassword);
+    }
+
+    if (this.mnemonic) {
+      this._keyStore = await Crypto.encrypt(this.mnemonic, newPassword);
+    }
+
     await this.save();
     return true;
   }
 
   public async save() {
-    if (this._keyStore)
-      await this.kvStore.set<KeyStore>(KeyStoreKey, this._keyStore);
-
-    if (this._hardwareStore)
-      await this.kvStore.set<HardwareStore>(
-        HardwareStoreKey,
-        this._hardwareStore
-      );
+    await this.kvStore.set<KeyStore>(KeyStoreKey, this._keyStore);
+    await this.kvStore.set<HardwareStore>(
+      HardwareStoreKey,
+      this._hardwareStore
+    );
   }
 
   public async restore() {
-    this.restoreRegularWallet();
-    this.restoreHardwareAssociatedWallet();
+    await this.restoreRegularWallet();
+    await this.restoreHardwareAssociatedWallet();
     this.loaded = true;
   }
 
@@ -276,8 +282,13 @@ debugger;
       throw new Error("Key ring is not unlocked");
     }
 
-    const privKey = this.loadPrivKey(path);
-    const pubKey = privKey.toPubKey();
+    let pubKey;
+    if (this._publicKeyHex) {
+      pubKey = new PubKeySecp256k1(Buffer.from(this._publicKeyHex, "hex"));
+    } else {
+      const privKey = this.loadPrivKey(path);
+      pubKey = privKey.toPubKey();
+    }
 
     return {
       algo: "secp256k1",

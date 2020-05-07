@@ -42,7 +42,9 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
     useEffect(() => {
       const getFile = async () => {
         const json = await keyRingStore.getKeyFile();
-        setKeyFile(JSON.stringify(json));
+        if (json !== null) {
+          setKeyFile(JSON.stringify(json));
+        }
       };
       getFile();
     }, []);
@@ -137,11 +139,12 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
     };
 
     const updatePassword = async () => {
-      setPassword("");
-      setNewPassword("");
-      setNewPasswordConfirm("");
+
 
       const success = await keyRingStore.updatePassword(password, newPassword);
+       setPassword("");
+      setNewPassword("");
+      setNewPasswordConfirm("");
 
       if (success) {
         setOutput(
@@ -250,7 +253,6 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
                 id: "settings.light-mode.pill.title"
               })}
             </h3>
-
             <ButtonGroup
               className={style.pillGroup}
               style={{ marginBottom: "4px" }}
@@ -278,7 +280,6 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
                 <FormattedMessage id="settings.light-mode.pill.dark" />
               </Button>
             </ButtonGroup>
-            /** if wallet is from ledger nano then you cannot download key**/
             {keyFile ? (
               <>
                 <h3 className={style.subHeading}>

@@ -22,7 +22,7 @@ import {
   ClearKeyRingMsg,
   RequestTxBuilderConfigMsg,
   GetRequestedTxBuilderConfigMsg,
-  GetKeyFileMsg
+  GetKeyFileMsg, IsHardwareLinkedMsg
 } from "./messages";
 import { ROUTE } from "./constants";
 import { getHandler } from "./handler";
@@ -37,6 +37,7 @@ export function init(
   messageManager.registerMessage(RestoreKeyRingMsg);
   messageManager.registerMessage(SaveKeyRingMsg);
   messageManager.registerMessage(ClearKeyRingMsg);
+  messageManager.registerMessage(IsHardwareLinkedMsg);
   messageManager.registerMessage(CreateKeyMsg);
   messageManager.registerMessage(CreateHardwareKeyMsg);
   messageManager.registerMessage(LockKeyRingMsg);

@@ -21,7 +21,9 @@ import {
   VerifyPasswordKeyRingMsg,
   UpdatePasswordMsg,
   GetKeyFileMsg,
-  GetMneumonicMsg, CreateHardwareKeyMsg
+  GetMneumonicMsg,
+  CreateHardwareKeyMsg,
+  IsHardwareLinkedMsg
 } from "./messages";
 import { KeyRingKeeper } from "./keeper";
 import { Address } from "@everett-protocol/cosmosjs/crypto";
@@ -45,6 +47,8 @@ export const getHandler: (keeper: KeyRingKeeper) => Handler = (
         return handleSaveKeyRingMsg(keeper)(msg as SaveKeyRingMsg);
       case ClearKeyRingMsg:
         return handleClearKeyRingMsg(keeper)(msg as ClearKeyRingMsg);
+      case IsHardwareLinkedMsg:
+        return handleIsHardwareLinkedMsg(keeper)(msg as IsHardwareLinkedMsg);
       case CreateKeyMsg:
         return handleCreateKeyMsg(keeper)(msg as CreateKeyMsg);
       case CreateHardwareKeyMsg:
@@ -148,6 +152,16 @@ const handleClearKeyRingMsg: (
   return async () => {
     return {
       status: await keeper.clear()
+    };
+  };
+};
+
+const handleIsHardwareLinkedMsg: (
+  keeper: KeyRingKeeper
+) => InternalHandler<IsHardwareLinkedMsg> = keeper => {
+  return async () => {
+    return {
+      result: keeper.isHardwareLinked()
     };
   };
 };

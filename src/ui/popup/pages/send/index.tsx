@@ -47,6 +47,9 @@ import { Dec } from "@everett-protocol/cosmosjs/common/decimal";
 import { useNotification } from "../../../components/notification";
 import { Int } from "@everett-protocol/cosmosjs/common/int";
 
+import Ledger from "@lunie/cosmos-ledger/lib/cosmos-ledger";
+import Cosmos from "@lunie/cosmos-api";
+
 import Web3 from "web3";
 
 import { useIntl } from "react-intl";
@@ -132,7 +135,7 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
 
     const notification = useNotification();
 
-    const { chainStore, accountStore, priceStore } = useStore();
+    const { chainStore, accountStore, priceStore, keyRingStore } = useStore();
 
     const nativeCurrency = getCurrency(
       chainStore.chainInfo.nativeCurrency
@@ -318,9 +321,9 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
               if (isValidENS(recipient)) {
                 triggerValidation({ name: "recipient" });
               }
-              balanceValidate(fee, denom);
-
-              amountValidate(amount, denom, fee);
+              // balanceValidate(fee, denom);
+              //
+              // amountValidate(amount, denom, fee);
               // React form hook doesn't block submitting when error is delivered outside.
               // So, jsut check if errors exists manually, and if it exists, do nothing.
               if (errors.amount && errors.amount.message) {
@@ -337,6 +340,42 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
 
               handleSubmit(async (data: FormData) => {
                 const coin = CoinUtils.getCoinFromDecimals(data.amount, denom);
+
+                const hardwareLinked: boolean = await keyRingStore.isHardwareLinked();
+
+                if (hardwareLinked) {
+                  // init cosmos API object
+                  const ADDRESS = accountStore.bech32Address;
+                  const cosmos = Cosmos(chainStore.chainInfo.rest, ADDRESS);
+
+                  // create a message
+                  const msg = cosmos.MsgSend({
+                    toAddress: "cosmos1abcd09876",
+                    amounts: [{ denom: "ufet", amount: 99999 }]
+                  });
+
+                  // create a signer
+                  const ledgerSigner = async (signMessage: string) => {
+                    const ledger = new Ledger();
+                    await ledger.connect();
+                    const publicKey = await ledger.getPubKey();
+                    const signature = await ledger.sign(signMessage);
+                    return {
+                      signature,
+                      publicKey
+                    };
+                  };
+                  // send the transaction
+                  const { included } = await msg.send(
+                    { gas: 200000 },
+                    ledgerSigner
+                  );
+
+                  // wait for the transaction to be included in a block
+                  await included();
+                  debugger;
+                  return;
+                }
 
                 await useBech32ConfigPromise(
                   chainStore.chainInfo.bech32Config,

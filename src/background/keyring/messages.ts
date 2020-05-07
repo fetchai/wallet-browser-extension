@@ -149,6 +149,26 @@ export class ClearKeyRingMsg extends Message<{ status: KeyRingStatus }> {
     return ClearKeyRingMsg.type();
   }
 }
+export class IsHardwareLinkedMsg extends Message<{ result: boolean }> {
+  public static type() {
+    return "is-hardware-linked";
+  }
+
+  public static create(): IsHardwareLinkedMsg {
+    return new IsHardwareLinkedMsg();
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  validateBasic(): void {}
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return IsHardwareLinkedMsg.type();
+  }
+}
 
 export class CreateKeyMsg extends Message<{ status: KeyRingStatus }> {
   public static type() {

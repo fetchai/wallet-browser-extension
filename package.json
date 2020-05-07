@@ -17,6 +17,7 @@
     "@ensdomains/resolver": "^0.2.4",
     "@everett-protocol/cosmosjs": "git+https://github.com/everett-protocol/cosmosjs-dist.git#a35bd13",
     "@fortawesome/fontawesome-free": "^5.11.2",
+    "@lunie/cosmos-api": "^0.2.5",
     "@lunie/cosmos-ledger": "^0.1.7",
     "@node-a-team/ts-amino": "0.0.1-alpha.2",
     "aes-js": "^3.1.2",

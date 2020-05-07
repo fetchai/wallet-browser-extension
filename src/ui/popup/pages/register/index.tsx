@@ -84,6 +84,7 @@ export const RegisterPage: FunctionComponent = observer(() => {
     async (publicKeyHex: string, password: string) => {
       setAccountIsCreating(true);
       try {
+        debugger;
         await keyRingStore.createHardwareKey(publicKeyHex, password);
         await keyRingStore.save();
       } finally {
@@ -157,6 +158,7 @@ export const RegisterPage: FunctionComponent = observer(() => {
       </div>
       {keyRingStore.status !== KeyRingStatus.NOTLOADED &&
       keyRingStore.status !== KeyRingStatus.EMPTY ? (
+
         <WelcomeInPage />
       ) : null}
       {keyRingStore.status === KeyRingStatus.EMPTY &&

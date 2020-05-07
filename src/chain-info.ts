@@ -24,9 +24,9 @@ export interface Currency {
 export const Currencies: {
   readonly [currency: string]: Currency;
 } = {
-  fet: {
-    coinDenom: "fet",
-    coinMinimalDenom: "ufet",
+  stake: {
+    coinDenom: "stake",
+    coinMinimalDenom: "stake",
     coinDecimals: 6,
     coinGeckoId: "fetch-ai"
   },
@@ -70,7 +70,7 @@ export const NativeChainInfos: ChainInfo[] = [
     rest: "http://127.0.0.1:1317",
     chainId: "gaiadrb-sandbox",
     chainName: "gaiadrb-sandbox",
-    nativeCurrency: "fet",
+    nativeCurrency: "stake",
     walletUrl:
       process.env.NODE_ENV === "production"
         ? "https://wallet.keplr.app/#/cosmoshub-3"
@@ -81,8 +81,8 @@ export const NativeChainInfos: ChainInfo[] = [
         : "http://127.0.0.1:1317/#/cosmoshub-3",
     bip44: new BIP44(44, 118, 0),
     bech32Config: defaultBech32Config("cosmos"),
-    currencies: ["fet"],
-    feeCurrencies: ["fet"],
+    currencies: ["stake"],
+    feeCurrencies: ["stake"],
     coinType: 118
   }
 ];
