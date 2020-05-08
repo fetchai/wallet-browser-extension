@@ -259,7 +259,7 @@ export class KeyRingKeeper {
     }
 
     await this.signApprover.request(id, { chainId, message });
-    return this.keyRing.sign(this.path, message);
+    return await this.keyRing.sign(this.path, message);
   }
 
   getRequestedMessage(id: string): SignMessage {

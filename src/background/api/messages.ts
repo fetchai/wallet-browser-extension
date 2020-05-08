@@ -1,6 +1,6 @@
 import { Message } from "../../common/message";
 import { ROUTE } from "../api/constants";
-import {Coin} from "@everett-protocol/cosmosjs/common/coin";
+import { Coin } from "@everett-protocol/cosmosjs/common/coin";
 
 export class GetBalanceMsg extends Message<{
   coins: Coin[];

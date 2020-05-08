@@ -2,6 +2,7 @@ import { Crypto, HardwareStore, KeyStore } from "./crypto";
 import { generateWalletFromMnemonic } from "@everett-protocol/cosmosjs/utils/key";
 import { PrivKey, PubKeySecp256k1 } from "@everett-protocol/cosmosjs/crypto";
 import { KVStore } from "../../common/kvstore";
+import Ledger from "@lunie/cosmos-ledger/lib/cosmos-ledger";
 
 const Buffer = require("buffer/").Buffer;
 
@@ -189,8 +190,7 @@ export class KeyRing {
       throw new Error("keyfile cannot exist with hardware-associated wallet");
 
     // if it is hardware-assiciated wallet we unlock it this way.
-    if (this._hardwareStore) {
-      debugger;
+    if (this.isAHardwareAssociatedWallet()) {
       return await this.unlockHardwareWallet(password);
     }
 
@@ -313,9 +313,17 @@ export class KeyRing {
     return privKey;
   }
 
-  public sign(path: string, message: Uint8Array): Uint8Array {
+  private isAHardwareAssociatedWallet(): boolean {
+    return Boolean(this._hardwareStore);
+  }
+
+  public async sign(path: string, message: Uint8Array): Promise<Uint8Array> {
     if (this.status !== KeyRingStatus.UNLOCKED) {
       throw new Error("Key ring is not unlocked");
+    }
+
+    if (this.isAHardwareAssociatedWallet()) {
+
     }
 
     const privKey = this.loadPrivKey(path);

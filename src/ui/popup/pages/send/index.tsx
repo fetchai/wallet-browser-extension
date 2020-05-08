@@ -48,6 +48,7 @@ import { useNotification } from "../../../components/notification";
 import { Int } from "@everett-protocol/cosmosjs/common/int";
 
 import Ledger from "@lunie/cosmos-ledger/lib/cosmos-ledger";
+// @ts-ignore
 import Cosmos from "@lunie/cosmos-api";
 
 import Web3 from "web3";
@@ -340,25 +341,55 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
 
               handleSubmit(async (data: FormData) => {
                 const coin = CoinUtils.getCoinFromDecimals(data.amount, denom);
-
+                debugger;
                 const hardwareLinked: boolean = await keyRingStore.isHardwareLinked();
-
-                if (hardwareLinked) {
+                debugger;
+                if (hardwareLinked && false) {
                   // init cosmos API object
                   const ADDRESS = accountStore.bech32Address;
-                  const cosmos = Cosmos(chainStore.chainInfo.rest, ADDRESS);
+                  debugger;
+                  const cosmos = new Cosmos(chainStore.chainInfo.rest, ADDRESS);
+                  debugger;
 
-                  // create a message
-                  const msg = cosmos.MsgSend({
-                    toAddress: "cosmos1abcd09876",
-                    amounts: [{ denom: "ufet", amount: 99999 }]
+                  // @ts-ignore
+                  function Coin({ amount, denom }) {
+                    return {
+                      amount: String(amount),
+                      denom
+                    };
+                  }
+                  debugger;
+                  function MsgSend(
+                    senderAddress: string,
+                    {
+                      toAddress,
+                      amounts // [{ denom, amount}]
+                    }: {
+                      toAddress: string;
+                      amounts: { denom: string; amount: number }[];
+                    }
+                  ) {
+                    return {
+                      type: `cosmos-sdk/MsgSend`,
+                      value: {
+                        from_address: senderAddress,
+                        to_address: toAddress,
+                        amount: amounts.map(Coin)
+                      }
+                    };
+                  }
+
+                  const msg = MsgSend(ADDRESS, {
+                    toAddress: "cosmos1yeckxz7tapz34kjwnjxvmxzurerquhtrmxmuxt",
+                    amounts: [{ denom: "stake", amount: 99 }]
                   });
-
+                  debugger;
                   // create a signer
                   const ledgerSigner = async (signMessage: string) => {
                     const ledger = new Ledger();
                     await ledger.connect();
                     const publicKey = await ledger.getPubKey();
+                    debugger
                     const signature = await ledger.sign(signMessage);
                     return {
                       signature,
@@ -366,8 +397,11 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
                     };
                   };
                   // send the transaction
-                  const { included } = await msg.send(
-                    { gas: 200000 },
+                  //   senderAddress, { gas, gasPrices, memo }, messages, signer
+                  const { included } = await cosmos.send(
+                    ADDRESS,
+                    { gas: "20000", gasPrices:  [{ amount: 1000, denom: `stake` }] },
+                    msg,
                     ledgerSigner
                   );
 

@@ -2,7 +2,8 @@ import Axios, { AxiosRequestConfig, CancelToken } from "axios";
 import { Coin } from "@everett-protocol/cosmosjs/common/coin";
 // import { BaseAccount } from "@everett-protocol/cosmosjs/common/baseAccount";
 import { AccountData, BaseAccountConstructor } from "./types";
-import {Int} from "@everett-protocol/cosmosjs/common/int";
+
+
 
 export class APIKeeper {
   /**
@@ -32,7 +33,7 @@ export class APIKeeper {
       throw new Error("HTTP status code doesn't equal 200");
 
     resp.data.result.forEach((el: any) => {
-      coins.push(new Coin(el.denom, el.amount));
+      coins.push(new Coin(el.denom, el.amount.toString()));
     });
 
     return coins;
@@ -66,7 +67,6 @@ export class APIKeeper {
 
     return resp.data.result.value;
   }
-
 
   /**
    *  Same contract as method of cosmosjs of same name,  which did not work

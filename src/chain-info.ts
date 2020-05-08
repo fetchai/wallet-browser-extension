@@ -26,7 +26,7 @@ export const Currencies: {
 } = {
   stake: {
     coinDenom: "stake",
-    coinMinimalDenom: "ustake",
+    coinMinimalDenom: "stake",
     coinDecimals: 6,
     coinGeckoId: "fetch-ai"
   },
@@ -68,7 +68,7 @@ export const NativeChainInfos: ChainInfo[] = [
   {
     rpc: "http://0.0.0.0:26657",
     rest: "http://0.0.0.0:1317",
-    chainId: "gaiadrb-sandbox",
+    chainId: "testing",
     chainName: "gaiadrb-sandbox",
     nativeCurrency: "stake",
     walletUrl:
@@ -97,7 +97,7 @@ export interface AccessOrigin {
  */
 export const ExtensionAccessOrigins: AccessOrigin[] = [
   {
-    chainId: "gaiadrb-sandbox",
+    chainId: "testing",
     origins:
       process.env.NODE_ENV === "production"
         ? ["https://wallet.keplr.app"]
