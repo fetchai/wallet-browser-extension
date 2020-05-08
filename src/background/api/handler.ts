@@ -21,7 +21,7 @@ const handleGetBalanceMsg: (
 ) => (msg: any) => Promise<{ balance: Coin[] }> = keeper => {
   return async msg => {
     return {
-      balance: await APIKeeper.getBalance(msg.rest, msg.bech32Address)
+      coins: await APIKeeper.getBalance(msg.rest, msg.bech32Address)
     };
   };
 };

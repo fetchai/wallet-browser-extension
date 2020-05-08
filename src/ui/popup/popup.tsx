@@ -68,7 +68,6 @@ const StateRenderer: FunctionComponent<RouteComponentProps> = observer(
   ({ location }) => {
     const { keyRingStore } = useStore();
     const intl = useIntl();
-    debugger
     if (keyRingStore.status === KeyRingStatus.UNLOCKED) {
       return <MainPage />;
     } else if (keyRingStore.status === KeyRingStatus.LOCKED) {

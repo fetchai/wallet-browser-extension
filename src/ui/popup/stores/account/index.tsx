@@ -12,7 +12,7 @@ import { actionAsync, task } from "mobx-utils";
 import { BACKGROUND_PORT } from "../../../../common/message/constant";
 import { Coin } from "@everett-protocol/cosmosjs/common/coin";
 import { RootStore } from "../root";
-import Axios, { CancelToken, CancelTokenSource } from "axios";
+import Axios, { CancelTokenSource } from "axios";
 import { AutoFetchingAssetsInterval } from "../../../../config";
 import { CoinUtils } from "../../../../common/coin-utils";
 import { GetBalanceMsg } from "../../../../background/api";
@@ -175,10 +175,10 @@ export class AccountStore {
     const msg = GetBalanceMsg.create(this.chainInfo.rest, this.bech32Address);
 
     try {
-      const result = await task(await sendMessage(BACKGROUND_PORT, msg));
+      let coins = (await task(await sendMessage(BACKGROUND_PORT, msg))).coins;
 
-      let coins = result.coins;
 
+      debugger;
       coins = CoinUtils.convertCoinsFromMinimalDenomAmount(coins);
       this.assets = coins;
       this.lastAssetFetchingError = undefined;

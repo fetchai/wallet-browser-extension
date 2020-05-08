@@ -86,7 +86,6 @@ export const AssetView: FunctionComponent = observer(() => {
   };
 
   const getAmount = (denom: string) => {
-    debugger;
     for (const coin of accountStore.assets) {
       if (typeof coin !== "undefined" && coin.denom === denom)
         return coin.amount;

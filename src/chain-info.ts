@@ -26,7 +26,7 @@ export const Currencies: {
 } = {
   stake: {
     coinDenom: "stake",
-    coinMinimalDenom: "stake",
+    coinMinimalDenom: "ustake",
     coinDecimals: 6,
     coinGeckoId: "fetch-ai"
   },
@@ -66,8 +66,8 @@ export interface ChainInfo {
 
 export const NativeChainInfos: ChainInfo[] = [
   {
-    rpc: "http://172.18.0.2:26657",
-    rest: "http://127.0.0.1:1317",
+    rpc: "http://0.0.0.0:26657",
+    rest: "http://0.0.0.0:1317",
     chainId: "gaiadrb-sandbox",
     chainName: "gaiadrb-sandbox",
     nativeCurrency: "stake",

@@ -7,7 +7,6 @@ import {
   isMinimalDenomOfCurrency
 } from "../currency";
 // @ts-ignore
-import { BN } from "bn.js";
 import { Currency } from "../../chain-info";
 
 export class CoinUtils {
@@ -40,6 +39,7 @@ export class CoinUtils {
     currency: Currency,
     amount: Int
   ) {
+    debugger;
     if (currency.coinDecimals === 0) return amount;
     // no power method in this , but this is workaround.
     const multiplier = "1" + "0".repeat(currency.coinDecimals);

@@ -48,7 +48,6 @@ class LightMode extends React.Component<Props, State> {
 }
 
 const setBackgroundImage = (light: boolean) => {
-  debugger;
 
   if (light) {
     document
