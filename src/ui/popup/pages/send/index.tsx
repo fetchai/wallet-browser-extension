@@ -389,7 +389,6 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
                     const ledger = new Ledger();
                     await ledger.connect();
                     const publicKey = await ledger.getPubKey();
-                    debugger
                     const signature = await ledger.sign(signMessage);
                     return {
                       signature,

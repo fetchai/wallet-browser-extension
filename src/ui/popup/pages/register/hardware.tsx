@@ -6,8 +6,7 @@ import { strongPassword } from "../../../../common/strong-password";
 import { observer } from "mobx-react";
 import { useIntl } from "react-intl";
 import flushPromises from "flush-promises";
-import Ledger from "@lunie/cosmos-ledger/lib/cosmos-ledger";
-import { PubKeySecp256k1 } from "@everett-protocol/cosmosjs/crypto";
+import LedgerNano from "../../../../common/ledger-nano";
 
 export interface Props {
   onRegister: (publicKeyHex: string, password: string) => void;
@@ -17,10 +16,12 @@ export const Hardware: FunctionComponent<Props> = observer(({ onRegister }) => {
   let connectToHardwareWalletInterval: NodeJS.Timeout;
   let getPublicKeyFromConnectedHardwareWalletInterval: NodeJS.Timeout;
 
-  const ledger = new Ledger();
+  const ledgerNano = new LedgerNano();
+
   const intl = useIntl();
   const [password, setPassword] = useState("");
   const [hardwareErrorMessage, setHardwareErrorMessage] = useState("");
+  const [showRetryButton, setShowRetryButton] = useState(false);
   const [passwordConfirm, setPasswordConfirm] = useState("");
   const [passwordErrorMessage, setPasswordErrorMessage] = useState("");
   const [publicKeyHex, setPublicKeyHex] = useState();
@@ -40,10 +41,7 @@ export const Hardware: FunctionComponent<Props> = observer(({ onRegister }) => {
 
   //on mount
   useEffect(() => {
-    connectToHardwareWalletInterval = setInterval(
-      connectToHardwareWallet,
-      1000
-    );
+    connectToHardwareWallet();
   }, []);
 
   //on unmount clear intervals
@@ -58,6 +56,8 @@ export const Hardware: FunctionComponent<Props> = observer(({ onRegister }) => {
   const wipeFormErrors = () => {
     setPasswordErrorMessage("");
     setPasswordConfirmErrorMessage("");
+    setShowRetryButton(false);
+    setHardwareErrorMessage("");
   };
 
   const hasError = () => {
@@ -97,37 +97,47 @@ export const Hardware: FunctionComponent<Props> = observer(({ onRegister }) => {
       );
       return false;
     }
-
     return true;
   };
 
   const getPublicKeyFromConnectedHardwareWallet = async () => {
     let error = false;
 
-    const publicKey = await ledger.getPubKey().catch(err => {
+    const address = await ledgerNano.getCosmosAddress().catch(err => {
       error = true;
       setHardwareErrorMessage(err.message);
     });
 
-    if (!error) {
+    if (!error && address) {
       wipeFormErrors();
       await flushPromises();
-      setHardwareErrorMessage("");
       clearInterval(getPublicKeyFromConnectedHardwareWalletInterval);
-      const pubKeySecp256k1 = new PubKeySecp256k1(publicKey);
-      setPublicKeyHex(pubKeySecp256k1.toString('hex'));
-      setAddress(pubKeySecp256k1.toAddress().toBech32("cosmos"));
+      setAddress(address);
     }
   };
 
   const connectToHardwareWallet = async () => {
     let error = false;
-    await ledger.connect().catch(err => {
+    let errorMessage = "";
+    await new LedgerNano(false).connect().catch(err => {
+      debugger;
       error = true;
+      errorMessage = err.message;
       setHardwareErrorMessage(err.message);
     });
 
-    if (!error) {
+    if (error && errorMessage.includes("You did not select a Ledger device")) {
+      // This is if they click no on the browser popup to share ledger device, we don't
+      // in this case want to loop as it will keep showing this browser popup.
+      setShowRetryButton(true);
+      if(connectToHardwareWalletInterval) clearInterval(connectToHardwareWalletInterval);
+    } else if (error) {
+      setShowRetryButton(false);
+      connectToHardwareWalletInterval = setInterval(
+        connectToHardwareWallet,
+        5000
+      );
+    } else if (!error) {
       // lets start trying to get the public key now.
       clearInterval(connectToHardwareWalletInterval);
       getPublicKeyFromConnectedHardwareWalletInterval = setInterval(
@@ -140,7 +150,7 @@ export const Hardware: FunctionComponent<Props> = observer(({ onRegister }) => {
   return (
     <div id="my-extension-root-inner">
       <div className={style.hardwareTitle}>
-        Login with Ledger Nano Running Cosmos Application
+        Login using a Ledger Nano running Cosmos Application
       </div>
       <form id="form" className={style.recoveryForm}>
         {address.length ? (
@@ -151,8 +161,14 @@ export const Hardware: FunctionComponent<Props> = observer(({ onRegister }) => {
         ) : (
           ""
         )}
+        <span className={style.error}>{hardwareErrorMessage}</span>
+        {showRetryButton ? (
+          <button onClick={connectToHardwareWallet}>retry</button>
+        ) : (
+          ""
+        )}
         <Label for="password" className={style.label} style={{ width: "100%" }}>
-          Password
+          Create Account Password
         </Label>
         <input
           disabled={hardwareErrorMessage.length !== 0}
@@ -177,6 +193,13 @@ export const Hardware: FunctionComponent<Props> = observer(({ onRegister }) => {
         >
           {passwordErrorMessage}
         </output>
+        <Label
+          for="passwordConfirm"
+          className={style.label}
+          style={{ width: "100%" }}
+        >
+          Confirm Password
+        </Label>
         <input
           type="password"
           disabled={hardwareErrorMessage.length !== 0}

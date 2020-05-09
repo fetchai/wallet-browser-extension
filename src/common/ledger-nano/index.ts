@@ -1,13 +1,19 @@
 import Ledger from "@lunie/cosmos-ledger/lib/cosmos-ledger";
 import { REQUIRED_COSMOS_APP_VERSION } from "../../config";
-import flushPromises from "flush-promises";
 import { PubKeySecp256k1 } from "@everett-protocol/cosmosjs/crypto";
+import semver from "semver";
 
 export default class LedgerNano {
+  // represents the connection to the ledger nano
   private ledger: Ledger;
+  private testModeAllowed: boolean;
 
+  constructor(testModeAllowed = false) {
+    this.testModeAllowed = testModeAllowed;
+  }
   /**
-   * in-lei of constructor since constructor cannot be async.
+   * in-lei of constructor (since constructor cannot be async)
+   *
    */
   public async connect() {
     // singleton
@@ -16,79 +22,61 @@ export default class LedgerNano {
     const ledger = new Ledger();
     await ledger.connect();
     this.ledger = ledger;
+
+    await this.isSupportedVersion();
+    await this.isCosmosAppOpen();
   }
 
-  async getPubKeyHex() {
-       await this.connect();
+  public async getPubKeyHex() {
+    await this.connect();
     const publicKey = await this.ledger.getPubKey();
     const pubKeySecp256k1 = new PubKeySecp256k1(publicKey);
     return pubKeySecp256k1.toString("hex");
   }
-  async getCosmosAddress() {
-       await this.connect();
+
+  public async getCosmosAddress() {
+    await this.connect();
     const publicKey = await this.ledger.getPubKey();
     const pubKeySecp256k1 = new PubKeySecp256k1(publicKey);
     return pubKeySecp256k1.toAddress().toBech32("cosmos");
   }
 
-  async isCosmosAppOpen() {
+  /**
+   * Is cosmos app open and logged in on ledger nano
+   *
+   * @throws if cosmos cosmosapp is not open
+   */
+  public async isCosmosAppOpen() {
     await this.connect();
     await this.ledger.isCosmosAppOpen();
-    this.checkLedgerErrors(response);
-    const { appName } = response;
+  }
 
-    if (appName.toLowerCase() !== `cosmos`) {
-      throw new Error(`Close ${appName} and open the Cosmos app`);
+  /**
+   *
+   *
+   * @throws if cosmos app version is not greater than minimum version specified in configs
+   */
+  public async isSupportedVersion() {
+    await this.connect();
+    const version = await this.ledger.getCosmosAppVersion();
+    if (!semver.gte(version, REQUIRED_COSMOS_APP_VERSION)) {
+      const msg = `Outdated version: Please update Ledger Cosmos App to the latest version.`;
+      throw new Error(msg);
     }
   }
 
   public async sign(message: Uint8Array): Promise<Buffer> {
+    await this.connect();
+    // messages must be converted to utf to sign, but are stored as uint8array in
+    // transaction code.
     const utf8Decoder = new TextDecoder();
     const messageUTF = utf8Decoder.decode(message);
     this.connect();
     return await this.ledger.sign(messageUTF);
   }
 
-  async getCosmosAppVersion() {
+  public async confirmLedgerAddress() {
     await this.connect();
-    const response = await this.ledger.getCosmosAppVersion();
-    this.checkLedgerErrors(response);
-    const { major, minor, patch, test_mode } = response;
-    checkAppMode(this.testModeAllowed, test_mode);
-    const version = versionString({ major, minor, patch });
-    return version;
-  }
-
-  checkLedgerErrors(
-    { error_message: errorMessage, device_locked },
-    {
-      timeoutMessag = "Connection timed out. Please try again.",
-      rejectionMessage = "User rejected the transaction"
-    } = {}
-  ) {
-    if (device_locked) {
-      throw new Error(`Ledger's screensaver mode is on`);
-    }
-    switch (errorMessage) {
-      case `U2F: Timeout`:
-        throw new Error(timeoutMessag);
-      case `Cosmos app does not seem to be open`:
-        throw new Error(`Cosmos app is not open`);
-      case `Command not allowed`:
-        throw new Error(`Transaction rejected`);
-      case `Transaction rejected`:
-        throw new Error(rejectionMessage);
-      case `Unknown error code`:
-        throw new Error(`Ledger's screensaver mode is on`);
-      case `Instruction not supported`:
-        throw new Error(
-          `Your Cosmos Ledger App is not up to date. ` +
-            `Please update to version ${REQUIRED_COSMOS_APP_VERSION}.`
-        );
-      case `No errors`:
-        break;
-      default:
-        throw new Error(errorMessage);
-    }
+    await this.confirmLedgerAddress();
   }
 }

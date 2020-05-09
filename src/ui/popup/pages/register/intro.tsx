@@ -9,7 +9,6 @@ interface ButtonContent {
   title: string;
   content: string;
   onClick: () => void;
-  errorMessage?: string;
 }
 
 export const IntroInPage: FunctionComponent<{
@@ -21,17 +20,6 @@ export const IntroInPage: FunctionComponent<{
     // no light-mode from signup.
     setLightMode(false, true);
   }, []);
-
-  const [middleButtonErrorMessage, setMiddleButtonErrorMessage] = useState("");
-
-  useEffect(() => {
-    if (
-      props.middleButton &&
-      props.middleButton.errorMessage !== middleButtonErrorMessage
-    ) {
-      setMiddleButtonErrorMessage(props.middleButton.errorMessage as string);
-    }
-  }, [props.middleButton]);
 
   return (
     <div>
@@ -49,7 +37,6 @@ export const IntroInPage: FunctionComponent<{
           title={props.middleButton.title}
           content={props.middleButton.content}
           onClick={props.middleButton.onClick}
-          error={middleButtonErrorMessage}
         />
       ) : (
         ""
@@ -79,9 +66,7 @@ const BigButton: FunctionComponent<{
   title: string;
   content: string;
   onClick: () => void;
-  error?: string;
-}> = ({ icon, title, content, onClick, green, error }) => {
-  const intl = useIntl();
+}> = ({ icon, title, content, onClick, green }) => {
 
   return (
     <>
@@ -100,13 +85,6 @@ const BigButton: FunctionComponent<{
           <i className="fas fa-angle-right" />
         </span>
       </div>
-      <span className={styleIntro.error}>
-        {error
-          ? intl.formatMessage({
-              id: "register.intro.button.import-hardware.error.no-cosmos-app"
-            })
-          : ""}
-      </span>
     </>
   );
 };
