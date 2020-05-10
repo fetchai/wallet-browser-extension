@@ -14,81 +14,91 @@ import { MessageObj, renderMessage } from "./messages";
 import { DecUtils } from "../../../../common/dec-utils";
 import { useIntl } from "react-intl";
 
-export const DetailsTab: FunctionComponent<{ message: string }> = observer(
-  ({ message }) => {
-    const { priceStore } = useStore();
+export const DetailsTab: FunctionComponent<{
+  message: string;
+  hardwareErrorMessage: string;
+}> = observer(({ message, hardwareErrorMessage }) => {
+  const { priceStore } = useStore();
 
-    const intl = useIntl();
+  const intl = useIntl();
 
-    const [fee, setFee] = useState<Coin[]>([]);
-    const [feeFiat, setFeeFiat] = useState(new Dec(0));
-    const [memo, setMemo] = useState("");
-    const [msgs, setMsgs] = useState<MessageObj[]>([]);
+  const [fee, setFee] = useState<Coin[]>([]);
+  const [feeFiat, setFeeFiat] = useState(new Dec(0));
+  const [memo, setMemo] = useState("");
+  const [msgs, setMsgs] = useState<MessageObj[]>([]);
+  const [hardwareErrorMsg, setHardwareErrorMsg] = useState("");
 
-    useEffect(() => {
-      if (message) {
-        const msgObj: {
-          fee: {
-            amount: [{ amount: string; denom: string }];
-            gas: string;
-          };
-          memo: string;
-          msgs: MessageObj[];
-        } = JSON.parse(message);
+  useEffect(() => {
+    if (hardwareErrorMessage && hardwareErrorMessage !== hardwareErrorMsg) {
+      setHardwareErrorMsg(hardwareErrorMessage);
+    }
+  }, [hardwareErrorMessage]);
 
-        setMemo(msgObj.memo);
-        setMsgs(msgObj.msgs);
+  useEffect(() => {
+    if (message) {
+      const msgObj: {
+        fee: {
+          amount: [{ amount: string; denom: string }];
+          gas: string;
+        };
+        memo: string;
+        msgs: MessageObj[];
+      } = JSON.parse(message);
 
-        const coinObjs = msgObj.fee.amount;
-        const fees: Coin[] = [];
-        for (const coinObj of coinObjs) {
-          fees.push(new Coin(coinObj.denom, coinObj.amount));
-        }
-        setFee(fees);
+      setMemo(msgObj.memo);
+      setMsgs(msgObj.msgs);
+
+      const coinObjs = msgObj.fee.amount;
+      const fees: Coin[] = [];
+      for (const coinObj of coinObjs) {
+        fees.push(new Coin(coinObj.denom, coinObj.amount));
       }
-    }, [message]);
+      setFee(fees);
+    }
+  }, [message]);
 
-    useEffect(() => {
-      let price = new Dec(0);
-      for (const coin of fee) {
-        const currency = getCurrencyFromMinimalDenom(coin.denom);
-        if (currency) {
-          const value = priceStore.getValue("usd", currency.coinGeckoId);
-          const parsed = CoinUtils.parseDecAndDenomFromCoin(coin);
-          if (value) {
-            price = price.add(new Dec(parsed.amount).mul(value.value));
-          }
+  useEffect(() => {
+    let price = new Dec(0);
+    for (const coin of fee) {
+      const currency = getCurrencyFromMinimalDenom(coin.denom);
+      if (currency) {
+        const value = priceStore.getValue("usd", currency.coinGeckoId);
+        const parsed = CoinUtils.parseDecAndDenomFromCoin(coin);
+        if (value) {
+          price = price.add(new Dec(parsed.amount).mul(value.value));
         }
       }
+    }
 
-      setFeeFiat(price);
-    }, [fee, priceStore]);
+    setFeeFiat(price);
+  }, [fee, priceStore]);
 
-    return (
-      <div className={styleDetailsTab.container}>
-        <div
-          className={classnames(
-            styleDetailsTab.section,
-            styleDetailsTab.messages
-          )}
-        >
-          <div className={styleDetailsTab.title}>
-            {intl.formatMessage({
-              id: "sign.list.messages.label"
-            })}
-          </div>
-          {msgs.map((msg, i) => {
-            const msgContent = renderMessage(msg, intl);
-            return (
-              <React.Fragment key={i.toString()}>
-                <Msg icon={msgContent.icon} title={msgContent.title}>
-                  {msgContent.content}
-                </Msg>
-                <hr />
-              </React.Fragment>
-            );
+  return (
+    <div className={styleDetailsTab.container}>
+      <div
+        className={classnames(
+          styleDetailsTab.section,
+          styleDetailsTab.messages
+        )}
+      >
+        <div className={styleDetailsTab.title}>
+          {intl.formatMessage({
+            id: "sign.list.messages.label"
           })}
         </div>
+        {msgs.map((msg, i) => {
+          const msgContent = renderMessage(msg, intl);
+          return (
+            <React.Fragment key={i.toString()}>
+              <Msg icon={msgContent.icon} title={msgContent.title}>
+                {msgContent.content}
+              </Msg>
+              <hr />
+            </React.Fragment>
+          );
+        })}
+      </div>
+      {!hardwareErrorMessage ? (
         <div className={styleDetailsTab.section}>
           <div className={styleDetailsTab.title}>
             {intl.formatMessage({
@@ -111,20 +121,30 @@ export const DetailsTab: FunctionComponent<{ message: string }> = observer(
             >{`$${DecUtils.decToStrWithoutTrailingZeros(feeFiat)}`}</div>
           </div>
         </div>
-        {memo ? (
-          <div className={styleDetailsTab.section}>
-            <div className={styleDetailsTab.title}>
-              {intl.formatMessage({
-                id: "sign.info.memo"
-              })}
-            </div>
-            <div className={styleDetailsTab.memo}>{memo}</div>
+      ) : null}
+      {memo ? (
+        <div className={styleDetailsTab.section}>
+          <div className={styleDetailsTab.title}>
+            {intl.formatMessage({
+              id: "sign.info.memo"
+            })}
           </div>
-        ) : null}
-      </div>
-    );
-  }
-);
+          <div className={styleDetailsTab.memo}>{memo}</div>
+        </div>
+      ) : null}
+      {hardwareErrorMessage ? (
+        <div className={styleDetailsTab.section}>
+          <div className={styleDetailsTab.title}>
+            {intl.formatMessage({
+              id: "sign.info.error"
+            })}
+          </div>
+          <div className={styleDetailsTab.error}>{hardwareErrorMessage}</div>
+        </div>
+      ) : null}
+    </div>
+  );
+});
 
 const Msg: FunctionComponent<{
   icon?: string;

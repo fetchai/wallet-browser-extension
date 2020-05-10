@@ -25,6 +25,7 @@ import {
   fitWindow
 } from "../../../../common/window";
 import { lightModeEnabled } from "../../light-mode";
+import LedgerNano from "../../../../common/ledger-nano";
 
 enum Tab {
   Details,
@@ -37,6 +38,7 @@ export const SignPage: FunctionComponent<RouteComponentProps<{
   const query = queryString.parse(location.search);
   const external = query.external ?? false;
   const [lightMode, setLightMode] = useState(false);
+  const [hardwareErrorMessage, setHardwareErrorMessage] = useState("");
 
   useEffect(() => {
     if (external) {
@@ -59,7 +61,7 @@ export const SignPage: FunctionComponent<RouteComponentProps<{
 
   const intl = useIntl();
 
-  const { chainStore } = useStore();
+  const { chainStore, keyRingStore } = useStore();
 
   const signing = useSignature(
     id,
@@ -96,6 +98,22 @@ export const SignPage: FunctionComponent<RouteComponentProps<{
   }, [signing.reject, signing.id, external]);
 
   const onApproveClick = useCallback(async () => {
+     const hardwareLinked: boolean = await keyRingStore.isHardwareLinked();
+    if (hardwareLinked) {
+      const hardwareError = false;
+      const ledger = new LedgerNano();
+      try {
+        await ledger.testNano();
+      } catch (error) {
+        setHardwareErrorMessage(error.message);
+        return;
+      }
+
+      if (!hardwareError) {
+        setHardwareErrorMessage("");
+      }
+    }
+
     if (signing.approve) {
       await signing.approve();
     }
@@ -163,7 +181,10 @@ export const SignPage: FunctionComponent<RouteComponentProps<{
         <div className={classnames(style.tabContainer, style.customScrollbar)}>
           {tab === Tab.Data ? <DataTab message={signing.message} /> : null}
           {tab === Tab.Details ? (
-            <DetailsTab message={signing.message} />
+            <DetailsTab
+              message={signing.message}
+              hardwareErrorMessage={hardwareErrorMessage}
+            />
           ) : null}
         </div>
         <div style={{ flex: 1 }} />
@@ -199,6 +220,7 @@ export const SignPage: FunctionComponent<RouteComponentProps<{
               id: "sign.button.approve"
             })}
           </Button>
+
         </div>
       </div>
     </HeaderLayout>

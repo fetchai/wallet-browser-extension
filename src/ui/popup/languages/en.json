@@ -28,6 +28,8 @@
   "register.intro.button.recover-choice.hardware.title": "Use a Ledger Nano X or S containing your keys",
   "register.intro.button.recover-choice.hardware.submit": "Create Account",
 
+  "register.intro.button.import-hardware.error.no-cosmos-app": "Install Ledger Cosmos Application",
+
   "register.intro.button.import-account.content": "Use a word seed, local file or Ledger Nano to import an existing wallet",
   "register.intro.sub-content": "All sensitive information is stored only on your device.{br}This process does not require an internet connection.",
   "register.recover.title": "Input your seed",
@@ -115,6 +117,7 @@
   "sign.list.messages.label": "Messages",
   "sign.info.fee": "Fee",
   "sign.info.memo": "Memo",
+  "sign.info.error": "Error",
   "sign.button.approve": "Approve",
   "sign.button.cancel": "Cancel",
 

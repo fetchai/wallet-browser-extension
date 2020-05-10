@@ -24,7 +24,7 @@ export const Hardware: FunctionComponent<Props> = observer(({ onRegister }) => {
   const [showRetryButton, setShowRetryButton] = useState(false);
   const [passwordConfirm, setPasswordConfirm] = useState("");
   const [passwordErrorMessage, setPasswordErrorMessage] = useState("");
-  const [publicKeyHex, setPublicKeyHex] = useState();
+  const [publicKeyHex, setPublicKeyHex] = useState("");
   const [address, setAddress] = useState("");
   const [
     passwordConfirmErrorMessage,
@@ -34,7 +34,7 @@ export const Hardware: FunctionComponent<Props> = observer(({ onRegister }) => {
   const handleSubmit = async () => {
     wipeFormErrors();
     await flushPromises();
-    if (!validPassword()) return;
+    if (!validatePassword()) return;
     if (!passwordConfirmValidate()) return;
     onRegister(publicKeyHex, password);
   };
@@ -78,7 +78,7 @@ export const Hardware: FunctionComponent<Props> = observer(({ onRegister }) => {
     return true;
   };
 
-  const validPassword = () => {
+  const validatePassword = () => {
     if (password === "" || password.length === 0) {
       setPasswordErrorMessage(
         intl.formatMessage({
@@ -108,30 +108,49 @@ export const Hardware: FunctionComponent<Props> = observer(({ onRegister }) => {
       setHardwareErrorMessage(err.message);
     });
 
+    const publicKeyHex = await ledgerNano.getPubKeyHex().catch(err => {
+      error = true;
+      setHardwareErrorMessage(err.message);
+    });
+
     if (!error && address) {
       wipeFormErrors();
       await flushPromises();
       clearInterval(getPublicKeyFromConnectedHardwareWalletInterval);
       setAddress(address);
+      setPublicKeyHex(publicKeyHex);
     }
   };
 
-  const connectToHardwareWallet = async () => {
+  async function connectToHardwareWallet() {
     let error = false;
-    let errorMessage = "";
-    await new LedgerNano(false).connect().catch(err => {
+
+    try {
+      await ledgerNano.connect();
+    } catch (err) {
+      error = true;
+      setHardwareErrorMessage("err.message ggggg");
+    }
+
+    if (error) {
+      setShowRetryButton(true);
+      clearInterval(connectToHardwareWalletInterval);
+      return;
+    }
+
+    await ledgerNano.isSupportedVersion().catch(err => {
       debugger;
       error = true;
-      errorMessage = err.message;
       setHardwareErrorMessage(err.message);
     });
 
-    if (error && errorMessage.includes("You did not select a Ledger device")) {
-      // This is if they click no on the browser popup to share ledger device, we don't
-      // in this case want to loop as it will keep showing this browser popup.
-      setShowRetryButton(true);
-      if(connectToHardwareWalletInterval) clearInterval(connectToHardwareWalletInterval);
-    } else if (error) {
+    await ledgerNano.isCosmosAppOpen().catch(err => {
+      debugger;
+      error = true;
+      setHardwareErrorMessage(err.message);
+    });
+
+    if (error) {
       setShowRetryButton(false);
       connectToHardwareWalletInterval = setInterval(
         connectToHardwareWallet,
@@ -145,7 +164,7 @@ export const Hardware: FunctionComponent<Props> = observer(({ onRegister }) => {
         1000
       );
     }
-  };
+  }
 
   return (
     <div id="my-extension-root-inner">

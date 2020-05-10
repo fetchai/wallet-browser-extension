@@ -2,7 +2,7 @@ import { Crypto, HardwareStore, KeyStore } from "./crypto";
 import { generateWalletFromMnemonic } from "@everett-protocol/cosmosjs/utils/key";
 import { PrivKey, PubKeySecp256k1 } from "@everett-protocol/cosmosjs/crypto";
 import { KVStore } from "../../common/kvstore";
-import Ledger from "@lunie/cosmos-ledger/lib/cosmos-ledger";
+import LedgerNano from "../../common/ledger-nano";
 
 const Buffer = require("buffer/").Buffer;
 
@@ -323,7 +323,8 @@ export class KeyRing {
     }
 
     if (this.isAHardwareAssociatedWallet()) {
-
+      const ledger = new LedgerNano();
+      return await ledger.sign(message);
     }
 
     const privKey = this.loadPrivKey(path);

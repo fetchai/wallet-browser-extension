@@ -76,6 +76,7 @@ import { QueryAccountMsg } from "../../../../background/api";
 import { sendMessage } from "../../../../common/message/send";
 import { BACKGROUND_PORT } from "../../../../common/message/constant";
 import { BaseAccount } from "@everett-protocol/cosmosjs/common/baseAccount";
+import LedgerNano from "../../../../common/ledger-nano";
 
 interface FormData {
   recipient: string;
@@ -343,6 +344,8 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
                 const coin = CoinUtils.getCoinFromDecimals(data.amount, denom);
                 debugger;
                 const hardwareLinked: boolean = await keyRingStore.isHardwareLinked();
+
+
                 debugger;
                 if (hardwareLinked && false) {
                   // init cosmos API object
@@ -399,7 +402,10 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
                   //   senderAddress, { gas, gasPrices, memo }, messages, signer
                   const { included } = await cosmos.send(
                     ADDRESS,
-                    { gas: "20000", gasPrices:  [{ amount: 1000, denom: `stake` }] },
+                    {
+                      gas: "20000",
+                      gasPrices: [{ amount: 1000, denom: `stake` }]
+                    },
                     msg,
                     ledgerSigner
                   );
@@ -643,6 +649,7 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
                   id: "send.button.send"
                 })}
               </Button>
+
             </div>
           </form>
         </div>

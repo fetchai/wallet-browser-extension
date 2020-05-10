@@ -50,7 +50,20 @@ export const RegisterPage: FunctionComponent = observer(() => {
   const [words, setWords] = useState("");
   const [numWords, setNumWords] = useState<NunWords>(NunWords.WORDS12);
   const [password, setPassword] = useState("");
+  const [hardwareErrorMessage, setHardwareErrorMessage] = useState("");
 
+  const RegisterThroughHardwareWallet = async () => {
+    const ledger = new Ledger();
+
+    let error = false;
+    await ledger.connect().catch(err => {
+      error = true;
+      debugger;
+      setHardwareErrorMessage(err.message);
+    });
+
+    return error ? false : true;
+  };
 
   const intl = useIntl();
   const { keyRingStore } = useStore();
@@ -200,8 +213,11 @@ export const RegisterPage: FunctionComponent = observer(() => {
               content: intl.formatMessage({
                 id: "register.intro.button.recover-choice.hardware.content"
               }),
-              onClick: () => {
-              setState(RegisterState.HARDWARE_UPLOAD);
+              errorMessage: hardwareErrorMessage,
+              onClick: async () => {
+                const hasHardwareWallet = await RegisterThroughHardwareWallet();
+                if (hasHardwareWallet) setState(RegisterState.HARDWARE_UPLOAD);
+                debugger;
               }
             }}
             bottomButton={{

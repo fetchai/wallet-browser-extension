@@ -5,11 +5,9 @@ import semver from "semver";
 
 export default class LedgerNano {
   // represents the connection to the ledger nano
-  private ledger: Ledger;
-  private testModeAllowed: boolean;
+  public ledger: Ledger;
 
-  constructor(testModeAllowed = false) {
-    this.testModeAllowed = testModeAllowed;
+  constructor() {
   }
   /**
    * in-lei of constructor (since constructor cannot be async)
@@ -22,9 +20,13 @@ export default class LedgerNano {
     const ledger = new Ledger();
     await ledger.connect();
     this.ledger = ledger;
+  }
 
-    await this.isSupportedVersion();
+  public async testNano() {
+    await this.connect();
     await this.isCosmosAppOpen();
+    await this.isSupportedVersion();
+    await this.confirmLedgerAddress();
   }
 
   public async getPubKeyHex() {
@@ -47,7 +49,6 @@ export default class LedgerNano {
    * @throws if cosmos cosmosapp is not open
    */
   public async isCosmosAppOpen() {
-    await this.connect();
     await this.ledger.isCosmosAppOpen();
   }
 
@@ -67,8 +68,6 @@ export default class LedgerNano {
 
   public async sign(message: Uint8Array): Promise<Buffer> {
     await this.connect();
-    // messages must be converted to utf to sign, but are stored as uint8array in
-    // transaction code.
     const utf8Decoder = new TextDecoder();
     const messageUTF = utf8Decoder.decode(message);
     this.connect();
