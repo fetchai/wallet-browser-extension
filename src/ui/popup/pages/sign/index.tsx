@@ -98,12 +98,12 @@ export const SignPage: FunctionComponent<RouteComponentProps<{
   }, [signing.reject, signing.id, external]);
 
   const onApproveClick = useCallback(async () => {
-     const hardwareLinked: boolean = await keyRingStore.isHardwareLinked();
+    const hardwareLinked: boolean = await keyRingStore.isHardwareLinked();
     if (hardwareLinked) {
       const hardwareError = false;
-      const ledger = new LedgerNano();
+
       try {
-        await ledger.testNano();
+        await LedgerNano.testDevice();
       } catch (error) {
         setHardwareErrorMessage(error.message);
         return;

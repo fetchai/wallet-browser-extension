@@ -65,18 +65,8 @@ import {
 import { SignOutButton } from "../main/sign-out";
 import { lightModeEnabled } from "../../light-mode";
 import { Currency } from "../../../../chain-info";
-import { registerLockCodec } from "./transfer-msg";
 import { ETHEREUM_CHAIN_ID, TOKEN_CONTRACT } from "../../../../config";
-import { GaiaApi } from "@everett-protocol/cosmosjs/gaia/api";
-import { BurnMessage, LockMessage } from "./transfer-msg";
-import * as CmnCdc from "../../../../../../cosmosjs/src/common/codec";
-import * as Crypto from "../../../../../../cosmosjs/src/crypto";
-import { Codec } from "@node-a-team/ts-amino";
-import { QueryAccountMsg } from "../../../../background/api";
-import { sendMessage } from "../../../../common/message/send";
-import { BACKGROUND_PORT } from "../../../../common/message/constant";
-import { BaseAccount } from "@everett-protocol/cosmosjs/common/baseAccount";
-import LedgerNano from "../../../../common/ledger-nano";
+import { LockMessage } from "./transfer-msg";
 
 interface FormData {
   recipient: string;
@@ -342,80 +332,6 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
 
               handleSubmit(async (data: FormData) => {
                 const coin = CoinUtils.getCoinFromDecimals(data.amount, denom);
-                debugger;
-                const hardwareLinked: boolean = await keyRingStore.isHardwareLinked();
-
-
-                debugger;
-                if (hardwareLinked && false) {
-                  // init cosmos API object
-                  const ADDRESS = accountStore.bech32Address;
-                  debugger;
-                  const cosmos = new Cosmos(chainStore.chainInfo.rest, ADDRESS);
-                  debugger;
-
-                  // @ts-ignore
-                  function Coin({ amount, denom }) {
-                    return {
-                      amount: String(amount),
-                      denom
-                    };
-                  }
-                  debugger;
-                  function MsgSend(
-                    senderAddress: string,
-                    {
-                      toAddress,
-                      amounts // [{ denom, amount}]
-                    }: {
-                      toAddress: string;
-                      amounts: { denom: string; amount: number }[];
-                    }
-                  ) {
-                    return {
-                      type: `cosmos-sdk/MsgSend`,
-                      value: {
-                        from_address: senderAddress,
-                        to_address: toAddress,
-                        amount: amounts.map(Coin)
-                      }
-                    };
-                  }
-
-                  const msg = MsgSend(ADDRESS, {
-                    toAddress: "cosmos1yeckxz7tapz34kjwnjxvmxzurerquhtrmxmuxt",
-                    amounts: [{ denom: "stake", amount: 99 }]
-                  });
-                  debugger;
-                  // create a signer
-                  const ledgerSigner = async (signMessage: string) => {
-                    const ledger = new Ledger();
-                    await ledger.connect();
-                    const publicKey = await ledger.getPubKey();
-                    const signature = await ledger.sign(signMessage);
-                    return {
-                      signature,
-                      publicKey
-                    };
-                  };
-                  // send the transaction
-                  //   senderAddress, { gas, gasPrices, memo }, messages, signer
-                  const { included } = await cosmos.send(
-                    ADDRESS,
-                    {
-                      gas: "20000",
-                      gasPrices: [{ amount: 1000, denom: `stake` }]
-                    },
-                    msg,
-                    ledgerSigner
-                  );
-
-                  // wait for the transaction to be included in a block
-                  await included();
-                  debugger;
-                  return;
-                }
-
                 await useBech32ConfigPromise(
                   chainStore.chainInfo.bech32Config,
                   async () => {

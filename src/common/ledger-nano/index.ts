@@ -6,9 +6,6 @@ import semver from "semver";
 export default class LedgerNano {
   // represents the connection to the ledger nano
   public ledger: Ledger;
-
-  constructor() {
-  }
   /**
    * in-lei of constructor (since constructor cannot be async)
    *
@@ -16,17 +13,14 @@ export default class LedgerNano {
   public async connect() {
     // singleton
     if (this.ledger) return;
-
     const ledger = new Ledger();
     await ledger.connect();
     this.ledger = ledger;
   }
 
-  public async testNano() {
-    await this.connect();
-    await this.isCosmosAppOpen();
-    await this.isSupportedVersion();
-    await this.confirmLedgerAddress();
+  public static async testDevice() {
+    const ledger = new Ledger();
+    await ledger.testDevice();
   }
 
   public async getPubKeyHex() {
