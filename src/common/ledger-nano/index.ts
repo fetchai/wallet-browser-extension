@@ -64,7 +64,6 @@ export default class LedgerNano {
     await this.connect();
     const utf8Decoder = new TextDecoder();
     const messageUTF = utf8Decoder.decode(message);
-    this.connect();
     return await this.ledger.sign(messageUTF);
   }
 

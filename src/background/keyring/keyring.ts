@@ -186,9 +186,9 @@ export class KeyRing {
     password: string,
     keyFile: KeyStore | null = null
   ): Promise<boolean> {
-    if (keyFile !== null && !this._hardwareStore)
+    if (keyFile !== null && this._hardwareStore) {
       throw new Error("keyfile cannot exist with hardware-associated wallet");
-
+    }
     // if it is hardware-assiciated wallet we unlock it this way.
     if (this.isAHardwareAssociatedWallet()) {
       return await this.unlockHardwareWallet(password);

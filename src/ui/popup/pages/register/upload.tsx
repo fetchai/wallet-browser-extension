@@ -224,7 +224,7 @@ export default class Recover extends React.Component<Props, State> {
           errorMessage: "Error occured"
         });
       }
-
+debugger;
       this.onRegister(mneumonic, this.state.password, true);
     }
   }

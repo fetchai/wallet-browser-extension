@@ -129,7 +129,7 @@ export const Hardware: FunctionComponent<Props> = observer(({ onRegister }) => {
       await ledgerNano.connect();
     } catch (err) {
       error = true;
-      setHardwareErrorMessage("err.message ggggg");
+      setHardwareErrorMessage(err.message);
     }
 
     if (error) {
@@ -145,7 +145,6 @@ export const Hardware: FunctionComponent<Props> = observer(({ onRegister }) => {
     });
 
     await ledgerNano.isCosmosAppOpen().catch(err => {
-      debugger;
       error = true;
       setHardwareErrorMessage(err.message);
     });
