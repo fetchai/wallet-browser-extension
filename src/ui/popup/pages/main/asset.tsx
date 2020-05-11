@@ -82,7 +82,9 @@ export const AssetView: FunctionComponent = observer(() => {
       amount = cutOffDecimals(amount);
       return "$" + parseFloat(amount).toLocaleString();
     } else {
-      return "$" + parseFloat(
+      return (
+        "$" +
+        parseFloat(
         fiat.value.mul(new Dec(coinAmount)).toString()
       ).toLocaleString();
     }

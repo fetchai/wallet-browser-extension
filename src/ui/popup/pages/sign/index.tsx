@@ -39,6 +39,11 @@ export const SignPage: FunctionComponent<RouteComponentProps<{
   const external = query.external ?? false;
   const [lightMode, setLightMode] = useState(false);
   const [hardwareErrorMessage, setHardwareErrorMessage] = useState("");
+  // if we require a ledger nano but it is unavailable then we set this variable to disable the sending of transaction
+  const [
+    isNanoUnavailableAndRequired,
+    setIsNanoUnavailableAndRequired
+  ] = useState(false);
 
   useEffect(() => {
     if (external) {
@@ -54,6 +59,28 @@ export const SignPage: FunctionComponent<RouteComponentProps<{
     };
     isEnabled();
   }, [external, lightMode, setLightMode]);
+
+  // on mount we check if it is hardware linked wallet and if it is then we show an info message staying the issue.
+  useEffect(() => {
+    (async () => {
+      const hardwareLinked: boolean = await keyRingStore.isHardwareLinked();
+      if (hardwareLinked) {
+        let hardwareError = false;
+        try {
+          await LedgerNano.testDevice();
+        } catch (error) {
+          setHardwareErrorMessage(error.message);
+          setIsNanoUnavailableAndRequired(true);
+          hardwareError = true;
+          return;
+        }
+
+        if (!hardwareError) {
+          setHardwareErrorMessage("");
+        }
+      }
+    })();
+  }, []);
 
   const id = match.params.id;
 
@@ -97,6 +124,10 @@ export const SignPage: FunctionComponent<RouteComponentProps<{
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [signing.reject, signing.id, external]);
 
+  const resolveError = () => {
+    setIsNanoUnavailableAndRequired(false);
+  }
+
   const onApproveClick = useCallback(async () => {
     const hardwareLinked: boolean = await keyRingStore.isHardwareLinked();
     if (hardwareLinked) {
@@ -106,6 +137,7 @@ export const SignPage: FunctionComponent<RouteComponentProps<{
       //   await LedgerNano.testDevice();
       // } catch (error) {
       //   setHardwareErrorMessage(error.message);
+      //   hardwareError = true;
       //   return;
       // }
 
@@ -184,6 +216,7 @@ export const SignPage: FunctionComponent<RouteComponentProps<{
             <DetailsTab
               message={signing.message}
               hardwareErrorMessage={hardwareErrorMessage}
+              resolveError={resolveError}
             />
           ) : null}
         </div>
@@ -211,7 +244,8 @@ export const SignPage: FunctionComponent<RouteComponentProps<{
             disabled={
               signing.message == null ||
               signing.message === "" ||
-              signing.initializing
+              signing.initializing ||
+              isNanoUnavailableAndRequired
             }
             data-loading={signing.requested}
             onClick={onApproveClick}
@@ -220,7 +254,6 @@ export const SignPage: FunctionComponent<RouteComponentProps<{
               id: "sign.button.approve"
             })}
           </Button>
-
         </div>
       </div>
     </HeaderLayout>
