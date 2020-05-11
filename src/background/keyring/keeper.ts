@@ -257,7 +257,7 @@ export class KeyRingKeeper {
         browser.runtime.getURL(`popup.html#/sign/${id}?external=true`)
       );
     }
-
+    // this waits until it approval message before going to next line below.
     await this.signApprover.request(id, { chainId, message });
     return await this.keyRing.sign(this.path, message);
   }

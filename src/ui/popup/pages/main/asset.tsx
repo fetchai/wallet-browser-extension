@@ -61,7 +61,12 @@ export const AssetView: FunctionComponent = observer(() => {
     return test;
   };
 
+  const cutOffDecimals = (s: string): string => {
+    return parseFloat(s).toFixed(0);
+  };
+
   const getCurrencyInDollars = () => {
+    // if selected from dropdown and selected currency is not the one for which we have dollar price
     if (!fiat || selectedCurrency !== chainStore.chainInfo.nativeCurrency) {
       return "";
     } else if (
@@ -69,15 +74,18 @@ export const AssetView: FunctionComponent = observer(() => {
       accountStore.assets[0].denom !== nativeCurrency.coinDenom
     ) {
       return "";
+    } else if (fiat.value.equals(new Dec(0))) {
+      return "0";
+    } else if (fiat.value.mul(new Dec(coinAmount)).gt(new Dec(100))) {
+      // if dollar amount is greater than 100 then cut off the cent amount
+      let amount = fiat.value.mul(new Dec(coinAmount)).toString();
+      amount = cutOffDecimals(amount);
+      return "$" + parseFloat(amount).toLocaleString();
+    } else {
+      return "$" + parseFloat(
+        fiat.value.mul(new Dec(coinAmount)).toString()
+      ).toLocaleString();
     }
-    return !fiat.value.equals(new Dec(0))
-      ? "$" +
-          parseFloat(
-            fiat.value
-              .mul(new Dec(coinAmount))
-              .toString()
-          ).toLocaleString()
-      : "?";
   };
 
   const currencyChange = (event: any) => {
@@ -109,7 +117,6 @@ export const AssetView: FunctionComponent = observer(() => {
    */
 
   const getSingleCurrencyDisplay = () => {
-
     if (accountStore.assets.length === 0) {
       return nativeCurrency.coinDenom;
     }

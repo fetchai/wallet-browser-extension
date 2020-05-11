@@ -323,8 +323,20 @@ export class KeyRing {
     }
 
     if (this.isAHardwareAssociatedWallet()) {
+      let signedMessage;
       const ledger = new LedgerNano();
-      return await ledger.sign(message);
+
+      try {
+        signedMessage = await ledger.sign(message);
+      } catch (error) {
+        browser.notifications.create({
+          type: "basic",
+          iconUrl: browser.runtime.getURL("assets/fetch-logo.svg"),
+          title: "Signing rejected",
+          message: error.message
+        });
+      }
+      return signedMessage as Buffer;
     }
 
     const privKey = this.loadPrivKey(path);
