@@ -102,12 +102,12 @@ export const SignPage: FunctionComponent<RouteComponentProps<{
     if (hardwareLinked) {
       const hardwareError = false;
 
-      // try {
-      //   await LedgerNano.testDevice();
-      // } catch (error) {
-      //   setHardwareErrorMessage(error.message);
-      //   return;
-      // }
+      try {
+        await LedgerNano.testDevice();
+      } catch (error) {
+        setHardwareErrorMessage(error.message);
+        return;
+      }
 
       if (!hardwareError) {
         setHardwareErrorMessage("");
