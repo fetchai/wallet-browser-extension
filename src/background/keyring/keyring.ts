@@ -323,7 +323,6 @@ export class KeyRing {
     }
 
     if (this.isAHardwareAssociatedWallet()) {
-      debugger;
       const ledger = new LedgerNano();
       return await ledger.sign(message);
     }

@@ -164,6 +164,13 @@ export const CoinInput: FunctionComponent<CoinInputProps> = props => {
     });
   };
 
+  /**
+   * If we have more than one currency we will show the dropdown.
+   */
+  const showDropDown = () => {
+    return accountStore.assets.length > 1;
+  };
+
   return (
     <FormGroup className={className}>
       {label ? (
@@ -230,18 +237,25 @@ export const CoinInput: FunctionComponent<CoinInputProps> = props => {
           disabled={allBalance}
           autoComplete="off"
         />
-        <select
-          value={selectedCurrency}
-          id="currency"
-          name="denom"
-          className={styleCoinInput.select}
-          onChange={currencyChange}
-        >
-          <option key={1} value={nativeCurrency.coinDenom}>
+
+        {showDropDown() ? (
+          <select
+            value={selectedCurrency}
+            id="currency"
+            name="denom"
+            className={styleCoinInput.select}
+            onChange={currencyChange}
+          >
+            <option key={1} value={nativeCurrency.coinDenom}>
+              {nativeCurrency.coinDenom}
+            </option>
+            {getDropDownOptions()}
+          </select>
+        ) : (
+          <span className={styleCoinInput.singleCurrency}>
             {nativeCurrency.coinDenom}
-          </option>
-          {getDropDownOptions()}
-        </select>
+          </span>
+        )}
       </InputGroup>
       {error ? (
         <FormFeedback style={{ display: "block" }}>{error}</FormFeedback>

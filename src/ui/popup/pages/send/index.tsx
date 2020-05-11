@@ -39,20 +39,13 @@ import {
   getCurrency,
   getCurrencyFromDenom
 } from "../../../../common/currency";
-
 import style from "./style.module.scss";
 import classnames from "classnames";
 import { CoinUtils } from "../../../../common/coin-utils";
 import { Dec } from "@everett-protocol/cosmosjs/common/decimal";
 import { useNotification } from "../../../components/notification";
 import { Int } from "@everett-protocol/cosmosjs/common/int";
-
-import Ledger from "@lunie/cosmos-ledger/lib/cosmos-ledger";
-// @ts-ignore
-import Cosmos from "@lunie/cosmos-api";
-
 import Web3 from "web3";
-
 import { useIntl } from "react-intl";
 import { Button } from "reactstrap";
 
@@ -313,9 +306,9 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
               if (isValidENS(recipient)) {
                 triggerValidation({ name: "recipient" });
               }
-              // balanceValidate(fee, denom);
-              //
-              // amountValidate(amount, denom, fee);
+              balanceValidate(fee, denom);
+
+              amountValidate(amount, denom, fee);
               // React form hook doesn't block submitting when error is delivered outside.
               // So, jsut check if errors exists manually, and if it exists, do nothing.
               if (errors.amount && errors.amount.message) {

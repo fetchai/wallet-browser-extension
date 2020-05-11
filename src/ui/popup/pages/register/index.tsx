@@ -58,7 +58,6 @@ export const RegisterPage: FunctionComponent = observer(() => {
     let error = false;
     await ledger.connect().catch(err => {
       error = true;
-      debugger;
       setHardwareErrorMessage(err.message);
     });
 
@@ -85,7 +84,6 @@ export const RegisterPage: FunctionComponent = observer(() => {
     async (publicKeyHex: string, password: string) => {
       setAccountIsCreating(true);
       try {
-        debugger;
         await keyRingStore.createHardwareKey(publicKeyHex, password);
         await keyRingStore.save();
       } finally {
@@ -217,7 +215,6 @@ export const RegisterPage: FunctionComponent = observer(() => {
               onClick: async () => {
                 const hasHardwareWallet = await RegisterThroughHardwareWallet();
                 if (hasHardwareWallet) setState(RegisterState.HARDWARE_UPLOAD);
-                debugger;
               }
             }}
             bottomButton={{

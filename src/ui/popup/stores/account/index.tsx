@@ -190,7 +190,6 @@ export class AccountStore {
       res.coins.forEach((el: any) => {
         coins.push(new Coin(el.denom, el.amount));
       });
-      debugger;
       coins = CoinUtils.convertCoinsFromMinimalDenomAmount(coins);
       this.assets = coins;
       this.lastAssetFetchingError = undefined;
