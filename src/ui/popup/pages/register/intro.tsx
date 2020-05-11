@@ -1,9 +1,9 @@
 import React, { FunctionComponent, useEffect, useState } from "react";
 
 import styleIntro from "./intro.module.scss";
-import { useIntl } from "react-intl";
 import { FormattedMessage } from "react-intl";
 import { setLightMode } from "../../light-mode";
+import classnames from "classnames";
 
 interface ButtonContent {
   title: string;
@@ -37,15 +37,15 @@ export const IntroInPage: FunctionComponent<{
     <div>
       <BigButton
         green={true}
-        icon="fa-plus"
+        icon="seed-icon"
         title={props.topButton.title}
         content={props.topButton.content}
         onClick={props.topButton.onClick}
       />
       {props.middleButton ? (
         <BigButton
-          green={true}
-          icon="fa-plus"
+          green={false}
+          icon="nano-icon"
           title={props.middleButton.title}
           content={props.middleButton.content}
           onClick={props.middleButton.onClick}
@@ -56,7 +56,7 @@ export const IntroInPage: FunctionComponent<{
       )}
       <BigButton
         green={props.middleButton ? true : false}
-        icon="fa-download"
+        icon="file-icon"
         title={props.bottomButton.title}
         content={props.bottomButton.content}
         onClick={props.bottomButton.onClick}
@@ -81,8 +81,6 @@ const BigButton: FunctionComponent<{
   onClick: () => void;
   error?: string;
 }> = ({ icon, title, content, onClick, green, error }) => {
-  const intl = useIntl();
-
   return (
     <>
       <div
@@ -90,7 +88,7 @@ const BigButton: FunctionComponent<{
         onClick={onClick}
       >
         <span className={`icon is-medium ${styleIntro.icon}`}>
-          <i className={`fas fa-2x ${icon}`} />
+          <img src={require(`../../public/assets/${icon}.svg`)} />
         </span>
         <div className={styleIntro.description}>
           <div className={styleIntro.title}>{title}</div>
@@ -100,11 +98,7 @@ const BigButton: FunctionComponent<{
           <i className="fas fa-angle-right" />
         </span>
       </div>
-      <span className={styleIntro.error}>
-        {error
-          ? error
-          : ""}
-      </span>
+      <span className={classnames(styleIntro.error, error ? styleIntro.errorContent : "")}>{error ? error : ""}</span>
     </>
   );
 };

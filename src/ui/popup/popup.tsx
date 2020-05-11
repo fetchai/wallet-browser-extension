@@ -36,6 +36,10 @@ require("./public/assets/favicon-16x16.png");
 require("./public/assets/favicon-32x32.png");
 require("./public/assets/favicon-96x96.png");
 
+require("./public/assets/file-icon.svg");
+require("./public/assets/nano-icon.svg");
+require("./public/assets/seed-icon.svg");
+
 configure({
   enforceActions: "always" // Make mobx to strict mode.
 });

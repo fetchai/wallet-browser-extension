@@ -24,8 +24,8 @@
   "register.intro.button.recover-choice.file.content": "Using a key file",
   "register.intro.button.recover-choice.file.title": "Use an encrypted key file and your previous password to import an existing wallet",
 
-  "register.intro.button.recover-choice.hardware.content": "Using a Ledger Nano",
-  "register.intro.button.recover-choice.hardware.title": "Use a Ledger Nano X or S containing your keys",
+  "register.intro.button.recover-choice.hardware.content": "Use a Ledger Nano X or S containing your keys",
+  "register.intro.button.recover-choice.hardware.title": "Using a Ledger Nano",
   "register.intro.button.recover-choice.hardware.submit": "Create Account",
 
   "register.intro.button.import-hardware.error.no-cosmos-app": "Install Ledger Cosmos Application",

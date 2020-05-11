@@ -3,7 +3,15 @@ import { Coin } from "@everett-protocol/cosmosjs/common/coin";
 // import { BaseAccount } from "@everett-protocol/cosmosjs/common/baseAccount";
 import { AccountData, BaseAccountConstructor } from "./types";
 
+/**
+ * since we cannot serialize and deserialize a Coin object to send between threads we send the params and construct the Coin from this
+ * on the non-background thread.
+ */
 
+export interface CoinParams {
+   denom: string;
+  amount: string;
+}
 
 export class APIKeeper {
   /**
@@ -17,9 +25,9 @@ export class APIKeeper {
     rest: string,
     bech32Address: string,
     cancelToken: CancelToken | null = null
-  ): Promise<Coin[]> {
+  ): Promise<CoinParams[]> {
     const url = `${rest}/bank/balances/${bech32Address}`;
-    const coins: Coin[] = [];
+    const coins: CoinParams[] = [];
 
     const config: AxiosRequestConfig = {};
 
@@ -33,7 +41,7 @@ export class APIKeeper {
       throw new Error("HTTP status code doesn't equal 200");
 
     resp.data.result.forEach((el: any) => {
-      coins.push(new Coin(el.denom, el.amount.toString()));
+      coins.push({ denom: el.denom, amount: el.amount.toString() });
     });
 
     return coins;
@@ -100,8 +108,8 @@ export class APIKeeper {
       amount: string;
     }[] = [];
 
-    balance.forEach((coin: Coin) => {
-      coins.push({ denom: coin.denom, amount: coin.amount.toString() });
+    balance.forEach((coin: CoinParams) => {
+      coins.push({ denom: coin.denom, amount: coin.amount });
     });
 
     base.value = {

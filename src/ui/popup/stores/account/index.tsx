@@ -101,7 +101,6 @@ export class AccountStore {
 
     if (status === KeyRingStatus.UNLOCKED) {
       await task(this.fetchAccount());
-
       this.fetchAssetsByInterval();
     }
   }
@@ -119,6 +118,18 @@ export class AccountStore {
   public async fetchAccount() {
     await task(this.fetchBech32Address());
     await task(this.fetchAssets());
+  }
+
+  @actionAsync
+  public async fetchBalance() {
+    const msg = GetBalanceMsg.create(this.chainInfo.rest, this.bech32Address);
+    const res = await task(sendMessage(BACKGROUND_PORT, msg));
+
+    const coins: Coin[] = [];
+    res.coins.forEach((el: any) => {
+      coins.push(new Coin(el.denom, el.amount.int));
+    });
+    return coins;
   }
 
   @actionAsync
@@ -171,12 +182,14 @@ export class AccountStore {
     }
     this.lastFetchingCancleToken = Axios.CancelToken.source();
     this.isAssetFetching = true;
-
-    const msg = GetBalanceMsg.create(this.chainInfo.rest, this.bech32Address);
-
     try {
-      debugger;
-      let coins = (await task(await sendMessage(BACKGROUND_PORT, msg))).coins;
+      const msg = GetBalanceMsg.create(this.chainInfo.rest, this.bech32Address);
+      const res = await task(sendMessage(BACKGROUND_PORT, msg));
+
+      let coins: Coin[] = [];
+      res.coins.forEach((el: any) => {
+        coins.push(new Coin(el.denom, el.amount));
+      });
       debugger;
       coins = CoinUtils.convertCoinsFromMinimalDenomAmount(coins);
       this.assets = coins;
