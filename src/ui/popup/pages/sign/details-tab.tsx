@@ -18,7 +18,7 @@ import LedgerNano from "../../../../common/ledger-nano";
 export const DetailsTab: FunctionComponent<{
   message: string;
   hardwareErrorMessage: string;
-  resolveError: () => {};
+  resolveError: () => void;
 }> = observer(({ message, hardwareErrorMessage, resolveError }) => {
   const { priceStore } = useStore();
 

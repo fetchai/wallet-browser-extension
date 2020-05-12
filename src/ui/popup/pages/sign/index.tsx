@@ -6,15 +6,11 @@ import React, {
 } from "react";
 import { Button } from "reactstrap";
 import { RouteComponentProps } from "react-router";
-
 import { HeaderLayout } from "../../layouts";
-
 import style from "./style.module.scss";
-
 import queryString from "query-string";
 import { useStore } from "../../stores";
 import { useSignature } from "../../../hooks";
-
 import classnames from "classnames";
 import { DataTab } from "./data-tab";
 import { DetailsTab } from "./details-tab";

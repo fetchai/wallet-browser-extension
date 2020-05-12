@@ -327,6 +327,7 @@ export class KeyRing {
       const ledger = new LedgerNano();
 
       try {
+        debugger;
         signedMessage = await ledger.sign(message);
       } catch (error) {
         browser.notifications.create({

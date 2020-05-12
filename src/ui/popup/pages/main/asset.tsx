@@ -13,6 +13,7 @@ import { ToolTip } from "../../../components/tooltip";
 import { lightModeEnabled } from "../../light-mode";
 import { autorun } from "mobx";
 import { insertCommas } from "../../../../common/utils/insert-commas";
+import { Price } from "../../stores/price";
 
 export const AssetView: FunctionComponent = observer(() => {
   const { chainStore, accountStore, priceStore } = useStore();
@@ -67,7 +68,10 @@ export const AssetView: FunctionComponent = observer(() => {
 
   const getCurrencyInDollars = () => {
     // if selected from dropdown and selected currency is not the one for which we have dollar price
-    if (!fiat || selectedCurrency !== chainStore.chainInfo.nativeCurrency) {
+    if (
+      typeof fiat === "undefined" ||
+      selectedCurrency !== chainStore.chainInfo.nativeCurrency
+    ) {
       return "";
     } else if (
       accountStore.assets.length === 1 &&
@@ -82,11 +86,11 @@ export const AssetView: FunctionComponent = observer(() => {
       amount = cutOffDecimals(amount);
       return "$" + parseFloat(amount).toLocaleString();
     } else {
-      return (
-        "$" +
+      return;
+      "$" +
         parseFloat(
-        fiat.value.mul(new Dec(coinAmount)).toString()
-      ).toLocaleString();
+          (fiat as Price).value.mul(new Dec(coinAmount)).toString()
+        ).toLocaleString();
     }
   };
 

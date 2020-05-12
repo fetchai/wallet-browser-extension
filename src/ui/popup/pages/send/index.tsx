@@ -120,7 +120,7 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
 
     const notification = useNotification();
 
-    const { chainStore, accountStore, priceStore, keyRingStore } = useStore();
+    const { chainStore, accountStore, priceStore } = useStore();
 
     const nativeCurrency = getCurrency(
       chainStore.chainInfo.nativeCurrency
@@ -352,7 +352,6 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
                         TOKEN_CONTRACT
                       );
                     }
-
                     const config: TxBuilderConfig = {
                       gas: bigInteger(gasForSendMsg),
                       memo: data.memo,
