@@ -66,19 +66,19 @@ export interface ChainInfo {
 
 export const NativeChainInfos: ChainInfo[] = [
   {
-    rpc: "http://172.18.0.2:26657",
-    rest: "http://127.0.0.1:1317",
-    chainId: "gaiadrb-sandbox",
-    chainName: "gaiadrb-sandbox",
+    rpc: "http://localhost:26657",
+    rest: "http://localhost:1317",
+    chainId: "gaia_drb_peggy_id",
+    chainName: "gaia_drb_peggy_id",
     nativeCurrency: "fet",
     walletUrl:
       process.env.NODE_ENV === "production"
         ? "https://wallet.keplr.app/#/cosmoshub-3"
-        : "http://127.0.0.1:1317/#/cosmoshub-3",
+        : "http://localhost:1317/#/cosmoshub-3",
     walletUrlForStaking:
       process.env.NODE_ENV === "production"
         ? "https://wallet.keplr.app/#/cosmoshub-3"
-        : "http://127.0.0.1:1317/#/cosmoshub-3",
+        : "http://localhost:1317/#/cosmoshub-3",
     bip44: new BIP44(44, 118, 0),
     bech32Config: defaultBech32Config("cosmos"),
     currencies: ["fet"],
