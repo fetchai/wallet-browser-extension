@@ -1,21 +1,42 @@
-function Uint8ArrayFromHex(value: string | Uint8Array | Buffer): Uint8Array {
-  if (value instanceof Uint8Array) {
-    return value;
-  }
+import Web3 from "web3";
 
-  let buf: Buffer;
-  if (value instanceof Buffer) {
-    buf = value;
-  } else if (typeof value === "string") {
-    buf =
-      value.indexOf("0x") === 0
-        ? Buffer.from(value.replace("0x", ""), "hex")
-        : Buffer.from(value);
-  } else {
-    throw new Error("Invalid argument type");
-  }
-
-  return Uint8Array.from(buf);
+function hexToUint8Array(value: string): Uint8Array {
+  return value.indexOf("0x") === 0
+    ? Buffer.from(value.replace("0x", ""), "hex")
+    : Buffer.from(value);
 }
 
-export { Uint8ArrayFromHex };
+function hexEthAddressToUint8Array(
+  addr: string,
+  verifyChecksumWeb3?: Web3,
+  chainId?: number
+): Uint8Array {
+  if (verifyChecksumWeb3) {
+    const isValid = verifyChecksumWeb3.utils.checkAddressChecksum(addr, chainId);
+    if (!isValid) {
+      throw new Error("Invalid checksum of eth address");
+    }
+  }
+
+  return hexToUint8Array(addr);
+}
+
+function uint8ArrayToChecksumEthAddress(
+  addrBytes: Uint8Array | Buffer,
+  chainId: number,
+  web3?: Web3
+): string {
+  if (!web3) {
+    web3 = new Web3();
+  }
+
+  const addr = "0x" + Buffer.from(addrBytes).toString("hex");
+  const checksumAddr = web3.utils.toChecksumAddress(addr, chainId);
+  return checksumAddr;
+}
+
+export {
+  hexToUint8Array,
+  hexEthAddressToUint8Array,
+  uint8ArrayToChecksumEthAddress
+};
