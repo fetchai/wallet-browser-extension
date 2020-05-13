@@ -6,7 +6,7 @@ import { hexEthAddressToUint8Array, uint8ArrayToChecksumEthAddress } from "../..
 import { sortJSON } from "@everett-protocol/cosmosjs/utils/sortJson";
 import Web3 from "web3";
 
-const { DefineStruct, Field } = Amino;
+const { DefineStruct, DefineType, Field } = Amino;
 
 @DefineStruct()
 export class LockMessage extends Msg {
@@ -93,11 +93,10 @@ export class LockMessage extends Msg {
     return bytes;
   }
 }
+@DefineStruct()
+export class BurnMessage extends LockMessage {}
 
-export function registerLockCodec(codec: Codec) {
+export function registerPeggyCodecs(codec: Codec) {
   codec.registerConcrete("ethbridge/MsgLock", LockMessage.prototype);
+  codec.registerConcrete("ethbridge/MsgBurn", BurnMessage.prototype);
 }
-
-// export function registerBurnCodec(codec: Codec) {
-//   codec.registerConcrete("cosmos-sdk/burn", BurnMessage.prototype);
-// }
