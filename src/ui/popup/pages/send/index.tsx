@@ -66,7 +66,7 @@ import { SignOutButton } from "../main/sign-out";
 import { lightModeEnabled } from "../../light-mode";
 import { Currency } from "../../../../chain-info";
 import { ETHEREUM_CHAIN_ID, TOKEN_CONTRACT } from "../../../../config";
-import { LockMessage } from "./transfer-msg";
+import {BurnMessage, LockMessage} from "./transfer-msg";
 
 interface FormData {
   recipient: string;
