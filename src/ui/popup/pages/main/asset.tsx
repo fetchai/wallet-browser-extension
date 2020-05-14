@@ -13,6 +13,7 @@ import { ToolTip } from "../../../components/tooltip";
 import { lightModeEnabled } from "../../light-mode";
 import { autorun } from "mobx";
 import { insertCommas } from "../../../../common/utils/insert-commas";
+import { Price } from "../../stores/price";
 
 export const AssetView: FunctionComponent = observer(() => {
   const { chainStore, accountStore, priceStore } = useStore();
@@ -61,23 +62,36 @@ export const AssetView: FunctionComponent = observer(() => {
     return test;
   };
 
+  const cutOffDecimals = (s: string): string => {
+    return parseFloat(s).toFixed(0);
+  };
+
   const getCurrencyInDollars = () => {
-    if (!fiat || selectedCurrency !== chainStore.chainInfo.nativeCurrency) {
+    // if selected from dropdown and selected currency is not the one for which we have dollar price
+    if (
+      typeof fiat === "undefined" ||
+      selectedCurrency !== chainStore.chainInfo.nativeCurrency
+    ) {
       return "";
     } else if (
       accountStore.assets.length === 1 &&
       accountStore.assets[0].denom !== nativeCurrency.coinDenom
     ) {
       return "";
+    } else if (fiat.value.equals(new Dec(0))) {
+      return "0";
+    } else if (fiat.value.mul(new Dec(coinAmount)).gt(new Dec(100))) {
+      // if dollar amount is greater than 100 then cut off the cent amount
+      let amount = fiat.value.mul(new Dec(coinAmount)).toString();
+      amount = cutOffDecimals(amount);
+      return "$" + parseFloat(amount).toLocaleString();
+    } else {
+      return;
+      "$" +
+        parseFloat(
+          (fiat as Price).value.mul(new Dec(coinAmount)).toString()
+        ).toLocaleString();
     }
-    return !fiat.value.equals(new Dec(0))
-      ? "$" +
-          parseFloat(
-            fiat.value
-              .mul(new Dec(coinAmount))
-              .toString()
-          ).toLocaleString()
-      : "?";
   };
 
   const currencyChange = (event: any) => {
@@ -110,7 +124,6 @@ export const AssetView: FunctionComponent = observer(() => {
    */
 
   const getSingleCurrencyDisplay = () => {
-
     if (accountStore.assets.length === 0) {
       return nativeCurrency.coinDenom;
     }

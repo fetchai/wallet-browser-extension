@@ -139,7 +139,6 @@ export const Hardware: FunctionComponent<Props> = observer(({ onRegister }) => {
     }
 
     await ledgerNano.isSupportedVersion().catch(err => {
-      debugger;
       error = true;
       setHardwareErrorMessage(err.message);
     });

@@ -2,6 +2,8 @@ import Ledger from "@lunie/cosmos-ledger/lib/cosmos-ledger";
 import { REQUIRED_COSMOS_APP_VERSION } from "../../config";
 import { PubKeySecp256k1 } from "@everett-protocol/cosmosjs/crypto";
 import semver from "semver";
+const TIMEOUT = 5;
+const TEST_MODE_ALLOWED = false;
 
 export default class LedgerNano {
   // represents the connection to the ledger nano
@@ -13,8 +15,8 @@ export default class LedgerNano {
   public async connect() {
     // singleton
     if (this.ledger) return;
-    const ledger = new Ledger();
-    await ledger.connect();
+    const ledger = new Ledger({ testModeAllowed: TEST_MODE_ALLOWED });
+    await ledger.connect(TIMEOUT);
     this.ledger = ledger;
   }
 

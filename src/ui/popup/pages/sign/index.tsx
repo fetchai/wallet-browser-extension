@@ -6,15 +6,11 @@ import React, {
 } from "react";
 import { Button } from "reactstrap";
 import { RouteComponentProps } from "react-router";
-
 import { HeaderLayout } from "../../layouts";
-
 import style from "./style.module.scss";
-
 import queryString from "query-string";
 import { useStore } from "../../stores";
 import { useSignature } from "../../../hooks";
-
 import classnames from "classnames";
 import { DataTab } from "./data-tab";
 import { DetailsTab } from "./details-tab";
@@ -39,6 +35,11 @@ export const SignPage: FunctionComponent<RouteComponentProps<{
   const external = query.external ?? false;
   const [lightMode, setLightMode] = useState(false);
   const [hardwareErrorMessage, setHardwareErrorMessage] = useState("");
+  // if we require a ledger nano but it is unavailable then we set this variable to disable the sending of transaction
+  const [
+    isNanoUnavailableAndRequired,
+    setIsNanoUnavailableAndRequired
+  ] = useState(false);
 
   useEffect(() => {
     if (external) {
@@ -54,6 +55,28 @@ export const SignPage: FunctionComponent<RouteComponentProps<{
     };
     isEnabled();
   }, [external, lightMode, setLightMode]);
+
+  // on mount we check if it is hardware linked wallet and if it is then we show an info message staying the issue.
+  useEffect(() => {
+    (async () => {
+      const hardwareLinked: boolean = await keyRingStore.isHardwareLinked();
+      if (hardwareLinked) {
+        let hardwareError = false;
+        try {
+          await LedgerNano.testDevice();
+        } catch (error) {
+          setHardwareErrorMessage(error.message);
+          setIsNanoUnavailableAndRequired(true);
+          hardwareError = true;
+          return;
+        }
+
+        if (!hardwareError) {
+          setHardwareErrorMessage("");
+        }
+      }
+    })();
+  }, []);
 
   const id = match.params.id;
 
@@ -97,17 +120,22 @@ export const SignPage: FunctionComponent<RouteComponentProps<{
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [signing.reject, signing.id, external]);
 
+  const resolveError = () => {
+    setIsNanoUnavailableAndRequired(false);
+  }
+
   const onApproveClick = useCallback(async () => {
     const hardwareLinked: boolean = await keyRingStore.isHardwareLinked();
     if (hardwareLinked) {
       const hardwareError = false;
 
-      try {
-        await LedgerNano.testDevice();
-      } catch (error) {
-        setHardwareErrorMessage(error.message);
-        return;
-      }
+      // try {
+      //   await LedgerNano.testDevice();
+      // } catch (error) {
+      //   setHardwareErrorMessage(error.message);
+      //   hardwareError = true;
+      //   return;
+      // }
 
       if (!hardwareError) {
         setHardwareErrorMessage("");
@@ -184,6 +212,7 @@ export const SignPage: FunctionComponent<RouteComponentProps<{
             <DetailsTab
               message={signing.message}
               hardwareErrorMessage={hardwareErrorMessage}
+              resolveError={resolveError}
             />
           ) : null}
         </div>
@@ -211,7 +240,8 @@ export const SignPage: FunctionComponent<RouteComponentProps<{
             disabled={
               signing.message == null ||
               signing.message === "" ||
-              signing.initializing
+              signing.initializing ||
+              isNanoUnavailableAndRequired
             }
             data-loading={signing.requested}
             onClick={onApproveClick}
@@ -220,7 +250,6 @@ export const SignPage: FunctionComponent<RouteComponentProps<{
               id: "sign.button.approve"
             })}
           </Button>
-
         </div>
       </div>
     </HeaderLayout>

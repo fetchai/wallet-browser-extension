@@ -39,20 +39,13 @@ import {
   getCurrency,
   getCurrencyFromDenom
 } from "../../../../common/currency";
-
 import style from "./style.module.scss";
 import classnames from "classnames";
 import { CoinUtils } from "../../../../common/coin-utils";
 import { Dec } from "@everett-protocol/cosmosjs/common/decimal";
 import { useNotification } from "../../../components/notification";
 import { Int } from "@everett-protocol/cosmosjs/common/int";
-
-import Ledger from "@lunie/cosmos-ledger/lib/cosmos-ledger";
-// @ts-ignore
-import Cosmos from "@lunie/cosmos-api";
-
 import Web3 from "web3";
-
 import { useIntl } from "react-intl";
 import { Button } from "reactstrap";
 
@@ -127,7 +120,7 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
 
     const notification = useNotification();
 
-    const { chainStore, accountStore, priceStore, keyRingStore } = useStore();
+    const { chainStore, accountStore, priceStore } = useStore();
 
     const nativeCurrency = getCurrency(
       chainStore.chainInfo.nativeCurrency
@@ -372,7 +365,6 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
                         )
                       );
                     }
-
                     const config: TxBuilderConfig = {
                       gas: bigInteger(gasForSendMsg),
                       memo: data.memo,

@@ -117,7 +117,7 @@
   "sign.list.messages.label": "Messages",
   "sign.info.fee": "Fee",
   "sign.info.memo": "Memo",
-  "sign.info.error": "Error",
+  "sign.info.error": "Ensure the following issue is resolved before approval",
   "sign.button.approve": "Approve",
   "sign.button.cancel": "Cancel",
 

@@ -9,7 +9,7 @@ import { AccountData, BaseAccountConstructor } from "./types";
  */
 
 export interface CoinParams {
-   denom: string;
+  denom: string;
   amount: string;
 }
 

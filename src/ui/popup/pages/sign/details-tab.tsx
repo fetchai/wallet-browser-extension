@@ -13,11 +13,13 @@ import classnames from "classnames";
 import { MessageObj, renderMessage } from "./messages";
 import { DecUtils } from "../../../../common/dec-utils";
 import { useIntl } from "react-intl";
+import LedgerNano from "../../../../common/ledger-nano";
 
 export const DetailsTab: FunctionComponent<{
   message: string;
   hardwareErrorMessage: string;
-}> = observer(({ message, hardwareErrorMessage }) => {
+  resolveError: () => void;
+}> = observer(({ message, hardwareErrorMessage, resolveError }) => {
   const { priceStore } = useStore();
 
   const intl = useIntl();
@@ -27,6 +29,24 @@ export const DetailsTab: FunctionComponent<{
   const [memo, setMemo] = useState("");
   const [msgs, setMsgs] = useState<MessageObj[]>([]);
   const [hardwareErrorMsg, setHardwareErrorMsg] = useState("");
+
+  const [hardwareErrorResolved, sethardwareErrorResolved] = useState(false);
+
+  const checkNanoIsReady = async () => {
+    let hardwareError = false;
+    try {
+      await LedgerNano.testDevice();
+    } catch (error) {
+      setHardwareErrorMsg(error.message);
+      hardwareError = true;
+      return;
+    }
+
+    if (!hardwareError) {
+      sethardwareErrorResolved(true);
+      resolveError();
+    }
+  };
 
   useEffect(() => {
     if (hardwareErrorMessage && hardwareErrorMessage !== hardwareErrorMsg) {
@@ -98,7 +118,7 @@ export const DetailsTab: FunctionComponent<{
           );
         })}
       </div>
-      {!hardwareErrorMessage ? (
+      {!hardwareErrorMessage && !hardwareErrorResolved ? (
         <div className={styleDetailsTab.section}>
           <div className={styleDetailsTab.title}>
             {intl.formatMessage({
@@ -132,7 +152,7 @@ export const DetailsTab: FunctionComponent<{
           <div className={styleDetailsTab.memo}>{memo}</div>
         </div>
       ) : null}
-      {hardwareErrorMessage ? (
+      {hardwareErrorMessage && !hardwareErrorResolved ? (
         <div className={styleDetailsTab.section}>
           <div className={styleDetailsTab.title}>
             {intl.formatMessage({
@@ -140,6 +160,7 @@ export const DetailsTab: FunctionComponent<{
             })}
           </div>
           <div className={styleDetailsTab.error}>{hardwareErrorMessage}</div>
+          <button onClick={checkNanoIsReady}>resolved</button>
         </div>
       ) : null}
     </div>

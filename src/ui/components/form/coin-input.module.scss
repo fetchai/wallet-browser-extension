@@ -56,6 +56,10 @@
 
 }
 
+.single-currency {
+  margin: auto 10px;
+}
+
 :global(.light-mode) {
   .select {
      color: $light-mode-grey;
