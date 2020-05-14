@@ -313,9 +313,9 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
               if (isValidENS(recipient)) {
                 triggerValidation({ name: "recipient" });
               }
-              // balanceValidate(fee, denom);
-              //
-              // amountValidate(amount, denom, fee);
+              balanceValidate(fee, denom);
+
+              amountValidate(amount, denom, fee);
               // React form hook doesn't block submitting when error is delivered outside.
               // So, jsut check if errors exists manually, and if it exists, do nothing.
               if (errors.amount && errors.amount.message) {
@@ -342,21 +342,34 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
                       throw new Error("Fail to fetch address from ENS");
                     }
 
-                    let msg;
+                    let msgs = [];
 
                     if (isCosmosBeingSent) {
-                      msg = new MsgSend(
-                        AccAddress.fromBech32(accountStore.bech32Address),
-                        AccAddress.fromBech32(recipient),
-                        [coin]
+                      msgs.push(
+                        new MsgSend(
+                          AccAddress.fromBech32(accountStore.bech32Address),
+                          AccAddress.fromBech32(recipient),
+                          [coin]
+                        )
                       );
                     } else {
-                      msg = new LockMessage(
-                        AccAddress.fromBech32(accountStore.bech32Address),
-                        [coin],
-                        ETHEREUM_CHAIN_ID,
-                        recipient,
-                        TOKEN_CONTRACT
+                      msgs.push(
+                        new LockMessage(
+                          AccAddress.fromBech32(accountStore.bech32Address),
+                          [coin],
+                          ETHEREUM_CHAIN_ID,
+                          recipient,
+                          TOKEN_CONTRACT
+                        )
+                      );
+                      msgs.push(
+                        new BurnMessage(
+                          AccAddress.fromBech32(accountStore.bech32Address),
+                          [coin],
+                          ETHEREUM_CHAIN_ID,
+                          recipient,
+                          TOKEN_CONTRACT
+                        )
                       );
                     }
 
@@ -369,7 +382,7 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
                     if (cosmosJS.sendMsgs) {
                       await cosmosJS.sendMsgs(
                         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                        [msg!],
+                        msgs,
                         config,
                         () => {
                           history.replace("/");
@@ -565,7 +578,6 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
                   id: "send.button.send"
                 })}
               </Button>
-
             </div>
           </form>
         </div>

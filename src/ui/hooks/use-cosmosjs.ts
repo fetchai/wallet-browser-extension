@@ -22,7 +22,7 @@ import { sendMessage } from "../../common/message";
 import { BACKGROUND_PORT } from "../../common/message/constant";
 import { QueryAccountMsg } from "../../background/api";
 import { BaseAccount } from "@everett-protocol/cosmosjs/common/baseAccount";
-import { registerLockCodec } from "../popup/pages/send/transfer-msg";
+import { registerPeggyCodecs } from "../popup/pages/send/transfer-msg";
 
 const Buffer = require("buffer/").Buffer;
 
@@ -77,7 +77,7 @@ export const useCosmosJS = <R extends Rest = Rest>(
         Staking.registerCodec(codec);
         Slashing.registerCodec(codec);
         Gov.registerCodec(codec);
-        registerLockCodec(codec);
+        registerPeggyCodecs(codec);
       }),
     [opts?.registerCodec]
   );

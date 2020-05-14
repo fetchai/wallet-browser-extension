@@ -9,13 +9,15 @@ import {
 
 import { action, observable } from "mobx";
 import { actionAsync, task } from "mobx-utils";
+
 import { BACKGROUND_PORT } from "../../../../common/message/constant";
 import { Coin } from "@everett-protocol/cosmosjs/common/coin";
+
+import { queryAccount } from "@everett-protocol/cosmosjs/core/query";
 import { RootStore } from "../root";
+
 import Axios, { CancelTokenSource } from "axios";
 import { AutoFetchingAssetsInterval } from "../../../../config";
-import { CoinUtils } from "../../../../common/coin-utils";
-import { GetBalanceMsg } from "../../../../background/api";
 
 export class AccountStore {
   @observable
@@ -78,6 +80,7 @@ export class AccountStore {
 
     if (this.keyRingStatus === KeyRingStatus.UNLOCKED) {
       await task(this.fetchAccount());
+
       this.fetchAssetsByInterval();
     }
   }
@@ -101,6 +104,7 @@ export class AccountStore {
 
     if (status === KeyRingStatus.UNLOCKED) {
       await task(this.fetchAccount());
+
       this.fetchAssetsByInterval();
     }
   }
@@ -111,6 +115,7 @@ export class AccountStore {
     this.bip44Index = index;
 
     await task(this.fetchAccount());
+
     this.fetchAssetsByInterval();
   }
 
@@ -118,18 +123,6 @@ export class AccountStore {
   public async fetchAccount() {
     await task(this.fetchBech32Address());
     await task(this.fetchAssets());
-  }
-
-  @actionAsync
-  public async fetchBalance() {
-    const msg = GetBalanceMsg.create(this.chainInfo.rest, this.bech32Address);
-    const res = await task(sendMessage(BACKGROUND_PORT, msg));
-
-    const coins: Coin[] = [];
-    res.coins.forEach((el: any) => {
-      coins.push(new Coin(el.denom, el.amount.int));
-    });
-    return coins;
   }
 
   @actionAsync
@@ -181,20 +174,24 @@ export class AccountStore {
       this.lastFetchingCancleToken = undefined;
     }
     this.lastFetchingCancleToken = Axios.CancelToken.source();
-    this.isAssetFetching = true;
-    try {
-      const msg = GetBalanceMsg.create(this.chainInfo.rest, this.bech32Address);
-      const res = await task(sendMessage(BACKGROUND_PORT, msg));
 
-      let coins: Coin[] = [];
-      res.coins.forEach((el: any) => {
-        coins.push(new Coin(el.denom, el.amount));
-      });
-      debugger;
-      coins = CoinUtils.convertCoinsFromMinimalDenomAmount(coins);
-      this.assets = coins;
+    this.isAssetFetching = true;
+
+    try {
+      const account = await task(
+        queryAccount(
+          this.chainInfo.bech32Config,
+          Axios.create({
+            baseURL: this.chainInfo.rpc,
+            cancelToken: this.lastFetchingCancleToken.token
+          }),
+          this.bech32Address
+        )
+      );
+
+      this.assets = account.getCoins();
       this.lastAssetFetchingError = undefined;
-      // Save the assets to storage
+      // Save the assets to storage.
       await task(this.saveAssetsToStorage(this.bech32Address, this.assets));
     } catch (e) {
       if (!Axios.isCancel(e)) {
@@ -225,6 +222,7 @@ export class AccountStore {
     for (const coin of assets) {
       coinStrs.push(coin.toString());
     }
+
     await browser.storage.local.set({
       assets: {
         [bech32Address]: coinStrs.join(",")

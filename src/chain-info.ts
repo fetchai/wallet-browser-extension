@@ -66,8 +66,8 @@ export interface ChainInfo {
 
 export const NativeChainInfos: ChainInfo[] = [
   {
-    rpc: "http://0.0.0.0:26657",
-    rest: "http://0.0.0.0:1317",
+    rpc: "http://aea-testnet.sandbox.fetch-ai.com:36657",
+    rest: "http://aea-testnet.sandbox.fetch-ai.com:1317",
     chainId: "testing",
     chainName: "gaiadrb-sandbox",
     nativeCurrency: "stake",
