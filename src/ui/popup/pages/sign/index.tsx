@@ -22,6 +22,10 @@ import {
 } from "../../../../common/window";
 import { lightModeEnabled } from "../../light-mode";
 import LedgerNano from "../../../../common/ledger-nano";
+import { LedgerNanoMsg } from "../../../../background/ledger-nano";
+import { METHODS } from "../../../../background/ledger-nano/constants";
+import { sendMessage } from "../../../../common/message/send";
+import { BACKGROUND_PORT } from "../../../../common/message/constant";
 
 enum Tab {
   Details,
@@ -62,10 +66,12 @@ export const SignPage: FunctionComponent<RouteComponentProps<{
       const hardwareLinked: boolean = await keyRingStore.isHardwareLinked();
       if (hardwareLinked) {
         let hardwareError = false;
-        try {
-          await LedgerNano.testDevice();
-        } catch (error) {
-          setHardwareErrorMessage(error.message);
+
+        const msg = LedgerNanoMsg.create(METHODS.isCosmosAppOpen);
+        const result = await sendMessage(BACKGROUND_PORT, msg);
+
+        if (typeof result.errorMessage !== "undefined") {
+          setHardwareErrorMessage(result.errorMessage);
           setIsNanoUnavailableAndRequired(true);
           hardwareError = true;
           return;
@@ -122,7 +128,7 @@ export const SignPage: FunctionComponent<RouteComponentProps<{
 
   const resolveError = () => {
     setIsNanoUnavailableAndRequired(false);
-  }
+  };
 
   const onApproveClick = useCallback(async () => {
     const hardwareLinked: boolean = await keyRingStore.isHardwareLinked();

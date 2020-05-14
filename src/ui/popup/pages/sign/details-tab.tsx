@@ -14,6 +14,10 @@ import { MessageObj, renderMessage } from "./messages";
 import { DecUtils } from "../../../../common/dec-utils";
 import { useIntl } from "react-intl";
 import LedgerNano from "../../../../common/ledger-nano";
+import { LedgerNanoMsg } from "../../../../background/ledger-nano";
+import { METHODS } from "../../../../background/ledger-nano/constants";
+import { BACKGROUND_PORT } from "../../../../common/message/constant";
+import { sendMessage } from "../../../../common/message/send";
 
 export const DetailsTab: FunctionComponent<{
   message: string;
@@ -34,12 +38,13 @@ export const DetailsTab: FunctionComponent<{
 
   const checkNanoIsReady = async () => {
     let hardwareError = false;
-    try {
-      await LedgerNano.testDevice();
-    } catch (error) {
-      setHardwareErrorMsg(error.message);
+
+    const msg = LedgerNanoMsg.create(METHODS.isSupportedVersion);
+    const result = await sendMessage(BACKGROUND_PORT, msg);
+
+    if (typeof result.errorMessage !== "undefined") {
       hardwareError = true;
-      return;
+      setHardwareErrorMsg(result.errorMessage);
     }
 
     if (!hardwareError) {

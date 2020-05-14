@@ -14,7 +14,10 @@ import { WelcomeInPage } from "./welcome";
 import { FormattedMessage, useIntl } from "react-intl";
 import Recover from "./upload";
 import { Hardware } from "./hardware";
-import Ledger from "@lunie/cosmos-ledger/lib/cosmos-ledger";
+import { LedgerNanoMsg } from "../../../../background/ledger-nano";
+import { METHODS } from "../../../../background/ledger-nano/constants";
+import { BACKGROUND_PORT } from "../../../../common/message/constant";
+import { sendMessage } from "../../../../common/message/send";
 
 enum RegisterState {
   INIT,
@@ -53,13 +56,15 @@ export const RegisterPage: FunctionComponent = observer(() => {
   const [hardwareErrorMessage, setHardwareErrorMessage] = useState("");
 
   const RegisterThroughHardwareWallet = async () => {
-    const ledger = new Ledger();
-
     let error = false;
-    await ledger.connect().catch(err => {
+
+    const msg = LedgerNanoMsg.create(METHODS.isSupportedVersion);
+    const result = await sendMessage(BACKGROUND_PORT, msg);
+
+    if (typeof result.errorMessage !== "undefined") {
       error = true;
-      setHardwareErrorMessage(err.message);
-    });
+      setHardwareErrorMessage(result.errorMessage);
+    }
 
     return error ? false : true;
   };
@@ -157,7 +162,6 @@ export const RegisterPage: FunctionComponent = observer(() => {
       </div>
       {keyRingStore.status !== KeyRingStatus.NOTLOADED &&
       keyRingStore.status !== KeyRingStatus.EMPTY ? (
-
         <WelcomeInPage />
       ) : null}
       {keyRingStore.status === KeyRingStatus.EMPTY &&

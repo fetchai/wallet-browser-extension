@@ -59,7 +59,7 @@ import { SignOutButton } from "../main/sign-out";
 import { lightModeEnabled } from "../../light-mode";
 import { Currency } from "../../../../chain-info";
 import { ETHEREUM_CHAIN_ID, TOKEN_CONTRACT } from "../../../../config";
-import {BurnMessage, LockMessage} from "./transfer-msg";
+import { BurnMessage, LockMessage } from "./transfer-msg";
 
 interface FormData {
   recipient: string;
@@ -306,9 +306,9 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
               if (isValidENS(recipient)) {
                 triggerValidation({ name: "recipient" });
               }
-              balanceValidate(fee, denom);
-
-              amountValidate(amount, denom, fee);
+              // balanceValidate(fee, denom);
+              //
+              // amountValidate(amount, denom, fee);
               // React form hook doesn't block submitting when error is delivered outside.
               // So, jsut check if errors exists manually, and if it exists, do nothing.
               if (errors.amount && errors.amount.message) {
@@ -335,7 +335,7 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
                       throw new Error("Fail to fetch address from ENS");
                     }
 
-                    let msgs = [];
+                    const msgs = [];
 
                     if (isCosmosBeingSent) {
                       msgs.push(
