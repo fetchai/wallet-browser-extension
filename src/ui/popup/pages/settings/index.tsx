@@ -139,10 +139,8 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
     };
 
     const updatePassword = async () => {
-
-
       const success = await keyRingStore.updatePassword(password, newPassword);
-       setPassword("");
+      setPassword("");
       setNewPassword("");
       setNewPasswordConfirm("");
 
@@ -217,6 +215,24 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
       } else {
         setcollapsible3(false);
       }
+    };
+
+    const getStorageClearanceWarningMessage = async (): Promise<
+      string | null
+    > => {
+      if (!showDeleteConfirmation) return null;
+
+      const hardwareLinked: boolean = await keyRingStore.isHardwareLinked();
+
+      if (hardwareLinked)
+        return intl.formatMessage({
+          id:
+            "settings.update-password.button.delete-confirmation-message-hardware-linked"
+        });
+      else
+        return intl.formatMessage({
+          id: "settings.update-password.button.delete-confirmation-message"
+        });
     };
 
     return (
@@ -386,12 +402,7 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
             </h3>
             <div className={style.warningWrapper}>
               <span className={style.warning}>
-                {showDeleteConfirmation
-                  ? intl.formatMessage({
-                      id:
-                        "settings.update-password.button.delete-confirmation-message"
-                    })
-                  : null}
+                {getStorageClearanceWarningMessage()}
               </span>
             </div>
             <button

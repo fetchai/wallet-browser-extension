@@ -23,6 +23,7 @@ const handleLedgerNanoMsg: () => (
   return async (msg: LedgerNanoMsg) => {
     let res;
     let errorMessage;
+    debugger;
     /**
      * This differs from the other background messages in that we have one message and several different
      */
@@ -46,6 +47,7 @@ const handleLedgerNanoMsg: () => (
           throw new Error("Unknown msg type");
       }
     } catch (error) {
+      debugger;
       errorMessage = error.message;
     }
 

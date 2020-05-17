@@ -73,6 +73,7 @@
   "settings.update-password.button.delete": "Confirm",
   "settings.update-password.button.delete-confirm": "Reset Application",
   "settings.update-password.button.delete-confirmation-message": "Deleted key file cannot be recovered",
+  "settings.update-password.button.delete-confirmation-message-hardware-linked": "Clear local history",
   "settings.download.key.name": "key-file",
   "settings.update-password.heading.download": "Download encrypted key file",
   "settings.update-password.button.download": "Download",

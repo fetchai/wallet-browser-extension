@@ -69,18 +69,22 @@ export class CoinUtils {
     return coins;
   }
   static getCoinFromDecimals(decAmountStr: string, denom: string): Coin {
+
     const currency = getCurrencyFromDenom(denom);
+     debugger;
     if (!currency) {
+       debugger;
       throw new Error("Invalid currency");
     }
-
+    debugger;
     let precision = new Dec(1);
     for (let i = 0; i < currency.coinDecimals; i++) {
       precision = precision.mul(new Dec(10));
     }
-
+    debugger;
     let decAmount = new Dec(decAmountStr);
-    decAmount = decAmount.mul(precision);
+    debugger;
+    // decAmount = decAmount.mul(precision);
 
     if (!new Dec(decAmount.truncate()).equals(decAmount)) {
       throw new Error("Can't divide anymore");
@@ -98,9 +102,9 @@ export class CoinUtils {
     }
 
     let precision = new Dec(1);
-    for (let i = 0; i < currency.coinDecimals; i++) {
-      precision = precision.mul(new Dec(10));
-    }
+    // for (let i = 0; i < currency.coinDecimals; i++) {
+    //   precision = precision.mul(new Dec(10));
+    // }
 
     const decAmount = new Dec(coin.amount).quoTruncate(precision);
     return {

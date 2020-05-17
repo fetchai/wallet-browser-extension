@@ -54,7 +54,6 @@ export default class LedgerNano {
   public async isCosmosAppOpen() {
     await this.ledger.isCosmosAppOpen();
   }
-
   /**
    *
    *

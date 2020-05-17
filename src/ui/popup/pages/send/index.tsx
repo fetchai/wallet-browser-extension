@@ -139,7 +139,7 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
       useBackgroundTx: true
     });
 
-    const [gasForSendMsg] = useState(80000);
+    const [gasForSendMsg] = useState(800);
 
     const feeCurrency = useMemo(() => {
       return getCurrency(chainStore.chainInfo.feeCurrencies[0]);
@@ -306,9 +306,9 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
               if (isValidENS(recipient)) {
                 triggerValidation({ name: "recipient" });
               }
-              // balanceValidate(fee, denom);
-              //
-              // amountValidate(amount, denom, fee);
+              balanceValidate(fee, denom);
+
+              amountValidate(amount, denom, fee);
               // React form hook doesn't block submitting when error is delivered outside.
               // So, jsut check if errors exists manually, and if it exists, do nothing.
               if (errors.amount && errors.amount.message) {
@@ -324,7 +324,8 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
               }
 
               handleSubmit(async (data: FormData) => {
-                const coin = CoinUtils.getCoinFromDecimals(data.amount, denom);
+                 const coin = CoinUtils.getCoinFromDecimals(data.amount, denom);
+                 debugger;
                 await useBech32ConfigPromise(
                   chainStore.chainInfo.bech32Config,
                   async () => {
