@@ -111,17 +111,19 @@ export const DetailsTab: FunctionComponent<{
             id: "sign.list.messages.label"
           })}
         </div>
-        {msgs.map((msg, i) => {
-          const msgContent = renderMessage(msg, intl);
-          return (
-            <React.Fragment key={i.toString()}>
-              <Msg icon={msgContent.icon} title={msgContent.title}>
-                {msgContent.content}
-              </Msg>
-              <hr />
-            </React.Fragment>
-          );
-        })}
+        {msgs
+          .filter(msg => typeof msg !== "undefined")
+          .map((msg, i) => {
+            const msgContent = renderMessage(msg, intl);
+            return (
+              <React.Fragment key={i.toString()}>
+                <Msg icon={msgContent.icon} title={msgContent.title}>
+                  {msgContent.content}
+                </Msg>
+                <hr />
+              </React.Fragment>
+            );
+          })}
       </div>
       {!hardwareErrorMessage && !hardwareErrorResolved ? (
         <div className={styleDetailsTab.section}>
