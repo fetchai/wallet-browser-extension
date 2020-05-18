@@ -104,6 +104,7 @@
   "send.button.send": "Send",
   "send.input.radio.ethereum": "ethereum",
   "send.input.radio.cosmos": "cosmos",
+  "send.recipient.currency.ethereum": "Ethereum",
 
 
   "fee.input.gas": "Gas",
@@ -121,6 +122,8 @@
   "sign.info.error": "Ensure the following issue is resolved before approval",
   "sign.button.approve": "Approve",
   "sign.button.cancel": "Cancel",
+
+
 
   "sign.list.message.cosmos-sdk/MsgSend.title": "Send",
   "sign.list.message.cosmos-sdk/MsgSend.content": "<b>{recipient}</b> will receive <b>{amount}</b>",

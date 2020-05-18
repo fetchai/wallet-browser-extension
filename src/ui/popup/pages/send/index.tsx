@@ -94,7 +94,7 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
 
     const [lightMode, setLightMode] = useState(false);
     // flag specifying if cosmos being sent, or is ethereum being sent
-    const [isCosmosBeingSent, setisCosmosBeingSent] = useState(false);
+    const [isCosmosBeingSent, setisCosmosBeingSent] = useState(true);
 
     const toggleCosmosBeingSent = () => {
       const cosmos = isCosmosBeingSent;
@@ -324,8 +324,7 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
               }
 
               handleSubmit(async (data: FormData) => {
-                 const coin = CoinUtils.getCoinFromDecimals(data.amount, denom);
-                 debugger;
+                const coin = CoinUtils.getCoinFromDecimals(data.amount, denom);
                 await useBech32ConfigPromise(
                   chainStore.chainInfo.bech32Config,
                   async () => {
@@ -405,7 +404,7 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
             <div className={style.formInnerContainer}>
               <div>
                 <div className={style.radioButtons}>
-                  <label className={style.radioButtonsLabelLeft}>
+                  <p className={style.radioButtonsLabelLeft}>
                     <input
                       type="radio"
                       name="react-tips"
@@ -413,9 +412,11 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
                       checked={isCosmosBeingSent}
                       onChange={toggleCosmosBeingSent}
                     />
-                    {intl.formatMessage({ id: "send.input.radio.cosmos" })}
-                  </label>{" "}
-                  <label className={style.radioButtonsLabelRight}>
+                    <span>
+                      {intl.formatMessage({ id: "send.input.radio.cosmos" })}
+                    </span>
+                  </p>{" "}
+                  <p className={style.radioButtonsLabelRight}>
                     <input
                       type="radio"
                       name="react-tips"
@@ -423,8 +424,10 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
                       checked={!isCosmosBeingSent}
                       onChange={toggleCosmosBeingSent}
                     />
-                    {intl.formatMessage({ id: "send.input.radio.ethereum" })}
-                  </label>
+                    <span>
+                      {intl.formatMessage({ id: "send.input.radio.ethereum" })}
+                    </span>
+                  </p>
                 </div>
                 <Input
                   type="text"
@@ -490,6 +493,7 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
                   currencies={getCurrencies(chainStore.chainInfo.currencies)}
                   label={intl.formatMessage({ id: "send.input.amount" })}
                   clearError={clearError}
+                  isCosmosBeingSent={isCosmosBeingSent}
                   balances={undefined}
                   balanceText={intl.formatMessage({
                     id: "send.input-button.balance"

@@ -8,25 +8,35 @@
 
 :global(.light-mode) {
   .wrapper {
-     background-color: rgb(236, 241, 243);
+    background-color: rgb(236, 241, 243);
   }
 }
 
-
 .back-button {
-      margin-left: 0px;
-    margin-bottom: 10px;
+  margin-left: 0px;
+  margin-bottom: 10px;
 }
 
 .radio-buttons {
-position: absolute;
-    right: 33px;
+    position: absolute;
+    right: 34px;
     font-size: 13px;
-    top: 117px;
+    top: 115px;
+    font-size: 11px;
+
+  span {
+    &::before {
+      content: " ";
+    }
+  }
 
   .radio-buttons-label-left {
     margin-right: 25px;
+    display: inline;
+  }
 
+  .radio-buttons-label-right {
+    display: inline;
   }
 }
 
@@ -40,18 +50,17 @@ position: absolute;
   height: calc(2.75rem + 2px) !important;
 }
 
-
 .off-white-Auto-fill:-webkit-autofill,
 .off-white-Auto-fill:-webkit-autofill:hover,
 .off-white-Auto-fill:-webkit-autofill:focus,
-.off-white-Auto-fill:-webkit-autofill:active  {
-    -webkit-box-shadow: 0 0 0 30px #2b3246 inset !important;
+.off-white-Auto-fill:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px #2b3246 inset !important;
 }
 
 .amount {
-  border:none;
-   &:focus {
-   border:none;
+  border: none;
+  &:focus {
+    border: none;
   }
 }
 

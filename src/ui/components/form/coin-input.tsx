@@ -11,9 +11,11 @@ import { ElementLike } from "react-hook-form/dist/types";
 import { Coin } from "@everett-protocol/cosmosjs/common/coin";
 import { FormFeedback, FormGroup, Input, InputGroup, Label } from "reactstrap";
 import { useStore } from "../../popup/stores";
+import { useIntl } from "react-intl";
 
 export interface CoinInputProps {
   currencies: Currency[];
+  isCosmosBeingSent: boolean;
   balances?: Coin[];
   balanceText?: string;
   clearError?: any;
@@ -43,6 +45,7 @@ interface DecCoin {
 
 export const CoinInput: FunctionComponent<CoinInputProps> = props => {
   const {
+    isCosmosBeingSent,
     currencies,
     balances,
     balanceText,
@@ -56,12 +59,15 @@ export const CoinInput: FunctionComponent<CoinInputProps> = props => {
   } = props;
 
   const { chainStore, accountStore } = useStore();
-
+  const intl = useIntl();
   const [currency, setCurrency] = useState<Currency | undefined>();
   const [step, setStep] = useState<string | undefined>();
   const [balance, setBalance] = useState<DecCoin | undefined>();
 
   const [allBalance, setAllBalance] = useState(false);
+  const [isCosmosBeingSentProp, setIsCosmosBeingSentProp] = useState(
+    isCosmosBeingSent
+  );
 
   const nativeCurrency = getCurrency(
     chainStore.chainInfo.nativeCurrency
@@ -90,6 +96,10 @@ export const CoinInput: FunctionComponent<CoinInputProps> = props => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currencies]);
+
+  useEffect(() => {
+    setIsCosmosBeingSentProp(isCosmosBeingSent);
+  }, [isCosmosBeingSent]);
 
   useEffect(() => {
     if (balances && currency) {
@@ -171,6 +181,44 @@ export const CoinInput: FunctionComponent<CoinInputProps> = props => {
     return accountStore.assets.length > 1;
   };
 
+  const getSelect = () => {
+    // if we are not sending cosmos then we are sending ethereum via peggy, in which case it is always the
+    // ethereum as the currency the recipient is sending, so always show that regardless.
+    if (!isCosmosBeingSentProp) {
+      return (
+        <span className={styleCoinInput.singleCurrency}>
+          {intl.formatMessage({
+            id: "send.recipient.currency.ethereum"
+          })}
+        </span>
+      );
+    }
+
+    // if we have multiple currencies in our asset store then we can select any of them to send.
+    if (showDropDown()) {
+      return (
+        <select
+          value={selectedCurrency}
+          id="currency"
+          name="denom"
+          className={styleCoinInput.select}
+          onChange={currencyChange}
+        >
+          <option key={1} value={nativeCurrency.coinDenom}>
+            {nativeCurrency.coinDenom}
+          </option>
+          {getDropDownOptions()}
+        </select>
+      );
+    }
+    // we have only one currency available to send (native) so we just show that currency.
+    return (
+      <span className={styleCoinInput.singleCurrency}>
+        {nativeCurrency.coinDenom}
+      </span>
+    );
+  };
+
   return (
     <FormGroup className={className}>
       {label ? (
@@ -238,24 +286,7 @@ export const CoinInput: FunctionComponent<CoinInputProps> = props => {
           autoComplete="off"
         />
 
-        {showDropDown() ? (
-          <select
-            value={selectedCurrency}
-            id="currency"
-            name="denom"
-            className={styleCoinInput.select}
-            onChange={currencyChange}
-          >
-            <option key={1} value={nativeCurrency.coinDenom}>
-              {nativeCurrency.coinDenom}
-            </option>
-            {getDropDownOptions()}
-          </select>
-        ) : (
-          <span className={styleCoinInput.singleCurrency}>
-            {nativeCurrency.coinDenom}
-          </span>
-        )}
+        {getSelect()}
       </InputGroup>
       {error ? (
         <FormFeedback style={{ display: "block" }}>{error}</FormFeedback>

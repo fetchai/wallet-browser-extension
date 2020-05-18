@@ -101,7 +101,8 @@ export class CoinUtils {
       throw new Error("Invalid currency");
     }
 
-    let precision = new Dec(1);
+    const precision = new Dec(1);
+    // This is the logic for when we wish to send by minimal denom as when we used ufet in testnet before
     // for (let i = 0; i < currency.coinDecimals; i++) {
     //   precision = precision.mul(new Dec(10));
     // }

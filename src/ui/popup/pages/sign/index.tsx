@@ -21,7 +21,6 @@ import {
   fitWindow
 } from "../../../../common/window";
 import { lightModeEnabled } from "../../light-mode";
-import LedgerNano from "../../../../common/ledger-nano";
 import { LedgerNanoMsg } from "../../../../background/ledger-nano";
 import { METHODS } from "../../../../background/ledger-nano/constants";
 import { sendMessage } from "../../../../common/message/send";
