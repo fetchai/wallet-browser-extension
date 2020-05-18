@@ -128,7 +128,6 @@ export function renderMessage(
 
   // This page has the display of the messages in the signing tab. Since an ethereum message is comprised of two messages a lock and a burn but a UI showing
   // that two messages are being sent would be poor we only show a message for the lock message associated with a peggy transaction, and show no output for the burn message
-
   if (MessageType<MsgLock>(msg, "cosmos-sdk/MsgLock")) {
     const receives: { amount: string; denom: string }[] = [];
     for (const coinPrimitive of msg.value.amount) {
@@ -151,7 +150,7 @@ export function renderMessage(
           id="sign.list.message.cosmos-sdk/MsgLock.content"
           values={{
             recipient
-            validator: shortenAddress(msg.value.validator_address, 24),
+            currency: shortenAddress(msg.value.denom, 24),
             amount: `${clearDecimals(parsed.amount)} ${parsed.denom}`
           }}
         />
