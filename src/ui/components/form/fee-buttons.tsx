@@ -79,6 +79,7 @@ export const FeeButtons: FunctionComponent<FeeButtonsProps> = ({
   const [feeHigh, setFeeHigh] = useState<Coin | undefined>();
 
   useEffect(() => {
+    debugger;
     if (price.gt(new Dec(0))) {
       let precision = new Dec(1);
       for (let i = 0; i < currency.coinDecimals; i++) {
@@ -128,6 +129,20 @@ export const FeeButtons: FunctionComponent<FeeButtonsProps> = ({
       throw new Error("Invalid fee select");
     }
   }, [feeAverage, feeHigh, feeLow, feeSelect, name, setValue]);
+
+
+ const dollarPrice = (fee) => {
+   const x =  DecUtils.removeTrailingZerosFromDecStr(
+                  new Dec(fee)
+                    .quoTruncate(
+                      DecUtils.getPrecisionDec(currency.coinDecimals)
+                    )
+                    .mul(price)
+                    .toString(4)
+                )
+    debugger;
+    return x;
+  }
 
   const [inputId] = useState(() => {
     const bytes = new Uint8Array(4);
@@ -198,14 +213,7 @@ export const FeeButtons: FunctionComponent<FeeButtonsProps> = ({
             })}
           >
             {price.gt(new Dec(0)) && feeAverage
-              ? `$${DecUtils.removeTrailingZerosFromDecStr(
-                  new Dec(feeAverage.amount)
-                    .quoTruncate(
-                      DecUtils.getPrecisionDec(currency.coinDecimals)
-                    )
-                    .mul(price)
-                    .toString(4)
-                )}`
+              ? `$${dollarPrice(feeAverage.amount)}`
               : "?"}
           </div>
           <div

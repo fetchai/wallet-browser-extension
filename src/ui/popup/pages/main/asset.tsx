@@ -5,7 +5,7 @@ import { observer } from "mobx-react";
 import { useStore } from "../../stores";
 import styleAsset from "./asset.module.scss";
 import { CoinUtils } from "../../../../common/coin-utils";
-import { Currencies, Currency } from "../../../../chain-info";
+import { Currency } from "../../../../chain-info";
 import { getCurrency } from "../../../../common/currency";
 import classnames from "classnames";
 import { FormattedMessage } from "react-intl";
@@ -86,11 +86,12 @@ export const AssetView: FunctionComponent = observer(() => {
       amount = cutOffDecimals(amount);
       return "$" + parseFloat(amount).toLocaleString();
     } else {
-      return;
-      "$" +
+      return (
+        "$" +
         parseFloat(
           (fiat as Price).value.mul(new Dec(coinAmount)).toString()
-        ).toLocaleString();
+        ).toLocaleString()
+      );
     }
   };
 
