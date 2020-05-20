@@ -124,6 +124,10 @@ $input-height: 46px;
   font-weight: 600;
   display: block;
   margin-bottom: 5px;
+
+  ::after {
+    top: 376px;
+  }
 }
 
 .upload-button {
