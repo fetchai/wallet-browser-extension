@@ -10,7 +10,7 @@ export interface MessageObj {
 }
 
 interface MsgGeneric {
-  type: string
+  type: string;
   value: {
     amount: [
       {
@@ -87,11 +87,10 @@ function MessageType<T extends Messages>(
 export function renderMessage(
   msg: MessageObj,
   intl: IntlShape
-): undefined | {
-  icon: string | undefined;
-  title: string;
-  content: React.ReactElement;
-} {
+): { icon: string; title: string; content: any } | undefined {
+
+      debugger;
+
   if (MessageType<MsgSend>(msg, "cosmos-sdk/MsgSend")) {
     const receives: { amount: string; denom: string }[] = [];
     for (const coinPrimitive of msg.value.amount) {
@@ -129,6 +128,7 @@ export function renderMessage(
   // This page has the display of the messages in the signing tab. Since an ethereum message is comprised of two messages a lock and a burn but a UI showing
   // that two messages are being sent would be poor we only show a message for the lock message associated with a peggy transaction, and show no output for the burn message
   if (MessageType<MsgLock>(msg, "cosmos-sdk/MsgLock")) {
+    debugger;
     const receives: { amount: string; denom: string }[] = [];
     for (const coinPrimitive of msg.value.amount) {
       const coin = new Coin(coinPrimitive.denom, coinPrimitive.amount);
@@ -146,12 +146,17 @@ export function renderMessage(
         id: "sign.list.message.cosmos-sdk/MsgLock.title"
       }),
       content: (
-           <FormattedMessage
+        <FormattedMessage
           id="sign.list.message.cosmos-sdk/MsgLock.content"
+          // assumption that all
           values={{
-            recipient
-            currency: shortenAddress(msg.value.denom, 24),
-            amount: `${clearDecimals(parsed.amount)} ${parsed.denom}`
+            recipient: shortenAddress(msg.value.to_address, 24),
+            currency: receives[0].denom,
+            amount: receives
+              .map(coin => {
+                return `${coin.amount} ${coin.denom}`;
+              })
+              .join(",")
           }}
         />
       )
@@ -160,8 +165,9 @@ export function renderMessage(
 
   // we only display for the lock, and don't display for the burn since Peggy requires two messages in the transaction, but showing two messages in the
   // wallet would be bad UI.
-  if(MessageType<MsgBurn>(msg, "cosmos-sdk/MsgBurn")){
-    return undefined
+  if (MessageType<MsgBurn>(msg, "cosmos-sdk/MsgBurn")) {
+    debugger;
+    return undefined;
   }
 
   if (MessageType<MsgDelegate>(msg, "cosmos-sdk/MsgDelegate")) {

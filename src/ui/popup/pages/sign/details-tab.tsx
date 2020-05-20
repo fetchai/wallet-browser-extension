@@ -13,7 +13,6 @@ import classnames from "classnames";
 import { MessageObj, renderMessage } from "./messages";
 import { DecUtils } from "../../../../common/dec-utils";
 import { useIntl } from "react-intl";
-import LedgerNano from "../../../../common/ledger-nano";
 import { LedgerNanoMsg } from "../../../../background/ledger-nano";
 import { METHODS } from "../../../../background/ledger-nano/constants";
 import { BACKGROUND_PORT } from "../../../../common/message/constant";
@@ -27,13 +26,11 @@ export const DetailsTab: FunctionComponent<{
   const { priceStore } = useStore();
 
   const intl = useIntl();
-
   const [fee, setFee] = useState<Coin[]>([]);
   const [feeFiat, setFeeFiat] = useState(new Dec(0));
   const [memo, setMemo] = useState("");
   const [msgs, setMsgs] = useState<MessageObj[]>([]);
   const [hardwareErrorMsg, setHardwareErrorMsg] = useState("");
-
   const [hardwareErrorResolved, sethardwareErrorResolved] = useState(false);
 
   const checkNanoIsReady = async () => {
@@ -112,7 +109,10 @@ export const DetailsTab: FunctionComponent<{
           })}
         </div>
         {msgs
-          .filter(msg => typeof msg !== "undefined")
+          .filter((msg) => {
+            debugger;
+            return (typeof msg !== "undefined");
+          })
           .map((msg, i) => {
             const msgContent = renderMessage(msg, intl);
             return (

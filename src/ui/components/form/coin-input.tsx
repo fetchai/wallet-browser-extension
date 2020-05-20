@@ -11,7 +11,6 @@ import { ElementLike } from "react-hook-form/dist/types";
 import { Coin } from "@everett-protocol/cosmosjs/common/coin";
 import { FormFeedback, FormGroup, Input, InputGroup, Label } from "reactstrap";
 import { useStore } from "../../popup/stores";
-import { useIntl } from "react-intl";
 
 export interface CoinInputProps {
   currencies: Currency[];
@@ -59,7 +58,6 @@ export const CoinInput: FunctionComponent<CoinInputProps> = props => {
   } = props;
 
   const { chainStore, accountStore } = useStore();
-  const intl = useIntl();
   const [currency, setCurrency] = useState<Currency | undefined>();
   const [step, setStep] = useState<string | undefined>();
   const [balance, setBalance] = useState<DecCoin | undefined>();
@@ -187,9 +185,7 @@ export const CoinInput: FunctionComponent<CoinInputProps> = props => {
     if (!isCosmosBeingSentProp) {
       return (
         <span className={styleCoinInput.singleCurrency}>
-          {intl.formatMessage({
-            id: "send.recipient.currency.ethereum"
-          })}
+          {nativeCurrency.coinDenom}
         </span>
       );
     }

@@ -2,11 +2,13 @@ import { AccAddress } from "@everett-protocol/cosmosjs/common/address";
 import { Coin } from "@everett-protocol/cosmosjs/common/coin";
 import { Msg } from "@everett-protocol/cosmosjs/core/tx";
 import { Codec, Type, Amino } from "@node-a-team/ts-amino";
-import { hexEthAddressToUint8Array, uint8ArrayToChecksumEthAddress } from "../../../../../src/common/utils/buffer-convert";
+import {
+  hexEthAddressToUint8Array,
+  uint8ArrayToChecksumEthAddress
+} from "../../../../../src/common/utils/buffer-convert";
 import { sortJSON } from "@everett-protocol/cosmosjs/utils/sortJson";
 import Web3 from "web3";
-
-const { DefineStruct, DefineType, Field } = Amino;
+const { DefineStruct, Field } = Amino;
 
 @DefineStruct()
 export class LockMessage extends Msg {
@@ -65,8 +67,12 @@ export class LockMessage extends Msg {
     this.amount = amount;
     this.cosmosSender = cosmosSender;
     this.ethereumChainID = ethereumChainID;
-    this.ethereumReceiver = hexEthAddressToUint8Array(ethereumReceiver/*, this.web3, ethereumChainID*/);
-    this.tokenContract = hexEthAddressToUint8Array(tokenContract/*, this.web3, ethereumChainID*/);
+    this.ethereumReceiver = hexEthAddressToUint8Array(
+      ethereumReceiver /*, this.web3, ethereumChainID*/
+    );
+    this.tokenContract = hexEthAddressToUint8Array(
+      tokenContract /*, this.web3, ethereumChainID*/
+    );
   }
 
   public getSigners(): AccAddress[] {
@@ -81,17 +87,16 @@ export class LockMessage extends Msg {
     //   }
   }
 
-  public getSignBytes(codec: Codec): Uint8Array {
-    const retval = super.getSignBytes(codec);
-    const jsonStr = new TextDecoder().decode(retval);
-    let json_des = JSON.parse(jsonStr);
-    let json = json_des.value;
-    json.ethereum_chain_id = this.ethereumChainID;
-    json.ethereum_receiver = uint8ArrayToChecksumEthAddress(this.ethereumReceiver, this.ethereumChainID, this.web3);
-    json.token_contract_address = uint8ArrayToChecksumEthAddress(this.tokenContract, this.ethereumChainID, this.web3);
-    const bytes = Buffer.from(sortJSON(JSON.stringify(json)), "utf8");
-    return bytes;
-  }
+  // public getSignBytes(codec: Codec): Uint8Array {
+  //   const retval = super.getSignBytes(codec);
+  //   const jsonStr = new TextDecoder().decode(retval);
+  //   let json_des = JSON.parse(jsonStr);
+  //   let json = json_des.value;
+  //   json.ethereum_chain_id = this.ethereumChainID;
+  //   json.ethereum_receiver = uint8ArrayToChecksumEthAddress(this.ethereumReceiver, this.ethereumChainID, this.web3);
+  //   json.token_contract_address = uint8ArrayToChecksumEthAddress(this.tokenContract, this.ethereumChainID, this.web3);
+  //   return Buffer.from(sortJSON(JSON.stringify(json)), "utf8");
+  // }
 }
 @DefineStruct()
 export class BurnMessage extends LockMessage {}
