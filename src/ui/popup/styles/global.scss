@@ -127,6 +127,7 @@ body {
 .red {
   border-color: red !important;
   color: red !important;
+
   &:focus {
     color: red !important;
   }
@@ -145,6 +146,20 @@ body {
 
   &.focus {
     color: white;
+  }
+}
+
+/*
+only in light mode should placeholder text be red in the settings page password reset form.
+ */
+
+.light-mode {
+  .red::-webkit-input-placeholder {
+    color: red;
+
+    &.focus {
+      color: white;
+    }
   }
 }
 

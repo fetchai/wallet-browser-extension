@@ -23,6 +23,7 @@ import {
 } from "reactstrap";
 
 import classnames from "classnames";
+import { Int } from "@everett-protocol/cosmosjs/common/int";
 
 export type GasPriceStep = {
   low: Dec;
@@ -130,19 +131,21 @@ export const FeeButtons: FunctionComponent<FeeButtonsProps> = ({
     }
   }, [feeAverage, feeHigh, feeLow, feeSelect, name, setValue]);
 
+  const formatDollarString = (s: string) => {
+    return parseFloat(s)
+      .toFixed(2)
+      .toLocaleString();
+  };
 
- const dollarPrice = (fee) => {
-   const x =  DecUtils.removeTrailingZerosFromDecStr(
-                  new Dec(fee)
-                    .quoTruncate(
-                      DecUtils.getPrecisionDec(currency.coinDecimals)
-                    )
-                    .mul(price)
-                    .toString(4)
-                )
-    debugger;
-    return x;
-  }
+  /**
+   * Get the dollar price of the fee as a 2 sig fig string
+   *
+   * @param fee
+   */
+  const dollarPrice = (fee: Int): string => {
+    const amount = new Dec(fee).mul(price).toString();
+    return formatDollarString(amount);
+  };
 
   const [inputId] = useState(() => {
     const bytes = new Uint8Array(4);
@@ -174,14 +177,7 @@ export const FeeButtons: FunctionComponent<FeeButtonsProps> = ({
             })}
           >
             {price.gt(new Dec(0)) && feeLow
-              ? `$${DecUtils.removeTrailingZerosFromDecStr(
-                  new Dec(feeLow.amount)
-                    .quoTruncate(
-                      DecUtils.getPrecisionDec(currency.coinDecimals)
-                    )
-                    .mul(price)
-                    .toString(4)
-                )}`
+              ? `$${dollarPrice(feeLow.amount)}`
               : "?"}
           </div>
           <div
@@ -192,7 +188,7 @@ export const FeeButtons: FunctionComponent<FeeButtonsProps> = ({
             {feeLow
               ? `${DecUtils.removeTrailingZerosFromDecStr(
                   CoinUtils.parseDecAndDenomFromCoin(feeLow).amount
-                )}${currency.coinDenom}`
+                )} ${currency.coinDenom}`
               : "loading"}
           </div>
         </Button>
@@ -224,7 +220,7 @@ export const FeeButtons: FunctionComponent<FeeButtonsProps> = ({
             {feeAverage
               ? `${DecUtils.removeTrailingZerosFromDecStr(
                   CoinUtils.parseDecAndDenomFromCoin(feeAverage).amount
-                )}${currency.coinDenom}`
+                )} ${currency.coinDenom}`
               : "loading"}
           </div>
         </Button>
@@ -244,14 +240,7 @@ export const FeeButtons: FunctionComponent<FeeButtonsProps> = ({
             })}
           >
             {price.gt(new Dec(0)) && feeHigh
-              ? `$${DecUtils.removeTrailingZerosFromDecStr(
-                  new Dec(feeHigh.amount)
-                    .quoTruncate(
-                      DecUtils.getPrecisionDec(currency.coinDecimals)
-                    )
-                    .mul(price)
-                    .toString(4)
-                )}`
+              ? `$${dollarPrice(feeHigh.amount)}`
               : "?"}
           </div>
           <div
@@ -262,7 +251,7 @@ export const FeeButtons: FunctionComponent<FeeButtonsProps> = ({
             {feeHigh
               ? `${DecUtils.removeTrailingZerosFromDecStr(
                   CoinUtils.parseDecAndDenomFromCoin(feeHigh).amount
-                )}${currency.coinDenom}`
+                )} ${currency.coinDenom}`
               : "loading"}
           </div>
         </Button>

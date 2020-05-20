@@ -19,6 +19,7 @@ type State = {
   errorMessage: string;
   passwordError: boolean;
   fileError: boolean;
+  loading: boolean;
 };
 
 type Props = {
@@ -56,8 +57,20 @@ export default class Recover extends React.Component<Props, State> {
     fileName: "",
     errorMessage: "",
     passwordError: false,
-    fileError: false
+    fileError: false,
+    loading: false
   };
+
+  async setLoading(loading: boolean) {
+    return new Promise(resolve => {
+      this.setState(
+        {
+          loading: loading
+        },
+        resolve
+      );
+    });
+  }
 
   async wipeFormErrors() {
     return new Promise(resolve => {
@@ -84,6 +97,7 @@ export default class Recover extends React.Component<Props, State> {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = function(evt) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
         // @ts-ignore
         resolve(evt.target.result as string);
       };
@@ -146,6 +160,7 @@ export default class Recover extends React.Component<Props, State> {
    */
   validFile = async () => {
     if (this.state.file === "" || this.state.file === null) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
       // @ts-ignore
       this.setState({
         errorMessage: FILE_REQUIRED_ERROR_MESSAGE,
@@ -192,12 +207,16 @@ export default class Recover extends React.Component<Props, State> {
    * @returns {Promise<void>}
    */
   async handleSubmit() {
+    await this.setLoading(true);
     let error = false;
     let file;
+    debugger;
     if (!this.validPassword()) error = true;
+    debugger;
     if (!(await this.validFile())) error = true;
-
+debugger;
     if (!error) {
+      debugger;
       file = await this.readFile(this.state.file as File);
       if (
         !(await this.verifyPassword(
@@ -214,17 +233,21 @@ export default class Recover extends React.Component<Props, State> {
     }
 
     if (!error) {
+      debugger;
       const mneumonic = await this.getMneumonic(
         this.state.password,
         JSON.parse(file as string)
       );
-
+       debugger;
       if (mneumonic === false) {
         this.setState({
           errorMessage: "Error occured"
         });
       }
-      this.onRegister(mneumonic, this.state.password, true);
+      debugger;
+      await this.onRegister(mneumonic, this.state.password, true);
+    } else {
+      // await this.setLoading(false);
     }
   }
 
@@ -279,6 +302,7 @@ export default class Recover extends React.Component<Props, State> {
           <div className={style.output}>
             <button
               type="submit"
+              data-loading={this.state.loading}
               className={classnames(style.recoverButton, "green")}
               onClick={event => {
                 event.preventDefault();

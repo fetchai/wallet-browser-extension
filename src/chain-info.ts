@@ -63,8 +63,8 @@ export const NativeChainInfos: ChainInfo[] = [
   {
     rpc: "http://aea-testnet.sandbox.fetch-ai.com:36657",
     rest: "http://aea-testnet.sandbox.fetch-ai.com:1317",
-    chainId: "testing",
-    chainName: "gaiadrb-sandbox",
+    chainId: "gaia-sandbox",
+    chainName: "gaia-sandbox",
     nativeCurrency: "testfet",
     walletUrl:
       process.env.NODE_ENV === "production"
@@ -92,7 +92,7 @@ export interface AccessOrigin {
  */
 export const ExtensionAccessOrigins: AccessOrigin[] = [
   {
-    chainId: "testing",
+    chainId: "gaia-sandbox",
     origins:
       process.env.NODE_ENV === "production"
         ? ["https://wallet.keplr.app"]
