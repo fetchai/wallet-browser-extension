@@ -18,6 +18,7 @@ import {
   STORAGE_KEY
 } from "../../light-mode";
 import { Button, ButtonGroup } from "reactstrap";
+import OutsideClickHandler from "react-outside-click-handler";
 
 export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
   ({ history }) => {
@@ -38,6 +39,7 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
     const [showDeleteConfirmation, setshowDeleteConfirmation] = useState(false);
     const [lightMode, setLightMode] = useState(false);
     const [keyFile, setKeyFile] = useState("");
+    const [hardwareLinked, setHardwareLinked] = useState(false);
 
     useEffect(() => {
       const getFile = async () => {
@@ -217,21 +219,17 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
       }
     };
 
-    const getStorageClearanceWarningMessage = async (): Promise<
-      string | null
-    > => {
+    const getStorageClearanceWarningMessage = () => {
       if (!showDeleteConfirmation) return null;
-
-      const hardwareLinked: boolean = await keyRingStore.isHardwareLinked();
-
-      if (hardwareLinked)
+      // if there is a key file then it cannot be hardware-linked
+      if (keyFile)
         return intl.formatMessage({
-          id:
-            "settings.update-password.button.delete-confirmation-message-hardware-linked"
+          id: "settings.update-password.button.delete-confirmation-message"
         });
       else
         return intl.formatMessage({
-          id: "settings.update-password.button.delete-confirmation-message"
+          id:
+            "settings.update-password.button.delete-confirmation-message-hardware-linked"
         });
     };
 
@@ -248,7 +246,7 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
               history.goBack();
             }}
             stroke={4}
-            style={{ height: "24px;" }}
+            style={{ height: "24px" }}
             className={style.backButton}
             lightMode={lightMode}
           ></BackButton>
@@ -352,7 +350,7 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
                   newPasswordError ? "red" : ""
                 }`}
                 placeholder={intl.formatMessage({
-                  id: "settings.update-password.form.placeholder.invalid"
+                  id: "settings.update-password.form.placeholder.new"
                 })}
                 id="new_password"
                 name="new_password"
@@ -405,19 +403,25 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
                 {getStorageClearanceWarningMessage()}
               </span>
             </div>
-            <button
-              type="submit"
-              className={`blue ${style.button}`}
-              onClick={handleDelete}
+            <OutsideClickHandler
+              onOutsideClick={() => {
+                setshowDeleteConfirmation(false);
+              }}
             >
-              {showDeleteConfirmation
-                ? intl.formatMessage({
-                    id: "settings.update-password.button.delete"
-                  })
-                : intl.formatMessage({
-                    id: "settings.update-password.button.delete-confirm"
-                  })}
-            </button>
+              <button
+                type="submit"
+                className={`blue ${style.button}`}
+                onClick={handleDelete}
+              >
+                {showDeleteConfirmation
+                  ? intl.formatMessage({
+                      id: "settings.update-password.button.delete"
+                    })
+                  : intl.formatMessage({
+                      id: "settings.update-password.button.delete-confirm"
+                    })}
+              </button>
+            </OutsideClickHandler>
           </Expand>
           <div className={style.mainButton} onClick={() => toggle(3)}>
             About

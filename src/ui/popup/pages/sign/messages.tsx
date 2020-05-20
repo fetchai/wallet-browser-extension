@@ -88,9 +88,6 @@ export function renderMessage(
   msg: MessageObj,
   intl: IntlShape
 ): { icon: string; title: string; content: any } | undefined {
-
-      debugger;
-
   if (MessageType<MsgSend>(msg, "cosmos-sdk/MsgSend")) {
     const receives: { amount: string; denom: string }[] = [];
     for (const coinPrimitive of msg.value.amount) {

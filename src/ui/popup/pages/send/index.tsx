@@ -301,25 +301,25 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
           <form
             //TODO change denom back from this to selected currency rather than being just called FET.
             onSubmit={e => {
-              // if (isValidENS(recipient)) {
-              //   triggerValidation({ name: "recipient" });
-              // }
-              // balanceValidate(fee, denom);
-              //
-              // amountValidate(amount, denom, fee);
-              // // React form hook doesn't block submitting when error is delivered outside.
-              // // So, jsut check if errors exists manually, and if it exists, do nothing.
-              // if (errors.amount && errors.amount.message) {
-              //   e.preventDefault();
-              //   return;
-              // }
-              //
-              // // If recipient is ENS name and ENS is loading,
-              // // don't send the assets before ENS is fully loaded.
-              // if (isValidENS(recipient) && ens.loading) {
-              //   e.preventDefault();
-              //   return;
-              // }
+              if (isValidENS(recipient)) {
+                triggerValidation({ name: "recipient" });
+              }
+              balanceValidate(fee, denom);
+
+              amountValidate(amount, denom, fee);
+              // React form hook doesn't block submitting when error is delivered outside.
+              // So, jsut check if errors exists manually, and if it exists, do nothing.
+              if (errors.amount && errors.amount.message) {
+                e.preventDefault();
+                return;
+              }
+
+              // If recipient is ENS name and ENS is loading,
+              // don't send the assets before ENS is fully loaded.
+              if (isValidENS(recipient) && ens.loading) {
+                e.preventDefault();
+                return;
+              }
 
               handleSubmit(async (data: FormData) => {
                 const coin = CoinUtils.getCoinFromDecimals(data.amount, denom);
@@ -370,7 +370,6 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
                     };
 
                     if (cosmosJS.sendMsgs) {
-                        debugger
                       await cosmosJS.sendMsgs(
                         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                         msgs,
@@ -379,7 +378,6 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
                           history.replace("/");
                         },
                         e => {
-                            debugger
                           history.replace("/");
 
                           notification.push({

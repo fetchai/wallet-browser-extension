@@ -29,11 +29,6 @@ export const Currencies: {
     coinMinimalDenom: "testfet",
     coinDecimals: 6,
     coinGeckoId: "fetch-ai"
-  },
-  testers: {
-    coinDenom: "testers",
-    coinMinimalDenom: "testers",
-    coinDecimals: 0
   }
 };
 

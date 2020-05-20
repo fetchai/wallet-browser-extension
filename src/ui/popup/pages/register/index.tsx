@@ -137,14 +137,17 @@ export const RegisterPage: FunctionComponent = observer(() => {
   );
 
   const onBackToInit = useCallback(() => {
+    setHardwareErrorMessage("");
     setState(RegisterState.INIT);
   }, []);
 
   const onBackToChooseRecoverMethod = useCallback(() => {
+    setHardwareErrorMessage("");
     setState(RegisterState.RECOVERY_CHOICE);
   }, []);
 
   const onBackToRegister = useCallback(() => {
+    setHardwareErrorMessage("");
     setState(RegisterState.REGISTER);
   }, []);
 
@@ -176,6 +179,7 @@ export const RegisterPage: FunctionComponent = observer(() => {
             }),
             onClick: () => {
               generateMnemonic(numWords);
+              setHardwareErrorMessage("");
               setState(RegisterState.REGISTER);
             }
           }}
@@ -187,6 +191,7 @@ export const RegisterPage: FunctionComponent = observer(() => {
               id: "register.intro.button.import-account.content"
             }),
             onClick: () => {
+              setHardwareErrorMessage("");
               setState(RegisterState.RECOVERY_CHOICE);
             }
           }}
@@ -204,6 +209,7 @@ export const RegisterPage: FunctionComponent = observer(() => {
                 id: "register.intro.button.recover-choice.menumonic.content"
               }),
               onClick: () => {
+                setHardwareErrorMessage("");
                 generateMnemonic(numWords);
                 setState(RegisterState.RECOVER);
               }
@@ -218,7 +224,10 @@ export const RegisterPage: FunctionComponent = observer(() => {
               errorMessage: hardwareErrorMessage,
               onClick: async () => {
                 const hasHardwareWallet = await RegisterThroughHardwareWallet();
-                if (hasHardwareWallet) setState(RegisterState.HARDWARE_UPLOAD);
+                if (hasHardwareWallet) {
+                  setState(RegisterState.HARDWARE_UPLOAD);
+                  setHardwareErrorMessage("");
+                }
               }
             }}
             bottomButton={{
@@ -229,6 +238,7 @@ export const RegisterPage: FunctionComponent = observer(() => {
                 id: "register.intro.button.recover-choice.file.title"
               }),
               onClick: () => {
+                setHardwareErrorMessage("");
                 setState(RegisterState.UPLOAD);
               }
             }}
