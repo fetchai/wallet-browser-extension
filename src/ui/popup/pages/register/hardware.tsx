@@ -173,19 +173,21 @@ export const Hardware: FunctionComponent<Props> = observer(({ onRegister }) => {
   return (
     <div id="my-extension-root-inner">
       <div className={style.hardwareTitle}>
-        Login using a Ledger Nano running Cosmos Application
+        Login using a Ledger Nano X or S
       </div>
       <form id="form" className={style.recoveryForm}>
-        {address.length ? (
-          <>
+        <span className={style.hardwareSubheading}>
+          Login using a Ledger Nano running Cosmos Application Address:{" "}
+        </span>
+        <span className={style.address}>
+          {address.length ? (
             <span>
-              Login using a Ledger Nano running Cosmos Application Address:{" "}
+              {address.substring(0, 30)} <br></br> {address.substring(30)}
             </span>
-            <span>{address}</span>
-          </>
-        ) : (
-          ""
-        )}
+          ) : (
+            ""
+          )}
+        </span>
         <span className={style.error}>{hardwareErrorMessage}</span>
         {showRetryButton ? (
           <button onClick={connectToHardwareWallet}>retry</button>

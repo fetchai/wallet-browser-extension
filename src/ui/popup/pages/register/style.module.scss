@@ -70,9 +70,29 @@ $input-height: 46px;
   display: block;
   margin-bottom: 15px;
 
-  output {
+
+  .hardwareSubheading {
+        display: block;
+    font-size: 14px;
+    padding-bottom: 10px;
+    padding-top: 15px;
+}
+
+  .address {
+    border-radius: 6px;
+    text-align:center;
+    display:block;
+        height: 100px;
+    border-style:solid;
+    border-width:2px;
+    border-color: white;
     font-family: "Sol Pro Regular" !important;
-    font-weight:bold
+    font-weight:bold;
+
+    span {
+         position: relative;
+    top: 20px;
+    }
   }
 }
 
