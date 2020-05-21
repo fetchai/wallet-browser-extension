@@ -203,8 +203,8 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
       wipeFormErrors(true);
       // wait for the expanandables before closing for better UI
       setTimeout(setshowDeleteConfirmation.bind(null, false), 500);
-      // looks very complex but very simple whereby we toggle any clicked collapsible, but is it not
-      // the clicked one we shut it.
+      // looks very complex but very simple whereby if the collapsible is clicked we toggle it (if clause)
+      // or in else clause we close it (unless it is a sub collapsible eg 2b then we don't close 2 but do nothing with it)
       if (index === 1) {
         setcollapsible1(prev => !prev);
       } else {
@@ -213,6 +213,7 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
       if (index === 2) {
         setcollapsible2(prev => !prev);
       } else if (!index.toString().includes("2")) {
+        debugger;
         setcollapsible2(false);
       }
 
@@ -223,6 +224,7 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
       }
 
       if (index === "2b") {
+        debugger;
         setcollapsible2b(prev => !prev);
       } else {
         setcollapsible2b(false);

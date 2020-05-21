@@ -20,28 +20,32 @@ $settings-width: 293px;
 
 :global(.light-mode) {
   .title-wrapper {
-     h2 {
-      color:  $light-mode-grey !important;
+    h2 {
+      color: $light-mode-grey !important;
+    }
   }
-  }
+}
+
+.output {
+  min-height: 24px;
 }
 
 :global(.light-mode) {
   .output {
-    color:  $light-mode-grey;
+    color: $light-mode-grey;
   }
 }
 
 .sub-heading {
   padding-top: 0px;
-  padding-top: 5px;
+  padding-top: 10px;
   margin-bottom: 8px;
   color: $grey-main;
   font-size: 14px;
 }
 
 .clickable {
- &:hover {
+  &:hover {
     cursor: pointer;
   }
 }
@@ -57,7 +61,7 @@ $settings-width: 293px;
 
 :global(.light-mode) {
   .wrapper {
-     background-color: rgb(236, 241, 243);
+    background-color: rgb(236, 241, 243);
   }
 }
 
@@ -92,8 +96,8 @@ $settings-width: 293px;
 }
 
 :global(.light-mode) {
- .input  {
-     color: black;
+  .input {
+    color: black;
   }
 }
 
@@ -104,26 +108,26 @@ $settings-width: 293px;
 
 .main-button {
   @extend .heading;
-   margin-top: 10px;
+  margin-top: 10px;
   &:hover {
     cursor: pointer;
   }
 }
 
 :global(.light-mode) {
- .main-button  {
-     color:  $light-mode-grey;
+  .main-button {
+    color: $light-mode-grey;
   }
 }
 
 .about-section {
   margin-top: 10px;
-    margin-left: 5px;
+  margin-left: 5px;
 }
 
 :global(.light-mode) {
- .about-section  {
-     color:  $light-mode-grey;
+  .about-section {
+    color: $light-mode-grey;
   }
 }
 
@@ -133,8 +137,8 @@ $settings-width: 293px;
   button {
     height: 30px;
     width: $settings-width/2;
-     border-radius: 5px;
-  margin-bottom: 8px;
+    border-radius: 5px;
+    margin-bottom: 8px;
     height: 24px;
     line-height: 4px;
   }
