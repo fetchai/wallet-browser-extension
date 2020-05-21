@@ -54,19 +54,21 @@ export const RegisterPage: FunctionComponent = observer(() => {
   const [numWords, setNumWords] = useState<NunWords>(NunWords.WORDS12);
   const [password, setPassword] = useState("");
   const [hardwareErrorMessage, setHardwareErrorMessage] = useState("");
+  const [address, setAddress] = useState("");
 
   /**
    * note: fails silently; used only to get load address early from nano so if logged in the next page loads faster
    */
-  const getAddressFromNano() = async () : Promise<string> => {
-      let msg = LedgerNanoMsg.create(METHODS.getCosmosAddress);
-
+  const getAddressFromNano = async (): Promise<string> => {
+    const msg = LedgerNanoMsg.create(METHODS.getCosmosAddress);
     const address = await sendMessage(BACKGROUND_PORT, msg);
 
-    return (typeof address.errorMessage !== "undefined") ? address.result as string : "";
-  }
+    return typeof address.errorMessage !== "undefined"
+      ? (address.result as string)
+      : "";
+  };
 
-  const RegisterThroughHardwareWallet = async () => {
+  const readyToRegisterThroughHardwareWallet = async (): Promise<boolean> => {
     let error = false;
 
     const msg = LedgerNanoMsg.create(METHODS.isSupportedVersion);
@@ -77,7 +79,7 @@ export const RegisterPage: FunctionComponent = observer(() => {
       setHardwareErrorMessage(result.errorMessage);
     }
 
-    return error ? false : true;
+    return error;
   };
 
   const intl = useIntl();
@@ -234,12 +236,10 @@ export const RegisterPage: FunctionComponent = observer(() => {
               }),
               errorMessage: hardwareErrorMessage,
               onClick: async () => {
-                const hasHardwareWallet = await RegisterThroughHardwareWallet();
+                const hasHardwareWallet = await readyToRegisterThroughHardwareWallet();
                 if (hasHardwareWallet) {
-
-                 await getAddressFromNano
-
-
+                  const cosmosAddress = await getAddressFromNano();
+                  setAddress(cosmosAddress)
                   setState(RegisterState.HARDWARE_UPLOAD);
                   setHardwareErrorMessage("");
                 }
@@ -275,7 +275,7 @@ export const RegisterPage: FunctionComponent = observer(() => {
       {keyRingStore.status === KeyRingStatus.EMPTY &&
       state === RegisterState.HARDWARE_UPLOAD ? (
         <>
-          <Hardware onRegister={registerFromHarwareWallet} />
+          <Hardware onRegister={registerFromHarwareWallet} propsAddress={address} />
           <BackButton onClick={onBackToChooseRecoverMethod} />
         </>
       ) : null}{" "}
