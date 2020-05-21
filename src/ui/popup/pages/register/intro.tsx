@@ -81,9 +81,12 @@ const BigButton: FunctionComponent<{
   onClick: () => void;
   error?: string;
 }> = ({ icon, title, content, onClick, green, error }) => {
-  const longErrorMessage = (): boolean => {
+  /**
+   * if error message cannot fit on a single line, then we have to increase spacing between buttons
+   */
+  const isMultilineErrorMessage = (): boolean => {
     const SINGLE_LINE_LENGTH: number = 60;
-    return (error || (error.length > SINGLE_LINE_LENGTH));
+    return Boolean(error && error.length > SINGLE_LINE_LENGTH);
   };
 
   return (
@@ -106,7 +109,7 @@ const BigButton: FunctionComponent<{
       <span
         className={classnames(
           styleIntro.error,
-          longErrorMessage() ? styleIntro.errorContent : ""
+          isMultilineErrorMessage() ? styleIntro.multilineError : ""
         )}
       >
         {error ? error : ""}
