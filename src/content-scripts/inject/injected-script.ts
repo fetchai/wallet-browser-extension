@@ -23,7 +23,7 @@ const Manifest = require("../../manifest.json");
 const Buffer = require("buffer/").Buffer;
 
 export class InjectedWalletProvider implements WalletProvider {
-  public readonly identifier: string = "keplr-extension";
+  public readonly identifier: string = "fetchai-extension";
   public readonly version: string = Manifest.version;
 
   /**

@@ -152,6 +152,7 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
     const [allBalance, setAllBalance] = useState(false);
 
     const onChangeAllBalance = useCallback((allBalance: boolean) => {
+        debugger;
       setAllBalance(allBalance);
     }, []);
 
