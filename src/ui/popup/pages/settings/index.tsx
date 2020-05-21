@@ -199,12 +199,12 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
       setshowDeleteConfirmation(true);
     };
 
-    const toggle = async (index: number|string): Promise<void> => {
+    const toggle = async (index: number | string): Promise<void> => {
       wipeFormErrors(true);
       // wait for the expanandables before closing for better UI
       setTimeout(setshowDeleteConfirmation.bind(null, false), 500);
       // looks very complex but very simple whereby we toggle any clicked collapsible, but is it not
-        // the clicked one we shut it.
+      // the clicked one we shut it.
       if (index === 1) {
         setcollapsible1(prev => !prev);
       } else {
@@ -212,17 +212,17 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
       }
       if (index === 2) {
         setcollapsible2(prev => !prev);
-      } else if (!(index.toString().includes("2"))) {
+      } else if (!index.toString().includes("2")) {
         setcollapsible2(false);
       }
 
-       if (index === "2a") {
+      if (index === "2a") {
         setcollapsible2a(prev => !prev);
       } else {
         setcollapsible2a(false);
       }
 
-       if (index === "2b") {
+      if (index === "2b") {
         setcollapsible2b(prev => !prev);
       } else {
         setcollapsible2b(false);
@@ -339,107 +339,124 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
           </div>
           <Expand open={collapsible2} duration={500} transitions={transitions}>
             <form id="form">
-              <h3 className={classnames(style.subHeading, style.clickable)} onClick={}>
-
+              <h3
+                className={classnames(style.subHeading, style.clickable)}
+                onClick={() => toggle("2a")}
+              >
                 {intl.formatMessage({
                   id: "settings.update-password.heading.change-password"
                 })}
               </h3>
-                 <Expand open={collapsible4} duration={500} transitions={transitions}>
-              <input
-                type="password"
-                className={`white-border ${style.input} ${
-                  passwordError ? "red" : ""
-                }`}
-                placeholder={intl.formatMessage({
-                  id: "settings.update-password.form.placeholder.original"
-                })}
-                id="password"
-                name="password"
-                value={password}
-                onChange={event => {
-                  wipeFormErrors();
-                  setPassword(event.target.value);
-                }}
-              ></input>
-              <input
-                type="password"
-                className={`white-border  ${style.input} ${
-                  newPasswordError ? "red" : ""
-                }`}
-                placeholder={intl.formatMessage({
-                  id: "settings.update-password.form.placeholder.new"
-                })}
-                id="new_password"
-                name="new_password"
-                value={newPassword}
-                onChange={event => {
-                  wipeFormErrors();
-                  setNewPassword(event.target.value);
-                }}
-              ></input>
-              <input
-                type="password"
-                className={`white-border  ${style.input} ${
-                  passwordConfirmError ? "red" : ""
-                }`}
-                placeholder={intl.formatMessage({
-                  id: "settings.update-password.form.placeholder.confirm"
-                })}
-                id="new_password_confirm"
-                name="new_password_confirm"
-                value={newPasswordConfirm}
-                onChange={event => {
-                  wipeFormErrors();
-                  setNewPasswordConfirm(event.target.value);
-                }}
-              ></input>
-              <button
-                type="submit"
-                className={`green ${style.button}`}
-                onClick={handlePasswordUpdate}
+              <Expand
+                open={collapsible2a}
+                duration={500}
+                transitions={transitions}
               >
-                Update
-              </button>
-              <output
-                className={`change_password_error ${style.output} ${
-                  hasError() ? "red" : ""
-                } `}
-                id="output"
-              >
-                {output}
-              </output>
+                <input
+                  type="password"
+                  className={`white-border ${style.input} ${
+                    passwordError ? "red" : ""
+                  }`}
+                  placeholder={intl.formatMessage({
+                    id: "settings.update-password.form.placeholder.original"
+                  })}
+                  id="password"
+                  name="password"
+                  value={password}
+                  onChange={event => {
+                    wipeFormErrors();
+                    setPassword(event.target.value);
+                  }}
+                ></input>
+                <input
+                  type="password"
+                  className={`white-border  ${style.input} ${
+                    newPasswordError ? "red" : ""
+                  }`}
+                  placeholder={intl.formatMessage({
+                    id: "settings.update-password.form.placeholder.new"
+                  })}
+                  id="new_password"
+                  name="new_password"
+                  value={newPassword}
+                  onChange={event => {
+                    wipeFormErrors();
+                    setNewPassword(event.target.value);
+                  }}
+                ></input>
+                <input
+                  type="password"
+                  className={`white-border  ${style.input} ${
+                    passwordConfirmError ? "red" : ""
+                  }`}
+                  placeholder={intl.formatMessage({
+                    id: "settings.update-password.form.placeholder.confirm"
+                  })}
+                  id="new_password_confirm"
+                  name="new_password_confirm"
+                  value={newPasswordConfirm}
+                  onChange={event => {
+                    wipeFormErrors();
+                    setNewPasswordConfirm(event.target.value);
+                  }}
+                ></input>
+                <button
+                  type="submit"
+                  className={`green ${style.button}`}
+                  onClick={handlePasswordUpdate}
+                >
+                  Update
+                </button>
+                <output
+                  className={`change_password_error ${style.output} ${
+                    hasError() ? "red" : ""
+                  } `}
+                  id="output"
+                >
+                  {output}
+                </output>
+              </Expand>
             </form>
-            <h3 className={classnames(style.subHeading, style.clickable)}>
+
+            <h3
+              className={classnames(style.subHeading, style.clickable)}
+              onClick={() => toggle("2b")}
+            >
               {" "}
               {intl.formatMessage({
                 id: "settings.update-password.heading.reset"
               })}
             </h3>
-            <div className={style.warningWrapper}>
-              <span className={style.warning}>
-                {getStorageClearanceWarningMessage()}
-              </span>
-            </div>
-            <OutsideClickHandler
-              onOutsideClick={() => {
-                setshowDeleteConfirmation(false);
-              }}
+            <Expand
+              open={collapsible2b}
+              duration={500}
+              transitions={transitions}
             >
-              <button
-                type="submit"
-                className={`blue ${style.button}`}
-                onClick={handleDelete}
+              <div className={style.warningWrapper}>
+                <span className={style.warning}>
+                  {getStorageClearanceWarningMessage()}
+                </span>
+              </div>
+              <OutsideClickHandler
+                onOutsideClick={() => {
+                  setshowDeleteConfirmation(false);
+                }}
               >
-                {showDeleteConfirmation
-                  ? intl.formatMessage({
-                      id: "settings.update-password.button.delete"
-                    })
-                  : intl.formatMessage({
-                      id: "settings.update-password.button.delete-confirm"
-                    })}
-              </button>
-            </OutsideClickHandler>
+                <button
+                  type="submit"
+                  className={`blue ${style.button}`}
+                  onClick={handleDelete}
+                >
+                  {showDeleteConfirmation
+                    ? intl.formatMessage({
+                        id: "settings.update-password.button.delete"
+                      })
+                    : intl.formatMessage({
+                        id: "settings.update-password.button.delete-confirm"
+                      })}
+                </button>
+              </OutsideClickHandler>
+            </Expand>
           </Expand>
           <div className={style.mainButton} onClick={() => toggle(3)}>
             About
