@@ -410,9 +410,7 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
                   Update
                 </button>
                 <output
-                  className={`change_password_error ${style.output} ${
-                    hasError() ? "red" : ""
-                  } `}
+                  className={classnames(style.output, hasError() ? "red" : "")}
                   id="output"
                 >
                   {output}
