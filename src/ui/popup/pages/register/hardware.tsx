@@ -178,8 +178,10 @@ export const Hardware: FunctionComponent<Props> = observer(({ onRegister }) => {
       <form id="form" className={style.recoveryForm}>
         {address.length ? (
           <>
-            <span>Address: </span>
-            <output>{address}</output>
+            <span>
+              Login using a Ledger Nano running Cosmos Application Address:{" "}
+            </span>
+            <span>{address}</span>
           </>
         ) : (
           ""

@@ -85,7 +85,7 @@ const BigButton: FunctionComponent<{
    * if error message cannot fit on a single line, then we have to increase spacing between buttons
    */
   const isMultilineErrorMessage = (): boolean => {
-    const SINGLE_LINE_LENGTH: number = 60;
+    const SINGLE_LINE_LENGTH: number = 65;
     return Boolean(error && error.length > SINGLE_LINE_LENGTH);
   };
 
