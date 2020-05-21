@@ -13,9 +13,10 @@ import { BACKGROUND_PORT } from "../../../../common/message/constant";
 
 export interface Props {
   onRegister: (publicKeyHex: string, password: string) => void;
+  propsAddress: string;
 }
 
-export const Hardware: FunctionComponent<Props> = observer(({ onRegister }) => {
+export const Hardware: FunctionComponent<Props> = observer(({ onRegister, propsAddress = "" }) => {
   let connectToHardwareWalletInterval: NodeJS.Timeout;
   let getPublicKeyFromConnectedHardwareWalletInterval: NodeJS.Timeout;
   const intl = useIntl();
@@ -25,7 +26,7 @@ export const Hardware: FunctionComponent<Props> = observer(({ onRegister }) => {
   const [passwordConfirm, setPasswordConfirm] = useState("");
   const [passwordErrorMessage, setPasswordErrorMessage] = useState("");
   const [publicKeyHex, setPublicKeyHex] = useState("");
-  const [address, setAddress] = useState("");
+  const [address, setAddress] = useState(propsAddress);
   const [
     passwordConfirmErrorMessage,
     setPasswordConfirmErrorMessage

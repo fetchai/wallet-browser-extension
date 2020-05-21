@@ -55,6 +55,17 @@ export const RegisterPage: FunctionComponent = observer(() => {
   const [password, setPassword] = useState("");
   const [hardwareErrorMessage, setHardwareErrorMessage] = useState("");
 
+  /**
+   * note: fails silently; used only to get load address early from nano so if logged in the next page loads faster
+   */
+  const getAddressFromNano() = async () : Promise<string> => {
+      let msg = LedgerNanoMsg.create(METHODS.getCosmosAddress);
+
+    const address = await sendMessage(BACKGROUND_PORT, msg);
+
+    return (typeof address.errorMessage !== "undefined") ? address.result as string : "";
+  }
+
   const RegisterThroughHardwareWallet = async () => {
     let error = false;
 
@@ -225,6 +236,10 @@ export const RegisterPage: FunctionComponent = observer(() => {
               onClick: async () => {
                 const hasHardwareWallet = await RegisterThroughHardwareWallet();
                 if (hasHardwareWallet) {
+
+                 await getAddressFromNano
+
+
                   setState(RegisterState.HARDWARE_UPLOAD);
                   setHardwareErrorMessage("");
                 }
