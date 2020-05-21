@@ -19,6 +19,7 @@ import {
 } from "../../light-mode";
 import { Button, ButtonGroup } from "reactstrap";
 import OutsideClickHandler from "react-outside-click-handler";
+import classnames from "classnames";
 
 export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
   ({ history }) => {
@@ -29,6 +30,8 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
     const [collapsible1, setcollapsible1] = useState(false);
     const [collapsible2, setcollapsible2] = useState(false);
     const [collapsible3, setcollapsible3] = useState(false);
+    const [collapsible2a, setcollapsible2a] = useState(false);
+    const [collapsible2b, setcollapsible2b] = useState(false);
     const [passwordConfirmError, setPasswordConfirmError] = useState(false);
     const [passwordError, setPasswordError] = useState(false);
     const [newPasswordError, setNewPasswordError] = useState(false);
@@ -196,11 +199,12 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
       setshowDeleteConfirmation(true);
     };
 
-    const toggle = async (index: number): Promise<void> => {
+    const toggle = async (index: number|string): Promise<void> => {
       wipeFormErrors(true);
       // wait for the expanandables before closing for better UI
       setTimeout(setshowDeleteConfirmation.bind(null, false), 500);
-      // shut the two collapsibles that are not being used.
+      // looks very complex but very simple whereby we toggle any clicked collapsible, but is it not
+        // the clicked one we shut it.
       if (index === 1) {
         setcollapsible1(prev => !prev);
       } else {
@@ -208,8 +212,20 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
       }
       if (index === 2) {
         setcollapsible2(prev => !prev);
-      } else {
+      } else if (!(index.toString().includes("2"))) {
         setcollapsible2(false);
+      }
+
+       if (index === "2a") {
+        setcollapsible2a(prev => !prev);
+      } else {
+        setcollapsible2a(false);
+      }
+
+       if (index === "2b") {
+        setcollapsible2b(prev => !prev);
+      } else {
+        setcollapsible2b(false);
       }
 
       if (index === 3) {
@@ -323,11 +339,13 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
           </div>
           <Expand open={collapsible2} duration={500} transitions={transitions}>
             <form id="form">
-              <h3 className={style.subHeading}>
+              <h3 className={classnames(style.subHeading, style.clickable)} onClick={}>
+
                 {intl.formatMessage({
                   id: "settings.update-password.heading.change-password"
                 })}
               </h3>
+                 <Expand open={collapsible4} duration={500} transitions={transitions}>
               <input
                 type="password"
                 className={`white-border ${style.input} ${
@@ -392,7 +410,7 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
                 {output}
               </output>
             </form>
-            <h3 className={style.subHeading}>
+            <h3 className={classnames(style.subHeading, style.clickable)}>
               {" "}
               {intl.formatMessage({
                 id: "settings.update-password.heading.reset"

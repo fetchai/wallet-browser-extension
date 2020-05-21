@@ -40,6 +40,12 @@ $settings-width: 293px;
   font-size: 14px;
 }
 
+.clickable {
+ &:hover {
+    cursor: pointer;
+  }
+}
+
 .wrapper {
   background-color: rgba(255, 255, 255, 0.05);
   padding: 10px;
