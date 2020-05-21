@@ -1,6 +1,4 @@
 import Axios, { AxiosRequestConfig, CancelToken } from "axios";
-import { Coin } from "@everett-protocol/cosmosjs/common/coin";
-// import { BaseAccount } from "@everett-protocol/cosmosjs/common/baseAccount";
 import { AccountData, BaseAccountConstructor } from "./types";
 
 /**
