@@ -81,6 +81,11 @@ const BigButton: FunctionComponent<{
   onClick: () => void;
   error?: string;
 }> = ({ icon, title, content, onClick, green, error }) => {
+  const longErrorMessage = (): boolean => {
+    const SINGLE_LINE_LENGTH: number = 60;
+    return (error || (error.length > SINGLE_LINE_LENGTH));
+  };
+
   return (
     <>
       <div
@@ -98,7 +103,14 @@ const BigButton: FunctionComponent<{
           <i className="fas fa-angle-right" />
         </span>
       </div>
-      <span className={classnames(styleIntro.error, error ? styleIntro.errorContent : "")}>{error ? error : ""}</span>
+      <span
+        className={classnames(
+          styleIntro.error,
+          longErrorMessage() ? styleIntro.errorContent : ""
+        )}
+      >
+        {error ? error : ""}
+      </span>
     </>
   );
 };

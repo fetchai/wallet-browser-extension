@@ -322,6 +322,11 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
               }
 
               handleSubmit(async (data: FormData) => {
+                if (data.amount.toString().includes(".")) {
+                  window.alert("testnet does not support decimals");
+                  return;
+                }
+
                 const coin = CoinUtils.getCoinFromDecimals(data.amount, denom);
                 await useBech32ConfigPromise(
                   chainStore.chainInfo.bech32Config,
