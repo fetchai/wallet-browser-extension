@@ -17,7 +17,12 @@ import { queryAccount } from "@everett-protocol/cosmosjs/core/query";
 import { RootStore } from "../root";
 
 import Axios, { CancelTokenSource } from "axios";
-import { AutoFetchingAssetsInterval } from "../../../../config";
+import {
+  AutoFetchingAssetsInterval,
+  COSMOS_SDK_VERSION
+} from "../../../../config";
+import { CoinUtils } from "../../../../common/coin-utils";
+import { GetBalanceMsg } from "../../../../background/api";
 
 export class AccountStore {
   @observable
@@ -177,19 +182,28 @@ export class AccountStore {
 
     this.isAssetFetching = true;
 
-    try {
-      const account = await task(
-        queryAccount(
-          this.chainInfo.bech32Config,
-          Axios.create({
-            baseURL: this.chainInfo.rpc,
-            cancelToken: this.lastFetchingCancleToken.token
-          }),
-          this.bech32Address
-        )
-      );
+    const msg = GetBalanceMsg.create(this.chainInfo.rest, this.bech32Address);
 
-      this.assets = account.getCoins();
+    try {
+      if (COSMOS_SDK_VERSION > 37) {
+        let coins = (await task(await sendMessage(BACKGROUND_PORT, msg))).coins;
+        coins = CoinUtils.convertCoinsFromMinimalDenomAmount(coins);
+        this.assets = coins;
+      } else {
+        const account = await task(
+          queryAccount(
+            this.chainInfo.bech32Config,
+            Axios.create({
+              baseURL: this.chainInfo.rpc,
+              cancelToken: this.lastFetchingCancleToken.token
+            }),
+            this.bech32Address
+          )
+        );
+        debugger;
+        this.assets = account.getCoins();
+      }
+
       this.lastAssetFetchingError = undefined;
       // Save the assets to storage.
       await task(this.saveAssetsToStorage(this.bech32Address, this.assets));

@@ -125,8 +125,8 @@ $input-height: 46px;
   display: block;
   margin-bottom: 5px;
 
-  ::after {
-    top: 376px;
+  &::after {
+    top: 376px !important;
   }
 }
 

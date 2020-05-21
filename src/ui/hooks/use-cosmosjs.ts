@@ -13,7 +13,10 @@ import * as Gov from "@everett-protocol/cosmosjs/x/gov";
 import { Rest } from "@everett-protocol/cosmosjs/core/rest";
 import { useCallback, useEffect, useState } from "react";
 import { Msg } from "@everett-protocol/cosmosjs/core/tx";
-import {TxBuilder, TxBuilderConfig} from "@everett-protocol/cosmosjs/core/txBuilder";
+import {
+  TxBuilder,
+  TxBuilderConfig
+} from "@everett-protocol/cosmosjs/core/txBuilder";
 import { Api } from "@everett-protocol/cosmosjs/core/api";
 import { defaultTxEncoder } from "@everett-protocol/cosmosjs/common/stdTx";
 import { stdTxBuilder } from "@everett-protocol/cosmosjs/common/stdTxBuilder";
@@ -23,6 +26,8 @@ import { BACKGROUND_PORT } from "../../common/message/constant";
 import { QueryAccountMsg } from "../../background/api";
 import { BaseAccount } from "@everett-protocol/cosmosjs/common/baseAccount";
 import { registerPeggyCodecs } from "../popup/pages/send/transfer-msg";
+import { queryAccount } from "@everett-protocol/cosmosjs/core/query";
+import { COSMOS_SDK_VERSION } from "../../config";
 
 const Buffer = require("buffer/").Buffer;
 
@@ -101,20 +106,31 @@ export const useCosmosJS = <R extends Rest = Rest>(
         txEncoder: defaultTxEncoder,
         txBuilder: stdTxBuilder,
         restFactory: memorizedRestFactory,
-        queryAccount: async context => {
-          const keys = await walletProvider.getKeys(context);
-          const bech32Address = keys[0].bech32Address;
+        queryAccount: async (
+          context: Context,
+          address: string | Uint8Array
+        ): Promise<BaseAccount> => {
+          if (COSMOS_SDK_VERSION > 37) {
+            const keys = await walletProvider.getKeys(context);
+            const bech32Address = keys[0].bech32Address;
 
-          const queryAccountMsg = QueryAccountMsg.create(
-            chainInfo.rest,
-            bech32Address
-          );
-          const baseAccountJson = await sendMessage(
-            BACKGROUND_PORT,
-            queryAccountMsg
-          );
+            const queryAccountMsg = QueryAccountMsg.create(
+              chainInfo.rest,
+              bech32Address
+            );
+            const baseAccountJson = await sendMessage(
+              BACKGROUND_PORT,
+              queryAccountMsg
+            );
 
-          return BaseAccount.fromJSON(baseAccountJson);
+            return BaseAccount.fromJSON(baseAccountJson);
+          } else {
+            return queryAccount(
+              context.get("bech32Config"),
+              context.get("rpcInstance"),
+              address
+            );
+          }
         },
         bech32Config: chainInfo.bech32Config,
         bip44: chainInfo.bip44,
