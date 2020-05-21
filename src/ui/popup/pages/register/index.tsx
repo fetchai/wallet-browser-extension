@@ -54,7 +54,7 @@ export const RegisterPage: FunctionComponent = observer(() => {
   const [numWords, setNumWords] = useState<NunWords>(NunWords.WORDS12);
   const [password, setPassword] = useState("");
   const [hardwareErrorMessage, setHardwareErrorMessage] = useState("");
-  const [address, setAddress] = useState("");
+  const [address, setAddress] = useState("22");
 
   /**
    * note: fails silently; used only to get load address early from nano so if logged in the next page loads faster
@@ -63,7 +63,7 @@ export const RegisterPage: FunctionComponent = observer(() => {
     const msg = LedgerNanoMsg.create(METHODS.getCosmosAddress);
     const address = await sendMessage(BACKGROUND_PORT, msg);
 
-    return typeof address.errorMessage !== "undefined"
+    return typeof address.errorMessage === "undefined"
       ? (address.result as string)
       : "";
   };
@@ -79,7 +79,7 @@ export const RegisterPage: FunctionComponent = observer(() => {
       setHardwareErrorMessage(result.errorMessage);
     }
 
-    return error;
+    return !error;
   };
 
   const intl = useIntl();
@@ -238,8 +238,9 @@ export const RegisterPage: FunctionComponent = observer(() => {
               onClick: async () => {
                 const hasHardwareWallet = await readyToRegisterThroughHardwareWallet();
                 if (hasHardwareWallet) {
+                  debugger;
                   const cosmosAddress = await getAddressFromNano();
-                  setAddress(cosmosAddress)
+                  setAddress(cosmosAddress);
                   setState(RegisterState.HARDWARE_UPLOAD);
                   setHardwareErrorMessage("");
                 }
@@ -275,7 +276,10 @@ export const RegisterPage: FunctionComponent = observer(() => {
       {keyRingStore.status === KeyRingStatus.EMPTY &&
       state === RegisterState.HARDWARE_UPLOAD ? (
         <>
-          <Hardware onRegister={registerFromHarwareWallet} propsAddress={address} />
+          <Hardware
+            onRegister={registerFromHarwareWallet}
+            propsAddress={address}
+          />
           <BackButton onClick={onBackToChooseRecoverMethod} />
         </>
       ) : null}{" "}

@@ -68,7 +68,7 @@ $input-height: 46px;
 
 .recovery-form {
   display: block;
-  margin-bottom: 15px;
+  margin-bottom: 25px;
 
 
   .hardwareSubheading {
@@ -76,6 +76,7 @@ $input-height: 46px;
     font-size: 14px;
     padding-bottom: 10px;
     padding-top: 15px;
+    font-weight:bold;
 }
 
   .address {
@@ -88,7 +89,7 @@ $input-height: 46px;
     border-color: white;
     font-family: "Sol Pro Regular" !important;
     font-weight:bold;
-
+        margin-bottom: 20px;
     span {
          position: relative;
     top: 20px;
@@ -124,7 +125,7 @@ $input-height: 46px;
 }
 
 .output {
-  height: 30px;
+  height: 20px;
   display:block;
 }
 
@@ -179,4 +180,10 @@ $input-height: 46px;
 
 .error {
   color: red;
+  display:block;
+  margin-right: 5px;
+}
+
+.hardwareTitle {
+  font-weight: bold;
 }
