@@ -7,9 +7,11 @@ const CLASS_NAME = "light-mode";
 export const STORAGE_KEY = "light-mode";
 import React from "react";
 import classnames from "classnames";
+import { BrowserKVStore } from "../../common/kvstore";
 
 type State = {
-  lightMode: boolean;
+  lightMode?: boolean;
+  store: BrowserKVStore;
 };
 
 type Props = {};
@@ -17,23 +19,24 @@ type Props = {};
 class LightMode extends React.Component<Props, State> {
   constructor(props: any) {
     super(props);
+    const store = new BrowserKVStore("");
+
+    this.state = {
+      store: store
+    };
   }
 
-  componentDidMount(): void {
+ async componentDidMount(): void {
     // set light mode status from local storage
-    browser.storage.sync.get(STORAGE_KEY, result => {
-      let mode = result[STORAGE_KEY];
+   const result = await this.state.store.get(STORAGE_KEY)
+
+      let mode = (typeof result !== "undefined")? result[STORAGE_KEY] : false;
       mode = validJSONString(mode) ? Boolean(JSON.parse(mode)) : false;
       this.setState({
         lightMode: mode
       });
       setBackgroundImage(mode);
-    });
   }
-
-  public readonly state: State = {
-    lightMode: false
-  };
 
   render() {
     return (
@@ -48,49 +51,25 @@ class LightMode extends React.Component<Props, State> {
 }
 
 const setBackgroundImage = (light: boolean) => {
-
   if (light) {
     document
       .getElementsByTagName("HTML")[0]
       .setAttribute("style", "background-image: none");
   } else {
     const posElem = document.getElementsByTagName("HTML")[0];
-
-    debugger;
-
-    let newBack = "pink"
-
-var newStyle = 'background: ' + newBack + ';'
-     posElem.style.cssText = newStyle;
-
-
-// if(typeof(posElem.style.cssText) != 'undefined') {
-//     posElem.style.cssText = newStyle;
-// } else {
-//     posElem.setAttribute('style', newStyle);
-// }
-    //
-    // document
-    //   .getElementsByTagName("HTML")[0].
-    //     .style.backgroundImage = "green";
-      // .value(
-      //   "style",
-      //   "background-image: green"
-      // );
+    posElem.style.cssText = "background: linear-gradient(to top, #0d0d0d, #1e2844);";
   }
-
-  // document.body.style.backgroundImage = light
-  //   ? "none"
-  //   : "linear-gradient(to top, red, #1e2844)";
 };
 
 const lightModeEnabled = async (): Promise<boolean> => {
+
+   const store = new BrowserKVStore("")
+
   return new Promise(resolve =>
-    browser.storage.sync.get(STORAGE_KEY, result => {
-      if (typeof result[STORAGE_KEY] === "undefined") resolve(false);
+    store.get(STORAGE_KEY).then((result: any) => {
+      if (typeof result === "undefined" || typeof result[STORAGE_KEY] === "undefined") resolve(false);
       else resolve(Boolean(JSON.parse(result[STORAGE_KEY])));
     })
-  );
 };
 
 function setLightMode(light: boolean, save = true) {
