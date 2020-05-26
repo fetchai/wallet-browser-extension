@@ -193,7 +193,7 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
     const handleDelete = async () => {
       if (showDeleteConfirmation) {
         await keyRingStore.clear();
-        chrome.storage.sync.remove(STORAGE_KEY);
+        browser.storage.sync.remove(STORAGE_KEY);
         history.goBack();
       }
       setshowDeleteConfirmation(true);

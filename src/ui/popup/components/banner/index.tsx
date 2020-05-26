@@ -18,7 +18,7 @@ export const Banner: FunctionComponent<Props> = ({ logo, subtitle }) => {
         loop={true}
       >
         <source
-          src={chrome.runtime.getURL("/assets/" + "welcome.mp4")}
+          src={browser.runtime.getURL("/assets/" + "welcome.mp4")}
           type={"video/mp4"}
         ></source>
       </video>

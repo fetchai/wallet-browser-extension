@@ -21,7 +21,7 @@ class LightMode extends React.Component<Props, State> {
 
   componentDidMount(): void {
     // set light mode status from local storage
-    chrome.storage.sync.get(STORAGE_KEY, result => {
+    browser.storage.sync.get(STORAGE_KEY, result => {
       let mode = result[STORAGE_KEY];
       mode = validJSONString(mode) ? Boolean(JSON.parse(mode)) : false;
       this.setState({
@@ -54,12 +54,29 @@ const setBackgroundImage = (light: boolean) => {
       .getElementsByTagName("HTML")[0]
       .setAttribute("style", "background-image: none");
   } else {
-    document
-      .getElementsByTagName("HTML")[0]
-      .setAttribute(
-        "style",
-        "background-image: linear-gradient(to top,  #0d0d0d, #1e2844)"
-      );
+    const posElem = document.getElementsByTagName("HTML")[0];
+
+    debugger;
+
+    let newBack = "pink"
+
+var newStyle = 'background: ' + newBack + ';'
+     posElem.style.cssText = newStyle;
+
+
+// if(typeof(posElem.style.cssText) != 'undefined') {
+//     posElem.style.cssText = newStyle;
+// } else {
+//     posElem.setAttribute('style', newStyle);
+// }
+    //
+    // document
+    //   .getElementsByTagName("HTML")[0].
+    //     .style.backgroundImage = "green";
+      // .value(
+      //   "style",
+      //   "background-image: green"
+      // );
   }
 
   // document.body.style.backgroundImage = light
@@ -69,7 +86,7 @@ const setBackgroundImage = (light: boolean) => {
 
 const lightModeEnabled = async (): Promise<boolean> => {
   return new Promise(resolve =>
-    chrome.storage.sync.get(STORAGE_KEY, result => {
+    browser.storage.sync.get(STORAGE_KEY, result => {
       if (typeof result[STORAGE_KEY] === "undefined") resolve(false);
       else resolve(Boolean(JSON.parse(result[STORAGE_KEY])));
     })
@@ -86,7 +103,7 @@ function setLightMode(light: boolean, save = true) {
   }
 
   if (save) {
-    chrome.storage.sync.set({ [STORAGE_KEY]: light });
+    browser.storage.sync.set({ [STORAGE_KEY]: light });
   }
 }
 

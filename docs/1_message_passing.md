@@ -32,7 +32,7 @@ abstract class Message<R> {
   /**
    * Ask for approval if message is sent externally.
    */
-  approveExternal(sender: chrome.runtime.MessageSender): boolean {
+  approveExternal(sender: browser.runtime.MessageSender): boolean {
     if (!sender.url) {
       return false;
     }
@@ -40,6 +40,8 @@ abstract class Message<R> {
     if (url.origin !== `chrome-extension://${chrome.runtime.id}`) {
       return false;
     }
+    //todo add the firefox equiavlent of the above statement
+    
     return sender.id === chrome.runtime.id;
   }
 }
