@@ -24,14 +24,14 @@
 
 :global(.light-mode) {
   .tabs {
-     ul {
-      //color:  $light-mode-grey !important;
-  }
-
     ul > &:global(.active) {
-        color:  $light-mode-grey !important;
+      color: $light-mode-grey !important;
+    }
+
+  li &:global(.active) {
+      color: $light-mode-grey !important;
       }
-  }
+}
 }
 
   .tab {
@@ -58,10 +58,6 @@
   height: 400px;
   overflow: auto;
 }
-
-//.custom-scrollbar::-webkit-scrollbar  {
-//     display: none;
-//}
 
 .custom-scrollbar::-webkit-scrollbar {
     width: 10px;

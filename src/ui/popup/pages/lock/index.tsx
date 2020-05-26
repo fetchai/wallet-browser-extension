@@ -61,7 +61,7 @@ export const LockPage: FunctionComponent<Pick<
 
   const { register, handleSubmit, setError, errors } = useForm<FormData>({
     defaultValues: {
-      password: "Password!12345"
+      password: ""
     }
   });
 
@@ -89,9 +89,9 @@ export const LockPage: FunctionComponent<Pick<
           setLoading(true);
           let status;
           try {
-            // status = await keyRingStore.unlock(data.password);
-            const passwordForDevelopmentOnly = "Password!12345";
-            status = await keyRingStore.unlock(passwordForDevelopmentOnly);
+             status = await keyRingStore.unlock(data.password);
+            // const passwordForDevelopmentOnly = "Password!12345";
+            // status = await keyRingStore.unlock(passwordForDevelopmentOnly);
             if (external) {
               window.close();
             }
