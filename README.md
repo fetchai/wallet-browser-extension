@@ -47,18 +47,19 @@ npm run dev
 ```
 
 
-### to run with hardware wallet you must install cosmos app as per instructions
+### To run with hardware wallet you must install Cosmos app as per instructions below
 
-I have limited it during development to require cosmos app version 2> which can be installed as follows
+###  I have limited it during development to require cosmos app version 2> which can be installed as follows
 
 Steps to install the version:
-• open Ledger Live
-• connect your Ledger
-• go to settings (top right icon)
-• go to "Experimental features"
-• activate "Manage Providers" and set it to number 4
-• go to "Manager" to install apps
-• look for the Cosmos App
-• You should now see the version 2.2.2
-• install that version on your Ledger Nano S
+
+- open Ledger Live
+- connect your Ledger
+- go to settings (top right icon)
+- go to "Experimental features"
+- activate "Manage Providers" and set it to number 4
+- go to "Manager" to install apps
+- look for the Cosmos App
+- You should now see the version 2.2.2
+- install that version on your Ledger Nano S or X
 
