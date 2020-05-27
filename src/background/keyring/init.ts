@@ -18,11 +18,13 @@ import {
   ApproveSignMsg,
   RejectSignMsg,
   GetRegisteredChainMsg,
+  GetKeyRingStatusMsg,
   LockKeyRingMsg,
   ClearKeyRingMsg,
   RequestTxBuilderConfigMsg,
   GetRequestedTxBuilderConfigMsg,
-  GetKeyFileMsg, IsHardwareLinkedMsg
+  GetKeyFileMsg,
+  IsHardwareLinkedMsg
 } from "./messages";
 import { ROUTE } from "./constants";
 import { getHandler } from "./handler";
@@ -34,6 +36,7 @@ export function init(
 ): void {
   messageManager.registerMessage(EnableKeyRingMsg);
   messageManager.registerMessage(GetRegisteredChainMsg);
+  messageManager.registerMessage(GetKeyRingStatusMsg);
   messageManager.registerMessage(RestoreKeyRingMsg);
   messageManager.registerMessage(SaveKeyRingMsg);
   messageManager.registerMessage(ClearKeyRingMsg);

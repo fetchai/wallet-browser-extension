@@ -16,7 +16,7 @@ import {
   UpdatePasswordMsg,
   GetKeyFileMsg,
   CreateHardwareKeyMsg,
-  IsHardwareLinkedMsg
+  IsHardwareLinkedMsg, GetRegisteredChainMsg, GetKeyRingStatusMsg
 } from "../../../../background/keyring";
 
 import { action, observable } from "mobx";
@@ -161,5 +161,14 @@ export class KeyRingStore {
   public async isHardwareLinked(): Promise<boolean> {
     const msg = IsHardwareLinkedMsg.create();
     return (await task(sendMessage(BACKGROUND_PORT, msg))).result;
+  }
+
+  /**
+   * get status of keyring
+   */
+  @actionAsync
+  public async GetKeyRingStatus(): Promise<KeyRingStatus> {
+    const msg = GetKeyRingStatusMsg.create();
+    return (await task(sendMessage(BACKGROUND_PORT, msg))).keyRingStatus;
   }
 }

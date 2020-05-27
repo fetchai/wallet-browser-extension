@@ -68,14 +68,11 @@ export class KeyRingKeeper {
       return this.keyRing.status;
     }
 
-
-
     return this.keyRing.status;
   }
 
-
   getKeyRingStatus(): KeyRingStatus {
-    return  return this.keyRing.status;
+    return  this.keyRing.status;
   }
 
   getRegisteredChains(): ChainInfo[] {

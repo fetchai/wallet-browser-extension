@@ -10,7 +10,10 @@ import classnames from "classnames";
 import { BrowserKVStore } from "../../common/kvstore";
 import {useStore} from "./stores";
 import {useIntl} from "react-intl";
-import {KeyRingStatus} from "../../background/keyring";
+import {GetKeyRingStatusMsg, KeyRingStatus} from "../../background/keyring";
+import {task} from "mobx-utils";
+import {sendMessage} from "../../common/message/send";
+import {BACKGROUND_PORT} from "../../common/message/constant";
 
 type State = {
   lightMode?: boolean;
@@ -40,8 +43,11 @@ class LightMode extends React.Component<Props, State> {
 
       // if they are not logged in then they are in the register flow, so we can use that to determine
 
-     const { keyRingStore } = useStore();
-    const loggedIn = Boolean(keyRingStore.status === KeyRingStatus.UNLOCKED)
+     const msg =  GetKeyRingStatusMsg.create();
+    const status =  await sendMessage(BACKGROUND_PORT, msg)
+
+
+    const loggedIn = Boolean(status.keyRingStatus === KeyRingStatus.UNLOCKED)
       setBackgroundImage(mode, loggedIn);
   }
 

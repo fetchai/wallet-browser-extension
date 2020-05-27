@@ -65,7 +65,7 @@ export class EnableKeyRingMsg extends Message<{
 
 export class GetRegisteredChainMsg extends Message<{
   // Need to set prototype for elements of array manually.
-  keyRingStatus: KeyRingStatus;
+  chainInfos: ChainInfo[];
 }> {
   public static type() {
     return "get-registered-chain-infos";
@@ -90,7 +90,7 @@ export class GetRegisteredChainMsg extends Message<{
 
 export class GetKeyRingStatusMsg extends Message<{
   // Need to set prototype for elements of array manually.
-  chainInfos: ChainInfo[];
+    keyRingStatus: KeyRingStatus;
 }> {
   public static type() {
     return "get-key-ring-status";

@@ -12,6 +12,7 @@ import {
   RejectSignMsg,
   GetRequestedMessage,
   GetRegisteredChainMsg,
+  GetKeyRingStatusMsg,
   LockKeyRingMsg,
   ClearKeyRingMsg,
   RequestTxBuilderConfigMsg,
@@ -23,7 +24,8 @@ import {
   GetKeyFileMsg,
   GetMneumonicMsg,
   CreateHardwareKeyMsg,
-  IsHardwareLinkedMsg
+  IsHardwareLinkedMsg,
+  GetKeyRingStatusMsg
 } from "./messages";
 import { KeyRingKeeper } from "./keeper";
 import { Address } from "@everett-protocol/cosmosjs/crypto";
@@ -41,6 +43,8 @@ export const getHandler: (keeper: KeyRingKeeper) => Handler = (
         return handleGetRegisteredChainMsg(keeper)(
           msg as GetRegisteredChainMsg
         );
+      case GetKeyRingStatusMsg:
+        return handleGetKeyRingStatusMsg(keeper)(msg as GetKeyRingStatusMsg);
       case RestoreKeyRingMsg:
         return handleRestoreKeyRingMsg(keeper)(msg as RestoreKeyRingMsg);
       case SaveKeyRingMsg:
@@ -121,6 +125,16 @@ const handleGetRegisteredChainMsg: (
   return () => {
     return {
       chainInfos: keeper.getRegisteredChains()
+    };
+  };
+};
+
+const handleGetKeyRingStatusMsg: (
+  keeper: KeyRingKeeper
+) => InternalHandler<GetKeyRingStatusMsg> = keeper => {
+  return () => {
+    return {
+      keyRingStatus: keeper.getKeyRingStatus()
     };
   };
 };
