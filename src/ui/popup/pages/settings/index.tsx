@@ -295,7 +295,7 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
                 className={lightMode ? style.pill : ""}
                 onClick={() => {
                   setLightMode(true);
-                  setLightModeModule(true);
+                  setLightModeModule(true, true);
                 }}
               >
                 <FormattedMessage id="settings.light-mode.pill.light" />
@@ -306,7 +306,7 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
                 className={lightMode ? "" : style.pill}
                 onClick={() => {
                   setLightMode(false);
-                  setLightModeModule(false);
+                  setLightModeModule(false, true, true);
                 }}
               >
                 <FormattedMessage id="settings.light-mode.pill.dark" />

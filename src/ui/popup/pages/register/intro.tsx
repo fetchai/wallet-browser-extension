@@ -19,7 +19,7 @@ export const IntroInPage: FunctionComponent<{
 }> = props => {
   useEffect(() => {
     // no light-mode from signup.
-    setLightMode(false, true);
+    setLightMode(false, false, true);
   }, []);
 
   const [middleButtonErrorMessage, setMiddleButtonErrorMessage] = useState("");

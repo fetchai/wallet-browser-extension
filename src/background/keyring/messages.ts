@@ -65,7 +65,7 @@ export class EnableKeyRingMsg extends Message<{
 
 export class GetRegisteredChainMsg extends Message<{
   // Need to set prototype for elements of array manually.
-  chainInfos: ChainInfo[];
+  keyRingStatus: KeyRingStatus;
 }> {
   public static type() {
     return "get-registered-chain-infos";
@@ -84,6 +84,31 @@ export class GetRegisteredChainMsg extends Message<{
 
   type(): string {
     return GetRegisteredChainMsg.type();
+  }
+}
+
+
+export class GetKeyRingStatusMsg extends Message<{
+  // Need to set prototype for elements of array manually.
+  chainInfos: ChainInfo[];
+}> {
+  public static type() {
+    return "get-key-ring-status";
+  }
+
+  public static create(): GetKeyRingStatusMsg {
+    return new GetKeyRingStatusMsg();
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  validateBasic(): void {}
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return GetKeyRingStatusMsg.type();
   }
 }
 

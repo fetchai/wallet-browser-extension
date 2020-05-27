@@ -35,7 +35,7 @@ export const LockPage: FunctionComponent<Pick<
 
   // ignore light-mode when lock page mounted.
   useEffect(() => {
-    setLightMode(false, false);
+    setLightMode(false, true, false);
   }, []);
 
   // reset light mode from storage when lock page unmounted
@@ -43,7 +43,7 @@ export const LockPage: FunctionComponent<Pick<
     () => () => {
       const revertLightMode = async () => {
         const enabled = await lightModeEnabled();
-        await setLightMode(enabled, false);
+        await setLightMode(enabled, true, false);
       };
       revertLightMode();
     },
