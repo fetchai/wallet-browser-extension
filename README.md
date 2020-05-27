@@ -46,6 +46,10 @@ to your chosen currency name eg stake
 npm run dev
 ```
 
+### Run on Firefox
+
+Navigate in Firefox to "about:debugging#/setup" then click "this firefox" then click "load temporary addon" then select 
+.manifest file in dist directory.  It should fully work in Firefox. 
 
 ### To run with hardware wallet you must install Cosmos app as per instructions below
 
