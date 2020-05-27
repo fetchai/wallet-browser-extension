@@ -16,7 +16,7 @@ interface ScryptParams {
  * This is similar to ethereum's key store.
  * But, the encryped data is not the private key, but the mnemonic words.
  */
-export interface KeyStore {
+export interface EncryptedKeyStructure {
   version: string;
   crypto: {
     cipher: "aes-128-ctr";

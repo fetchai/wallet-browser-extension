@@ -1,4 +1,4 @@
-import { Crypto, HardwareStore, KeyStore } from "./crypto";
+import { Crypto, HardwareStore, EncryptedKeyStructure } from "./crypto";
 import { generateWalletFromMnemonic } from "@everett-protocol/cosmosjs/utils/key";
 import { PrivKey, PubKeySecp256k1 } from "@everett-protocol/cosmosjs/crypto";
 import { KVStore } from "../../common/kvstore";
@@ -33,11 +33,16 @@ export class KeyRing {
 
   private _mnemonic: string;
 
-  private _keyStore: KeyStore | null;
+   private _keyStore: EncryptedKeyStructure | null;
 
-  public _hardwareStore: HardwareStore | null;
+  private keys:
 
-  private _publicKeyHex: string;
+  // public _hardwareStore: HardwareStore | null;
+
+  // in the wallet we have one active address at any time, the one for which data is shown.
+  public activeAddress: string | null;
+
+  // private _publicKeyHex: string;
 
   constructor(private readonly kvStore: KVStore) {
     this.loaded = false;
@@ -56,7 +61,7 @@ export class KeyRing {
     this.cached = new Map();
   }
 
-  public get keyStore(): KeyStore | null {
+  public get keyStore(): EncryptedKeyStructure | null {
     return this._keyStore;
   }
 
@@ -168,7 +173,7 @@ export class KeyRing {
 
   public async getMneumonic(
     password: string,
-    keyFile: KeyStore
+    keyFile: EncryptedKeyStructure
   ): Promise<string | false> {
     // If password is invalid, error will be thrown.
     // verify password is correct before using this.
@@ -184,11 +189,8 @@ export class KeyRing {
 
   public async verifyPassword(
     password: string,
-    keyFile: KeyStore | null = null
+    keyFile: EncryptedKeyStructure | null = null
   ): Promise<boolean> {
-    if (keyFile !== null && this._hardwareStore) {
-      throw new Error("keyfile cannot exist with hardware-associated wallet");
-    }
     // if it is hardware-assiciated wallet we unlock it this way.
     if (this.isAHardwareAssociatedWallet()) {
       return await this.unlockHardwareWallet(password);
@@ -201,7 +203,7 @@ export class KeyRing {
     try {
       // If password is invalid, error will be thrown.
       this.mnemonic = Buffer.from(
-        await Crypto.decrypt(k as KeyStore, password)
+        await Crypto.decrypt(k as EncryptedKeyStructure, password)
       ).toString();
       return true;
     } catch (error) {
@@ -230,11 +232,11 @@ export class KeyRing {
   }
 
   public async save() {
-    await this.kvStore.set<KeyStore>(KeyStoreKey, this._keyStore);
-    await this.kvStore.set<HardwareStore>(
-      HardwareStoreKey,
-      this._hardwareStore
-    );
+    // await this.kvStore.set<KeyStore>(KeyStoreKey, this._keyStore);
+    // await this.kvStore.set<HardwareStore>(
+    //   HardwareStoreKey,
+    //   this._hardwareStore
+    // );
   }
 
   public async restore() {
@@ -244,7 +246,7 @@ export class KeyRing {
   }
 
   private async restoreRegularWallet() {
-    const keyStore = await this.kvStore.get<KeyStore>(KeyStoreKey);
+    const keyStore = await this.kvStore.get<EncryptedKeyStructure>(KeyStoreKey);
     if (!keyStore) {
       this._keyStore = null;
     } else {
