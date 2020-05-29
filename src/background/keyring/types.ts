@@ -1,5 +1,7 @@
-import {EncryptedKeyStructure} from "./crypto";
-import {PrivKey} from "@everett-protocol/cosmosjs/crypto";
+import { EncryptedKeyStructure } from "./crypto";
+import { PrivKey } from "@everett-protocol/cosmosjs/crypto";
+
+export type WalletTuple = [boolean, string | null];
 
 export interface TxBuilderConfigPrimitive {
   accountNumber?: string; // bigInteger.BigNumber;
@@ -11,18 +13,27 @@ export interface TxBuilderConfigPrimitive {
   gasPrice?: number;
 }
 
-export interface AddressBookItem {
-    address: number;
-    encryptedKeyStructure?: EncryptedKeyStructure;
-    publicKeyHex: string;
-    privateKey?: PrivKey;
-    hdWallet: boolean;
-    mneumonicAssociated: boolean;
+export interface RegularAddressItem {
+  address: number;
+  encryptedKeyStructure: EncryptedKeyStructure;
+  privateKey?: PrivKey;
+  mneumonic?: string;
+  hdWallet: false;
 }
 
-export interface AddressBook extends Array<AddressBookItem>{}
+export interface HardwareAddressItem {
+  address: number;
+  publicKeyHex: string;
+  hash: string;
+  hdWallet: true;
+}
 
-
+/**
+ * all addresses are either regular or hardware keys, and the hdwallet flag is used to determine which of these two types it is at runtime.
+ *
+ */
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface AddressBook extends Array<HardwareAddressItem | RegularAddressItem>{}
 
 export interface TxBuilderConfigPrimitiveWithChainId
   extends TxBuilderConfigPrimitive {

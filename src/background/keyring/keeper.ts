@@ -72,7 +72,7 @@ export class KeyRingKeeper {
   }
 
   getKeyRingStatus(): KeyRingStatus {
-    return  this.keyRing.status;
+    return this.keyRing.status;
   }
 
   getRegisteredChains(): ChainInfo[] {
@@ -186,14 +186,17 @@ export class KeyRingKeeper {
     password: string,
     keyFile: KeyStore | null = null
   ): Promise<boolean> {
-    return await this.keyRing.verifyPassword(password, keyFile);
+    const [res, ] = await this.keyRing.decryptKeyFile(password, keyFile);
+    return res;
   }
 
-  async getMneumonicgMsg(
+  async makeMneumonicgMsg(
     password: string,
     keyFile: KeyStore
   ): Promise<string | false> {
-    return await this.keyRing.getMneumonic(password, keyFile);
+    //todo check the change of negative return from false to null doesn't cause bug
+    const [, res] = await this.keyRing.decryptKeyFile(password, keyFile);
+    return res;
   }
 
   async updatePassword(password: string, newPassword: string) {

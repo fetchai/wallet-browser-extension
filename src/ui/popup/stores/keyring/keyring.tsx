@@ -12,7 +12,7 @@ import {
   LockKeyRingMsg,
   ClearKeyRingMsg,
   VerifyPasswordKeyRingMsg,
-  GetMneumonicMsg,
+  makeMneumonicMsg,
   UpdatePasswordMsg,
   GetKeyFileMsg,
   CreateHardwareKeyMsg,
@@ -111,7 +111,7 @@ export class KeyRingStore {
 
   @actionAsync
   public async getMneumonic(password: string, keyFile: KeyStore) {
-    const msg = GetMneumonicMsg.create(password, keyFile);
+    const msg = makeMneumonicMsg.create(password, keyFile);
     const result = await task(sendMessage(BACKGROUND_PORT, msg));
     return result.mneumonic;
   }

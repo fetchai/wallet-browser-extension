@@ -3,6 +3,7 @@ import { generateWalletFromMnemonic } from "@everett-protocol/cosmosjs/utils/key
 import { PrivKey, PubKeySecp256k1 } from "@everett-protocol/cosmosjs/crypto";
 import { KVStore } from "../../common/kvstore";
 import LedgerNano from "../ledger-nano/keeper";
+import {AddressBook, HardwareAddressItem, RegularAddressItem, WalletTuple} from "./types";
 
 const Buffer = require("buffer/").Buffer;
 
@@ -19,8 +20,7 @@ export interface Key {
   address: Uint8Array;
 }
 
-const KeyStoreKey = "key-store";
-const HardwareStoreKey = "hardware-store";
+const ADDRESS_BOOK_KEY = "address-book-key";
 
 /*
  Keyring stores keys in persistent backround.
@@ -31,25 +31,14 @@ export class KeyRing {
 
   private loaded: boolean;
 
-  private _mnemonic: string;
-
-   private _keyStore: EncryptedKeyStructure | null;
-
-  private keys:
-
-  // public _hardwareStore: HardwareStore | null;
-
   // in the wallet we have one active address at any time, the one for which data is shown.
   public activeAddress: string | null;
 
-  // private _publicKeyHex: string;
+  private addressBook: AddressBook | null;
 
   constructor(private readonly kvStore: KVStore) {
     this.loaded = false;
-    this._mnemonic = "";
-    this._publicKeyHex = "";
-    this._keyStore = null;
-    this._hardwareStore = null;
+
   }
 
   private get mnemonic(): string {
@@ -123,7 +112,7 @@ export class KeyRing {
    * @param password
    */
   public async unlock(password: string) {
-    if (!this._keyStore && !this._hardwareStore) {
+    if (!this.addressBook) {
       throw new Error("Key ring not initialized");
     }
 
@@ -135,80 +124,59 @@ export class KeyRing {
   }
 
   /**
-   * used to unlock a wallet linked to hardware-linked wallet eg ledger nano.
+   * We have a hash stored with each hardware key which can be used to check if the password is correct.
    *
    * @param password
    */
-  private async unlockHardwareWallet(password: string): Promise<boolean> {
-    if (!this._hardwareStore) throw new Error("no hardwareStore initialized");
+  private async canDecryptHardwareHash(password: string, hardwareAddressItem: HardwareAddressItem): Promise<boolean> {
 
-    const buff = Buffer.from(this._hardwareStore.publicKeyHex + password);
+    const buff = Buffer.from(hardwareAddressItem.publicKeyHex + password);
     const hash = Crypto.sha256(buff).toString("hex");
 
-    if (hash === this._hardwareStore.hash) {
-      // this logs them in, from their account created with a hardware wallet.
-      this._publicKeyHex = this._hardwareStore.publicKeyHex;
+    if (hash === hardwareAddressItem.hash) {
       return true;
     }
     return false;
   }
 
   /**
-   * used to unlock a regular wallet which has saved key.
+   * used to unlock a regular address which has saved key file structure. if this decrypts to correct mac we return menumonic.
    *
    * @param password
    */
-  private async unlockRegularWallet(password: string) {
-    if (!this._keyStore) throw new Error("no keyStore initialized");
+
+
+  public async decryptKeyFile(password: string, keyFile: EncryptedKeyStructure): Promise<WalletTuple> {
     // If password is invalid, error will be thrown else mmneumonic will be set, and they will have been logged in through regular login.
+    let mnemonic;
     try {
-      this.mnemonic = Buffer.from(
-        await Crypto.decrypt(this._keyStore, password)
+      mnemonic = Buffer.from(
+        await Crypto.decrypt(keyFile, password)
       ).toString();
-      return true;
+      return [true, mnemonic];
     } catch (error) {
-      return false;
+      return [false, null];
     }
   }
 
-  public async getMneumonic(
-    password: string,
-    keyFile: EncryptedKeyStructure
-  ): Promise<string | false> {
-    // If password is invalid, error will be thrown.
-    // verify password is correct before using this.
-    try {
-      this.mnemonic = Buffer.from(
-        await Crypto.decrypt(keyFile, password)
-      ).toString();
-    } catch (e) {
-      return false;
-    }
-    return this.mnemonic;
-  }
+
 
   public async verifyPassword(
     password: string,
-    keyFile: EncryptedKeyStructure | null = null
   ): Promise<boolean> {
-    // if it is hardware-assiciated wallet we unlock it this way.
-    if (this.isAHardwareAssociatedWallet()) {
-      return await this.unlockHardwareWallet(password);
+
+    if(this.addressBook === null) return false;
+
+    // if it is hardware-only-assiciated wallet we unlock it this way.
+    if (this.allAddressesAreHardwareAssociated()) {
+      // just check if first key can be decrypted, since logically all others also then can be
+      return await this.canDecryptHardwareHash(password, this.addressBook[0] as HardwareAddressItem);
     }
 
-    if (!this._keyStore && keyFile === null) return false;
+   const regularAddressItem = this.addressBook.find(el => el.hdWallet === true) as RegularAddressItem
 
-    const k = keyFile !== null ? keyFile : this._keyStore;
-
-    try {
-      // If password is invalid, error will be thrown.
-      this.mnemonic = Buffer.from(
-        await Crypto.decrypt(k as EncryptedKeyStructure, password)
-      ).toString();
-      return true;
-    } catch (error) {
-      return false;
-    }
+    const [success, ] =  await this.decryptKeyFile(password, regularAddressItem.encryptedKeyStructure);
+    return success;
   }
 
   public async updatePassword(
@@ -219,6 +187,9 @@ export class KeyRing {
       return false;
     }
 
+
+
+
     if (this._publicKeyHex) {
       this.createHardwareKey(this._publicKeyHex, newPassword);
     }
@@ -227,41 +198,27 @@ export class KeyRing {
       this._keyStore = await Crypto.encrypt(this.mnemonic, newPassword);
     }
 
+    this
+
     await this.save();
     return true;
   }
 
   public async save() {
-    // await this.kvStore.set<KeyStore>(KeyStoreKey, this._keyStore);
-    // await this.kvStore.set<HardwareStore>(
-    //   HardwareStoreKey,
-    //   this._hardwareStore
-    // );
+    await this.kvStore.set<AddressBook>(ADDRESS_BOOK_KEY, this.addressBook);
   }
 
   public async restore() {
-    await this.restoreRegularWallet();
-    await this.restoreHardwareAssociatedWallet();
+    await this.restoreWallet();
     this.loaded = true;
   }
 
-  private async restoreRegularWallet() {
-    const keyStore = await this.kvStore.get<EncryptedKeyStructure>(KeyStoreKey);
-    if (!keyStore) {
-      this._keyStore = null;
+  private async restoreWallet() {
+    const addressBook = await this.kvStore.get<AddressBook>(ADDRESS_BOOK_KEY);
+    if (!addressBook) {
+      this.addressBook = null;
     } else {
-      this._keyStore = keyStore;
-    }
-  }
-
-  private async restoreHardwareAssociatedWallet() {
-    const hardwareStore = await this.kvStore.get<HardwareStore>(
-      HardwareStoreKey
-    );
-    if (!hardwareStore) {
-      this._hardwareStore = null;
-    } else {
-      this._hardwareStore = hardwareStore;
+      this.addressBook = addressBook;
     }
   }
 
@@ -270,10 +227,7 @@ export class KeyRing {
    * Make sure to use this only in development env for testing.
    */
   public async clear() {
-    this._keyStore = null;
-    this._hardwareStore = null;
-    this.mnemonic = "";
-    this._publicKeyHex = "";
+    this.addressBook = null;
     this.cached = new Map();
 
     await this.save();
@@ -315,16 +269,15 @@ export class KeyRing {
     return privKey;
   }
 
-  private isAHardwareAssociatedWallet(): boolean {
-    return Boolean(this._hardwareStore);
-  }
 
-  public async sign(path: string, message: Uint8Array): Promise<Uint8Array> {
+  private allAddressesAreHardwareAssociated(): boolean { return this.addressBook.every((item) => item.hdWallet) }
+
+  public async sign(path: string, message}: Uint8Array): Promise<Uint8Array> {
     if (this.status !== KeyRingStatus.UNLOCKED) {
       throw new Error("Key ring is not unlocked");
     }
 
-    if (this.isAHardwareAssociatedWallet()) {
+    if (this.allKeysOnHardware()) {
       let signedMessage;
 
       try {

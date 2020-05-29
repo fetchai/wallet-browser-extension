@@ -9,7 +9,7 @@ import {
   GetKeyMsg,
   UnlockKeyRingMsg,
   VerifyPasswordKeyRingMsg,
-  GetMneumonicMsg,
+  makeMneumonicMsg,
   UpdatePasswordMsg,
   GetRequestedMessage,
   RequestSignMsg,
@@ -46,7 +46,7 @@ export function init(
   messageManager.registerMessage(LockKeyRingMsg);
   messageManager.registerMessage(UnlockKeyRingMsg);
   messageManager.registerMessage(VerifyPasswordKeyRingMsg);
-  messageManager.registerMessage(GetMneumonicMsg);
+  messageManager.registerMessage(makeMneumonicMsg);
   messageManager.registerMessage(GetKeyFileMsg);
   messageManager.registerMessage(UpdatePasswordMsg);
   messageManager.registerMessage(SetPathMsg);
