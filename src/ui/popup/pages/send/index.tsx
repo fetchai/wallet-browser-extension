@@ -477,6 +477,7 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
                           chainStore.chainInfo.bech32Config,
                           () => {
                             try {
+                                debugger;
                               AccAddress.fromBech32(value);
                             } catch (e) {
                               return intl.formatMessage({
