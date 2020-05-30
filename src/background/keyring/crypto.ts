@@ -42,7 +42,7 @@ export class Crypto {
   public static async encrypt(
     text: string,
     password: string
-  ): Promise<KeyStore> {
+  ): Promise<EncryptedKeyStructure> {
     let random = new Uint8Array(32);
     crypto.getRandomValues(random);
     const salt = Buffer.from(random).toString("hex");
@@ -85,7 +85,7 @@ export class Crypto {
   }
 
   public static async decrypt(
-    keyStore: KeyStore,
+    keyStore: EncryptedKeyStructure,
     password: string,
     ignoreMac: boolean = false
   ): Promise<Uint8Array> {

@@ -155,7 +155,7 @@ export class KeyRingKeeper {
 
   async createKey(mnemonic: string, password: string): Promise<KeyRingStatus> {
     // TODO: Check mnemonic checksum.
-    await this.keyRing.createKey(mnemonic, password);
+    await this.keyRing.addNewRegularKey(mnemonic, password);
     return this.keyRing.status;
   }
 
@@ -163,7 +163,7 @@ export class KeyRingKeeper {
     publicKeyHex: string,
     password: string
   ): Promise<KeyRingStatus> {
-    await this.keyRing.createHardwareKey(publicKeyHex, password);
+    await this.keyRing.addNewHardwareKey(publicKeyHex, password);
     return this.keyRing.status;
   }
 

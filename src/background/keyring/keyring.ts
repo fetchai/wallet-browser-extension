@@ -45,9 +45,9 @@ export class KeyRing {
   public activeAddress: string | null;
 
   //todo refactor this from being potentially null since neccesetates tooo many as statements.
-  private addressBook: AddressBook | null;
+  private addressBook: AddressBook = [];
 
-  private unlocked: boolean;
+  private unlocked: boolean = false;
 
   constructor(private readonly kvStore: KVStore) {
     this.loaded = false;
@@ -84,7 +84,7 @@ export class KeyRing {
       return KeyRingStatus.NOTLOADED;
     }
 
-    if (!this._keyStore && !this._hardwareStore) {
+    if (!this.addressBook) {
       return KeyRingStatus.EMPTY;
     } else if (this.unlocked) {
       return KeyRingStatus.UNLOCKED;
@@ -97,8 +97,18 @@ export class KeyRing {
     return this.loadKey(path);
   }
 
-  public async createKey(mnemonic: string, password: string) {
-    this._keyStore = await Crypto.encrypt(this.mnemonic, password);
+  public async addNewRegularKey(mnemonic: string, password: string) {
+
+     const encryptedKeyStructure = await Crypto.encrypt(this.mnemonic, password);
+
+        this.addressBook.push({
+      address:
+      hdWallet: false,
+        encryptedKeyStructure: encryptedKeyStructure,
+  })
+
+
+
   }
 
   /**
@@ -108,11 +118,9 @@ export class KeyRing {
    * @param publicKeyHex
    * @param password
    */
-  public async createHardwareKey(publicKeyHex: string, password: string) {
+  public async addNewHardwareKey(publicKeyHex: string, password: string) {
     const buff = Buffer.from(publicKeyHex + password);
     const hash = Crypto.sha256(buff).toString("hex");
-    this._hardwareStore = { hash: hash, publicKeyHex: publicKeyHex };
-
     this.addressBook.push({
       address: this.addressFromPublicKeyHex(publicKeyHex),
       hdWallet: true,
@@ -227,7 +235,7 @@ export class KeyRing {
     }
 
     if (this._publicKeyHex) {
-      this.createHardwareKey(this._publicKeyHex, newPassword);
+      this.addNewHardwareKey(this._publicKeyHex, newPassword);
     }
 
     if (this.mnemonic) {
