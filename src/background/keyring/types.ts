@@ -14,7 +14,7 @@ export interface TxBuilderConfigPrimitive {
 }
 
 export interface RegularAddressItem {
-  address: number;
+  address: string;
   encryptedKeyStructure: EncryptedKeyStructure;
   privateKey?: PrivKey;
   mneumonic?: string;
@@ -22,7 +22,7 @@ export interface RegularAddressItem {
 }
 
 export interface HardwareAddressItem {
-  address: number;
+  address: string;
   publicKeyHex: string;
   hash: string;
   hdWallet: true;

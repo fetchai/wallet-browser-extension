@@ -3,7 +3,12 @@ import { generateWalletFromMnemonic } from "@everett-protocol/cosmosjs/utils/key
 import { PrivKey, PubKeySecp256k1 } from "@everett-protocol/cosmosjs/crypto";
 import { KVStore } from "../../common/kvstore";
 import LedgerNano from "../ledger-nano/keeper";
-import {AddressBook, HardwareAddressItem, RegularAddressItem, WalletTuple} from "./types";
+import {
+  AddressBook,
+  HardwareAddressItem,
+  RegularAddressItem,
+  WalletTuple
+} from "./types";
 
 const Buffer = require("buffer/").Buffer;
 
@@ -32,13 +37,13 @@ export class KeyRing {
   private loaded: boolean;
 
   // in the wallet we have one active address at any time, the one for which data is shown.
+  // the active address is the address currently displayed in the wallet, which is then used for balance, sending , downloading ect.
   public activeAddress: string | null;
 
   private addressBook: AddressBook | null;
 
   constructor(private readonly kvStore: KVStore) {
     this.loaded = false;
-
   }
 
   private get mnemonic(): string {
@@ -48,6 +53,19 @@ export class KeyRing {
   private set mnemonic(mnemonic: string) {
     this._mnemonic = mnemonic;
     this.cached = new Map();
+  }
+
+  /**
+   * The active address is the address currently displayed in the wallet, which is then used for balance, sending ect.
+   * This method finds its index in the address book
+   *
+   */
+  private activeAddressAddressBookIndex(): number {
+    if (this.activeAddress === null || this.addressBook === null) {
+      return null;
+    }
+
+    return this.addressBook.findIndex(el => el.address === this.activeAddress);
   }
 
   public get keyStore(): EncryptedKeyStructure | null {
@@ -73,7 +91,6 @@ export class KeyRing {
   }
 
   public async createKey(mnemonic: string, password: string) {
-    this.mnemonic = mnemonic;
     this._keyStore = await Crypto.encrypt(this.mnemonic, password);
   }
 
@@ -100,14 +117,8 @@ export class KeyRing {
   }
 
   /**
-   * The original way the wallet unlocking worked was storing a hash of thee meumonic, and if this decrypted to the key file with the password then we could unlock the wallet.
    *
-   * When hardware wallet support was added we no longer saved the encrypted key or mneumonic so we added the hash of the hex public key and password and compared it to
-   * saved hash, using saved public key hex.
    *
-   * This method unlocks by one of the two above methods.
-   *
-   * Previously the flag for being logged in was having the mneumonic set, but this has now been changed to having either the meumonic set or the publicKeyHex set.
    *
    * @param password
    */
@@ -116,11 +127,16 @@ export class KeyRing {
       throw new Error("Key ring not initialized");
     }
 
-    if (this._hardwareStore) {
-      await this.unlockHardwareWallet(password);
-    } else {
-      await this.unlockRegularWallet(password);
-    }
+    // just test for the first address in addressbook since if we can decrypt it then password is correct
+    const first = this.addressBook[0];
+
+    // we call different decryption methods based on wether the address file is a hardware one or a regular one
+    return first.hdWallet
+      ? this.canDecryptHardwareHash(password, first)
+      : this.decryptKeyFile(
+          password,
+          (first as RegularAddressItem).encryptedKeyStructure
+        );
   }
 
   /**
@@ -128,8 +144,10 @@ export class KeyRing {
    *
    * @param password
    */
-  private async canDecryptHardwareHash(password: string, hardwareAddressItem: HardwareAddressItem): Promise<boolean> {
-
+  private async canDecryptHardwareHash(
+    password: string,
+    hardwareAddressItem: HardwareAddressItem
+  ): Promise<boolean> {
     const buff = Buffer.from(hardwareAddressItem.publicKeyHex + password);
     const hash = Crypto.sha256(buff).toString("hex");
 
@@ -145,8 +163,10 @@ export class KeyRing {
    * @param password
    */
 
-
-  public async decryptKeyFile(password: string, keyFile: EncryptedKeyStructure): Promise<WalletTuple> {
+  public async decryptKeyFile(
+    password: string,
+    keyFile: EncryptedKeyStructure
+  ): Promise<WalletTuple> {
     // If password is invalid, error will be thrown else mmneumonic will be set, and they will have been logged in through regular login.
     let mnemonic;
     try {
@@ -159,23 +179,26 @@ export class KeyRing {
     }
   }
 
-
-
-  public async verifyPassword(
-    password: string,
-  ): Promise<boolean> {
-
-    if(this.addressBook === null) return false;
+  public async verifyPassword(password: string): Promise<boolean> {
+    if (this.addressBook === null) return false;
 
     // if it is hardware-only-assiciated wallet we unlock it this way.
     if (this.allAddressesAreHardwareAssociated()) {
       // just check if first key can be decrypted, since logically all others also then can be
-      return await this.canDecryptHardwareHash(password, this.addressBook[0] as HardwareAddressItem);
+      return await this.canDecryptHardwareHash(
+        password,
+        this.addressBook[0] as HardwareAddressItem
+      );
     }
 
-   const regularAddressItem = this.addressBook.find(el => el.hdWallet === true) as RegularAddressItem
+    const regularAddressItem = this.addressBook.find(
+      el => el.hdWallet === true
+    ) as RegularAddressItem;
 
-    const [success, ] =  await this.decryptKeyFile(password, regularAddressItem.encryptedKeyStructure);
+    const [success] = await this.decryptKeyFile(
+      password,
+      regularAddressItem.encryptedKeyStructure
+    );
     return success;
   }
 
@@ -187,9 +210,6 @@ export class KeyRing {
       return false;
     }
 
-
-
-
     if (this._publicKeyHex) {
       this.createHardwareKey(this._publicKeyHex, newPassword);
     }
@@ -198,13 +218,22 @@ export class KeyRing {
       this._keyStore = await Crypto.encrypt(this.mnemonic, newPassword);
     }
 
-    this
+    this;
 
     await this.save();
     return true;
   }
 
   public async save() {
+    if (this.addressBook === null) return;
+
+    this.addressBook.forEach(el => {
+      if (el.hdWallet === false) {
+        delete el.privateKey;
+        delete el.mneumonic;
+      }
+    });
+
     await this.kvStore.set<AddressBook>(ADDRESS_BOOK_KEY, this.addressBook);
   }
 
@@ -253,48 +282,48 @@ export class KeyRing {
     };
   }
 
-  private loadPrivKey(path: string): PrivKey {
+  private loadPrivKey(mnemonic: string): PrivKey {
     if (this.status !== KeyRingStatus.UNLOCKED) {
       throw new Error("Key ring is not unlocked");
     }
 
-    const cachedKey = this.cached.get(path);
-    if (cachedKey) {
-      return cachedKey;
-    }
-
-    const privKey = generateWalletFromMnemonic(this.mnemonic, path);
-
-    this.cached.set(path, privKey);
-    return privKey;
+    return generateWalletFromMnemonic(mnemonic);
   }
 
+  /**
+   * if every address in the wallet is from hardware (nano x or s currently)
+   */
+  private allAddressesAreHardwareAssociated(): boolean {
+    return (
+      this.addressBook !== null && this.addressBook.every(item => item.hdWallet)
+    );
+  }
 
-  private allAddressesAreHardwareAssociated(): boolean { return this.addressBook.every((item) => item.hdWallet) }
+  public async triggerHardwareSigning(
+    message: Uint8Array
+  ): Promise<Uint8Array> {}
 
-  public async sign(path: string, message}: Uint8Array): Promise<Uint8Array> {
+  /**
+   * Sign message with private key. Only call if active key is not from hardware wallet (eg nano x or s) or it will throw.
+   *
+   * @param message
+   */
+
+  public async sign(message: Uint8Array): Promise<Uint8Array> {
     if (this.status !== KeyRingStatus.UNLOCKED) {
       throw new Error("Key ring is not unlocked");
     }
 
-    if (this.allKeysOnHardware()) {
-      let signedMessage;
-
-      try {
-        const ledgerNano = await LedgerNano.getInstance();
-        signedMessage = await ledgerNano.sign(message);
-      } catch (error) {
-        browser.notifications.create({
-          type: "basic",
-          iconUrl: browser.runtime.getURL("assets/fetch-logo.svg"),
-          title: "Signing rejected",
-          message: error.message
-        });
-      }
-      return signedMessage as Buffer;
+    const index = this.activeAddressAddressBookIndex();
+    // sign with a non-hardware associated key ( eg
+    if ((this.addressBook as AddressBook)[index].hdWallet === true) {
+      throw new Error();
     }
 
-    const privKey = this.loadPrivKey(path);
+    const regularAddressItem = (this.addressBook as AddressBook)[
+      index
+    ] as RegularAddressItem;
+    const privKey = this.loadPrivKey(regularAddressItem.mneumonic as string);
     return privKey.sign(message);
   }
 }

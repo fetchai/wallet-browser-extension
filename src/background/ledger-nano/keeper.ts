@@ -31,7 +31,6 @@ export default class LedgerNano {
   // represents the connection to the ledger nano
   public ledger: Ledger;
 
-
   public async getPubKeyHex() {
     const publicKey = await this.ledger.getPubKey();
     const pubKeySecp256k1 = new PubKeySecp256k1(publicKey);
@@ -67,10 +66,23 @@ export default class LedgerNano {
     }
   }
 
-  public async sign(message: Uint8Array): Promise<Buffer> {
-    const utf8Decoder = new TextDecoder();
-    const messageUTF = utf8Decoder.decode(message);
-    return await this.ledger.sign(messageUTF);
+  public async sign(message: Uint8Array): Promise<Buffer | null> {
+    let signedMessage = null;
+
+    try {
+      const utf8Decoder = new TextDecoder();
+      const messageUTF = utf8Decoder.decode(message);
+      signedMessage = await this.ledger.sign(messageUTF);
+    } catch (error) {
+      browser.notifications.create({
+        type: "basic",
+        iconUrl: browser.runtime.getURL("assets/fetch-logo.svg"),
+        title: "Signing rejected",
+        message: error.message
+      });
+    }
+
+    return signedMessage;
   }
 
   public async confirmLedgerAddress() {
