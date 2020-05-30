@@ -1,6 +1,10 @@
 import { Crypto, HardwareStore, EncryptedKeyStructure } from "./crypto";
 import { generateWalletFromMnemonic } from "@everett-protocol/cosmosjs/utils/key";
-import { PrivKey, PubKeySecp256k1 } from "@everett-protocol/cosmosjs/crypto";
+import {
+  Address,
+  PrivKey,
+  PubKeySecp256k1
+} from "@everett-protocol/cosmosjs/crypto";
 import { KVStore } from "../../common/kvstore";
 import LedgerNano from "../ledger-nano/keeper";
 import {
@@ -40,7 +44,10 @@ export class KeyRing {
   // the active address is the address currently displayed in the wallet, which is then used for balance, sending , downloading ect.
   public activeAddress: string | null;
 
+  //todo refactor this from being potentially null since neccesetates tooo many as statements.
   private addressBook: AddressBook | null;
+
+  private unlocked: boolean;
 
   constructor(private readonly kvStore: KVStore) {
     this.loaded = false;
@@ -79,7 +86,7 @@ export class KeyRing {
 
     if (!this._keyStore && !this._hardwareStore) {
       return KeyRingStatus.EMPTY;
-    } else if (this.mnemonic || this._publicKeyHex) {
+    } else if (this.unlocked) {
       return KeyRingStatus.UNLOCKED;
     } else {
       return KeyRingStatus.LOCKED;
@@ -104,16 +111,22 @@ export class KeyRing {
   public async createHardwareKey(publicKeyHex: string, password: string) {
     const buff = Buffer.from(publicKeyHex + password);
     const hash = Crypto.sha256(buff).toString("hex");
-    this._publicKeyHex = publicKeyHex;
     this._hardwareStore = { hash: hash, publicKeyHex: publicKeyHex };
+
+    this.addressBook.push({
+      address: this.addressFromPublicKeyHex(publicKeyHex),
+      hdWallet: true,
+      hash: hash,
+      publicKeyHex: publicKeyHex
+    });
   }
 
   public lock() {
     if (this.status !== KeyRingStatus.UNLOCKED) {
       throw new Error("Key ring is not unlocked");
     }
-    this.mnemonic = "";
-    this._publicKeyHex = "";
+
+    this.unlocked = false;
   }
 
   /**
@@ -127,16 +140,25 @@ export class KeyRing {
       throw new Error("Key ring not initialized");
     }
 
-    // just test for the first address in addressbook since if we can decrypt it then password is correct
-    const first = this.addressBook[0];
+    // first lets just check if pwd is correct.
+    if (!(await this.verifyPassword(password))) return false;
 
-    // we call different decryption methods based on wether the address file is a hardware one or a regular one
-    return first.hdWallet
-      ? this.canDecryptHardwareHash(password, first)
-      : this.decryptKeyFile(
+    this.unlocked = true;
+    // if it is we iterate over address key and get the mneumonic and private key if it is a non-hardware associated one.
+    this.addressBook = this.addressBook.map(async el => {
+      if (el.hdWallet) return el;
+      else {
+        const [, mnemonic] = await this.decryptKeyFile(
           password,
-          (first as RegularAddressItem).encryptedKeyStructure
+          el.encryptedKeyStructure
         );
+        el.mneumonic = mnemonic as string;
+        el.privateKey = generateWalletFromMnemonic(mnemonic as string);
+        return el;
+      }
+    });
+
+    return true;
   }
 
   /**
@@ -182,24 +204,18 @@ export class KeyRing {
   public async verifyPassword(password: string): Promise<boolean> {
     if (this.addressBook === null) return false;
 
-    // if it is hardware-only-assiciated wallet we unlock it this way.
-    if (this.allAddressesAreHardwareAssociated()) {
-      // just check if first key can be decrypted, since logically all others also then can be
-      return await this.canDecryptHardwareHash(
+    // just test for the first address in address book since if we can decrypt one then password is correct
+    const first = this.addressBook[0];
+
+    // we call different decryption methods based on wether the address file is a hardware one or a regular one
+    if (first.hdWallet) return this.canDecryptHardwareHash(password, first);
+    else {
+      const [success] = await this.decryptKeyFile(
         password,
-        this.addressBook[0] as HardwareAddressItem
+        (first as RegularAddressItem).encryptedKeyStructure
       );
+      return success;
     }
-
-    const regularAddressItem = this.addressBook.find(
-      el => el.hdWallet === true
-    ) as RegularAddressItem;
-
-    const [success] = await this.decryptKeyFile(
-      password,
-      regularAddressItem.encryptedKeyStructure
-    );
-    return success;
   }
 
   public async updatePassword(
@@ -260,6 +276,17 @@ export class KeyRing {
     this.cached = new Map();
 
     await this.save();
+  }
+
+  /**
+   * returne betch 32 address
+   *
+   * @param publicKeyHex
+   */
+  private addressFromPublicKeyHex(publicKeyHex: string): string {
+    const pubKey = new PubKeySecp256k1(Buffer.from(publicKeyHex, "hex"));
+    // todo  get prefix ffrom chaininfo as per // keeper.getChainInfo(getKeyMsg.chainId).bech32Config.bech32PrefixAccAddr
+    return pubKey.toAddress().toBech32("cosmos");
   }
 
   private loadKey(path: string): Key {
