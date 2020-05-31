@@ -53,14 +53,7 @@ export class KeyRing {
     this.loaded = false;
   }
 
-  private get mnemonic(): string {
-    return this._mnemonic;
-  }
 
-  private set mnemonic(mnemonic: string) {
-    this._mnemonic = mnemonic;
-    this.cached = new Map();
-  }
 
   /**
    * The active address is the address currently displayed in the wallet, which is then used for balance, sending ect.
@@ -75,8 +68,12 @@ export class KeyRing {
     return this.addressBook.findIndex(el => el.address === this.activeAddress);
   }
 
-  public get keyStore(): EncryptedKeyStructure | null {
-    return this._keyStore;
+  /**
+   * it gets the key file for the currently active key, else null if currently active key is hardware associated (eg from nano X or S)
+   */
+  public get getCurrentKeyFile(): EncryptedKeyStructure | null {
+    const index = this.activeAddressAddressBookIndex();
+    return this.addressBook[index].hdWallet ? null :  (this.addressBook[index]as RegularAddressItem).encryptedKeyStructure
   }
 
   public get status(): KeyRingStatus {
@@ -99,12 +96,9 @@ export class KeyRing {
 
   public async addNewRegularKey(mnemonic: string, password: string) {
 
+     const regularAddressItem =  await this.createRegularAddressBookItem(mnemonic, password)
 
-
-      this.addressBook.push()
-
-
-
+      this.addressBook.push(regularAddressItem)
   }
 
     private async createRegularAddressBookItem(mnemonic: string, password: string): Promise<RegularAddressItem>{
@@ -157,7 +151,6 @@ export class KeyRing {
   /**
    *
    *
-   *
    * @param password
    */
   public async unlock(password: string) {
@@ -170,7 +163,9 @@ export class KeyRing {
 
     this.unlocked = true;
     // if it is we iterate over address key and get the mnemonic and private key if it is a non-hardware associated one.
-    this.addressBook = this.addressBook.map(async el => {
+    // the promise.all is since map takes async function we must wait for them all to finish to get the result: its a common pattern with async
+    // function within a map.
+    this.addressBook =  await Promise.all(this.addressBook.map( async el => {
       if (el.hdWallet) return el;
       else {
         const [, mnemonic] = await this.decryptKeyFile(
@@ -181,7 +176,7 @@ export class KeyRing {
         el.privateKey = generateWalletFromMnemonic(mnemonic as string);
         return el;
       }
-    });
+    }))
 
     return true;
   }
@@ -251,12 +246,16 @@ export class KeyRing {
       return false;
     }
 
-    if (this._publicKeyHex) {
-      this.addNewHardwareKey(this._publicKeyHex, newPassword);
-    }
-
-    if (this.mnemonic) {
-      this._keyStore = await Crypto.encrypt(this.mnemonic, newPassword);
+    let addressBookItem;
+    // we iterate over all the keys, and we re-encrypt with the new password, which is different if the address is hardware associated (eg from ledger Nano s/X or not)
+    for(let i = 0; i < this.addressBook.length; i++){
+      if(this.addressBook[i].hdWallet){
+        addressBookItem = await this.createHardwareAddressBookItem((this.addressBook[i] as HardwareAddressItem).publicKeyHex, password)
+        this.addressBook[i] = addressBookItem;
+      } else {
+         addressBookItem = await this.createRegularAddressBookItem(((this.addressBook[i] as RegularAddressItem).mnemonic as string), password)
+        this.addressBook[i] = addressBookItem;
+      }
     }
 
     await this.save();
@@ -264,6 +263,7 @@ export class KeyRing {
   }
 
   public async save() {
+    // we don't save the private jeys or mnemonics to local storage.
    const addressBook =  this.deletePrivateKeys(this.addressBook)
 
     await this.kvStore.set<AddressBook>(ADDRESS_BOOK_KEY, addressBook);
@@ -291,7 +291,7 @@ export class KeyRing {
   private async restoreWallet() {
     const addressBook = await this.kvStore.get<AddressBook>(ADDRESS_BOOK_KEY);
     if (!addressBook) {
-      this.addressBook = null;
+      this.addressBook = [];
     } else {
       this.addressBook = addressBook;
     }
@@ -304,7 +304,6 @@ export class KeyRing {
   public async clear() {
     this.addressBook = [];
     this.cached = new Map();
-
     await this.save();
   }
 

@@ -204,7 +204,7 @@ export class KeyRingKeeper {
   }
 
   async handleGetKeyFile(): Promise<KeyStore | null> {
-    return this.keyRing.keyStore as KeyStore;
+    return this.keyRing.getCurrentKeyFile as KeyStore;
   }
 
   setPath(chainId: string, account: number, index: number) {
