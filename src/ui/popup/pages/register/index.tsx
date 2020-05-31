@@ -267,7 +267,7 @@ export const RegisterPage: FunctionComponent = observer(() => {
         <>
           <Recover
             onRegister={onRegister}
-            getMneumonic={keyRingStore.getMneumonic}
+            getMnemonic={keyRingStore.getMnemonic}
             verifyPassword={keyRingStore.verifyPassword}
           />
           <BackButton onClick={onBackToChooseRecoverMethod} />

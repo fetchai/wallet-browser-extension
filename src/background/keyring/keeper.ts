@@ -190,7 +190,7 @@ export class KeyRingKeeper {
     return res;
   }
 
-  async makeMneumonicgMsg(
+  async makeMnemonicgMsg(
     password: string,
     keyFile: KeyStore
   ): Promise<string | false> {

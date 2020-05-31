@@ -99,40 +99,57 @@ export class KeyRing {
 
   public async addNewRegularKey(mnemonic: string, password: string) {
 
-     const encryptedKeyStructure = await Crypto.encrypt(this.mnemonic, password);
 
-        this.addressBook.push({
-      address:
-      hdWallet: false,
-        encryptedKeyStructure: encryptedKeyStructure,
-  })
+
+      this.addressBook.push()
 
 
 
   }
 
+    private async createRegularAddressBookItem(mnemonic: string, password: string): Promise<RegularAddressItem>{
+    const encryptedKeyStructure = await Crypto.encrypt(mnemonic, password);
+     const privateKey = generateWalletFromMnemonic(mnemonic);
+
+      return {
+      address: privateKey.toPubKey().toAddress().toBech32("cosmos");
+      hdWallet: false,
+      encryptedKeyStructure: encryptedKeyStructure,
+          mnemonic: mnemonic,
+          privateKey: privateKey
+  }
+    }
+
+
   /**
    * If user signs in with hardware wallet we store their public key and a salted hash of password instead
-   * of hash of mneumonic
+   * of hash of mnemonic
    *
    * @param publicKeyHex
    * @param password
    */
   public async addNewHardwareKey(publicKeyHex: string, password: string) {
-    const buff = Buffer.from(publicKeyHex + password);
+       const hardwareAddressItem = await this.createHardwareAddressBookItem(publicKeyHex, password);
+       this.addressBook.push(hardwareAddressItem);
+  }
+
+  private async createHardwareAddressBookItem(publicKeyHex: string, password: string): Promise<HardwareAddressItem>{
+     const buff = Buffer.from(publicKeyHex + password);
     const hash = Crypto.sha256(buff).toString("hex");
-    this.addressBook.push({
+    return {
       address: this.addressFromPublicKeyHex(publicKeyHex),
       hdWallet: true,
       hash: hash,
       publicKeyHex: publicKeyHex
-    });
+    }
   }
 
   public lock() {
     if (this.status !== KeyRingStatus.UNLOCKED) {
       throw new Error("Key ring is not unlocked");
     }
+
+    this.addressBook = this.deletePrivateKeys(this.addressBook)
 
     this.unlocked = false;
   }
@@ -152,7 +169,7 @@ export class KeyRing {
     if (!(await this.verifyPassword(password))) return false;
 
     this.unlocked = true;
-    // if it is we iterate over address key and get the mneumonic and private key if it is a non-hardware associated one.
+    // if it is we iterate over address key and get the mnemonic and private key if it is a non-hardware associated one.
     this.addressBook = this.addressBook.map(async el => {
       if (el.hdWallet) return el;
       else {
@@ -160,7 +177,7 @@ export class KeyRing {
           password,
           el.encryptedKeyStructure
         );
-        el.mneumonic = mnemonic as string;
+        el.mnemonic = mnemonic as string;
         el.privateKey = generateWalletFromMnemonic(mnemonic as string);
         return el;
       }
@@ -197,7 +214,7 @@ export class KeyRing {
     password: string,
     keyFile: EncryptedKeyStructure
   ): Promise<WalletTuple> {
-    // If password is invalid, error will be thrown else mmneumonic will be set, and they will have been logged in through regular login.
+    // If password is invalid, error will be thrown else mmnemonic will be set, and they will have been logged in through regular login.
     let mnemonic;
     try {
       mnemonic = Buffer.from(
@@ -242,24 +259,29 @@ export class KeyRing {
       this._keyStore = await Crypto.encrypt(this.mnemonic, newPassword);
     }
 
-    this;
-
     await this.save();
     return true;
   }
 
   public async save() {
-    if (this.addressBook === null) return;
+   const addressBook =  this.deletePrivateKeys(this.addressBook)
 
-    this.addressBook.forEach(el => {
+    await this.kvStore.set<AddressBook>(ADDRESS_BOOK_KEY, addressBook);
+  }
+
+  /**
+   * when logged in each regular address has its private key and mnemonic saved in the address book, but this method deletes this, as when
+   */
+  private  deletePrivateKeys(addressBook: AddressBook) : AddressBook {
+        return addressBook.map(el => {
       if (el.hdWallet === false) {
         delete el.privateKey;
-        delete el.mneumonic;
+        delete el.mnemonic;
       }
+      return el;
     });
-
-    await this.kvStore.set<AddressBook>(ADDRESS_BOOK_KEY, this.addressBook);
   }
+
 
   public async restore() {
     await this.restoreWallet();
@@ -280,7 +302,7 @@ export class KeyRing {
    * Make sure to use this only in development env for testing.
    */
   public async clear() {
-    this.addressBook = null;
+    this.addressBook = [];
     this.cached = new Map();
 
     await this.save();
@@ -358,7 +380,7 @@ export class KeyRing {
     const regularAddressItem = (this.addressBook as AddressBook)[
       index
     ] as RegularAddressItem;
-    const privKey = this.loadPrivKey(regularAddressItem.mneumonic as string);
+    const privKey = this.loadPrivKey(regularAddressItem.mnemonic as string);
     return privKey.sign(message);
   }
 }

@@ -25,7 +25,7 @@ type State = {
 type Props = {
   onRegister: any;
   verifyPassword: any;
-  getMneumonic: any;
+  getMnemonic: any;
 };
 
 export default class Recover extends React.Component<Props, State> {
@@ -39,7 +39,7 @@ export default class Recover extends React.Component<Props, State> {
     | any
     | ((password: string, keyFile?: KeyStore | null) => Promise<boolean>)
     | ((password: string, keyFile?: KeyStore | null) => Promise<boolean>);
-  private getMneumonic:
+  private getMnemonic:
     | any
     | ((password: string, keyFile: KeyStore) => Promise<string | false>)
     | ((password: string, keyFile: KeyStore) => Promise<string>);
@@ -48,7 +48,7 @@ export default class Recover extends React.Component<Props, State> {
     super(props);
     this.onRegister = props.onRegister;
     this.verifyPassword = props.verifyPassword;
-    this.getMneumonic = props.getMneumonic;
+    this.getMnemonic = props.getMnemonic;
   }
 
   public readonly state: State = {
@@ -234,18 +234,18 @@ debugger;
 
     if (!error) {
       debugger;
-      const mneumonic = await this.getMneumonic(
+      const mnemonic = await this.getMnemonic(
         this.state.password,
         JSON.parse(file as string)
       );
        debugger;
-      if (mneumonic === false) {
+      if (mnemonic === false) {
         this.setState({
           errorMessage: "Error occured"
         });
       }
       debugger;
-      await this.onRegister(mneumonic, this.state.password, true);
+      await this.onRegister(mnemonic, this.state.password, true);
     } else {
       // await this.setLoading(false);
     }

@@ -17,7 +17,7 @@ export interface RegularAddressItem {
   address: string;
   encryptedKeyStructure: EncryptedKeyStructure;
   privateKey?: PrivKey;
-  mneumonic?: string;
+  mnemonic?: string;
   hdWallet: false;
 }
 

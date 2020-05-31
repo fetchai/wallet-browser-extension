@@ -351,15 +351,15 @@ export class VerifyPasswordKeyRingMsg extends Message<{
   }
 }
 
-export class makeMneumonicMsg extends Message<{
-  mneumonic: string;
+export class makeMnemonicMsg extends Message<{
+  mnemonic: string;
 }> {
   public static type() {
-    return "get mneumonic";
+    return "get mnemonic";
   }
 
-  public static create(password: string, keyFile: KeyStore): makeMneumonicMsg {
-    const msg = new makeMneumonicMsg();
+  public static create(password: string, keyFile: KeyStore): makeMnemonicMsg {
+    const msg = new makeMnemonicMsg();
     msg.password = password;
     msg.keyFile = keyFile;
     return msg;
@@ -383,7 +383,7 @@ export class makeMneumonicMsg extends Message<{
   }
 
   type(): string {
-    return makeMneumonicMsg.type();
+    return makeMnemonicMsg.type();
   }
 }
 

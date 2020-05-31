@@ -22,7 +22,7 @@ import {
   VerifyPasswordKeyRingMsg,
   UpdatePasswordMsg,
   GetKeyFileMsg,
-  makeMneumonicMsg,
+  makeMnemonicMsg,
   CreateHardwareKeyMsg,
   IsHardwareLinkedMsg,
   GetKeyRingStatusMsg
@@ -65,8 +65,8 @@ export const getHandler: (keeper: KeyRingKeeper) => Handler = (
         return handleVerifyPasswordKeyRingMsg(keeper)(
           msg as VerifyPasswordKeyRingMsg
         );
-      case makeMneumonicMsg:
-        return handleMakeMneumonicMsg(keeper)(msg as makeMneumonicMsg);
+      case makeMnemonicMsg:
+        return handleMakeMnemonicMsg(keeper)(msg as makeMnemonicMsg);
       case UpdatePasswordMsg:
         return handleUpdatePasswordMsg(keeper)(msg as UpdatePasswordMsg);
       case GetKeyFileMsg:
@@ -230,12 +230,12 @@ const handleVerifyPasswordKeyRingMsg: (
   };
 };
 
-const handleMakeMneumonicMsg: (
+const handleMakeMnemonicMsg: (
   keeper: KeyRingKeeper
 ) => InternalHandler<any> = keeper => {
   return async msg => {
     return {
-      mneumonic: await keeper.makeMneumonicgMsg(msg.password, msg.keyFile)
+      mnemonic: await keeper.makeMnemonicgMsg(msg.password, msg.keyFile)
     };
   };
 };

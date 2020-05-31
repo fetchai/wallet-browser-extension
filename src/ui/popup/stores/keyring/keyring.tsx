@@ -12,7 +12,7 @@ import {
   LockKeyRingMsg,
   ClearKeyRingMsg,
   VerifyPasswordKeyRingMsg,
-  makeMneumonicMsg,
+  makeMnemonicMsg,
   UpdatePasswordMsg,
   GetKeyFileMsg,
   CreateHardwareKeyMsg,
@@ -72,7 +72,7 @@ export class KeyRingStore {
 
   /**
    * Creates key from hardware, storing a password and public key.
-   * Hardware wallet sign up is slightly different to regular sign up since we don't save a meumonic.
+   * Hardware wallet sign up is slightly different to regular sign up since we don't save a mnemonic.
    *
    * @param publicKeyHex
    * @param password
@@ -110,10 +110,10 @@ export class KeyRingStore {
   }
 
   @actionAsync
-  public async getMneumonic(password: string, keyFile: KeyStore) {
-    const msg = makeMneumonicMsg.create(password, keyFile);
+  public async getMnemonic(password: string, keyFile: KeyStore) {
+    const msg = makeMnemonicMsg.create(password, keyFile);
     const result = await task(sendMessage(BACKGROUND_PORT, msg));
-    return result.mneumonic;
+    return result.mnemonic;
   }
 
   @actionAsync
