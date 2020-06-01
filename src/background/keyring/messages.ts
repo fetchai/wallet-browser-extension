@@ -316,41 +316,6 @@ export class UnlockKeyRingMsg extends Message<{ status: KeyRingStatus }> {
   }
 }
 
-export class VerifyPasswordKeyRingMsg extends Message<{
-  success: boolean;
-}> {
-  public static type() {
-    return "verify-password-keyring";
-  }
-
-  public static create(
-    password: string,
-    keyFile: KeyStore | null = null
-  ): VerifyPasswordKeyRingMsg {
-    const msg = new VerifyPasswordKeyRingMsg();
-    msg.password = password;
-    msg.keyFile = keyFile;
-    return msg;
-  }
-
-  validateBasic(): void {
-    if (!this.password) {
-      throw new Error("password not set");
-    }
-  }
-
-  public password = "";
-  public keyFile: KeyStore | null = null;
-
-  route(): string {
-    return ROUTE;
-  }
-
-  type(): string {
-    return VerifyPasswordKeyRingMsg.type();
-  }
-}
-
 export class makeMnemonicMsg extends Message<{
   mnemonic: string;
 }> {

@@ -11,7 +11,6 @@ import {
   UnlockKeyRingMsg,
   LockKeyRingMsg,
   ClearKeyRingMsg,
-  VerifyPasswordKeyRingMsg,
   makeMnemonicMsg,
   UpdatePasswordMsg,
   GetKeyFileMsg,
@@ -97,16 +96,6 @@ export class KeyRingStore {
     const result = await task(sendMessage(BACKGROUND_PORT, msg));
     this.setStatus(result.status);
     return result.status;
-  }
-
-  @actionAsync
-  public async verifyPassword(
-    password: string,
-    keyFile: KeyStore | null = null
-  ) {
-    const msg = VerifyPasswordKeyRingMsg.create(password, keyFile);
-    const result = await task(sendMessage(BACKGROUND_PORT, msg));
-    return result.success;
   }
 
   @actionAsync

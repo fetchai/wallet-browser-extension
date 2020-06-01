@@ -6,7 +6,6 @@ import {
   PubKeySecp256k1
 } from "@everett-protocol/cosmosjs/crypto";
 import { KVStore } from "../../common/kvstore";
-import LedgerNano from "../ledger-nano/keeper";
 import {
   AddressBook,
   HardwareAddressItem,
@@ -30,6 +29,7 @@ export interface Key {
 }
 
 const ADDRESS_BOOK_KEY = "address-book-key";
+const ACTIVE_KEY = "active-key";
 
 /*
  Keyring stores keys in persistent backround.
@@ -42,7 +42,7 @@ export class KeyRing {
 
   // in the wallet we have one active address at any time, the one for which data is shown.
   // the active address is the address currently displayed in the wallet, which is then used for balance, sending , downloading ect.
-  public activeAddress: string | null;
+  public activeAddress: string | undefined;
 
   //todo refactor this from being potentially null since neccesetates tooo many as statements.
   private addressBook: AddressBook = [];
@@ -52,8 +52,6 @@ export class KeyRing {
   constructor(private readonly kvStore: KVStore) {
     this.loaded = false;
   }
-
-
 
   /**
    * The active address is the address currently displayed in the wallet, which is then used for balance, sending ect.
@@ -73,7 +71,9 @@ export class KeyRing {
    */
   public get getCurrentKeyFile(): EncryptedKeyStructure | null {
     const index = this.activeAddressAddressBookIndex();
-    return this.addressBook[index].hdWallet ? null :  (this.addressBook[index]as RegularAddressItem).encryptedKeyStructure
+    return this.addressBook[index].hdWallet
+      ? null
+      : (this.addressBook[index] as RegularAddressItem).encryptedKeyStructure;
   }
 
   public get status(): KeyRingStatus {
@@ -95,25 +95,32 @@ export class KeyRing {
   }
 
   public async addNewRegularKey(mnemonic: string, password: string) {
+    const regularAddressItem = await this.createRegularAddressBookItem(
+      mnemonic,
+      password
+    );
 
-     const regularAddressItem =  await this.createRegularAddressBookItem(mnemonic, password)
-
-      this.addressBook.push(regularAddressItem)
+    this.addressBook.push(regularAddressItem);
   }
 
-    private async createRegularAddressBookItem(mnemonic: string, password: string): Promise<RegularAddressItem>{
+  private async createRegularAddressBookItem(
+    mnemonic: string,
+    password: string
+  ): Promise<RegularAddressItem> {
     const encryptedKeyStructure = await Crypto.encrypt(mnemonic, password);
-     const privateKey = generateWalletFromMnemonic(mnemonic);
+    const privateKey = generateWalletFromMnemonic(mnemonic);
 
-      return {
-      address: privateKey.toPubKey().toAddress().toBech32("cosmos");
+    return {
+      address: privateKey
+        .toPubKey()
+        .toAddress()
+        .toBech32("cosmos"),
       hdWallet: false,
       encryptedKeyStructure: encryptedKeyStructure,
-          mnemonic: mnemonic,
-          privateKey: privateKey
+      mnemonic: mnemonic,
+      privateKey: privateKey
+    };
   }
-    }
-
 
   /**
    * If user signs in with hardware wallet we store their public key and a salted hash of password instead
@@ -123,19 +130,25 @@ export class KeyRing {
    * @param password
    */
   public async addNewHardwareKey(publicKeyHex: string, password: string) {
-       const hardwareAddressItem = await this.createHardwareAddressBookItem(publicKeyHex, password);
-       this.addressBook.push(hardwareAddressItem);
+    const hardwareAddressItem = await this.createHardwareAddressBookItem(
+      publicKeyHex,
+      password
+    );
+    this.addressBook.push(hardwareAddressItem);
   }
 
-  private async createHardwareAddressBookItem(publicKeyHex: string, password: string): Promise<HardwareAddressItem>{
-     const buff = Buffer.from(publicKeyHex + password);
+  private async createHardwareAddressBookItem(
+    publicKeyHex: string,
+    password: string
+  ): Promise<HardwareAddressItem> {
+    const buff = Buffer.from(publicKeyHex + password);
     const hash = Crypto.sha256(buff).toString("hex");
     return {
       address: this.addressFromPublicKeyHex(publicKeyHex),
       hdWallet: true,
       hash: hash,
       publicKeyHex: publicKeyHex
-    }
+    };
   }
 
   public lock() {
@@ -143,8 +156,7 @@ export class KeyRing {
       throw new Error("Key ring is not unlocked");
     }
 
-    this.addressBook = this.deletePrivateKeys(this.addressBook)
-
+    this.addressBook = this.deletePrivateKeys(this.addressBook);
     this.unlocked = false;
   }
 
@@ -153,7 +165,7 @@ export class KeyRing {
    *
    * @param password
    */
-  public async unlock(password: string) {
+  public async unlock(password: string) {ADDRESS_BOOK_KEY
     if (!this.addressBook) {
       throw new Error("Key ring not initialized");
     }
@@ -165,18 +177,20 @@ export class KeyRing {
     // if it is we iterate over address key and get the mnemonic and private key if it is a non-hardware associated one.
     // the promise.all is since map takes async function we must wait for them all to finish to get the result: its a common pattern with async
     // function within a map.
-    this.addressBook =  await Promise.all(this.addressBook.map( async el => {
-      if (el.hdWallet) return el;
-      else {
-        const [, mnemonic] = await this.decryptKeyFile(
-          password,
-          el.encryptedKeyStructure
-        );
-        el.mnemonic = mnemonic as string;
-        el.privateKey = generateWalletFromMnemonic(mnemonic as string);
-        return el;
-      }
-    }))
+    this.addressBook = await Promise.all(
+      this.addressBook.map(async el => {
+        if (el.hdWallet) return el;
+        else {
+          const [, mnemonic] = await this.decryptKeyFile(
+            password,
+            el.encryptedKeyStructure
+          );
+          el.mnemonic = mnemonic as string;
+          el.privateKey = generateWalletFromMnemonic(mnemonic as string);
+          return el;
+        }
+      })
+    );
 
     return true;
   }
@@ -205,7 +219,7 @@ export class KeyRing {
    * @param password
    */
 
-  public async decryptKeyFile(
+  private async decryptKeyFile(
     password: string,
     keyFile: EncryptedKeyStructure
   ): Promise<WalletTuple> {
@@ -248,12 +262,18 @@ export class KeyRing {
 
     let addressBookItem;
     // we iterate over all the keys, and we re-encrypt with the new password, which is different if the address is hardware associated (eg from ledger Nano s/X or not)
-    for(let i = 0; i < this.addressBook.length; i++){
-      if(this.addressBook[i].hdWallet){
-        addressBookItem = await this.createHardwareAddressBookItem((this.addressBook[i] as HardwareAddressItem).publicKeyHex, password)
+    for (let i = 0; i < this.addressBook.length; i++) {
+      if (this.addressBook[i].hdWallet) {
+        addressBookItem = await this.createHardwareAddressBookItem(
+          (this.addressBook[i] as HardwareAddressItem).publicKeyHex,
+          newPassword
+        );
         this.addressBook[i] = addressBookItem;
       } else {
-         addressBookItem = await this.createRegularAddressBookItem(((this.addressBook[i] as RegularAddressItem).mnemonic as string), password)
+        addressBookItem = await this.createRegularAddressBookItem(
+          (this.addressBook[i] as RegularAddressItem).mnemonic as string,
+          newPassword
+        );
         this.addressBook[i] = addressBookItem;
       }
     }
@@ -264,16 +284,20 @@ export class KeyRing {
 
   public async save() {
     // we don't save the private jeys or mnemonics to local storage.
-   const addressBook =  this.deletePrivateKeys(this.addressBook)
+    const addressBook = this.deletePrivateKeys(this.addressBook);
 
     await this.kvStore.set<AddressBook>(ADDRESS_BOOK_KEY, addressBook);
+
+    if (typeof this.activeAddress !== "undefined") {
+      await this.kvStore.set<string>(ACTIVE_KEY, this.activeAddress);
+    }
   }
 
   /**
    * when logged in each regular address has its private key and mnemonic saved in the address book, but this method deletes this, as when
    */
-  private  deletePrivateKeys(addressBook: AddressBook) : AddressBook {
-        return addressBook.map(el => {
+  private deletePrivateKeys(addressBook: AddressBook): AddressBook {
+    return addressBook.map(el => {
       if (el.hdWallet === false) {
         delete el.privateKey;
         delete el.mnemonic;
@@ -282,7 +306,6 @@ export class KeyRing {
     });
   }
 
-
   public async restore() {
     await this.restoreWallet();
     this.loaded = true;
@@ -290,6 +313,8 @@ export class KeyRing {
 
   private async restoreWallet() {
     const addressBook = await this.kvStore.get<AddressBook>(ADDRESS_BOOK_KEY);
+    this.activeAddress = await this.kvStore.get<string>(ACTIVE_KEY);
+
     if (!addressBook) {
       this.addressBook = [];
     } else {
@@ -303,6 +328,7 @@ export class KeyRing {
    */
   public async clear() {
     this.addressBook = [];
+    this.activeAddress = undefined;
     this.cached = new Map();
     await this.save();
   }
