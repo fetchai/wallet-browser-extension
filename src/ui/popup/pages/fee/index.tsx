@@ -58,7 +58,6 @@ export const FeePage: FunctionComponent<RouteComponentProps<{
   useEffect(() => {
     const isEnabled = async () => {
       const enabled = await lightModeEnabled();
-      debugger;
       setLightMode(enabled);
     };
     isEnabled();

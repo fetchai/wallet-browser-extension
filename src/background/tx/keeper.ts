@@ -84,7 +84,6 @@ export class BackgroundTxKeeper {
           throw new Error(result.deliverTx.log);
         }
       }
-      debugger;
       // AFB9A1A5871026052D2D49CEC6007D6CA57C0B00C214C06C45B16171D05F277F
       browser.notifications.create({
         type: "basic",

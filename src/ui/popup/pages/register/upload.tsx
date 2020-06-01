@@ -210,11 +210,8 @@ export default class Recover extends React.Component<Props, State> {
     await this.setLoading(true);
     let error = false;
     let file;
-    debugger;
     if (!this.validPassword()) error = true;
-    debugger;
     if (!(await this.validFile())) error = true;
-debugger;
     if (!error) {
       debugger;
       file = await this.readFile(this.state.file as File);
@@ -233,18 +230,15 @@ debugger;
     }
 
     if (!error) {
-      debugger;
       const mneumonic = await this.getMneumonic(
         this.state.password,
         JSON.parse(file as string)
       );
-       debugger;
       if (mneumonic === false) {
         this.setState({
           errorMessage: "Error occured"
         });
       }
-      debugger;
       await this.onRegister(mneumonic, this.state.password, true);
     } else {
       // await this.setLoading(false);

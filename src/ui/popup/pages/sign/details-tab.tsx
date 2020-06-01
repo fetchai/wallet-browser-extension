@@ -110,7 +110,6 @@ export const DetailsTab: FunctionComponent<{
         </div>
         {msgs
           .filter((msg) => {
-            debugger;
             return (typeof msg !== "undefined");
           })
           .map((msg, i) => {

@@ -209,7 +209,6 @@ export class AccountStore {
             this.bech32Address
           )
         );
-        debugger;
         this.assets = account.getCoins();
       }
 
