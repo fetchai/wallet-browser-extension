@@ -18,12 +18,14 @@ import {
   STORAGE_KEY
 } from "../../light-mode";
 import { Button, ButtonGroup } from "reactstrap";
+// @ts-ignore
 import OutsideClickHandler from "react-outside-click-handler";
 import classnames from "classnames";
+import { setActiveEndpoint } from "../../../../common/utils/active-endpoint";
 
 export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
   ({ history }) => {
-    const { keyRingStore } = useStore();
+    const { keyRingStore, chainStore } = useStore();
     const intl = useIntl();
     const transitions = ["height", "opacity", "background"];
 
@@ -42,7 +44,8 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
     const [showDeleteConfirmation, setshowDeleteConfirmation] = useState(false);
     const [lightMode, setLightMode] = useState(false);
     const [keyFile, setKeyFile] = useState("");
-    const [hardwareLinked, setHardwareLinked] = useState(false);
+    const [chainInfo] = useState(chainStore.chainInfo);
+    const [network, setNetwork] = useState("");
 
     useEffect(() => {
       const getFile = async () => {
@@ -72,6 +75,13 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
       setPasswordConfirmError(false);
       setPasswordError(false);
       setNewPasswordError(false);
+    };
+
+    const handleNetworkChange = async (event: any) => {
+      // @ts-ignore
+        const selectedNetwork = event.target.value;
+      setNetwork(selectedNetwork);
+      await setActiveEndpoint(selectedNetwork);
     };
 
     const correctPassword = async (): Promise<boolean> => {
@@ -334,6 +344,30 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
             ) : (
               ""
             )}
+
+            <div className="input_container">
+              <label htmlFor="conversion">
+                Choose<br></br>Network
+              </label>
+              <div className="select_container">
+                <select
+                  key={1}
+                  onChange={handleNetworkChange}
+                  id="network"
+                  className="custom_select"
+                  name="network"
+                >
+                  {chainInfo.endpoints.map(endpoint => {
+                    <option
+                      selected={network === endpoint.name}
+                      value={endpoint.name}
+                    >
+                      {endpoint.name}
+                    </option>;
+                  })}
+                </select>
+              </div>
+            </div>
           </Expand>
 
           <div className={style.mainButton} onClick={() => toggle(2)}>

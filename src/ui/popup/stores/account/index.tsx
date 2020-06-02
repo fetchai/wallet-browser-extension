@@ -23,6 +23,7 @@ import {
 } from "../../../../config";
 import { CoinUtils } from "../../../../common/coin-utils";
 import { GetBalanceMsg } from "../../../../background/api";
+import { getActiveEndpoint } from "../../../../common/utils/active-endpoint";
 
 export class AccountStore {
   @observable
@@ -182,14 +183,11 @@ export class AccountStore {
 
     this.isAssetFetching = true;
 
-    // const msg = GetBalanceMsg.create(this.chainInfo.rest, this.bech32Address);
+    const endpointData = await getActiveEndpoint();
 
     try {
       if (COSMOS_SDK_VERSION > 37) {
-        const msg = GetBalanceMsg.create(
-          this.chainInfo.rest,
-          this.bech32Address
-        );
+        const msg = GetBalanceMsg.create(endpointData.rest, this.bech32Address);
         const res = await task(sendMessage(BACKGROUND_PORT, msg));
 
         let coins: Coin[] = [];
@@ -203,7 +201,7 @@ export class AccountStore {
           queryAccount(
             this.chainInfo.bech32Config,
             Axios.create({
-              baseURL: this.chainInfo.rpc,
+              baseURL: endpointData.rpc,
               cancelToken: this.lastFetchingCancleToken.token
             }),
             this.bech32Address

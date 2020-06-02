@@ -7,6 +7,8 @@ import {
   ResultBroadcastTx,
   ResultBroadcastTxCommit
 } from "@everett-protocol/cosmosjs/rpc/tx";
+import {getActiveEndpoint} from "../../common/utils/active-endpoint";
+import {RPC} from "@everett-protocol/cosmosjs/core/rpc";
 
 const Buffer = require("buffer/").Buffer;
 
@@ -31,9 +33,11 @@ export class BackgroundTxKeeper {
     txBytes: string,
     mode: "sync" | "async" | "commit"
   ) {
-    const info = this.keyRingKeeper.getChainInfo(chainId);
+
+
+    const endpointData = await getActiveEndpoint()
     const instance = Axios.create({
-      baseURL: info.rpc
+      baseURL: endpointData.rpc
     });
 
     // Do not await.

@@ -32,9 +32,24 @@ export const Currencies: {
   }
 };
 
-export interface ChainInfo {
+
+/**
+ * Currently just put an array of endpoints in this variable, and
+ * this is used for drop down for users to select from different endpoints,
+ *
+ *
+ * The default endpoint selects which of these endpoints is the default one if user doesn't change things in settings.
+ */
+
+export interface EndpointData {
   readonly rpc: string;
+  readonly name: string;
   readonly rest: string;
+}
+
+export interface ChainInfo {
+  readonly endpoints: Array<EndpointData>;
+  readonly defaultEndpoint: string;
   readonly chainId: string;
   readonly chainName: string;
   /**
@@ -61,8 +76,19 @@ export interface ChainInfo {
 
 export const NativeChainInfos: ChainInfo[] = [
   {
-    rpc: "http://aea-testnet.sandbox.fetch-ai.com:36657",
+   endpoints: [{
+     name: "testnet",
+        rpc: "http://aea-testnet.sandbox.fetch-ai.com:36657",
     rest: "http://aea-testnet.sandbox.fetch-ai.com:1317",
+    },
+     {
+        name: "sandbox",
+        rpc: "http://aea-testnet.sandbox.fetch-ai.com:36657",
+    rest: "http://aea-testnet.sandbox.fetch-ai.com:1317",
+    },
+
+]
+    defaultEndpoint: "testnet",
     chainId: "aea-testnet",
     chainName: "gaia-sandbox",
     nativeCurrency: "testfet",

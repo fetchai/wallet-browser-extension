@@ -59,6 +59,7 @@ export const StakeView: FunctionComponent = observer(() => {
 
   const notification = useNotification();
 
+
   const reward = useReward(
     chainStore.chainInfo.rest,
     accountStore.bech32Address
