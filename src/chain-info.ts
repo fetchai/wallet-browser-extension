@@ -86,7 +86,7 @@ export const NativeChainInfos: ChainInfo[] = [
         rest: "http://pre-mainnet.sandbox.fetch-ai.com:12200/"
       }
     ],
-    defaultEndpoint: "testnet",
+    defaultEndpoint: "eae",
     chainId: "aea-testnet",
     chainName: "gaia-sandbox",
     nativeCurrency: "testfet",

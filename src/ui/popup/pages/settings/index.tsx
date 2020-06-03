@@ -84,7 +84,7 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
             rpc: endpoint.rpc
           });
         });
-
+          debugger;
         setEndpoints(endpointData);
       };
       getEndpoints();
@@ -111,11 +111,15 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
     };
 
     /**
+     *
+     * Custom endpoint should be refactored to  be a seperate module before completion, as can some other the others in settings page
+     *
      * We look check that the custom rpc and rest are valid urls and if true we add them
      *
      * note: multiple exits (returns)
      */
     const handleCustomEndpointSubmission = async () => {
+         debugger;
       // check that neither rest nor rpc urls are empty
       if (customREST === "" || customRPC === "") {
         setCustomEndpointHasError(true);
@@ -148,29 +152,38 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
         return;
       }
 
+      // success we then add the custom endpoint
       await ActiveEndpoint.addCustomEndpoint(
         CUSTOM_ENDPOINT,
         customRPC,
         customREST
       );
+      await ActiveEndpoint.setActiveEndpointName(CUSTOM_ENDPOINT);
 
+
+       setCustomRPC("")
+       setCustomREST("")
       setCustomEndpointOutput(
         intl.formatMessage({
           id: "register.custom.endpoint.url.success"
         })
       );
+
+       await accountStore.fetchAccount();
     };
 
     const handleNetworkChange = async (event: any) => {
       // @ts-ignore
+        debugger;
       const selectedNetwork = event.target.value;
       setNetwork(selectedNetwork);
-      await ActiveEndpoint.setActiveEndpointName(selectedNetwork);
+
       // if it is a custom endpoint we allow user to put in their rpc and rest URIs before refreshing balance
       // but if not we refresh balance
       if (selectedNetwork !== CUSTOM_ENDPOINT) {
+        await ActiveEndpoint.setActiveEndpointName(selectedNetwork);
         await accountStore.fetchAccount();
-      } else {
+
       }
     };
 
@@ -435,7 +448,7 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
 
             <div className="input_container">
               <label htmlFor="conversion">
-                Choose<br></br>Network
+                Choose Network
               </label>
               <div className="select_container">
                 <select
@@ -491,6 +504,9 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
                 ) : (
                   ""
                 )}
+                <span className={customEndpointHasError ? "red" : ""}>
+                    {customEndpointOutput}
+                </span>
               </div>
             </div>
           </Expand>
