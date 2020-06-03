@@ -183,18 +183,22 @@ export class AccountStore {
 
     this.isAssetFetching = true;
 
-    const endpointData = await getActiveEndpoint();
+    const endpointData = await task(getActiveEndpoint());
 
     try {
+      debugger;
       if (COSMOS_SDK_VERSION > 37) {
         const msg = GetBalanceMsg.create(endpointData.rest, this.bech32Address);
-        const res = await task(sendMessage(BACKGROUND_PORT, msg));
 
+        const res = await task(sendMessage(BACKGROUND_PORT, msg));
+        debugger;
         let coins: Coin[] = [];
         res.coins.forEach((el: any) => {
           coins.push(new Coin(el.denom, el.amount));
         });
+          debugger;
         coins = CoinUtils.convertCoinsFromMinimalDenomAmount(coins);
+        debugger;
         this.assets = coins;
       } else {
         const account = await task(

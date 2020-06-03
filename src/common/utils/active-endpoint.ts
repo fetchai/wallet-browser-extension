@@ -10,7 +10,7 @@ const getEndpointData = (name: string): EndpointData => {
 
 const setActiveEndpoint = async (name: string) => {
   const store = new BrowserKVStore("");
-  await store.set(STORAGE_KEY, name);
+  await store.set(DEFAULT_ENDPOINT_KEY, name);
 };
 
 /**
@@ -21,12 +21,11 @@ const setActiveEndpoint = async (name: string) => {
  */
 const getActiveEndpoint = async (): Promise<EndpointData> => {
   const store = new BrowserKVStore("");
-
   return new Promise(resolve =>
     store.get(DEFAULT_ENDPOINT_KEY).then((result: any) => {
-      if (typeof result === "undefined" || result === false)
-        resolve(getEndpointData(NativeChainInfos[0].defaultEndpoint));
-      else {
+      if (typeof result === "undefined" || result === false) {
+          resolve(getEndpointData(NativeChainInfos[0].defaultEndpoint));
+      } else {
         resolve(getEndpointData(result));
       }
     })

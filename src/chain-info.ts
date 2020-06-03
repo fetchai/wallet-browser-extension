@@ -13,7 +13,6 @@ export interface Currency {
    * You can get id from https://api.coingecko.com/api/v3/coins/list.
    */
   coinGeckoId?: string;
-
 }
 
 /**
@@ -31,7 +30,6 @@ export const Currencies: {
     coinGeckoId: "fetch-ai"
   }
 };
-
 
 /**
  * Currently just put an array of endpoints in this variable, and
@@ -76,18 +74,18 @@ export interface ChainInfo {
 
 export const NativeChainInfos: ChainInfo[] = [
   {
-   endpoints: [{
-     name: "testnet",
+    endpoints: [
+      {
+        name: "eae",
         rpc: "http://aea-testnet.sandbox.fetch-ai.com:36657",
-    rest: "http://aea-testnet.sandbox.fetch-ai.com:1317",
-    },
-     {
-        name: "sandbox",
-        rpc: "http://aea-testnet.sandbox.fetch-ai.com:36657",
-    rest: "http://aea-testnet.sandbox.fetch-ai.com:1317",
-    },
-
-]
+        rest: "http://aea-testnet.sandbox.fetch-ai.com:1317"
+      },
+      {
+        name: "pre-mainnet",
+        rpc: "http://pre-mainnet.sandbox.fetch-ai.com:12000/ ",
+        rest: "http://pre-mainnet.sandbox.fetch-ai.com:12200/"
+      }
+    ],
     defaultEndpoint: "testnet",
     chainId: "aea-testnet",
     chainName: "gaia-sandbox",

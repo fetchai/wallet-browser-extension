@@ -1,7 +1,6 @@
 import { Handler, InternalHandler, Message } from "../../common/message";
 import { GetBalanceMsg, QueryAccountMsg } from "./messages";
 import {APIKeeper, CoinParams} from "./keeper";
-import { Coin } from "@everett-protocol/cosmosjs/common/coin";
 
 export const getHandler: (keeper: APIKeeper) => Handler = keeper => {
   return (msg: Message<unknown>) => {

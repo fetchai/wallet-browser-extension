@@ -32,7 +32,7 @@ export class BackgroundTxKeeper {
     chainId: string,
     txBytes: string,
     mode: "sync" | "async" | "commit"
-  ) {
+  ) {getActiveEndpoint
 
 
     const endpointData = await getActiveEndpoint()

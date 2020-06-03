@@ -238,7 +238,6 @@ export const RegisterPage: FunctionComponent = observer(() => {
               onClick: async () => {
                 const hasHardwareWallet = await readyToRegisterThroughHardwareWallet();
                 if (hasHardwareWallet) {
-                  debugger;
                   const cosmosAddress = await getAddressFromNano();
                   setAddress(cosmosAddress);
                   setState(RegisterState.HARDWARE_UPLOAD);

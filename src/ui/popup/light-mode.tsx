@@ -87,7 +87,7 @@ const setBackgroundImage = (light: boolean, inPopUp: boolean) => {
      *
      * we only want such a configuration when the page is displayed in a popup, and not when as a full webpage as with registration
      */
-    debugger;
+
 if(inPopUp){
       document.body.style.backgroundColor = light
     ? "transparent"

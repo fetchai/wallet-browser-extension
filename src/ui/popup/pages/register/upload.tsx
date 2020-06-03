@@ -213,7 +213,6 @@ export default class Recover extends React.Component<Props, State> {
     if (!this.validPassword()) error = true;
     if (!(await this.validFile())) error = true;
     if (!error) {
-      debugger;
       file = await this.readFile(this.state.file as File);
       if (
         !(await this.verifyPassword(
