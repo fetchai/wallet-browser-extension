@@ -23,7 +23,7 @@ import {
 } from "../../../../config";
 import { CoinUtils } from "../../../../common/coin-utils";
 import { GetBalanceMsg } from "../../../../background/api";
-import { getActiveEndpoint } from "../../../../common/utils/active-endpoint";
+import ActiveEndpoint from "../../../../common/utils/active-endpoint";
 
 export class AccountStore {
   @observable
@@ -183,7 +183,7 @@ export class AccountStore {
 
     this.isAssetFetching = true;
 
-    const endpointData = await task(getActiveEndpoint());
+    const endpointData = await task(ActiveEndpoint.getActiveEndpoint());
 
     try {
       debugger;

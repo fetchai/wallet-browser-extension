@@ -21,12 +21,9 @@ import { Button, ButtonGroup } from "reactstrap";
 // @ts-ignore
 import OutsideClickHandler from "react-outside-click-handler";
 import classnames from "classnames";
-import {
-  getActiveEndpoint,
-  setActiveEndpoint
-} from "../../../../common/utils/active-endpoint";
 import { EndpointData } from "../../../../chain-info";
-import {isURL} from "../../../../common/utils/is-url";
+import { isURL } from "../../../../common/utils/is-url";
+import ActiveEndpoint from "../../../../common/utils/active-endpoint";
 
 const CUSTOM_ENDPOINT = "custom";
 
@@ -68,7 +65,7 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
       };
       // on mount we get active endpoint so we can get dropdown initially have this one selected
       const findActiveEndpoint = async () => {
-        const network = await getActiveEndpoint();
+        const network = await ActiveEndpoint.getActiveEndpoint();
         setNetwork(network.name);
       };
       getFile();
@@ -114,60 +111,66 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
     };
 
     /**
-     *
+     * We look check that the custom rpc and rest are valid urls and if true we add them
      *
      * note: multiple exits (returns)
      */
-    const handleCustomEndpointSubmission = event => {
-      // check that neither rest nor rpc url are empty
+    const handleCustomEndpointSubmission = async () => {
+      // check that neither rest nor rpc urls are empty
       if (customREST === "" || customRPC === "") {
-         error = true;
         setCustomEndpointHasError(true);
         setCustomEndpointOutput(
           intl.formatMessage({
             id: "register.custom.endpoint.url.empty"
           })
         );
-       return;
+        return;
       }
 
-      // check rest is valid URL
-       if (!isURL(customREST)){
-           setCustomEndpointHasError(true);
+      // check the rest url is a valid URL
+      if (!isURL(customREST)) {
+        setCustomEndpointHasError(true);
         setCustomEndpointOutput(
           intl.formatMessage({
             id: "register.custom.endpoint.url.invalid.rest"
           })
         );
-          return;
-       }
-      // check rpc is valid URL
-       if (!isURL(customREST)){
-           setCustomEndpointHasError(true);
+        return;
+      }
+      // check rpc url is a valid URL
+      if (!isURL(customRPC)) {
+        setCustomEndpointHasError(true);
         setCustomEndpointOutput(
           intl.formatMessage({
             id: "register.custom.endpoint.url.invalid.rest"
           })
         );
-          return;
-       }
+        return;
+      }
 
+      await ActiveEndpoint.addCustomEndpoint(
+        CUSTOM_ENDPOINT,
+        customRPC,
+        customREST
+      );
 
-       // we pass these tests so can set this
-   "register.custom.endpoint.url.success" : "endpoint successfully added",
-
-
+      setCustomEndpointOutput(
+        intl.formatMessage({
+          id: "register.custom.endpoint.url.success"
+        })
+      );
     };
 
     const handleNetworkChange = async (event: any) => {
       // @ts-ignore
       const selectedNetwork = event.target.value;
       setNetwork(selectedNetwork);
-      await setActiveEndpoint(selectedNetwork);
+      await ActiveEndpoint.setActiveEndpointName(selectedNetwork);
       // if it is a custom endpoint we allow user to put in their rpc and rest URIs before refreshing balance
       // but if not we refresh balance
       if (selectedNetwork !== CUSTOM_ENDPOINT) {
         await accountStore.fetchAccount();
+      } else {
       }
     };
 
@@ -480,7 +483,7 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
                     <button
                       type="submit"
                       className={`green ${style.button}`}
-                      onClick={handleCustomENDPOINT}
+                      onClick={handleCustomEndpointSubmission}
                     >
                       Update
                     </button>

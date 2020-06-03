@@ -27,7 +27,7 @@ import { BaseAccount } from "@everett-protocol/cosmosjs/common/baseAccount";
 import { registerPeggyCodecs } from "../popup/pages/send/transfer-msg";
 import { queryAccount } from "@everett-protocol/cosmosjs/core/query";
 import { COSMOS_SDK_VERSION } from "../../config";
-import { getActiveEndpoint } from "../../common/utils/active-endpoint";
+import ActiveEndpoint from "../../common/utils/active-endpoint";
 
 const Buffer = require("buffer/").Buffer;
 
@@ -97,7 +97,7 @@ export const useCosmosJS = <R extends Rest = Rest>(
 
     const query = async () => {
 
-      const endpointData = await getActiveEndpoint()
+      const endpointData = await ActiveEndpoint.getActiveEndpoint()
 
       setLoading(false);
       let isSubscribed = true;
