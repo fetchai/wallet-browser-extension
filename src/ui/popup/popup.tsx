@@ -120,6 +120,7 @@ ReactDOM.render(
               <Route exact path="/register" component={RegisterPage} />
               <Route exact path="/send" component={SendPage} />
               <Route exact path="/settings" component={SettingsPage} />
+              <Route exact path="/account-manager" component={AccountManagerPage} />
               <Route exact path="/fee/:id" component={FeePage} />
               <Route path="/sign/:id" component={SignPage} />
             </HashRouter>

@@ -9,7 +9,7 @@ import classnames from "classnames";
 import { SignOutButton } from "./sign-out";
 import { SettingsButton } from "./settings";
 import { lightModeEnabled } from "../../light-mode";
-import {AccountButton} from "./account-button";
+import { AddressManager } from "./address-manager";
 
 export const MainPage: FunctionComponent = () => {
   const [lightMode, setLightMode] = useState(false);
@@ -31,7 +31,7 @@ export const MainPage: FunctionComponent = () => {
       lightMode={lightMode}
       rightRenderer={
         <>
-          <AccountButton lightMode={lightMode} />
+          <AddressManager lightMode={lightMode} />
           <SettingsButton lightMode={lightMode} />
           <SignOutButton />
         </>

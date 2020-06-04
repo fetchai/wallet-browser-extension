@@ -7,22 +7,22 @@ export interface Props {
   lightMode: boolean;
 }
 
-export const AccountButton: FunctionComponent<Props> = observer(
+export const AddressManager: FunctionComponent<Props> = observer(
   ({ lightMode }) => {
     const history = useHistory();
 
     return (
-      <div className={style.wrapper}>
+      <div className={style.accountManagerButtonWrapper}>
         <img
           src={
             lightMode
               ? require("../../public/assets/account-icon-black.svg")
               : require("../../public/assets/account-icon.svg")
           }
-          id="btn-settings"
-          className={`fas fa-sign-out-alt ${style.settingsImage}`}
+          id="btn-account-manager"
+          className={`fas fa-sign-out-alt ${style.buttonImage}`}
           onClick={() => {
-            history.push("/settings");
+            history.push("/account-manager");
           }}
         ></img>
       </div>

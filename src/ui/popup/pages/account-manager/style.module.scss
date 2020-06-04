@@ -1,0 +1,145 @@
+@import "../../styles/var";
+@import "../../light-mode.module";
+
+$settings-width: 293px;
+
+.back-button {
+  margin-left: 0px;
+  margin-bottom: 15px;
+}
+
+.title-wrapper {
+  text-align: center;
+  margin-top: -35px;
+
+  h2 {
+    font-weight: 400;
+    color: white !important;
+  }
+}
+
+:global(.light-mode) {
+  .title-wrapper {
+    h2 {
+      color: $light-mode-grey !important;
+    }
+  }
+}
+
+.output {
+  min-height: px;
+}
+
+:global(.light-mode) {
+  .output {
+    color: $light-mode-grey;
+  }
+}
+
+.sub-heading {
+  padding-top: 0px;
+  padding-top: 10px;
+  margin-bottom: 8px;
+  color: $grey-main;
+  font-size: 14px;
+}
+
+.clickable {
+  &:hover {
+    cursor: pointer;
+  }
+}
+
+.wrapper {
+  background-color: rgba(255, 255, 255, 0.05);
+  padding: 10px;
+  border-radius: 10px;
+  margin-top: 5px;
+  overflow: hidden;
+  height: 440px;
+}
+
+:global(.light-mode) {
+  .wrapper {
+    background-color: rgb(236, 241, 243);
+  }
+}
+
+.button {
+  width: $settings-width;
+  border-radius: 5px;
+  margin-bottom: 8px;
+}
+
+.warning-wrapper {
+  text-align: center;
+  height: 23px;
+  margin-top: -13px;
+  margin-bottom: 3px;
+
+  .warning {
+    color: red;
+    font-size: 11px;
+    margin: 3px;
+  }
+}
+
+.input {
+  color: white;
+  background: none;
+  border-radius: 5px;
+  width: $settings-width;
+  margin-bottom: 10px;
+  text-indent: 8px;
+  border-width: 1px;
+  margin-bottom: 12px;
+}
+
+:global(.light-mode) {
+  .input {
+    color: black;
+  }
+}
+
+.heading {
+  font-weight: 600;
+  font-size: 17px;
+}
+
+.main-button {
+  @extend .heading;
+  margin-top: 10px;
+  &:hover {
+    cursor: pointer;
+  }
+}
+
+:global(.light-mode) {
+  .main-button {
+    color: $light-mode-grey;
+  }
+}
+
+.about-section {
+  margin-top: 10px;
+  margin-left: 5px;
+}
+
+:global(.light-mode) {
+  .about-section {
+    color: $light-mode-grey;
+  }
+}
+
+.pill-group {
+  width: 100%;
+
+  button {
+    height: 30px;
+    width: $settings-width/2;
+    border-radius: 5px;
+    margin-bottom: 8px;
+    height: 24px;
+    line-height: 4px;
+  }
+}

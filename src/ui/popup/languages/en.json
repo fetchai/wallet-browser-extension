@@ -68,6 +68,7 @@
    "settings.light-mode.pill.dark": "Dark",
 
   "settings.heading": "Settings",
+  "settings.account-manager": "My Accounts",
   "settings.update-password.heading.change-password": "Change Password",
   "settings.update-password.heading.reset": "Reset Application",
   "settings.update-password.button.delete": "Confirm",

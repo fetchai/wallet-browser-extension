@@ -29,12 +29,19 @@
   }
 }
 
-.wrapper {
+.settings-button-wrapper {
   position: absolute;
   left: -28px;
   top: 5px;
+}
 
-  .settings-image {
+.account-manager-button-wrapper {
+  position: absolute;
+  left: -60px;
+  top: 5px;
+}
+
+.button-image {
     width: 18px;
     margin-right: 5px;
 
@@ -42,10 +49,6 @@
       cursor: pointer;
     }
   }
-
-
-
-}
 
 .container-account-inner {
   display: flex;

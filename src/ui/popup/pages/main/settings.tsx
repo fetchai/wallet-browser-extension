@@ -12,7 +12,7 @@ export const SettingsButton: FunctionComponent<Props> = observer(
     const history = useHistory();
 
     return (
-      <div className={style.wrapper}>
+      <div className={style.settingsButtonWrapper}>
         <img
           src={
             lightMode
@@ -20,7 +20,7 @@ export const SettingsButton: FunctionComponent<Props> = observer(
               : require("../../public/assets/settings-icon.svg")
           }
           id="btn-settings"
-          className={`fas fa-sign-out-alt ${style.settingsImage}`}
+          className={`fas fa-sign-out-alt ${style.buttonImage}`}
           onClick={() => {
             history.push("/settings");
           }}
