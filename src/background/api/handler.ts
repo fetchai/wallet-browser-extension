@@ -1,13 +1,12 @@
 import { Handler, InternalHandler, Message } from "../../common/message";
 import { GetBalanceMsg, QueryAccountMsg } from "./messages";
-import {APIKeeper, CoinParams} from "./keeper";
-import { Coin } from "@everett-protocol/cosmosjs/common/coin";
+import { APIKeeper, CoinParams } from "./keeper";
 
 export const getHandler: (keeper: APIKeeper) => Handler = keeper => {
   return (msg: Message<unknown>) => {
     switch (msg.constructor) {
       case GetBalanceMsg:
-        return handleGetBalanceMsg(keeper)(msg as GetBalanceMsg);
+        return handleGetBalanceMsg()(msg as GetBalanceMsg);
       case QueryAccountMsg:
         return handleQueryAccountMsg(keeper)(msg as GetBalanceMsg);
       default:
@@ -28,7 +27,7 @@ const handleGetBalanceMsg: () => (
 
 const handleQueryAccountMsg: (
   keeper: APIKeeper
-) => InternalHandler<QueryAccountMsg> = keeper => {
+) => InternalHandler<QueryAccountMsg> = () => {
   return async msg => {
     return await APIKeeper.queryAccount(msg.rest, msg.bech32Address);
   };

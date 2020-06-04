@@ -1,10 +1,6 @@
-import { Crypto, HardwareStore, EncryptedKeyStructure } from "./crypto";
+import { Crypto, EncryptedKeyStructure } from "./crypto";
 import { generateWalletFromMnemonic } from "@everett-protocol/cosmosjs/utils/key";
-import {
-  Address,
-  PrivKey,
-  PubKeySecp256k1
-} from "@everett-protocol/cosmosjs/crypto";
+import { PrivKey, PubKeySecp256k1 } from "@everett-protocol/cosmosjs/crypto";
 import { KVStore } from "../../common/kvstore";
 import {
   AddressBook,
@@ -12,6 +8,7 @@ import {
   RegularAddressItem,
   WalletTuple
 } from "./types";
+import LedgerNano from "../ledger-nano/keeper";
 
 const Buffer = require("buffer/").Buffer;
 
@@ -36,8 +33,6 @@ const ACTIVE_KEY = "active-key";
  And, this manages the state, crypto, address, signing and so on...
  */
 export class KeyRing {
-  private cached: Map<string, PrivKey> = new Map();
-
   private loaded: boolean;
 
   // in the wallet we have one active address at any time, the one for which data is shown.
@@ -58,12 +53,28 @@ export class KeyRing {
    * This method finds its index in the address book
    *
    */
-  private activeAddressAddressBookIndex(): number {
-    if (this.activeAddress === null || this.addressBook === null) {
+  private activeAddressAddressBookIndex(): number | null {
+    if (typeof this.activeAddress === "undefined" || !this.addressBook.length) {
       return null;
     }
 
     return this.addressBook.findIndex(el => el.address === this.activeAddress);
+  }
+
+  public isActiveAddressHardwareAssociated() {
+    const activeAddress = this.getActiveAddressItem();
+    return activeAddress && activeAddress.hdWallet ? true : false;
+  }
+
+  private getActiveAddressItem():
+    | HardwareAddressItem
+    | RegularAddressItem
+    | null {
+    const index = this.activeAddressAddressBookIndex();
+
+    if (index === null) return null;
+
+    return this.addressBook[index];
   }
 
   /**
@@ -71,9 +82,12 @@ export class KeyRing {
    */
   public get getCurrentKeyFile(): EncryptedKeyStructure | null {
     const index = this.activeAddressAddressBookIndex();
-    return this.addressBook[index].hdWallet
-      ? null
-      : (this.addressBook[index] as RegularAddressItem).encryptedKeyStructure;
+
+    // if there is no active key(
+    if (!index || this.addressBook[index].hdWallet) return null;
+
+    return (this.addressBook[index] as RegularAddressItem)
+      .encryptedKeyStructure;
   }
 
   public get status(): KeyRingStatus {
@@ -81,7 +95,7 @@ export class KeyRing {
       return KeyRingStatus.NOTLOADED;
     }
 
-    if (!this.addressBook) {
+    if (!this.addressBook.length) {
       return KeyRingStatus.EMPTY;
     } else if (this.unlocked) {
       return KeyRingStatus.UNLOCKED;
@@ -90,17 +104,28 @@ export class KeyRing {
     }
   }
 
+  /**
+   * This one gets various properties of the active key and was required by the wallet provider
+   *
+   * @param path
+   */
   public getKey(path: string): Key {
     return this.loadKey(path);
   }
 
-  public async addNewRegularKey(mnemonic: string, password: string) {
+  public async addNewRegularKey(
+    mnemonic: string,
+    password: string,
+    active: boolean = true
+  ) {
     const regularAddressItem = await this.createRegularAddressBookItem(
       mnemonic,
       password
     );
 
     this.addressBook.push(regularAddressItem);
+    if(active)
+    this.activeAddress = regularAddressItem.address;
   }
 
   private async createRegularAddressBookItem(
@@ -129,12 +154,17 @@ export class KeyRing {
    * @param publicKeyHex
    * @param password
    */
-  public async addNewHardwareKey(publicKeyHex: string, password: string) {
+  public async addNewHardwareKey(
+    publicKeyHex: string,
+    password: string,
+    active: boolean = true
+  ) {
     const hardwareAddressItem = await this.createHardwareAddressBookItem(
       publicKeyHex,
       password
     );
     this.addressBook.push(hardwareAddressItem);
+    if(active) this.activeAddress = hardwareAddressItem.address;
   }
 
   private async createHardwareAddressBookItem(
@@ -165,7 +195,7 @@ export class KeyRing {
    *
    * @param password
    */
-  public async unlock(password: string) {ADDRESS_BOOK_KEY
+  public async unlock(password: string) {
     if (!this.addressBook) {
       throw new Error("Key ring not initialized");
     }
@@ -219,7 +249,7 @@ export class KeyRing {
    * @param password
    */
 
-  private async decryptKeyFile(
+  public async decryptKeyFile(
     password: string,
     keyFile: EncryptedKeyStructure
   ): Promise<WalletTuple> {
@@ -329,7 +359,6 @@ export class KeyRing {
   public async clear() {
     this.addressBook = [];
     this.activeAddress = undefined;
-    this.cached = new Map();
     await this.save();
   }
 
@@ -349,9 +378,16 @@ export class KeyRing {
       throw new Error("Key ring is not unlocked");
     }
 
+    const activeAddressBookItem = this.getActiveAddressItem();
+
+    if (activeAddressBookItem === null) throw new Error("no active address");
+
     let pubKey;
-    if (this._publicKeyHex) {
-      pubKey = new PubKeySecp256k1(Buffer.from(this._publicKeyHex, "hex"));
+
+    if (activeAddressBookItem.hdWallet) {
+      pubKey = new PubKeySecp256k1(
+        Buffer.from(activeAddressBookItem.publicKeyHex, "hex")
+      );
     } else {
       const privKey = this.loadPrivKey(path);
       pubKey = privKey.toPubKey();
@@ -372,18 +408,23 @@ export class KeyRing {
     return generateWalletFromMnemonic(mnemonic);
   }
 
-  /**
-   * if every address in the wallet is from hardware (nano x or s currently)
-   */
-  private allAddressesAreHardwareAssociated(): boolean {
-    return (
-      this.addressBook !== null && this.addressBook.every(item => item.hdWallet)
-    );
-  }
-
   public async triggerHardwareSigning(
     message: Uint8Array
-  ): Promise<Uint8Array> {}
+  ): Promise<Uint8Array> {
+    let signedMessage;
+    try {
+      const ledgerNano = await LedgerNano.getInstance();
+      signedMessage = await ledgerNano.sign(message);
+    } catch (error) {
+      browser.notifications.create({
+        type: "basic",
+        iconUrl: browser.runtime.getURL("assets/fetch-logo.svg"),
+        title: "Signing rejected",
+        message: error.message
+      });
+    }
+    return signedMessage as Buffer;
+  }
 
   /**
    * Sign message with private key. Only call if active key is not from hardware wallet (eg nano x or s) or it will throw.
@@ -397,14 +438,19 @@ export class KeyRing {
     }
 
     const index = this.activeAddressAddressBookIndex();
-    // sign with a non-hardware associated key ( eg
-    if ((this.addressBook as AddressBook)[index].hdWallet === true) {
-      throw new Error();
+
+    if (index === null) {
+      throw new Error("no active key");
     }
 
-    const regularAddressItem = (this.addressBook as AddressBook)[
-      index
-    ] as RegularAddressItem;
+    // sign with a non-hardware associated key ( eg
+    if (this.addressBook[index].hdWallet === true) {
+      throw new Error(
+        "this sign cannot be called when active address is hardwre associated"
+      );
+    }
+
+    const regularAddressItem = this.addressBook[index] as RegularAddressItem;
     const privKey = this.loadPrivKey(regularAddressItem.mnemonic as string);
     return privKey.sign(message);
   }

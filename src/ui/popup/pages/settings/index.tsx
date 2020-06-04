@@ -42,7 +42,6 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
     const [showDeleteConfirmation, setshowDeleteConfirmation] = useState(false);
     const [lightMode, setLightMode] = useState(false);
     const [keyFile, setKeyFile] = useState("");
-    const [hardwareLinked, setHardwareLinked] = useState(false);
 
     useEffect(() => {
       const getFile = async () => {

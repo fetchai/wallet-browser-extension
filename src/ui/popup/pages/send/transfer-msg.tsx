@@ -2,11 +2,7 @@ import { AccAddress } from "@everett-protocol/cosmosjs/common/address";
 import { Coin } from "@everett-protocol/cosmosjs/common/coin";
 import { Msg } from "@everett-protocol/cosmosjs/core/tx";
 import { Codec, Type, Amino } from "@node-a-team/ts-amino";
-import {
-  hexEthAddressToUint8Array,
-  uint8ArrayToChecksumEthAddress
-} from "../../../../../src/common/utils/buffer-convert";
-import { sortJSON } from "@everett-protocol/cosmosjs/utils/sortJson";
+import { hexEthAddressToUint8Array } from "../../../../../src/common/utils/buffer-convert";
 import Web3 from "web3";
 const { DefineStruct, Field } = Amino;
 

@@ -16,7 +16,7 @@ import {
 import { KVStore } from "../../common/kvstore";
 
 import { openWindow } from "../../common/window";
-import { KeyStore } from "./crypto";
+import { EncryptedKeyStructure } from "./crypto";
 
 export interface KeyHex {
   algo: string;
@@ -146,11 +146,12 @@ export class KeyRingKeeper {
     await this.keyRing.clear();
     return this.keyRing.status;
   }
+
   /**
-   * Is the wallet linked to a hardware device eg nano
+   * Is the active address of the wallet linked to a hardware device eg nano
    */
   isHardwareLinked(): boolean {
-    return this.keyRing._hardwareStore !== null;
+    return this.keyRing.isActiveAddressHardwareAssociated();
   }
 
   async createKey(mnemonic: string, password: string): Promise<KeyRingStatus> {
@@ -184,16 +185,22 @@ export class KeyRingKeeper {
 
   async verifyPassword(
     password: string,
-    keyFile: KeyStore | null = null
+    keyFile: EncryptedKeyStructure | null = null
   ): Promise<boolean> {
-    const [res, ] = await this.keyRing.decryptKeyFile(password, keyFile);
+    let res;
+    if (keyFile === null) {
+      res = await this.keyRing.verifyPassword(password);
+    } else {
+      [res] = await this.keyRing.decryptKeyFile(password, keyFile);
+    }
+
     return res;
   }
 
   async makeMnemonicgMsg(
     password: string,
-    keyFile: KeyStore
-  ): Promise<string | false> {
+    keyFile: EncryptedKeyStructure
+  ): Promise<string | null> {
     //todo check the change of negative return from false to null doesn't cause bug
     const [, res] = await this.keyRing.decryptKeyFile(password, keyFile);
     return res;
@@ -203,8 +210,8 @@ export class KeyRingKeeper {
     return await this.keyRing.updatePassword(password, newPassword);
   }
 
-  async handleGetKeyFile(): Promise<KeyStore | null> {
-    return this.keyRing.getCurrentKeyFile as KeyStore;
+  async handleGetKeyFile(): Promise<EncryptedKeyStructure | null> {
+    return this.keyRing.getCurrentKeyFile as EncryptedKeyStructure;
   }
 
   setPath(chainId: string, account: number, index: number) {
@@ -266,7 +273,12 @@ export class KeyRingKeeper {
     }
     // this waits until it approval message before going to next line below.
     await this.signApprover.request(id, { chainId, message });
-    return await this.keyRing.sign(this.path, message);
+
+    if (this.keyRing.isActiveAddressHardwareAssociated()) {
+      return await this.keyRing.triggerHardwareSigning(message);
+    } else {
+      return await this.keyRing.sign(message);
+    }
   }
 
   getRequestedMessage(id: string): SignMessage {

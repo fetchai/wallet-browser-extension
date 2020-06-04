@@ -3,7 +3,7 @@ import style from "./style.module.scss";
 import classnames from "classnames";
 import { strongPassword } from "../../../../common/strong-password";
 import { validJSONString } from "../../../../common/utils/valid-json-string";
-import { KeyStore } from "../../../../background/keyring/crypto";
+import { EncryptedKeyStructure } from "../../../../background/keyring/crypto";
 import { Label } from "reactstrap";
 
 const FILE_REQUIRED_ERROR_MESSAGE = "File required";
@@ -37,12 +37,21 @@ export default class Recover extends React.Component<Props, State> {
 
   private verifyPassword:
     | any
-    | ((password: string, keyFile?: KeyStore | null) => Promise<boolean>)
-    | ((password: string, keyFile?: KeyStore | null) => Promise<boolean>);
+    | ((
+        password: string,
+        keyFile?: EncryptedKeyStructure | null
+      ) => Promise<boolean>)
+    | ((
+        password: string,
+        keyFile?: EncryptedKeyStructure | null
+      ) => Promise<boolean>);
   private getMnemonic:
     | any
-    | ((password: string, keyFile: KeyStore) => Promise<string | false>)
-    | ((password: string, keyFile: KeyStore) => Promise<string>);
+    | ((
+        password: string,
+        keyFile: EncryptedKeyStructure
+      ) => Promise<string | false>)
+    | ((password: string, keyFile: EncryptedKeyStructure) => Promise<string>);
 
   constructor(props: any) {
     super(props);
@@ -88,9 +97,11 @@ export default class Recover extends React.Component<Props, State> {
     return this.state.fileError || this.state.passwordError;
   };
 
-  openUploadFile = async (event: any): Promise<void> => {
+  openUploadFile = async (event: any) => {
     event.preventDefault();
-    (document.getElementById("file") as HTMLElement).click();
+    await this.wipeFormErrors();
+    const el = document.getElementById("file");
+    (el as HTMLElement).click();
   };
 
   readFile = async (file: File): Promise<null | string> => {
@@ -210,13 +221,9 @@ export default class Recover extends React.Component<Props, State> {
     await this.setLoading(true);
     let error = false;
     let file;
-    debugger;
     if (!this.validPassword()) error = true;
-    debugger;
     if (!(await this.validFile())) error = true;
-debugger;
     if (!error) {
-      debugger;
       file = await this.readFile(this.state.file as File);
       if (
         !(await this.verifyPassword(
@@ -233,21 +240,18 @@ debugger;
     }
 
     if (!error) {
-      debugger;
       const mnemonic = await this.getMnemonic(
         this.state.password,
         JSON.parse(file as string)
       );
-       debugger;
       if (mnemonic === false) {
         this.setState({
           errorMessage: "Error occured"
         });
       }
-      debugger;
       await this.onRegister(mnemonic, this.state.password, true);
     } else {
-      // await this.setLoading(false);
+      await this.setLoading(false);
     }
   }
 

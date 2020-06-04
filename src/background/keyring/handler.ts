@@ -12,13 +12,13 @@ import {
   RejectSignMsg,
   GetRequestedMessage,
   GetRegisteredChainMsg,
-  GetKeyRingStatusMsg,
   LockKeyRingMsg,
   ClearKeyRingMsg,
   RequestTxBuilderConfigMsg,
   GetRequestedTxBuilderConfigMsg,
   ApproveTxBuilderConfigMsg,
   RejectTxBuilderConfigMsg,
+  VerifyPasswordKeyRingMsg,
   UpdatePasswordMsg,
   GetKeyFileMsg,
   makeMnemonicMsg,
@@ -58,6 +58,10 @@ export const getHandler: (keeper: KeyRingKeeper) => Handler = (
         return handleCreateHardwareKeyMsg(keeper)(msg as CreateHardwareKeyMsg);
       case LockKeyRingMsg:
         return handleLockKeyRingMsg(keeper)(msg as LockKeyRingMsg);
+          case VerifyPasswordKeyRingMsg:
+        return handleVerifyPasswordKeyRingMsg(keeper)(
+          msg as VerifyPasswordKeyRingMsg
+        );
       case UnlockKeyRingMsg:
         return handleUnlockKeyRingMsg(keeper)(msg as UnlockKeyRingMsg);
       case makeMnemonicMsg:
@@ -99,6 +103,17 @@ export const getHandler: (keeper: KeyRingKeeper) => Handler = (
     }
   };
 };
+
+const handleVerifyPasswordKeyRingMsg: (
+  keeper: KeyRingKeeper
+) => InternalHandler<any> = keeper => {
+  return async msg => {
+    return {
+      success: await keeper.verifyPassword(msg.password, msg.keyFile)
+    };
+  };
+};
+
 
 const handleEnableKeyRingMsg: (
   keeper: KeyRingKeeper

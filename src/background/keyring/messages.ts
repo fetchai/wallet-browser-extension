@@ -8,7 +8,7 @@ import {
   TxBuilderConfigPrimitiveWithChainId
 } from "./types";
 import { AsyncApprover } from "../../common/async-approver";
-import { KeyStore } from "./crypto";
+import { EncryptedKeyStructure } from "./crypto";
 
 export class EnableKeyRingMsg extends Message<{
   status: KeyRingStatus;
@@ -316,6 +316,41 @@ export class UnlockKeyRingMsg extends Message<{ status: KeyRingStatus }> {
   }
 }
 
+export class VerifyPasswordKeyRingMsg extends Message<{
+  success: boolean;
+}> {
+  public static type() {
+    return "verify-password-keyring";
+  }
+
+  public static create(
+    password: string,
+    keyFile: EncryptedKeyStructure | null = null
+  ): VerifyPasswordKeyRingMsg {
+    const msg = new VerifyPasswordKeyRingMsg();
+    msg.password = password;
+    msg.keyFile = keyFile;
+    return msg;
+  }
+
+  validateBasic(): void {
+    if (!this.password) {
+      throw new Error("password not set");
+    }
+  }
+
+  public password = "";
+  public keyFile: EncryptedKeyStructure | null = null;
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return VerifyPasswordKeyRingMsg.type();
+  }
+}
+
 export class makeMnemonicMsg extends Message<{
   mnemonic: string;
 }> {
@@ -323,7 +358,7 @@ export class makeMnemonicMsg extends Message<{
     return "get mnemonic";
   }
 
-  public static create(password: string, keyFile: KeyStore): makeMnemonicMsg {
+  public static create(password: string, keyFile: EncryptedKeyStructure): makeMnemonicMsg {
     const msg = new makeMnemonicMsg();
     msg.password = password;
     msg.keyFile = keyFile;
@@ -341,7 +376,7 @@ export class makeMnemonicMsg extends Message<{
   }
 
   public password = "";
-  public keyFile: KeyStore | null = null;
+  public keyFile: EncryptedKeyStructure | null = null;
 
   route(): string {
     return ROUTE;
