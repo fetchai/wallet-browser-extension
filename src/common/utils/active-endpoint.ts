@@ -64,7 +64,7 @@ debugger;
   public static async getCustomEndpointData(): Promise<null | EndpointData> {
     const store = new BrowserKVStore("");
     return new Promise(resolve =>
-      store.get(ACTIVE_ENDPOINT_NAME).then((result: any) => {
+      store.get(CUSTOM_ENDPOINT_DATA).then((result: any) => {
         if (typeof result === "undefined" || result === false) {
           resolve(null);
         } else {
@@ -94,6 +94,7 @@ debugger;
             ActiveEndpoint.getEndpointData(NativeChainInfos[0].defaultEndpoint)
           );
         } else {
+            debugger;
           resolve(ActiveEndpoint.getEndpointData(result));
         }
       })

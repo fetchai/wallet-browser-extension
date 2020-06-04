@@ -79,6 +79,11 @@ export class AccountStore {
     this.keyRingStatus = KeyRingStatus.NOTLOADED;
   }
 
+ @action
+  public async clearAssets(){
+      this.assets = [];
+  }
+
   // This will be called by chain store.
   @actionAsync
   public async setChainInfo(info: ChainInfo) {

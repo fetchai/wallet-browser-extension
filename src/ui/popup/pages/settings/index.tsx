@@ -158,6 +158,7 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
         customRPC,
         customREST
       );
+
       await ActiveEndpoint.setActiveEndpointName(CUSTOM_ENDPOINT);
 
 
@@ -168,7 +169,7 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
           id: "register.custom.endpoint.url.success"
         })
       );
-
+       await accountStore.clearAssets()
        await accountStore.fetchAccount();
     };
 
@@ -182,8 +183,8 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
       // but if not we refresh balance
       if (selectedNetwork !== CUSTOM_ENDPOINT) {
         await ActiveEndpoint.setActiveEndpointName(selectedNetwork);
+        await accountStore.clearAssets()
         await accountStore.fetchAccount();
-
       }
     };
 
@@ -505,7 +506,7 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
                   ""
                 )}
                 <span className={customEndpointHasError ? "red" : ""}>
-                    {customEndpointOutput}
+                  {customEndpointOutput}
                 </span>
               </div>
             </div>
