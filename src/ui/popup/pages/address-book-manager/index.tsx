@@ -3,7 +3,6 @@ import { RouteComponentProps } from "react-router-dom";
 import { HeaderLayout } from "../../layouts";
 import { BackButton } from "../../layouts";
 import { observer } from "mobx-react";
-import style from "./style.module.scss";
 // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
 // @ts-ignore
 import Expand from "react-expand-animated";
@@ -11,6 +10,8 @@ import { useStore } from "../../stores";
 import { FormattedMessage, useIntl } from "react-intl";
 import flushPromises from "flush-promises";
 import { lightModeEnabled } from "../../light-mode";
+import classnames from "classnames";
+import style from "./style.module.scss";
 
 export const AddressBookManager: FunctionComponent<RouteComponentProps> = observer(
   ({ history }) => {
@@ -69,8 +70,20 @@ export const AddressBookManager: FunctionComponent<RouteComponentProps> = observ
               </li>
             ))}
             <hr></hr>
-              <div></div>
-
+            <div></div>
+            <span
+              className={classnames("icon", "is-medium", style.icon)}
+              onClick={() => {
+                browser.tabs.create({
+                  url: "/popup.html#/register"
+                });
+              }}
+            >
+              <i className="fas fa-2x fa-plus"></i>
+            </span>
+            <span className={classnames("icon", "is-medium", style.icon)}>
+              <i className="fas fa-2x fa-download"></i>
+            </span>
           </ul>
         </div>
       </HeaderLayout>

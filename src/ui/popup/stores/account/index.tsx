@@ -103,12 +103,15 @@ export class AccountStore {
     }, AutoFetchingAssetsInterval);
   }
 
-  public async fetchEveryAddress() : Promise<Array<string>>{
-        const fetchEveryAddressMsg = FetchEveryAddressMsg.create();
+  @actionAsync
+  public async fetchEveryAddress(): Promise<Array<string>> {
+    const fetchEveryAddressMsg = FetchEveryAddressMsg.create();
+    debugger;
     const addressList = await task(
       sendMessage(BACKGROUND_PORT, fetchEveryAddressMsg)
     );
-    return addressList;
+    debugger;
+    return addressList.AddressList;
   }
 
   // This will be called by keyring store.

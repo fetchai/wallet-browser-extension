@@ -212,7 +212,6 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
       if (index === 2) {
         setcollapsible2(prev => !prev);
       } else if (!index.toString().includes("2")) {
-        debugger;
         setcollapsible2(false);
       }
 
@@ -252,7 +251,7 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
 
     return (
       <HeaderLayout
-        showChainName
+        showChainName={false}
         canChangeChainInfo={false}
         fetchIcon={true}
         lightMode={lightMode}

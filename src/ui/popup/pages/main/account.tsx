@@ -6,9 +6,7 @@ import styleAccount from "./account.module.scss";
 import classnames from "classnames";
 import { observer } from "mobx-react";
 import { useStore } from "../../stores";
-import {isFirefox} from "../../../../common/utils/is-firefox";
-
-
+import { isFirefox } from "../../../../common/utils/is-firefox";
 
 export const AccountView: FunctionComponent = observer(() => {
   const { accountStore } = useStore();

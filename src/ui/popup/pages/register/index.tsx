@@ -47,7 +47,9 @@ const BackButton: FunctionComponent<{ onClick: () => void }> = ({
   );
 };
 
-export const RegisterPage: FunctionComponent = observer(() => {
+export const RegisterPage: FunctionComponent = observer((props) => {
+
+  const supplementaryAddress = props.supplementaryAddress ? props.supplementaryAddress : false;
   const [state, setState] = useState<RegisterState>(RegisterState.INIT);
   const [accountIsCreating, setAccountIsCreating] = useState(false);
   const [words, setWords] = useState("");
@@ -177,11 +179,11 @@ export const RegisterPage: FunctionComponent = observer(() => {
         />
       </div>
       {keyRingStore.status !== KeyRingStatus.NOTLOADED &&
-      keyRingStore.status !== KeyRingStatus.EMPTY ? (
+      keyRingStore.status !== KeyRingStatus.EMPTY &&
+      false ? (
         <WelcomeInPage />
       ) : null}
-      {keyRingStore.status === KeyRingStatus.EMPTY &&
-      state === RegisterState.INIT ? (
+      {state === RegisterState.INIT ? (
         <IntroInPage
           topButton={{
             title: intl.formatMessage({
@@ -210,7 +212,7 @@ export const RegisterPage: FunctionComponent = observer(() => {
           }}
         />
       ) : null}
-      {keyRingStore.status === KeyRingStatus.EMPTY &&
+      {
       state === RegisterState.RECOVERY_CHOICE ? (
         <>
           <IntroInPage
@@ -262,7 +264,7 @@ export const RegisterPage: FunctionComponent = observer(() => {
           <BackButton onClick={onBackToInit} />
         </>
       ) : null}
-      {keyRingStore.status === KeyRingStatus.EMPTY &&
+      {
       state === RegisterState.UPLOAD ? (
         <>
           <Recover
@@ -283,7 +285,7 @@ export const RegisterPage: FunctionComponent = observer(() => {
           <BackButton onClick={onBackToChooseRecoverMethod} />
         </>
       ) : null}{" "}
-      {keyRingStore.status === KeyRingStatus.EMPTY &&
+      {
       state === RegisterState.REGISTER ? (
         <>
           <RegisterInPage
@@ -300,7 +302,7 @@ export const RegisterPage: FunctionComponent = observer(() => {
           <BackButton onClick={onBackToInit} />
         </>
       ) : null}
-      {keyRingStore.status === KeyRingStatus.EMPTY &&
+      {
       state === RegisterState.RECOVER ? (
         <>
           <RegisterInPage
@@ -312,7 +314,7 @@ export const RegisterPage: FunctionComponent = observer(() => {
           <BackButton onClick={onBackToChooseRecoverMethod} />
         </>
       ) : null}
-      {keyRingStore.status === KeyRingStatus.EMPTY &&
+      {
       state === RegisterState.VERIFY ? (
         <>
           <VerifyInPage
