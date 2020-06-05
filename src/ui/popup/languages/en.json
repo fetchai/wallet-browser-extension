@@ -68,7 +68,6 @@
    "settings.light-mode.pill.dark": "Dark",
 
   "settings.heading": "Settings",
-  "settings.account-manager": "My Accounts",
   "settings.update-password.heading.change-password": "Change Password",
   "settings.update-password.heading.reset": "Reset Application",
   "settings.update-password.button.delete": "Confirm",
@@ -79,6 +78,7 @@
   "settings.update-password.heading.download": "Download encrypted key file",
   "settings.update-password.button.download": "Download",
 
+    "address-book-manager.heading": "My Accounts",
 
   "lock.input.password": "Password",
   "lock.input.password.error.required": "Empty password",

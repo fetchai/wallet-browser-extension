@@ -24,7 +24,7 @@ import {
   RequestTxBuilderConfigMsg,
   GetRequestedTxBuilderConfigMsg,
   GetKeyFileMsg,
-  IsHardwareLinkedMsg
+  IsHardwareLinkedMsg, FetchEveryAddressMsg
 } from "./messages";
 import { ROUTE } from "./constants";
 import { getHandler } from "./handler";
@@ -50,6 +50,7 @@ export function init(
   messageManager.registerMessage(GetKeyFileMsg);
   messageManager.registerMessage(UpdatePasswordMsg);
   messageManager.registerMessage(SetPathMsg);
+  messageManager.registerMessage(FetchEveryAddressMsg);
   messageManager.registerMessage(GetKeyMsg);
   messageManager.registerMessage(RequestTxBuilderConfigMsg);
   messageManager.registerMessage(GetRequestedTxBuilderConfigMsg);

@@ -66,6 +66,10 @@ export class KeyRing {
     return activeAddress && activeAddress.hdWallet ? true : false;
   }
 
+  public getEveryAddress(): Array<string> {
+    return this.addressBook.map(el => el.address);
+  }
+
   private getActiveAddressItem():
     | HardwareAddressItem
     | RegularAddressItem
@@ -124,8 +128,7 @@ export class KeyRing {
     );
 
     this.addressBook.push(regularAddressItem);
-    if(active)
-    this.activeAddress = regularAddressItem.address;
+    if (active) this.activeAddress = regularAddressItem.address;
   }
 
   private async createRegularAddressBookItem(
@@ -164,7 +167,7 @@ export class KeyRing {
       password
     );
     this.addressBook.push(hardwareAddressItem);
-    if(active) this.activeAddress = hardwareAddressItem.address;
+    if (active) this.activeAddress = hardwareAddressItem.address;
   }
 
   private async createHardwareAddressBookItem(

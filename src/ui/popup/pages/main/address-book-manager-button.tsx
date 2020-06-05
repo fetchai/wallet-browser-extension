@@ -7,7 +7,7 @@ export interface Props {
   lightMode: boolean;
 }
 
-export const AddressManager: FunctionComponent<Props> = observer(
+export const AddressBookManagerButton: FunctionComponent<Props> = observer(
   ({ lightMode }) => {
     const history = useHistory();
 
@@ -22,7 +22,7 @@ export const AddressManager: FunctionComponent<Props> = observer(
           id="btn-account-manager"
           className={`fas fa-sign-out-alt ${style.buttonImage}`}
           onClick={() => {
-            history.push("/account-manager");
+            history.push("/address-book-manager");
           }}
         ></img>
       </div>

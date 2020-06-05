@@ -492,6 +492,27 @@ export class SetPathMsg extends Message<{ success: boolean }> {
     return SetPathMsg.type();
   }
 }
+export class FetchEveryAddressMsg extends Message<{ AddressList: Array<string> }> {
+  public static type() {
+    return "fetch-every-address";
+  }
+
+  public static create(
+  ): FetchEveryAddressMsg {
+    return new FetchEveryAddressMsg();
+  }
+
+  validateBasic(): void {
+  }
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return FetchEveryAddressMsg.type();
+  }
+}
 
 export class GetKeyMsg extends Message<KeyHex> {
   public static type() {

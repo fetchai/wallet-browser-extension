@@ -2,6 +2,7 @@ import { ChainInfo } from "../../../../chain-info";
 
 import { sendMessage } from "../../../../common/message";
 import {
+  FetchEveryAddressMsg,
   GetKeyMsg,
   KeyRingStatus,
   SetPathMsg
@@ -100,6 +101,14 @@ export class AccountStore {
     this.lastFetchingIntervalId = setInterval(() => {
       this.fetchAssets();
     }, AutoFetchingAssetsInterval);
+  }
+
+  public async fetchEveryAddress() : Promise<Array<string>>{
+        const fetchEveryAddressMsg = FetchEveryAddressMsg.create();
+    const addressList = await task(
+      sendMessage(BACKGROUND_PORT, fetchEveryAddressMsg)
+    );
+    return addressList;
   }
 
   // This will be called by keyring store.

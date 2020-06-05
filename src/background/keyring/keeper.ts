@@ -197,6 +197,10 @@ export class KeyRingKeeper {
     return res;
   }
 
+  public getEveryAddress(){
+    return this.keyRing.getEveryAddress();
+  }
+
   async makeMnemonicgMsg(
     password: string,
     keyFile: EncryptedKeyStructure

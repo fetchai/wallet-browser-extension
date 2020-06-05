@@ -10,25 +10,25 @@ import Expand from "react-expand-animated";
 import { useStore } from "../../stores";
 import { FormattedMessage, useIntl } from "react-intl";
 import flushPromises from "flush-promises";
-import {
-  lightModeEnabled,
-  setLightMode as setLightModeModule,
-  STORAGE_KEY
-} from "../../light-mode";
-import { Button, ButtonGroup } from "reactstrap";
-import OutsideClickHandler from "react-outside-click-handler";
-import classnames from "classnames";
+import { lightModeEnabled } from "../../light-mode";
 
-export const AccountManagerPage: FunctionComponent<RouteComponentProps> = observer(
+export const AddressBookManager: FunctionComponent<RouteComponentProps> = observer(
   ({ history }) => {
-    const { keyRingStore } = useStore();
+    const { keyRingStore, accountStore } = useStore();
     const intl = useIntl();
     const transitions = ["height", "opacity", "background"];
 
     const [lightMode, setLightMode] = useState(false);
+    const [addressList, setAddressList] = useState<Array<string>>([]);
 
     // on mount
-    useEffect(() => {}, []);
+    useEffect(() => {
+      const fetchEveryAddress = async () => {
+        const everyAddress = await accountStore.fetchEveryAddress();
+        setAddressList(everyAddress);
+      };
+      fetchEveryAddress();
+    }, []);
 
     useEffect(() => {
       const isEnabled = async () => {
@@ -58,11 +58,20 @@ export const AccountManagerPage: FunctionComponent<RouteComponentProps> = observ
           <div className={style.titleWrapper}>
             <h2>
               {intl.formatMessage({
-                id: "settings.account-manager"
+                id: "address-book-manager.heading"
               })}
             </h2>
           </div>
+          <ul>
+            {addressList.map((el, i) => (
+              <li key={i}>
+                Address {i} <br /> {el}
+              </li>
+            ))}
+            <hr></hr>
+              <div></div>
 
+          </ul>
         </div>
       </HeaderLayout>
     );

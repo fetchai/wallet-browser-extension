@@ -28,6 +28,7 @@ import { FeePage } from "./pages/fee";
 import Modal from "react-modal";
 import { SettingsPage } from "./pages/settings";
 import { LightMode } from "./light-mode";
+import {AddressBookManager} from "./pages/address-book-manager";
 
 // Make sure that icon file will be included in bundle
 require("./public/assets/fetch-logo.svg");
@@ -71,7 +72,6 @@ Modal.defaultStyles = {
 const StateRenderer: FunctionComponent<RouteComponentProps> = observer(
   ({ location }) => {
     const { keyRingStore } = useStore();
-    debugger;
     const intl = useIntl();
     if (keyRingStore.status === KeyRingStatus.UNLOCKED) {
       return <MainPage />;
@@ -120,7 +120,7 @@ ReactDOM.render(
               <Route exact path="/register" component={RegisterPage} />
               <Route exact path="/send" component={SendPage} />
               <Route exact path="/settings" component={SettingsPage} />
-              <Route exact path="/account-manager" component={AccountManagerPage} />
+              <Route exact path="/account-manager" component={AddressBookManager} />
               <Route exact path="/fee/:id" component={FeePage} />
               <Route path="/sign/:id" component={SignPage} />
             </HashRouter>

@@ -7,6 +7,7 @@ import {
   GetKeyMsg,
   UnlockKeyRingMsg,
   SetPathMsg,
+  FetchEveryAddressMsg,
   RequestSignMsg,
   ApproveSignMsg,
   RejectSignMsg,
@@ -72,7 +73,9 @@ export const getHandler: (keeper: KeyRingKeeper) => Handler = (
         return handleGetKeyFileMsg(keeper)(msg as GetKeyFileMsg);
       case SetPathMsg:
         return handleSetPathMsg(keeper)(msg as SetPathMsg);
-      case GetKeyMsg:
+      case FetchEveryAddressMsg:
+        return handleFetchEveryAddressMsg(keeper)(msg as FetchEveryAddressMsg);
+      case  GetKeyMsg:
         return handleGetKeyMsg(keeper)(msg as GetKeyMsg);
       case RequestTxBuilderConfigMsg:
         return handleRequestTxBuilderConfigMsg(keeper)(
@@ -267,6 +270,17 @@ const handleSetPathMsg: (
     keeper.setPath(msg.chainId, msg.account, msg.index);
     return {
       success: true
+    };
+  };
+};
+
+const handleFetchEveryAddressMsg: (
+  keeper: KeyRingKeeper
+) => InternalHandler<FetchEveryAddressMsg> = keeper => {
+  return async () => {
+    const addressList = keeper.getEveryAddress()
+    return {
+      AddressList: addressList
     };
   };
 };
