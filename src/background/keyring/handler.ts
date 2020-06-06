@@ -25,7 +25,7 @@ import {
   makeMnemonicMsg,
   CreateHardwareKeyMsg,
   IsHardwareLinkedMsg,
-  GetKeyRingStatusMsg
+  GetKeyRingStatusMsg, SetActiveAddressMsg
 } from "./messages";
 import { KeyRingKeeper } from "./keeper";
 import { Address } from "@everett-protocol/cosmosjs/crypto";
@@ -75,6 +75,8 @@ export const getHandler: (keeper: KeyRingKeeper) => Handler = (
         return handleSetPathMsg(keeper)(msg as SetPathMsg);
       case FetchEveryAddressMsg:
         return handleFetchEveryAddressMsg(keeper)(msg as FetchEveryAddressMsg);
+       case SetActiveAddressMsg:
+        return handleSetActiveAddressMsg(keeper)(msg as SetActiveAddressMsg);
       case  GetKeyMsg:
         return handleGetKeyMsg(keeper)(msg as GetKeyMsg);
       case RequestTxBuilderConfigMsg:
@@ -163,6 +165,18 @@ const handleRestoreKeyRingMsg: (
 };
 
 const handleSaveKeyRingMsg: (
+  keeper: KeyRingKeeper
+) => InternalHandler<SaveKeyRingMsg> = keeper => {
+  return async () => {
+    await keeper.save();
+    return {
+      success: true
+    };
+  };
+};
+
+
+const handleSetActiveAddressMsg: (
   keeper: KeyRingKeeper
 ) => InternalHandler<SaveKeyRingMsg> = keeper => {
   return async () => {

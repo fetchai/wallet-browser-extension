@@ -13,7 +13,7 @@ import { lightModeEnabled } from "../../light-mode";
 import classnames from "classnames";
 import style from "./style.module.scss";
 
-export const AddressBookManager: FunctionComponent<RouteComponentProps> = observer(
+export const AddressBookManagerPage: FunctionComponent<RouteComponentProps> = observer(
   ({ history }) => {
     const { keyRingStore, accountStore } = useStore();
     const intl = useIntl();

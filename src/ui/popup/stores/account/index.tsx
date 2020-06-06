@@ -114,6 +114,16 @@ export class AccountStore {
     return addressList.AddressList;
   }
 
+  @actionAsync
+  public async setActiveAddress(address: string): Promise<void> {
+    const setActiveAddressMsg = setActiveAddressMsg.create(address);
+
+     await task(
+      sendMessage(BACKGROUND_PORT, fetchEveryAddressMsg)
+    );
+     return;
+  }
+
   // This will be called by keyring store.
   @actionAsync
   public async setKeyRingStatus(status: KeyRingStatus) {

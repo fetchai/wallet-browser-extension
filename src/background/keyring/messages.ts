@@ -87,10 +87,9 @@ export class GetRegisteredChainMsg extends Message<{
   }
 }
 
-
 export class GetKeyRingStatusMsg extends Message<{
   // Need to set prototype for elements of array manually.
-    keyRingStatus: KeyRingStatus;
+  keyRingStatus: KeyRingStatus;
 }> {
   public static type() {
     return "get-key-ring-status";
@@ -358,7 +357,10 @@ export class makeMnemonicMsg extends Message<{
     return "get mnemonic";
   }
 
-  public static create(password: string, keyFile: EncryptedKeyStructure): makeMnemonicMsg {
+  public static create(
+    password: string,
+    keyFile: EncryptedKeyStructure
+  ): makeMnemonicMsg {
     const msg = new makeMnemonicMsg();
     msg.password = password;
     msg.keyFile = keyFile;
@@ -492,18 +494,18 @@ export class SetPathMsg extends Message<{ success: boolean }> {
     return SetPathMsg.type();
   }
 }
-export class FetchEveryAddressMsg extends Message<{ AddressList: Array<string> }> {
+export class FetchEveryAddressMsg extends Message<{
+  AddressList: Array<string>;
+}> {
   public static type() {
     return "fetch-every-address";
   }
 
-  public static create(
-  ): FetchEveryAddressMsg {
+  public static create(): FetchEveryAddressMsg {
     return new FetchEveryAddressMsg();
   }
 
-  validateBasic(): void {
-  }
+  validateBasic(): void {}
 
   route(): string {
     return ROUTE;
@@ -511,6 +513,34 @@ export class FetchEveryAddressMsg extends Message<{ AddressList: Array<string> }
 
   type(): string {
     return FetchEveryAddressMsg.type();
+  }
+}
+
+export class SetActiveAddressMsg extends Message<{}> {
+  public static type() {
+    return "set-active-address";
+  }
+
+  public address: string = "";
+
+  public static create(address: string): SetActiveAddressMsg {
+    const msg = new SetActiveAddressMsg();
+    msg.address = address;
+    return msg;
+  }
+
+  validateBasic(): void {
+    if (!this.address) {
+      throw new Error("address not set");
+    }
+  }
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return SetActiveAddressMsg.type();
   }
 }
 

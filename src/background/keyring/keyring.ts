@@ -81,6 +81,10 @@ export class KeyRing {
     return this.addressBook[index];
   }
 
+  public setActiveAddress(address: string){
+
+  }
+
   /**
    * it gets the key file for the currently active key, else null if currently active key is hardware associated (eg from nano X or S)
    */

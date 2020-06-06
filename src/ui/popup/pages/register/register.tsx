@@ -180,7 +180,7 @@ export const RegisterInPage: FunctionComponent<{
           })}
           error={errors.password && errors.password.message}
         />
-        {!isRegistering ? (
+        { isRegistering ? (
           <Input
             label={intl.formatMessage({
               id: "register.create.input.confirm-password"

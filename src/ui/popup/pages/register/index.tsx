@@ -58,12 +58,14 @@ export const AddAddressWizard: FunctionComponent<NewAddressWizardProps> = observ
     const [state, setState] = useState<RegisterState>(
       determineInitialState(initialRegisterState)
     );
+
     const [accountIsCreating, setAccountIsCreating] = useState(false);
     const [words, setWords] = useState("");
     const [numWords, setNumWords] = useState<NunWords>(NunWords.WORDS12);
     const [password, setPassword] = useState("");
     const [hardwareErrorMessage, setHardwareErrorMessage] = useState("");
-    const [address, setAddress] = useState("22");
+    const [address, setAddress] = useState("");
+    const [wizardComplete, setWizardComplete] = useState(false);
 
     /**
      * If the page is being shown from the address book then we will want to skip the initial page and go directly to the upload page,
@@ -119,6 +121,7 @@ export const AddAddressWizard: FunctionComponent<NewAddressWizardProps> = observ
         } finally {
           setAccountIsCreating(false);
         }
+        setWizardComplete(true);
       },
       [keyRingStore]
     );
@@ -132,6 +135,7 @@ export const AddAddressWizard: FunctionComponent<NewAddressWizardProps> = observ
         } finally {
           setAccountIsCreating(false);
         }
+        setWizardComplete(true);
       },
       [keyRingStore]
     );
@@ -163,6 +167,8 @@ export const AddAddressWizard: FunctionComponent<NewAddressWizardProps> = observ
           throw new Error("Invalid num words");
       }
     }, []);
+    // initialize it to something
+    // generateMnemonic(numWords);
 
     const onVerify = useCallback(
       async (_words: string) => {
@@ -201,16 +207,8 @@ export const AddAddressWizard: FunctionComponent<NewAddressWizardProps> = observ
             alt="logo"
           />
         </div>
-        {keyRingStore.status !== KeyRingStatus.NOTLOADED &&
-        keyRingStore.status !== KeyRingStatus.EMPTY &&
-        isRegistering ? (
-          <WelcomeInPage />
-        ) : null}
-        {keyRingStore.status !== KeyRingStatus.NOTLOADED &&
-        keyRingStore.status !== KeyRingStatus.EMPTY &&
-        !isRegistering ? (
-          <SuccessPage />
-        ) : null}
+        {wizardComplete && isRegistering ? <WelcomeInPage /> : null}
+        {wizardComplete && !isRegistering ? <SuccessPage /> : null}
         {state === RegisterState.INIT ? (
           <IntroInPage
             topButton={{
@@ -288,7 +286,7 @@ export const AddAddressWizard: FunctionComponent<NewAddressWizardProps> = observ
                 }
               }}
             />
-            <BackButton onClick={onBackToInit} />
+            {isRegistering ? <BackButton onClick={onBackToInit} /> : null}
           </>
         ) : null}
         {state === RegisterState.UPLOAD ? (
@@ -302,8 +300,7 @@ export const AddAddressWizard: FunctionComponent<NewAddressWizardProps> = observ
             <BackButton onClick={onBackToChooseRecoverMethod} />
           </>
         ) : null}{" "}
-        {keyRingStore.status === KeyRingStatus.EMPTY &&
-        state === RegisterState.HARDWARE_UPLOAD ? (
+        {state === RegisterState.HARDWARE_UPLOAD ? (
           <>
             <Hardware
               onRegister={registerFromHarwareWallet}
@@ -329,7 +326,7 @@ export const AddAddressWizard: FunctionComponent<NewAddressWizardProps> = observ
               isRegistering={isRegistering}
               verifyPassword={keyRingStore.verifyPassword}
             />
-            <BackButton onClick={onBackToInit} />
+            {isRegistering ? <BackButton onClick={onBackToInit} /> : null}
           </>
         ) : null}
         {state === RegisterState.RECOVER ? (

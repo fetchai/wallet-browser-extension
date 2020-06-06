@@ -267,6 +267,11 @@ export default class Upload extends React.Component<Props, State> {
       error = true;
     }
 
+
+    if (!this.isRegistering && !(await this.correctPassword())) {
+      error = true;
+    }
+
     if (!(await this.validFile())) error = true;
     if (!error) {
       file = await this.readFile(this.state.file as File);
@@ -334,7 +339,7 @@ export default class Upload extends React.Component<Props, State> {
             className={style.label}
             style={{ width: "100%" }}
           >
-            {this.isRegistering ? "Password" : "File Password"}
+            {this.isRegistering ? "File Password" : "Password"}
           </Label>
           <input
             type="password"
@@ -347,14 +352,14 @@ export default class Upload extends React.Component<Props, State> {
             value={this.state.password}
             onChange={this.handleChange}
           ></input>
-          {this.isRegistering ? (
+          {!this.isRegistering ? (
             <>
               <Label
                 for="wallet-password"
                 className={style.label}
                 style={{ width: "100%" }}
               >
-                Confirm Wallet Password
+                Your Wallet Password
               </Label>
               <input
                 type="password"
@@ -362,8 +367,8 @@ export default class Upload extends React.Component<Props, State> {
                   style.recoverInput,
                   this.state.walletPasswordError ? "red" : false
                 )}
-                id="wallet-password"
-                name="wallet-password"
+                id="walletPassword"
+                name="walletPassword"
                 value={this.state.walletPassword}
                 onChange={this.handleChange}
               ></input>
