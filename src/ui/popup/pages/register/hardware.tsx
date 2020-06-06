@@ -10,12 +10,16 @@ import { LedgerNanoMsg } from "../../../../background/ledger-nano";
 import { METHODS } from "../../../../background/ledger-nano/constants";
 import { sendMessage } from "../../../../common/message/send";
 import { BACKGROUND_PORT } from "../../../../common/message/constant";
+import { EncryptedKeyStructure } from "../../../../background/keyring/crypto";
 
 export interface Props {
   onRegister: (publicKeyHex: string, password: string) => void;
   propsAddress: string;
   isRegistering: boolean;
-  verifyPassword: () => {};
+  verifyPassword: (
+    password: string,
+    keyFile: EncryptedKeyStructure | null
+  ) => Promise<boolean>;
 }
 
 export const Hardware: FunctionComponent<Props> = observer(
@@ -44,16 +48,16 @@ export const Hardware: FunctionComponent<Props> = observer(
       onRegister(publicKeyHex, password);
     };
 
-      /**
-       * This page can be used for registraion but also for adding a new account to your wallet. If it is the later then we call this function
-       * to check password is correct, and without password confirm before registering the account with the wallet.
-       */
+    /**
+     * This page can be used for registraion but also for adding a new account to your wallet. If it is the later then we call this function
+     * to check password is correct, and without password confirm before registering the account with the wallet.
+     */
     const handleSubmitForAddingAdditionalAccount = async () => {
-          wipeFormErrors();
+      wipeFormErrors();
       await flushPromises();
-      if (!correctPassword()) return;
-       onRegister(publicKeyHex, password);
-      }
+      if (!(await correctPassword())) return;
+      onRegister(publicKeyHex, password);
+    };
 
     //on mount
     useEffect(() => {
@@ -94,13 +98,34 @@ export const Hardware: FunctionComponent<Props> = observer(
       return true;
     };
 
-      /**
-       * if we are adding an additional password to an account then this is used to
-       */
+    /**
+     * if we are adding an additional address to an account then this is used to check for wallet password
+     *
+     */
 
-    const correctPassword = () => {
+    const correctPassword = async () => {
+      if (password === "" || password.length === 0) {
+        setPasswordErrorMessage(
+          intl.formatMessage({
+            id: "register.create.input.password.error.required"
+          })
+        );
+        return false;
+      }
 
-    }
+      // @ts-ignore
+      const correct = verifyPassword(password);
+
+      if (!correct) {
+        setPasswordErrorMessage(
+          intl.formatMessage({
+            id: "register.create.input.password.error.incorrect"
+          })
+        );
+      }
+
+      return true;
+    };
 
     const validatePassword = () => {
       if (password === "" || password.length === 0) {
@@ -289,7 +314,7 @@ export const Hardware: FunctionComponent<Props> = observer(
               className={classnames(style.recoverButton, "green")}
               onClick={event => {
                 event.preventDefault();
-                if(isRegistering)  handleSubmitForRegistration();
+                if (isRegistering) handleSubmitForRegistration();
                 else handleSubmitForAddingAdditionalAccount();
               }}
             >

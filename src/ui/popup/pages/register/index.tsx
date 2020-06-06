@@ -12,7 +12,7 @@ import { Button } from "reactstrap";
 import { KeyRingStore } from "../../stores/keyring";
 import { WelcomeInPage } from "./welcome";
 import { FormattedMessage, useIntl } from "react-intl";
-import Recover from "./upload";
+import Upload from "./upload";
 import { Hardware } from "./hardware";
 import { LedgerNanoMsg } from "../../../../background/ledger-nano";
 import { METHODS } from "../../../../background/ledger-nano/constants";
@@ -293,10 +293,11 @@ export const AddAddressWizard: FunctionComponent<NewAddressWizardProps> = observ
         ) : null}
         {state === RegisterState.UPLOAD ? (
           <>
-            <Recover
+            <Upload
               onRegister={onRegister}
               getMnemonic={keyRingStore.getMnemonic}
               verifyPassword={keyRingStore.verifyPassword}
+              isRegistering={isRegistering}
             />
             <BackButton onClick={onBackToChooseRecoverMethod} />
           </>
@@ -306,7 +307,7 @@ export const AddAddressWizard: FunctionComponent<NewAddressWizardProps> = observ
           <>
             <Hardware
               onRegister={registerFromHarwareWallet}
-              isRegistering = {isRegistering}
+              isRegistering={isRegistering}
               verifyPassword={keyRingStore.verifyPassword}
               propsAddress={address}
             />
@@ -325,6 +326,8 @@ export const AddAddressWizard: FunctionComponent<NewAddressWizardProps> = observ
               words={words}
               isRecover={false}
               isLoading={accountIsCreating}
+              isRegistering={isRegistering}
+              verifyPassword={keyRingStore.verifyPassword}
             />
             <BackButton onClick={onBackToInit} />
           </>
@@ -336,6 +339,8 @@ export const AddAddressWizard: FunctionComponent<NewAddressWizardProps> = observ
               words={words}
               isRecover={true}
               isLoading={accountIsCreating}
+              isRegistering={isRegistering}
+              verifyPassword={keyRingStore.verifyPassword}
             />
             <BackButton onClick={onBackToChooseRecoverMethod} />
           </>

@@ -8,6 +8,7 @@ import classnames from "classnames";
 import { FormattedMessage, useIntl } from "react-intl";
 import { NunWords } from "./index";
 import { strongPassword } from "../../../../common/strong-password";
+import { EncryptedKeyStructure } from "../../../../background/keyring/crypto";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const bip39 = require("bip39");
 
@@ -17,6 +18,13 @@ interface FormData {
   confirmPassword: string;
 }
 
+/**
+ * note: isRecover refers to if the mnemonic is being used to recover privkey or new menmonic to create new privkey
+ * where isRegistering refers to if we are registering a new account in a new wallet or else if false then it is in a pre-existing wallet adding an additional address
+ *
+ *
+ */
+
 export const RegisterInPage: FunctionComponent<{
   onRegister: (words: string, password: string, recovered: boolean) => void;
   requestChaneNumWords?: (numWords: NunWords) => void;
@@ -24,10 +32,15 @@ export const RegisterInPage: FunctionComponent<{
   isRecover: boolean;
   isLoading: boolean;
   words: string;
+  isRegistering: boolean;
+  verifyPassword: (
+    password: string,
+    keyFile: EncryptedKeyStructure | null
+  ) => Promise<boolean>;
 }> = props => {
   const intl = useIntl();
 
-  const { isRecover } = props;
+  const { isRecover, isRegistering, verifyPassword } = props;
   const { register, handleSubmit, setValue, getValues, errors } = useForm<
     FormData
   >({
@@ -137,7 +150,13 @@ export const RegisterInPage: FunctionComponent<{
           error={errors.words && errors.words.message}
         />
         <Input
-          label={intl.formatMessage({ id: "register.create.input.password" })}
+          label={
+            isRegistering
+              ? intl.formatMessage({ id: "register.create.input.password" })
+              : intl.formatMessage({
+                  id: "register.create.input.password.wallet"
+                })
+          }
           type="password"
           className={classnames(
             style.password,
@@ -161,32 +180,35 @@ export const RegisterInPage: FunctionComponent<{
           })}
           error={errors.password && errors.password.message}
         />
-        <Input
-          label={intl.formatMessage({
-            id: "register.create.input.confirm-password"
-          })}
-          type="password"
-          className={classnames(
-            style.password,
-            errors.confirmPassword && errors.confirmPassword.message
-              ? "on-change-remove-error"
-              : false
-          )}
-          name="confirmPassword"
-          ref={register({
-            required: intl.formatMessage({
-              id: "register.create.input.confirm-password.error.required"
-            }),
-            validate: (confirmPassword: string): string | undefined => {
-              if (confirmPassword !== getValues()["password"]) {
-                return intl.formatMessage({
-                  id: "register.create.input.confirm-password.error.unmatched"
-                });
+        {!isRegistering ? (
+          <Input
+            label={intl.formatMessage({
+              id: "register.create.input.confirm-password"
+            })}
+            type="password"
+            className={classnames(
+              style.password,
+              errors.confirmPassword && errors.confirmPassword.message
+                ? "on-change-remove-error"
+                : false
+            )}
+            name="confirmPassword"
+            ref={register({
+              required: intl.formatMessage({
+                id: "register.create.input.confirm-password.error.required"
+              }),
+              validate: (confirmPassword: string): string | undefined => {
+                if (confirmPassword !== getValues()["password"]) {
+                  return intl.formatMessage({
+                    id: "register.create.input.confirm-password.error.unmatched"
+                  });
+                }
               }
-            }
-          })}
-          error={errors.confirmPassword && errors.confirmPassword.message}
-        />
+            })}
+            error={errors.confirmPassword && errors.confirmPassword.message}
+          />
+        ) : null}
+
         <Button
           style={{ marginTop: "5px" }}
           className="green"

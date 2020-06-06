@@ -9,6 +9,8 @@ import { Label } from "reactstrap";
 const FILE_REQUIRED_ERROR_MESSAGE = "File required";
 const INCORRECT_FILE_TYPE_ERROR_MESSAGE = "Incorrect file type";
 const PASSWORD_REQUIRED_ERROR_MESSAGE = "Password required";
+const INCORRECT_WALLET_PASSWORD_ERROR_MESSAGE =
+  "Incorrect (wallet) Login Password";
 const UNREADABLE_FILE_ERROR_MESSAGE = "Unable to read file";
 const WEAK_PASSWORD_ERROR_MESSAGE = "Incorrect Password";
 
@@ -20,15 +22,18 @@ type State = {
   passwordError: boolean;
   fileError: boolean;
   loading: boolean;
+  walletPassword: string;
+  walletPasswordError: boolean;
 };
 
 type Props = {
   onRegister: any;
   verifyPassword: any;
   getMnemonic: any;
+  isRegistering: boolean;
 };
 
-export default class Recover extends React.Component<Props, State> {
+export default class Upload extends React.Component<Props, State> {
   private onRegister: (
     words: string,
     password: string,
@@ -53,12 +58,14 @@ export default class Recover extends React.Component<Props, State> {
       ) => Promise<string | false>)
     | ((password: string, keyFile: EncryptedKeyStructure) => Promise<string>);
 
+  private isRegistering: boolean;
+
   constructor(props: any) {
     super(props);
     this.onRegister = props.onRegister;
-    this.verifyPassword = props.visRegistering = {isRegistering}
-              verifyPassword={keyRingStore.verifyPassword}erifyPassword;
+    this.verifyPassword = props.verifyPassword;
     this.getMnemonic = props.getMnemonic;
+    this.isRegistering = props.isRegistering;
   }
 
   public readonly state: State = {
@@ -68,7 +75,9 @@ export default class Recover extends React.Component<Props, State> {
     errorMessage: "",
     passwordError: false,
     fileError: false,
-    loading: false
+    loading: false,
+    walletPassword: "",
+    walletPasswordError: false
   };
 
   async setLoading(loading: boolean) {
@@ -87,7 +96,8 @@ export default class Recover extends React.Component<Props, State> {
       this.setState(
         {
           fileError: false,
-          passwordError: false
+          passwordError: false,
+          walletPasswordError: false
         },
         resolve
       );
@@ -212,6 +222,35 @@ export default class Recover extends React.Component<Props, State> {
   };
 
   /**
+   * This method is only called when you are adding
+   *  a new address to an existing wallet. It checks that the password is the correct wallet password.
+   *
+   */
+  async correctPassword() {
+    if (
+      this.state.walletPassword === "" ||
+      this.state.walletPassword.length === 0
+    ) {
+      this.setState({
+        errorMessage: PASSWORD_REQUIRED_ERROR_MESSAGE,
+        walletPasswordError: true
+      });
+      return false;
+    }
+    const correctPassword = await this.verifyPassword(
+      this.state.walletPassword
+    );
+
+    if (!correctPassword) {
+      this.setState({
+        errorMessage: INCORRECT_WALLET_PASSWORD_ERROR_MESSAGE,
+        walletPasswordError: true
+      });
+      return false;
+    }
+  }
+
+  /**
    * Main logic processing of page. Checks if password is correct and file is of correct form and decrypts if true,
    * Setting error message(s) otherwise.
    *
@@ -223,6 +262,11 @@ export default class Recover extends React.Component<Props, State> {
     let error = false;
     let file;
     if (!this.validPassword()) error = true;
+
+    if (!this.isRegistering && !(await this.correctPassword())) {
+      error = true;
+    }
+
     if (!(await this.validFile())) error = true;
     if (!error) {
       file = await this.readFile(this.state.file as File);
@@ -250,7 +294,12 @@ export default class Recover extends React.Component<Props, State> {
           errorMessage: "Error occured"
         });
       }
-      await this.onRegister(mnemonic, this.state.password, true);
+      // if we are registering we encrypt with password, else if not we encrypt with the walllet password instead
+      const password = this.isRegistering
+        ? this.state.password
+        : this.state.walletPassword;
+
+      await this.onRegister(mnemonic, password, true);
     } else {
       await this.setLoading(false);
     }
@@ -285,7 +334,7 @@ export default class Recover extends React.Component<Props, State> {
             className={style.label}
             style={{ width: "100%" }}
           >
-            Password
+            {this.isRegistering ? "Password" : "File Password"}
           </Label>
           <input
             type="password"
@@ -298,6 +347,29 @@ export default class Recover extends React.Component<Props, State> {
             value={this.state.password}
             onChange={this.handleChange}
           ></input>
+          {this.isRegistering ? (
+            <>
+              <Label
+                for="wallet-password"
+                className={style.label}
+                style={{ width: "100%" }}
+              >
+                Confirm Wallet Password
+              </Label>
+              <input
+                type="password"
+                className={classnames(
+                  style.recoverInput,
+                  this.state.walletPasswordError ? "red" : false
+                )}
+                id="wallet-password"
+                name="wallet-password"
+                value={this.state.walletPassword}
+                onChange={this.handleChange}
+              ></input>
+            </>
+          ) : null}
+
           <output
             className={classnames(style.output, this.hasError() ? "red" : "")}
             id="output"
