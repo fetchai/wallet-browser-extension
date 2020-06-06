@@ -102,7 +102,7 @@ export class KeyRingStore {
   public async verifyPassword(
     password: string,
     keyFile: EncryptedKeyStructure | null = null
-  ) {
+  ): Promise<boolean> {
     const msg = VerifyPasswordKeyRingMsg.create(password, keyFile);
     const result = await task(sendMessage(BACKGROUND_PORT, msg));
     return result.success;

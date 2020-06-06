@@ -7,7 +7,7 @@ import "./styles/global.scss";
 import "../popup/pages/settings/style.module.scss";
 
 import { HashRouter, Route, RouteComponentProps } from "react-router-dom";
-import { RegisterPage } from "./pages/register";
+import {AddAddressWizard, RegisterState} from "./pages/register";
 import { MainPage } from "./pages/main";
 import { LockPage } from "./pages/lock";
 import { SendPage } from "./pages/send";
@@ -117,7 +117,9 @@ ReactDOM.render(
           <NotificationProvider>
             <HashRouter>
               <Route exact path="/" component={StateRenderer} />
-              <Route exact path="/register" component={RegisterPage} />
+              <Route exact path="/register"  render={() => <AddAddressWizard isRegistering={true} />}/>
+              <Route exact path="/add-account/create"  render={() => <AddAddressWizard isRegistering={false} initialRegisterState={RegisterState.REGISTER} />}/>
+              <Route exact path="/add-account/import"  render={() => <AddAddressWizard isRegistering={false} initialRegisterState={RegisterState.RECOVERY_CHOICE}  />}/>
               <Route exact path="/send" component={SendPage} />
               <Route exact path="/settings" component={SettingsPage} />
               <Route exact path="/address-book-manager" component={AddressBookManager} />

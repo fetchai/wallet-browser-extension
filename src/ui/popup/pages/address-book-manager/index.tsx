@@ -75,13 +75,20 @@ export const AddressBookManager: FunctionComponent<RouteComponentProps> = observ
               className={classnames("icon", "is-medium", style.icon)}
               onClick={() => {
                 browser.tabs.create({
-                  url: "/popup.html#/register"
+                  url: "/popup.html#/add-account/create"
                 });
               }}
             >
               <i className="fas fa-2x fa-plus"></i>
             </span>
-            <span className={classnames("icon", "is-medium", style.icon)}>
+            <span
+              className={classnames("icon", "is-medium", style.icon)}
+              onClick={() => {
+                browser.tabs.create({
+                  url: "/popup.html#/add-account/import"
+                });
+              }}
+            >
               <i className="fas fa-2x fa-download"></i>
             </span>
           </ul>

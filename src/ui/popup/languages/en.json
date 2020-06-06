@@ -53,6 +53,9 @@
   "register.welcome.title": "You’re all set!",
   "register.welcome.content": "Open the extension and sign in to begin your interchain journey.",
   "register.welcome.button.done": "Done",
+  "register.success.title": "Address successfully added!",
+  "register.success.content": "re-open the extension and the new address will be in your address book",
+  "register.success.button.done": "Done",
 
    "settings.update-password.new.error.required": "New password required",
    "settings.update-password.new.error.unchanged": "New password equals current password",

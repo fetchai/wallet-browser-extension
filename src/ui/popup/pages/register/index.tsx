@@ -18,8 +18,9 @@ import { LedgerNanoMsg } from "../../../../background/ledger-nano";
 import { METHODS } from "../../../../background/ledger-nano/constants";
 import { BACKGROUND_PORT } from "../../../../common/message/constant";
 import { sendMessage } from "../../../../common/message/send";
+import { SuccessPage } from "./successPage";
 
-enum RegisterState {
+export enum RegisterState {
   INIT,
   REGISTER,
   RECOVERY_CHOICE,
@@ -47,284 +48,309 @@ const BackButton: FunctionComponent<{ onClick: () => void }> = ({
   );
 };
 
-export const RegisterPage: FunctionComponent = observer((props) => {
+interface NewAddressWizardProps {
+  isRegistering: boolean;
+  initialRegisterState?: RegisterState;
+}
 
-  const supplementaryAddress = props.supplementaryAddress ? props.supplementaryAddress : false;
-  const [state, setState] = useState<RegisterState>(RegisterState.INIT);
-  const [accountIsCreating, setAccountIsCreating] = useState(false);
-  const [words, setWords] = useState("");
-  const [numWords, setNumWords] = useState<NunWords>(NunWords.WORDS12);
-  const [password, setPassword] = useState("");
-  const [hardwareErrorMessage, setHardwareErrorMessage] = useState("");
-  const [address, setAddress] = useState("22");
+export const AddAddressWizard: FunctionComponent<NewAddressWizardProps> = observer(
+  ({ isRegistering, initialRegisterState = null }) => {
+    const [state, setState] = useState<RegisterState>(
+      determineInitialState(initialRegisterState)
+    );
+    const [accountIsCreating, setAccountIsCreating] = useState(false);
+    const [words, setWords] = useState("");
+    const [numWords, setNumWords] = useState<NunWords>(NunWords.WORDS12);
+    const [password, setPassword] = useState("");
+    const [hardwareErrorMessage, setHardwareErrorMessage] = useState("");
+    const [address, setAddress] = useState("22");
 
-  /**
-   * note: fails silently; used only to get load address early from nano so if logged in the next page loads faster
-   */
-  const getAddressFromNano = async (): Promise<string> => {
-    const msg = LedgerNanoMsg.create(METHODS.getCosmosAddress);
-    const address = await sendMessage(BACKGROUND_PORT, msg);
-
-    return typeof address.errorMessage === "undefined"
-      ? (address.result as string)
-      : "";
-  };
-
-  const readyToRegisterThroughHardwareWallet = async (): Promise<boolean> => {
-    let error = false;
-
-    const msg = LedgerNanoMsg.create(METHODS.isSupportedVersion);
-    const result = await sendMessage(BACKGROUND_PORT, msg);
-
-    if (typeof result.errorMessage !== "undefined") {
-      error = true;
-      setHardwareErrorMessage(result.errorMessage);
+    /**
+     * If the page is being shown from the address book then we will want to skip the initial page and go directly to the upload page,
+     *  or the create page so we set the initial state from the constructor else we start from the begining of this wizard
+     *
+     * @param initialRegisterState
+     */
+    function determineInitialState(initialRegisterState: RegisterState | null) {
+      let initialState;
+      if (initialRegisterState !== null) {
+        initialState = initialRegisterState;
+      } else {
+        initialState = RegisterState.INIT;
+      }
+      return initialState;
     }
 
-    return !error;
-  };
+    /**
+     * note: fails silently; used only to get load address early from nano so if logged in the next page loads faster
+     */
+    const getAddressFromNano = async (): Promise<string> => {
+      const msg = LedgerNanoMsg.create(METHODS.getCosmosAddress);
+      const address = await sendMessage(BACKGROUND_PORT, msg);
 
-  const intl = useIntl();
-  const { keyRingStore } = useStore();
+      return typeof address.errorMessage === "undefined"
+        ? (address.result as string)
+        : "";
+    };
 
-  const register = useCallback(
-    async (words: string, password: string) => {
-      setAccountIsCreating(true);
-      try {
-        await keyRingStore.createKey(words, password);
-        await keyRingStore.save();
-      } finally {
-        setAccountIsCreating(false);
+    const readyToRegisterThroughHardwareWallet = async (): Promise<boolean> => {
+      let error = false;
+
+      const msg = LedgerNanoMsg.create(METHODS.isSupportedVersion);
+      const result = await sendMessage(BACKGROUND_PORT, msg);
+
+      if (typeof result.errorMessage !== "undefined") {
+        error = true;
+        setHardwareErrorMessage(result.errorMessage);
       }
-    },
-    [keyRingStore]
-  );
 
-  const registerFromHarwareWallet = useCallback(
-    async (publicKeyHex: string, password: string) => {
-      setAccountIsCreating(true);
-      try {
-        await keyRingStore.createHardwareKey(publicKeyHex, password);
-        await keyRingStore.save();
-      } finally {
-        setAccountIsCreating(false);
+      return !error;
+    };
+
+    const intl = useIntl();
+    const { keyRingStore } = useStore();
+
+    const register = useCallback(
+      async (words: string, password: string) => {
+        setAccountIsCreating(true);
+        try {
+          await keyRingStore.createKey(words, password);
+          await keyRingStore.save();
+        } finally {
+          setAccountIsCreating(false);
+        }
+      },
+      [keyRingStore]
+    );
+
+    const registerFromHarwareWallet = useCallback(
+      async (publicKeyHex: string, password: string) => {
+        setAccountIsCreating(true);
+        try {
+          await keyRingStore.createHardwareKey(publicKeyHex, password);
+          await keyRingStore.save();
+        } finally {
+          setAccountIsCreating(false);
+        }
+      },
+      [keyRingStore]
+    );
+
+    const onRegister = useCallback(
+      (_words: string, password: string, recovered: boolean): void => {
+        if (!recovered) {
+          if (words !== _words) {
+            throw new Error("Unexpected error");
+          }
+          setPassword(password);
+          setState(RegisterState.VERIFY);
+        } else {
+          register(_words, password);
+        }
+      },
+      [register, words]
+    );
+
+    const generateMnemonic = useCallback((numWords: NunWords) => {
+      switch (numWords) {
+        case NunWords.WORDS12:
+          setWords(KeyRingStore.GenereateMnemonic(128));
+          break;
+        case NunWords.WORDS24:
+          setWords(KeyRingStore.GenereateMnemonic(256));
+          break;
+        default:
+          throw new Error("Invalid num words");
       }
-    },
-    [keyRingStore]
-  );
+    }, []);
 
-  const onRegister = useCallback(
-    (_words: string, password: string, recovered: boolean): void => {
-      if (!recovered) {
+    const onVerify = useCallback(
+      async (_words: string) => {
         if (words !== _words) {
           throw new Error("Unexpected error");
         }
-        setPassword(password);
-        setState(RegisterState.VERIFY);
-      } else {
-        register(_words, password);
-      }
-    },
-    [register, words]
-  );
+        await register(_words, password);
+      },
+      [register, password, words]
+    );
 
-  const generateMnemonic = useCallback((numWords: NunWords) => {
-    switch (numWords) {
-      case NunWords.WORDS12:
-        setWords(KeyRingStore.GenereateMnemonic(128));
-        break;
-      case NunWords.WORDS24:
-        setWords(KeyRingStore.GenereateMnemonic(256));
-        break;
-      default:
-        throw new Error("Invalid num words");
-    }
-  }, []);
+    const onBackToInit = useCallback(() => {
+      setHardwareErrorMessage("");
+      setState(RegisterState.INIT);
+    }, []);
 
-  const onVerify = useCallback(
-    async (_words: string) => {
-      if (words !== _words) {
-        throw new Error("Unexpected error");
-      }
-      await register(_words, password);
-    },
-    [register, password, words]
-  );
+    const onBackToChooseRecoverMethod = useCallback(() => {
+      setHardwareErrorMessage("");
+      setState(RegisterState.RECOVERY_CHOICE);
+    }, []);
 
-  const onBackToInit = useCallback(() => {
-    setHardwareErrorMessage("");
-    setState(RegisterState.INIT);
-  }, []);
+    const onBackToRegister = useCallback(() => {
+      setHardwareErrorMessage("");
+      setState(RegisterState.REGISTER);
+    }, []);
 
-  const onBackToChooseRecoverMethod = useCallback(() => {
-    setHardwareErrorMessage("");
-    setState(RegisterState.RECOVERY_CHOICE);
-  }, []);
-
-  const onBackToRegister = useCallback(() => {
-    setHardwareErrorMessage("");
-    setState(RegisterState.REGISTER);
-  }, []);
-
-  return (
-    <EmptyLayout
-      className={classnames(style.container)}
-      style={{ height: "100%", padding: 0 }}
-    >
-      <div>
-        <img
-          className={style.logo}
-          src={require("../../public/assets/fetch-logo.svg")}
-          alt="logo"
-        />
-      </div>
-      {keyRingStore.status !== KeyRingStatus.NOTLOADED &&
-      keyRingStore.status !== KeyRingStatus.EMPTY &&
-      false ? (
-        <WelcomeInPage />
-      ) : null}
-      {state === RegisterState.INIT ? (
-        <IntroInPage
-          topButton={{
-            title: intl.formatMessage({
-              id: "register.intro.button.new-account.title"
-            }),
-            content: intl.formatMessage({
-              id: "register.intro.button.new-account.content"
-            }),
-            onClick: () => {
-              generateMnemonic(numWords);
-              setHardwareErrorMessage("");
-              setState(RegisterState.REGISTER);
-            }
-          }}
-          bottomButton={{
-            title: intl.formatMessage({
-              id: "register.intro.button.import-account.title"
-            }),
-            content: intl.formatMessage({
-              id: "register.intro.button.import-account.content"
-            }),
-            onClick: () => {
-              setHardwareErrorMessage("");
-              setState(RegisterState.RECOVERY_CHOICE);
-            }
-          }}
-        />
-      ) : null}
-      {
-      state === RegisterState.RECOVERY_CHOICE ? (
-        <>
+    return (
+      <EmptyLayout
+        className={classnames(style.container)}
+        style={{ height: "100%", padding: 0 }}
+      >
+        <div>
+          <img
+            className={style.logo}
+            src={require("../../public/assets/fetch-logo.svg")}
+            alt="logo"
+          />
+        </div>
+        {keyRingStore.status !== KeyRingStatus.NOTLOADED &&
+        keyRingStore.status !== KeyRingStatus.EMPTY &&
+        isRegistering ? (
+          <WelcomeInPage />
+        ) : null}
+        {keyRingStore.status !== KeyRingStatus.NOTLOADED &&
+        keyRingStore.status !== KeyRingStatus.EMPTY &&
+        !isRegistering ? (
+          <SuccessPage />
+        ) : null}
+        {state === RegisterState.INIT ? (
           <IntroInPage
             topButton={{
               title: intl.formatMessage({
-                id: "register.intro.button.recover-choice.menumonic.title"
+                id: "register.intro.button.new-account.title"
               }),
               content: intl.formatMessage({
-                id: "register.intro.button.recover-choice.menumonic.content"
+                id: "register.intro.button.new-account.content"
               }),
               onClick: () => {
-                setHardwareErrorMessage("");
                 generateMnemonic(numWords);
-                setState(RegisterState.RECOVER);
-              }
-            }}
-            middleButton={{
-              title: intl.formatMessage({
-                id: "register.intro.button.recover-choice.hardware.title"
-              }),
-              content: intl.formatMessage({
-                id: "register.intro.button.recover-choice.hardware.content"
-              }),
-              errorMessage: hardwareErrorMessage,
-              onClick: async () => {
-                const hasHardwareWallet = await readyToRegisterThroughHardwareWallet();
-                if (hasHardwareWallet) {
-                  debugger;
-                  const cosmosAddress = await getAddressFromNano();
-                  setAddress(cosmosAddress);
-                  setState(RegisterState.HARDWARE_UPLOAD);
-                  setHardwareErrorMessage("");
-                }
+                setHardwareErrorMessage("");
+                setState(RegisterState.REGISTER);
               }
             }}
             bottomButton={{
               title: intl.formatMessage({
-                id: "register.intro.button.recover-choice.file.content"
+                id: "register.intro.button.import-account.title"
               }),
               content: intl.formatMessage({
-                id: "register.intro.button.recover-choice.file.title"
+                id: "register.intro.button.import-account.content"
               }),
               onClick: () => {
                 setHardwareErrorMessage("");
-                setState(RegisterState.UPLOAD);
+                setState(RegisterState.RECOVERY_CHOICE);
               }
             }}
           />
-          <BackButton onClick={onBackToInit} />
-        </>
-      ) : null}
-      {
-      state === RegisterState.UPLOAD ? (
-        <>
-          <Recover
-            onRegister={onRegister}
-            getMnemonic={keyRingStore.getMnemonic}
-            verifyPassword={keyRingStore.verifyPassword}
-          />
-          <BackButton onClick={onBackToChooseRecoverMethod} />
-        </>
-      ) : null}{" "}
-      {keyRingStore.status === KeyRingStatus.EMPTY &&
-      state === RegisterState.HARDWARE_UPLOAD ? (
-        <>
-          <Hardware
-            onRegister={registerFromHarwareWallet}
-            propsAddress={address}
-          />
-          <BackButton onClick={onBackToChooseRecoverMethod} />
-        </>
-      ) : null}{" "}
-      {
-      state === RegisterState.REGISTER ? (
-        <>
-          <RegisterInPage
-            onRegister={onRegister}
-            requestChaneNumWords={numWords => {
-              setNumWords(numWords);
-              generateMnemonic(numWords);
-            }}
-            numWords={numWords}
-            words={words}
-            isRecover={false}
-            isLoading={accountIsCreating}
-          />
-          <BackButton onClick={onBackToInit} />
-        </>
-      ) : null}
-      {
-      state === RegisterState.RECOVER ? (
-        <>
-          <RegisterInPage
-            onRegister={onRegister}
-            words={words}
-            isRecover={true}
-            isLoading={accountIsCreating}
-          />
-          <BackButton onClick={onBackToChooseRecoverMethod} />
-        </>
-      ) : null}
-      {
-      state === RegisterState.VERIFY ? (
-        <>
-          <VerifyInPage
-            words={words}
-            onVerify={onVerify}
-            isLoading={accountIsCreating}
-          />
-          <BackButton onClick={onBackToRegister} />
-        </>
-      ) : null}
-    </EmptyLayout>
-  );
-});
+        ) : null}
+        {state === RegisterState.RECOVERY_CHOICE ? (
+          <>
+            <IntroInPage
+              topButton={{
+                title: intl.formatMessage({
+                  id: "register.intro.button.recover-choice.menumonic.title"
+                }),
+                content: intl.formatMessage({
+                  id: "register.intro.button.recover-choice.menumonic.content"
+                }),
+                onClick: () => {
+                  setHardwareErrorMessage("");
+                  generateMnemonic(numWords);
+                  setState(RegisterState.RECOVER);
+                }
+              }}
+              middleButton={{
+                title: intl.formatMessage({
+                  id: "register.intro.button.recover-choice.hardware.title"
+                }),
+                content: intl.formatMessage({
+                  id: "register.intro.button.recover-choice.hardware.content"
+                }),
+                errorMessage: hardwareErrorMessage,
+                onClick: async () => {
+                  const hasHardwareWallet = await readyToRegisterThroughHardwareWallet();
+                  if (hasHardwareWallet) {
+                    debugger;
+                    const cosmosAddress = await getAddressFromNano();
+                    setAddress(cosmosAddress);
+                    setState(RegisterState.HARDWARE_UPLOAD);
+                    setHardwareErrorMessage("");
+                  }
+                }
+              }}
+              bottomButton={{
+                title: intl.formatMessage({
+                  id: "register.intro.button.recover-choice.file.content"
+                }),
+                content: intl.formatMessage({
+                  id: "register.intro.button.recover-choice.file.title"
+                }),
+                onClick: () => {
+                  setHardwareErrorMessage("");
+                  setState(RegisterState.UPLOAD);
+                }
+              }}
+            />
+            <BackButton onClick={onBackToInit} />
+          </>
+        ) : null}
+        {state === RegisterState.UPLOAD ? (
+          <>
+            <Recover
+              onRegister={onRegister}
+              getMnemonic={keyRingStore.getMnemonic}
+              verifyPassword={keyRingStore.verifyPassword}
+            />
+            <BackButton onClick={onBackToChooseRecoverMethod} />
+          </>
+        ) : null}{" "}
+        {keyRingStore.status === KeyRingStatus.EMPTY &&
+        state === RegisterState.HARDWARE_UPLOAD ? (
+          <>
+            <Hardware
+              onRegister={registerFromHarwareWallet}
+              isRegistering = {isRegistering}
+              verifyPassword={keyRingStore.verifyPassword}
+              propsAddress={address}
+            />
+            <BackButton onClick={onBackToChooseRecoverMethod} />
+          </>
+        ) : null}{" "}
+        {state === RegisterState.REGISTER ? (
+          <>
+            <RegisterInPage
+              onRegister={onRegister}
+              requestChaneNumWords={numWords => {
+                setNumWords(numWords);
+                generateMnemonic(numWords);
+              }}
+              numWords={numWords}
+              words={words}
+              isRecover={false}
+              isLoading={accountIsCreating}
+            />
+            <BackButton onClick={onBackToInit} />
+          </>
+        ) : null}
+        {state === RegisterState.RECOVER ? (
+          <>
+            <RegisterInPage
+              onRegister={onRegister}
+              words={words}
+              isRecover={true}
+              isLoading={accountIsCreating}
+            />
+            <BackButton onClick={onBackToChooseRecoverMethod} />
+          </>
+        ) : null}
+        {state === RegisterState.VERIFY ? (
+          <>
+            <VerifyInPage
+              words={words}
+              onVerify={onVerify}
+              isLoading={accountIsCreating}
+            />
+            <BackButton onClick={onBackToRegister} />
+          </>
+        ) : null}
+      </EmptyLayout>
+    );
+  }
+);

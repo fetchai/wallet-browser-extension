@@ -14,10 +14,12 @@ import { BACKGROUND_PORT } from "../../../../common/message/constant";
 export interface Props {
   onRegister: (publicKeyHex: string, password: string) => void;
   propsAddress: string;
+  isRegistering: boolean;
+  verifyPassword: () => {};
 }
 
 export const Hardware: FunctionComponent<Props> = observer(
-  ({ onRegister, propsAddress = "" }) => {
+  ({ onRegister, isRegistering, verifyPassword = null, propsAddress = "" }) => {
     let connectToHardwareWalletInterval: NodeJS.Timeout;
     let getPublicKeyFromConnectedHardwareWalletInterval: NodeJS.Timeout;
     const intl = useIntl();
@@ -27,20 +29,31 @@ export const Hardware: FunctionComponent<Props> = observer(
     const [passwordConfirm, setPasswordConfirm] = useState("");
     const [passwordErrorMessage, setPasswordErrorMessage] = useState("");
     const [publicKeyHex, setPublicKeyHex] = useState("");
-    debugger;
+
     const [address, setAddress] = useState(propsAddress);
     const [
       passwordConfirmErrorMessage,
       setPasswordConfirmErrorMessage
     ] = useState("");
 
-    const handleSubmit = async () => {
+    const handleSubmitForRegistration = async () => {
       wipeFormErrors();
       await flushPromises();
       if (!validatePassword()) return;
       if (!passwordConfirmValidate()) return;
       onRegister(publicKeyHex, password);
     };
+
+      /**
+       * This page can be used for registraion but also for adding a new account to your wallet. If it is the later then we call this function
+       * to check password is correct, and without password confirm before registering the account with the wallet.
+       */
+    const handleSubmitForAddingAdditionalAccount = async () => {
+          wipeFormErrors();
+      await flushPromises();
+      if (!correctPassword()) return;
+       onRegister(publicKeyHex, password);
+      }
 
     //on mount
     useEffect(() => {
@@ -80,6 +93,14 @@ export const Hardware: FunctionComponent<Props> = observer(
       }
       return true;
     };
+
+      /**
+       * if we are adding an additional password to an account then this is used to
+       */
+
+    const correctPassword = () => {
+
+    }
 
     const validatePassword = () => {
       if (password === "" || password.length === 0) {
@@ -202,7 +223,7 @@ export const Hardware: FunctionComponent<Props> = observer(
             className={style.label}
             style={{ width: "100%" }}
           >
-            Create Account Password
+            {isRegistering ? "Create Account Password" : "Wallet Password"}
           </Label>
           <input
             disabled={hardwareErrorMessage.length !== 0}
@@ -234,36 +255,42 @@ export const Hardware: FunctionComponent<Props> = observer(
           >
             Confirm Password
           </Label>
-          <input
-            type="password"
-            disabled={hardwareErrorMessage.length !== 0}
-            className={classnames(
-              style.recoverInput,
-              passwordConfirmErrorMessage.length !== 0 ? "red" : false
-            )}
-            id="passwordConfirm"
-            name="passwordConfirm"
-            value={passwordConfirm}
-            onChange={(event: {
-              target: { value: React.SetStateAction<string> };
-            }) => {
-              wipeFormErrors();
-              setPasswordConfirm(event.target.value);
-            }}
-          ></input>
-          <output
-            className={classnames(style.output, hasError() ? "red" : "")}
-            id="output"
-          >
-            {passwordConfirmErrorMessage}
-          </output>
+          {isRegistering ? (
+            <>
+              <input
+                type="password"
+                disabled={hardwareErrorMessage.length !== 0}
+                className={classnames(
+                  style.recoverInput,
+                  passwordConfirmErrorMessage.length !== 0 ? "red" : false
+                )}
+                id="passwordConfirm"
+                name="passwordConfirm"
+                value={passwordConfirm}
+                onChange={(event: {
+                  target: { value: React.SetStateAction<string> };
+                }) => {
+                  wipeFormErrors();
+                  setPasswordConfirm(event.target.value);
+                }}
+              ></input>
+              <output
+                className={classnames(style.output, hasError() ? "red" : "")}
+                id="output"
+              >
+                {passwordConfirmErrorMessage}
+              </output>
+            </>
+          ) : null}
+
           <div className={style.output}>
             <button
               type="submit"
               className={classnames(style.recoverButton, "green")}
               onClick={event => {
                 event.preventDefault();
-                handleSubmit();
+                if(isRegistering)  handleSubmitForRegistration();
+                else handleSubmitForAddingAdditionalAccount();
               }}
             >
               {intl.formatMessage({

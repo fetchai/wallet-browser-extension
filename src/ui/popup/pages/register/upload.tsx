@@ -56,7 +56,8 @@ export default class Recover extends React.Component<Props, State> {
   constructor(props: any) {
     super(props);
     this.onRegister = props.onRegister;
-    this.verifyPassword = props.verifyPassword;
+    this.verifyPassword = props.visRegistering = {isRegistering}
+              verifyPassword={keyRingStore.verifyPassword}erifyPassword;
     this.getMnemonic = props.getMnemonic;
   }
 
