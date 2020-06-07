@@ -50,6 +50,15 @@
     }
   }
 
+.account-manager-icon {
+    width: 16px;
+    margin-right: 5px;
+
+    &:hover {
+      cursor: pointer;
+    }
+  }
+
 .container-account-inner {
   display: flex;
   flex-direction: column;

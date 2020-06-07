@@ -24,7 +24,7 @@ import {
   RequestTxBuilderConfigMsg,
   GetRequestedTxBuilderConfigMsg,
   GetKeyFileMsg,
-  IsHardwareLinkedMsg, FetchEveryAddressMsg
+  IsHardwareLinkedMsg, FetchEveryAddressMsg, SetActiveAddressMsg, GetActiveAddressMsg
 } from "./messages";
 import { ROUTE } from "./constants";
 import { getHandler } from "./handler";
@@ -35,6 +35,8 @@ export function init(
   keeper: KeyRingKeeper
 ): void {
   messageManager.registerMessage(EnableKeyRingMsg);
+  messageManager.registerMessage(GetActiveAddressMsg);
+  messageManager.registerMessage(SetActiveAddressMsg);
   messageManager.registerMessage(GetRegisteredChainMsg);
   messageManager.registerMessage(GetKeyRingStatusMsg);
   messageManager.registerMessage(RestoreKeyRingMsg);

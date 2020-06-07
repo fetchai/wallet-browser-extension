@@ -140,6 +140,23 @@ export class KeyRingKeeper {
   }
 
   /**
+   * Of all addresses in addressbook we set one as active
+   *
+   * @param address
+   */
+  public async setActiveAddress(address: string): Promise<void> {
+    await this.keyRing.setActiveAddress(address);
+  }
+
+   public getActiveAddress(): string {
+    return this.keyRing.getActiveAddress();
+  }
+
+
+
+
+
+  /**
    * This will clear all key ring data.
    */
   async clear(): Promise<KeyRingStatus> {
@@ -223,11 +240,7 @@ export class KeyRingKeeper {
   }
 
   async getKey(): Promise<Key> {
-    if (!this.path) {
-      throw new Error("path not set");
-    }
-
-    return this.keyRing.getKey(this.path);
+    return this.keyRing.getKey();
   }
 
   async requestTxBuilderConfig(

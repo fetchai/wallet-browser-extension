@@ -544,6 +544,26 @@ export class SetActiveAddressMsg extends Message<{}> {
   }
 }
 
+export class GetActiveAddressMsg extends Message<{ activeAddress: string }> {
+  public static type() {
+    return "get-active-address";
+  }
+
+  public static create(): GetActiveAddressMsg {
+    return new GetActiveAddressMsg();
+  }
+
+  validateBasic(): void {}
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return GetActiveAddressMsg.type();
+  }
+}
+
 export class GetKeyMsg extends Message<KeyHex> {
   public static type() {
     return "get-key";

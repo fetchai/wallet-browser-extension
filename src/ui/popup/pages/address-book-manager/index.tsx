@@ -21,23 +21,37 @@ export const AddressBookManagerPage: FunctionComponent<RouteComponentProps> = ob
 
     const [lightMode, setLightMode] = useState(false);
     const [addressList, setAddressList] = useState<Array<string>>([]);
+    const [activeAddress, setActiveAddress] = useState("");
 
     // on mount
     useEffect(() => {
+      // we fetch all addresses
       const fetchEveryAddress = async () => {
         const everyAddress = await accountStore.fetchEveryAddress();
         setAddressList(everyAddress);
       };
       fetchEveryAddress();
-    }, []);
 
-    useEffect(() => {
+      // and also fetch the active address ie that for which balance/transfers in wallet pertain to.
+      const fetchActiveAddress = async () => {
+        const activeAddress = await accountStore.getActiveAddress();
+        setActiveAddress(activeAddress);
+      };
+      fetchActiveAddress();
+
+      // also we check if we are in regular or light mode
       const isEnabled = async () => {
         const enabled = await lightModeEnabled();
         setLightMode(enabled);
       };
       isEnabled();
-    }, [lightMode, setLightMode]);
+    }, []);
+
+    const changeActiveAddress = async (address: string) => {
+         setActiveAddress(address);
+      await accountStore.setActiveAddress(address);
+      await accountStore.fetchAccount();
+    };
 
     return (
       <HeaderLayout
@@ -66,6 +80,15 @@ export const AddressBookManagerPage: FunctionComponent<RouteComponentProps> = ob
           <ul>
             {addressList.map((el, i) => (
               <li key={i}>
+                <img
+                  src={
+                    activeAddress === el
+                      ? require("../../public/assets/account-icon-green.svg")
+                      : require("../../public/assets/account-icon-light-grey.svg")
+                  }
+                  className={style.icon}
+                  onClick={() => changeActiveAddress(el)}
+                ></img>
                 Address {i} <br /> {el}
               </li>
             ))}

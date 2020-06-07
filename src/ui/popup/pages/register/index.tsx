@@ -311,7 +311,7 @@ export const AddAddressWizard: FunctionComponent<NewAddressWizardProps> = observ
             <BackButton onClick={onBackToChooseRecoverMethod} />
           </>
         ) : null}{" "}
-        {state === RegisterState.REGISTER ? (
+        {!wizardComplete && state === RegisterState.REGISTER ? (
           <>
             <RegisterInPage
               onRegister={onRegister}
@@ -329,7 +329,7 @@ export const AddAddressWizard: FunctionComponent<NewAddressWizardProps> = observ
             {isRegistering ? <BackButton onClick={onBackToInit} /> : null}
           </>
         ) : null}
-        {state === RegisterState.RECOVER ? (
+        {!wizardComplete && state === RegisterState.RECOVER ? (
           <>
             <RegisterInPage
               onRegister={onRegister}
@@ -342,7 +342,7 @@ export const AddAddressWizard: FunctionComponent<NewAddressWizardProps> = observ
             <BackButton onClick={onBackToChooseRecoverMethod} />
           </>
         ) : null}
-        {state === RegisterState.VERIFY ? (
+        {!wizardComplete && state === RegisterState.VERIFY ? (
           <>
             <VerifyInPage
               words={words}

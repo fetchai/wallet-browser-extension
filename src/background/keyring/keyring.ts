@@ -1,6 +1,10 @@
 import { Crypto, EncryptedKeyStructure } from "./crypto";
 import { generateWalletFromMnemonic } from "@everett-protocol/cosmosjs/utils/key";
-import { PrivKey, PubKeySecp256k1 } from "@everett-protocol/cosmosjs/crypto";
+import {
+  PrivKey,
+  PrivKeySecp256k1,
+  PubKeySecp256k1
+} from "@everett-protocol/cosmosjs/crypto";
 import { KVStore } from "../../common/kvstore";
 import {
   AddressBook,
@@ -70,19 +74,17 @@ export class KeyRing {
     return this.addressBook.map(el => el.address);
   }
 
-  private getActiveAddressItem():
-    | HardwareAddressItem
-    | RegularAddressItem
-    | null {
-    const index = this.activeAddressAddressBookIndex();
-
-    if (index === null) return null;
-
+  private getActiveAddressItem(): HardwareAddressItem | RegularAddressItem {
+    const index = this.activeAddressAddressBookIndex() || 0;
     return this.addressBook[index];
   }
 
-  public setActiveAddress(address: string){
+  public setActiveAddress(address: string) {
+    this.activeAddress = address;
+  }
 
+  public getActiveAddress(): string {
+    return this.activeAddress || "";
   }
 
   /**
@@ -117,8 +119,8 @@ export class KeyRing {
    *
    * @param path
    */
-  public getKey(path: string): Key {
-    return this.loadKey(path);
+  public getKey(): Key {
+    return this.loadKey();
   }
 
   public async addNewRegularKey(
@@ -193,7 +195,7 @@ export class KeyRing {
       throw new Error("Key ring is not unlocked");
     }
 
-    this.addressBook = this.deletePrivateKeys(this.addressBook);
+    // this.addressBook = this.deletePrivateKeys(this.addressBook);
     this.unlocked = false;
   }
 
@@ -320,8 +322,21 @@ export class KeyRing {
   }
 
   public async save() {
-    // we don't save the private jeys or mnemonics to local storage.
-    const addressBook = this.deletePrivateKeys(this.addressBook);
+    // // we don't save the private jeys or mnemonics to local storage.
+    const addressBook = this.deletePrivateKeys(this.addressBook, true);
+
+    // const addressBook: any = [];
+    //
+    // // serialize the pk object when saving.
+    // this.addressBook.forEach(el => {
+    //   const serialized: any = el;
+    //   if (!el.hdWallet && typeof el.privateKey !== "undefined") {
+    //     const uint8array = serialized.privateKey.serialize();
+    //     debugger;
+    //     serialized.privateKey = new TextDecoder("utf-8").decode(uint8array);
+    //   }
+    //   addressBook.push(serialized);
+    // });
 
     await this.kvStore.set<AddressBook>(ADDRESS_BOOK_KEY, addressBook);
 
@@ -333,11 +348,16 @@ export class KeyRing {
   /**
    * when logged in each regular address has its private key and mnemonic saved in the address book, but this method deletes this, as when
    */
-  private deletePrivateKeys(addressBook: AddressBook): AddressBook {
+  private deletePrivateKeys(
+    addressBook: AddressBook,
+    leaveMnemonic: boolean = false
+  ): AddressBook {
     return addressBook.map(el => {
       if (el.hdWallet === false) {
+        if (!leaveMnemonic) {
+          delete el.mnemonic;
+        }
         delete el.privateKey;
-        delete el.mnemonic;
       }
       return el;
     });
@@ -349,12 +369,22 @@ export class KeyRing {
   }
 
   private async restoreWallet() {
-    const addressBook = await this.kvStore.get<AddressBook>(ADDRESS_BOOK_KEY);
+    let addressBook = await this.kvStore.get<any>(ADDRESS_BOOK_KEY);
     this.activeAddress = await this.kvStore.get<string>(ACTIVE_KEY);
 
     if (!addressBook) {
       this.addressBook = [];
     } else {
+      addressBook = addressBook.map((el: any) => {
+        if (!el.hdWallet) {
+          // // @ts-ignore
+          // debugger;
+          // const uint8array = new TextEncoder("utf-8").encode(el.privateKey);
+          el.privateKey = generateWalletFromMnemonic(el.mnemonic);
+        }
+        return el;
+      });
+
       this.addressBook = addressBook;
     }
   }
@@ -380,7 +410,7 @@ export class KeyRing {
     return pubKey.toAddress().toBech32("cosmos");
   }
 
-  private loadKey(path: string): Key {
+  private loadKey(): Key {
     if (this.status !== KeyRingStatus.UNLOCKED) {
       throw new Error("Key ring is not unlocked");
     }
@@ -396,8 +426,9 @@ export class KeyRing {
         Buffer.from(activeAddressBookItem.publicKeyHex, "hex")
       );
     } else {
-      const privKey = this.loadPrivKey(path);
-      pubKey = privKey.toPubKey();
+      const activeKey = this.getActiveAddressItem() as RegularAddressItem;
+      // @ts-ignore
+      pubKey = activeKey.privateKey.toPubKey();
     }
 
     return {
@@ -405,14 +436,6 @@ export class KeyRing {
       pubKey: pubKey.serialize(),
       address: pubKey.toAddress().toBytes()
     };
-  }
-
-  private loadPrivKey(mnemonic: string): PrivKey {
-    if (this.status !== KeyRingStatus.UNLOCKED) {
-      throw new Error("Key ring is not unlocked");
-    }
-
-    return generateWalletFromMnemonic(mnemonic);
   }
 
   public async triggerHardwareSigning(
@@ -458,7 +481,6 @@ export class KeyRing {
     }
 
     const regularAddressItem = this.addressBook[index] as RegularAddressItem;
-    const privKey = this.loadPrivKey(regularAddressItem.mnemonic as string);
-    return privKey.sign(message);
+    return regularAddressItem.privateKey.sign(message);
   }
 }

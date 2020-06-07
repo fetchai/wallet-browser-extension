@@ -20,7 +20,7 @@ export const AddressBookManagerButton: FunctionComponent<Props> = observer(
               : require("../../public/assets/account-icon.svg")
           }
           id="btn-account-manager"
-          className={`fas fa-sign-out-alt ${style.buttonImage}`}
+          className={`fas fa-sign-out-alt ${style.accountManagerIcon}`}
           onClick={() => {
             history.push("/address-book-manager");
           }}

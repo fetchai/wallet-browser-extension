@@ -2,9 +2,9 @@ import { ChainInfo } from "../../../../chain-info";
 
 import { sendMessage } from "../../../../common/message";
 import {
-  FetchEveryAddressMsg,
+  FetchEveryAddressMsg, GetActiveAddressMsg,
   GetKeyMsg,
-  KeyRingStatus,
+  KeyRingStatus, SetActiveAddressMsg,
   SetPathMsg
 } from "../../../../background/keyring";
 
@@ -114,14 +114,26 @@ export class AccountStore {
     return addressList.AddressList;
   }
 
+  /**
+   * We set which address, of potentially many addresses is going to be active in our wallet ie used for balance/transfers ect.
+   * @param address
+   */
   @actionAsync
   public async setActiveAddress(address: string): Promise<void> {
-    const setActiveAddressMsg = setActiveAddressMsg.create(address);
+    const setActiveAddressMsg = SetActiveAddressMsg.create(address);
 
-     await task(
-      sendMessage(BACKGROUND_PORT, fetchEveryAddressMsg)
+    await task(sendMessage(BACKGROUND_PORT, setActiveAddressMsg));
+    return;
+  }
+
+  @actionAsync
+  public async getActiveAddress(): Promise<string> {
+    const getActiveAddressMsg = GetActiveAddressMsg.create();
+
+    const activeAddress = await task(
+      sendMessage(BACKGROUND_PORT, getActiveAddressMsg)
     );
-     return;
+    return activeAddress.activeAddress;
   }
 
   // This will be called by keyring store.
@@ -166,7 +178,7 @@ export class AccountStore {
     // No need to set origin, because this is internal.
     const getKeyMsg = GetKeyMsg.create(this.chainInfo.chainId, "");
     const result = await task(sendMessage(BACKGROUND_PORT, getKeyMsg));
-
+    debugger;
     const prevBech32Address = this.bech32Address;
 
     this.bech32Address = result.bech32Address;

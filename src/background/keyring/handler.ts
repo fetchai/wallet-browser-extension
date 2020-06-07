@@ -3,6 +3,7 @@ import {
   EnableKeyRingMsg,
   RestoreKeyRingMsg,
   SaveKeyRingMsg,
+  SetActiveAddressMsg,
   CreateKeyMsg,
   GetKeyMsg,
   UnlockKeyRingMsg,
@@ -25,7 +26,8 @@ import {
   makeMnemonicMsg,
   CreateHardwareKeyMsg,
   IsHardwareLinkedMsg,
-  GetKeyRingStatusMsg, SetActiveAddressMsg
+  GetKeyRingStatusMsg,
+  GetActiveAddressMsg
 } from "./messages";
 import { KeyRingKeeper } from "./keeper";
 import { Address } from "@everett-protocol/cosmosjs/crypto";
@@ -59,7 +61,7 @@ export const getHandler: (keeper: KeyRingKeeper) => Handler = (
         return handleCreateHardwareKeyMsg(keeper)(msg as CreateHardwareKeyMsg);
       case LockKeyRingMsg:
         return handleLockKeyRingMsg(keeper)(msg as LockKeyRingMsg);
-          case VerifyPasswordKeyRingMsg:
+      case VerifyPasswordKeyRingMsg:
         return handleVerifyPasswordKeyRingMsg(keeper)(
           msg as VerifyPasswordKeyRingMsg
         );
@@ -75,9 +77,11 @@ export const getHandler: (keeper: KeyRingKeeper) => Handler = (
         return handleSetPathMsg(keeper)(msg as SetPathMsg);
       case FetchEveryAddressMsg:
         return handleFetchEveryAddressMsg(keeper)(msg as FetchEveryAddressMsg);
-       case SetActiveAddressMsg:
+      case SetActiveAddressMsg:
         return handleSetActiveAddressMsg(keeper)(msg as SetActiveAddressMsg);
-      case  GetKeyMsg:
+      case GetActiveAddressMsg:
+        return handleGetActiveAddressMsg(keeper)(msg as GetActiveAddressMsg);
+      case GetKeyMsg:
         return handleGetKeyMsg(keeper)(msg as GetKeyMsg);
       case RequestTxBuilderConfigMsg:
         return handleRequestTxBuilderConfigMsg(keeper)(
@@ -118,7 +122,6 @@ const handleVerifyPasswordKeyRingMsg: (
     };
   };
 };
-
 
 const handleEnableKeyRingMsg: (
   keeper: KeyRingKeeper
@@ -175,14 +178,23 @@ const handleSaveKeyRingMsg: (
   };
 };
 
-
 const handleSetActiveAddressMsg: (
   keeper: KeyRingKeeper
-) => InternalHandler<SaveKeyRingMsg> = keeper => {
-  return async () => {
-    await keeper.save();
+) => InternalHandler<SetActiveAddressMsg> = keeper => {
+  return async msg => {
+    await keeper.setActiveAddress(msg.address);
     return {
       success: true
+    };
+  };
+};
+
+const handleGetActiveAddressMsg: (
+  keeper: KeyRingKeeper
+) => InternalHandler<GetActiveAddressMsg> = keeper => {
+  return async () => {
+    return {
+      activeAddress: keeper.getActiveAddress()
     };
   };
 };
@@ -292,7 +304,7 @@ const handleFetchEveryAddressMsg: (
   keeper: KeyRingKeeper
 ) => InternalHandler<FetchEveryAddressMsg> = keeper => {
   return async () => {
-    const addressList = keeper.getEveryAddress()
+    const addressList = keeper.getEveryAddress();
     return {
       AddressList: addressList
     };
@@ -309,7 +321,7 @@ const handleGetKeyMsg: (
     }
 
     const key = await keeper.getKey();
-
+    debugger;
     return {
       algo: "secp256k1",
       pubKeyHex: Buffer.from(key.pubKey).toString("hex"),
