@@ -12,6 +12,8 @@ import flushPromises from "flush-promises";
 import { lightModeEnabled } from "../../light-mode";
 import classnames from "classnames";
 import style from "./style.module.scss";
+import { Button } from "reactstrap";
+import styleTxButton from "../main/tx-button.module.scss";
 
 export const AddressBookManagerPage: FunctionComponent<RouteComponentProps> = observer(
   ({ history }) => {
@@ -47,10 +49,29 @@ export const AddressBookManagerPage: FunctionComponent<RouteComponentProps> = ob
       isEnabled();
     }, []);
 
+    /**
+     * Change our active address
+     *
+     * The active address is the single address from the address book which the wallet is using as per downloading key files, recieve page, balance and sending ect.
+     *
+     * @param address
+     */
     const changeActiveAddress = async (address: string) => {
-         setActiveAddress(address);
+      // set active address in this UI
+      setActiveAddress(address);
+      // set active address in the background script
       await accountStore.setActiveAddress(address);
+      // refetch account data eg balance
       await accountStore.fetchAccount();
+    };
+
+    const formatAddress = (address: string) => {
+      // take first and last 6 chars of address, and put 10 dots in between.
+      return (
+        address.substring(0, 6) +
+        ".".repeat(10) +
+        address.substring(address.length - 6)
+      );
     };
 
     return (
@@ -77,7 +98,7 @@ export const AddressBookManagerPage: FunctionComponent<RouteComponentProps> = ob
               })}
             </h2>
           </div>
-          <ul>
+          <ul className={style.addressList}>
             {addressList.map((el, i) => (
               <li key={i}>
                 <img
@@ -86,16 +107,20 @@ export const AddressBookManagerPage: FunctionComponent<RouteComponentProps> = ob
                       ? require("../../public/assets/account-icon-green.svg")
                       : require("../../public/assets/account-icon-light-grey.svg")
                   }
-                  className={style.icon}
+                  className={classnames(style.icon, style.clickable)}
                   onClick={() => changeActiveAddress(el)}
                 ></img>
-                Address {i} <br /> {el}
+                <div className={style.addressListContent}>
+                  Account {i + 1} <br />
+                  <span className={style.address}>{formatAddress(el)}</span>
+                </div>
               </li>
             ))}
-            <hr></hr>
-            <div></div>
+          </ul>
+          <hr className={style.hr}></hr>
+          <div className={classnames(style.actionItem)}>
             <span
-              className={classnames("icon", "is-medium", style.icon)}
+              className={classnames(style.actionItemIcon, style.clickable)}
               onClick={() => {
                 browser.tabs.create({
                   url: "/popup.html#/add-account/create"
@@ -104,8 +129,12 @@ export const AddressBookManagerPage: FunctionComponent<RouteComponentProps> = ob
             >
               <i className="fas fa-2x fa-plus"></i>
             </span>
+            <span>Create Account</span>
+          </div>
+          <br></br>
+          <div className={classnames(style.actionItem)}>
             <span
-              className={classnames("icon", "is-medium", style.icon)}
+              className={classnames(style.actionItemIcon, style.clickable)}
               onClick={() => {
                 browser.tabs.create({
                   url: "/popup.html#/add-account/import"
@@ -114,7 +143,19 @@ export const AddressBookManagerPage: FunctionComponent<RouteComponentProps> = ob
             >
               <i className="fas fa-2x fa-download"></i>
             </span>
-          </ul>
+            <span> Import Account</span>
+          </div>
+          {/*<Button*/}
+          {/*  id="green"*/}
+          {/*  className={classnames(styleTxButton.button, "green")}*/}
+          {/*  outline*/}
+          {/*  onClick={() => {*/}
+          {/*    keyRingStore.lock();*/}
+          {/*    history.goBack();*/}
+          {/*  }}*/}
+          {/*>*/}
+          {/*  Log out*/}
+          {/*</Button>*/}
         </div>
       </HeaderLayout>
     );

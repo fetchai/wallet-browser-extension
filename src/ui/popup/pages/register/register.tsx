@@ -35,7 +35,7 @@ export const RegisterInPage: FunctionComponent<{
   isRegistering: boolean;
   verifyPassword: (
     password: string,
-    keyFile: EncryptedKeyStructure | null
+    keyFile?: EncryptedKeyStructure | null
   ) => Promise<boolean>;
 }> = props => {
   const intl = useIntl();
@@ -169,18 +169,29 @@ export const RegisterInPage: FunctionComponent<{
             required: intl.formatMessage({
               id: "register.create.input.password.error.required"
             }),
-            validate: (password: string): string | undefined => {
-              const strong = strongPassword(password);
-              if (strong !== true) {
-                return intl.formatMessage({
-                  id: strong
-                });
+            validate: async (password: string): Promise<string | undefined> => {
+              // if we are registering then we are adding new pwd so we check it conforms to strength requirement
+              if (isRegistering) {
+                const strong = strongPassword(password);
+                if (strong !== true) {
+                  return intl.formatMessage({
+                    id: strong
+                  });
+                }
+              } else {
+                // if we are not registering we check it is the correct pwd of the wallet
+                const correctPassword = await verifyPassword(password);
+
+                if (!correctPassword)
+                  return intl.formatMessage({
+                    id: "register.create.input.password.error.incorrect"
+                  });
               }
             }
           })}
           error={errors.password && errors.password.message}
         />
-        { isRegistering ? (
+        {isRegistering ? (
           <Input
             label={intl.formatMessage({
               id: "register.create.input.confirm-password"

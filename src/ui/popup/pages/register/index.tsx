@@ -168,7 +168,10 @@ export const AddAddressWizard: FunctionComponent<NewAddressWizardProps> = observ
       }
     }, []);
     // initialize it to something
-    // generateMnemonic(numWords);
+
+    if (words === "") {
+      generateMnemonic(numWords);
+    }
 
     const onVerify = useCallback(
       async (_words: string) => {

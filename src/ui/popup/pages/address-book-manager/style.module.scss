@@ -14,7 +14,8 @@ $settings-width: 293px;
   margin-top: -35px;
 
   h2 {
-    font-weight: 400;
+    font-weight: 700;
+    font-size: 18px;
     color: white !important;
   }
 }
@@ -57,7 +58,7 @@ $settings-width: 293px;
   border-radius: 10px;
   margin-top: 5px;
   overflow: hidden;
-  height: 440px;
+  height: 515px;
 }
 
 :global(.light-mode) {
@@ -133,7 +134,66 @@ $settings-width: 293px;
 }
 
 .icon {
-   width: 28px;
+    display: block;
+    float: left;
+    width: 34px;
+    padding-right: 10px;
+    position: absolute;
+    top: 50%;
+    bottom: 50%;
+    margin: auto;
+}
+
+.address-list {
+  height: 135px;
+            font-weight: 700;
+        padding-inline-start: 7px;
+  li {
+     list-style-type:none;
+    position: relative;
+  }
+
+  .address-list-content {
+    padding-top: 7px;
+    padding-left: 35px;
+    line-height: 1.3em;
+    padding-bottom: 7px;
+  }
+
+  .address {
+    color: $grey-main;
+    font-size:16px;
+  }
+
+}
+
+.hr {
+   background-color: white;
+      margin: 10px auto;
+}
+
+.action-item {
+ display:inline-block;
+    margin: 10px auto;
+    padding-inline-start: 7px;
+
+  .action-item-icon {
+   vertical-align: middle;
+    display: inline-block;
+    font-size: 14px;
+    padding-right: 17px;
+    color: $grey-main;
+  }
+
+  span {
+    font-weight: 700;
+  }
+
+}
+
+.log-out-button {
+  bottom: 15px;
+    position: absolute;
 }
 
 // stuff we need
