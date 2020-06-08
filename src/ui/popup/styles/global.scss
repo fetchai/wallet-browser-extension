@@ -336,8 +336,25 @@ button[data-loading="true"] {
   }
 }
 
-.tool-top {
+.tool-tip {
   font-size: 11px;
   backgroud-color: light-grey;
   color: black;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+    width: 10px;
+  height: 0px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, .3);
+    background-color: #808080
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+    background-color: #B8B8B8;
 }

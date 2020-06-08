@@ -211,7 +211,7 @@ export const SignPage: FunctionComponent<RouteComponentProps<{
             </li>
           </ul>
         </div>
-        <div className={classnames(style.tabContainer, style.customScrollbar)}>
+        <div className={classnames(style.tabContainer, "custom-scrollbar")}>
           {tab === Tab.Data ? <DataTab message={signing.message} /> : null}
           {tab === Tab.Details ? (
             <DetailsTab

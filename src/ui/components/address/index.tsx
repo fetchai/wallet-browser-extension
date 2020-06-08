@@ -2,8 +2,6 @@ import React from "react";
 
 import { ToolTip } from "../tooltip";
 import { shortenAddress } from "../../../common/address";
-import style from "./address.module.scss";
-import classnames from "classnames";
 
 export interface AddressProps {
   maxCharacters: number;
@@ -80,7 +78,7 @@ export class Address extends React.Component<AddressProps, AddressState> {
           tooltip={
             <div
               ref={this.copyRef}
-              className={classnames(style.toolTip)}
+              className={"tool-tip"}
               style={{ fontSize: tooltipFontSize }}
             >
               {this.toolTipText(lineBreakBeforePrefix, tooltipAddress)}

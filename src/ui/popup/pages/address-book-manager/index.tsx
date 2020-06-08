@@ -14,6 +14,8 @@ import classnames from "classnames";
 import style from "./style.module.scss";
 import { Button } from "reactstrap";
 import styleTxButton from "../main/tx-button.module.scss";
+import { ToolTip } from "../../../components/tooltip";
+import { shortenAddress } from "../../../../common/address";
 
 export const AddressBookManagerPage: FunctionComponent<RouteComponentProps> = observer(
   ({ history }) => {
@@ -98,7 +100,7 @@ export const AddressBookManagerPage: FunctionComponent<RouteComponentProps> = ob
               })}
             </h2>
           </div>
-          <ul className={style.addressList}>
+          <ul className={classnames(style.addressList, "custom-scrollbar")}>
             {addressList.map((el, i) => (
               <li key={i}>
                 <img
@@ -112,7 +114,22 @@ export const AddressBookManagerPage: FunctionComponent<RouteComponentProps> = ob
                 ></img>
                 <div className={style.addressListContent}>
                   Account {i + 1} <br />
-                  <span className={style.address}>{formatAddress(el)}</span>
+                  <span className={style.address}>
+                    <ToolTip
+                      trigger="hover"
+                      options={{ placement: "bottom" }}
+                      tooltip={
+                        <div
+                          className={"tool-tip"}
+                          style={{ fontSize: "12px" }}
+                        >
+                          {el}
+                        </div>
+                      }
+                    >
+                        {formatAddress(el)}
+                    </ToolTip>
+                  </span>
                 </div>
               </li>
             ))}
@@ -145,17 +162,17 @@ export const AddressBookManagerPage: FunctionComponent<RouteComponentProps> = ob
             </span>
             <span> Import Account</span>
           </div>
-          {/*<Button*/}
-          {/*  id="green"*/}
-          {/*  className={classnames(styleTxButton.button, "green")}*/}
-          {/*  outline*/}
-          {/*  onClick={() => {*/}
-          {/*    keyRingStore.lock();*/}
-          {/*    history.goBack();*/}
-          {/*  }}*/}
-          {/*>*/}
-          {/*  Log out*/}
-          {/*</Button>*/}
+          <Button
+            id="green"
+            className={classnames(style.logOutButton, "green")}
+            outline
+            onClick={() => {
+              keyRingStore.lock();
+              history.goBack();
+            }}
+          >
+            Log out
+          </Button>
         </div>
       </HeaderLayout>
     );

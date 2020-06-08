@@ -145,9 +145,11 @@ $settings-width: 293px;
 }
 
 .address-list {
-  height: 135px;
+  height: 165px;
             font-weight: 700;
         padding-inline-start: 7px;
+    overflow-y: auto;
+
   li {
      list-style-type:none;
     position: relative;
