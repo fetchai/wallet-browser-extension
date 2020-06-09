@@ -28,6 +28,17 @@ class LightMode extends React.Component<Props, State> {
     };
   }
 
+  /**
+   * Are we in currently in the default popup or not
+   */
+  amIInPopUp(){
+    // we look at the urls of theregister oor add account since they are currently the only things not done in the default popup
+    return (
+      !window.location.href.includes("add-account") &&
+      !window.location.href.includes("register")
+    );
+  }
+
   async componentDidMount(): Promise<void> {
     // set light mode status from local storage
     const result = await this.state.store.get(STORAGE_KEY);
@@ -36,13 +47,7 @@ class LightMode extends React.Component<Props, State> {
     this.setState({
       lightMode: mode
     });
-
-    // if they are not logged in then they are in the register flow, so we can use that to determine
-    const msg = GetKeyRingStatusMsg.create();
-    const status = await sendMessage(BACKGROUND_PORT, msg);
-
-    const loggedIn = Boolean(status.keyRingStatus === KeyRingStatus.UNLOCKED);
-    setBackgroundImage(mode, loggedIn);
+    setBackgroundImage(mode, this.amIInPopUp());
   }
 
   render() {
@@ -77,9 +82,10 @@ const setBackgroundImage = (light: boolean, inPopUp: boolean) => {
    * takes the background color property and uses that as the color for  a small "hat like" triangle
    * above the extensions popup
    *
+   * popup refers to the defaultpopup of the extension
+   *
    * we only want such a configuration when the page is displayed in a popup, and not when as a full webpage as with registration
    */
-  debugger;
   if (inPopUp) {
     document.body.style.backgroundColor = light ? "transparent" : "#1e2844";
   }

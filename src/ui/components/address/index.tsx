@@ -9,7 +9,6 @@ export interface AddressProps {
   dotNumber?: number;
   tooltipFontSize?: string;
   tooltipAddress?: string;
-  lineBreakBeforePrefix?: boolean;
   bech32Address: string;
 }
 
@@ -42,19 +41,12 @@ export class Address extends React.Component<AddressProps, AddressState> {
     }
   }
 
-  toolTipText(lineBreakBeforePrefix: any, tooltipAddress: any): JSX.Element {
+  toolTipText(tooltipAddress: string): JSX.Element | string {
     if (this.state.copied) {
       return <div key={1}>Copied!</div>;
-    } else if (lineBreakBeforePrefix && tooltipAddress.length > 0) {
-      return tooltipAddress.split("1").map((item: any, i: any) => {
-        if (i === 0) {
-          return <div key={i}>{item + "1"}</div>;
-        }
-        return <div key={i}>{item}</div>;
-      });
-    } else {
-      return tooltipAddress;
     }
+
+    return tooltipAddress;
   }
 
   async copy(): Promise<void> {
@@ -63,7 +55,7 @@ export class Address extends React.Component<AddressProps, AddressState> {
   }
 
   render() {
-    const { tooltipFontSize, lineBreakBeforePrefix, children } = this.props;
+    const { tooltipFontSize, children } = this.props;
 
     const tooltipAddress = this.props.tooltipAddress
       ? this.props.tooltipAddress
@@ -81,7 +73,7 @@ export class Address extends React.Component<AddressProps, AddressState> {
               className={"tool-tip"}
               style={{ fontSize: tooltipFontSize }}
             >
-              {this.toolTipText(lineBreakBeforePrefix, tooltipAddress)}
+              {this.toolTipText(tooltipAddress)}
             </div>
           }
         >

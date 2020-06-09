@@ -44,7 +44,6 @@ const DepositModal: FunctionComponent<{
       <div className={styleTxButton.address}>
         <Address
           maxCharacters={28}
-          lineBreakBeforePrefix={false}
           tooltipFontSize="12px"
           bech32Address={bech32Address}
         >

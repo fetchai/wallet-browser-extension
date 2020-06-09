@@ -133,6 +133,7 @@ $settings-width: 293px;
   }
 }
 
+
 .icon {
     display: block;
     float: left;
@@ -165,13 +166,33 @@ $settings-width: 293px;
   .address {
     color: $grey-main;
     font-size:16px;
+   color: #9ab4bf;
+    font-size: 16px;
+    width: 170px;
+    display: block;
   }
 
+}
+
+:global(.light-mode) {
+  .address-list-content {
+    color: black;
+  }
+
+  .address {
+    color: $light-mode-grey;
+  }
 }
 
 .hr {
    background-color: white;
       margin: 10px auto;
+}
+
+:global(.light-mode) {
+  .hr {
+  background-color: black;
+  }
 }
 
 .action-item {
@@ -187,17 +208,36 @@ $settings-width: 293px;
     color: $grey-main;
   }
 
+  .action-item-icon-create {
+     padding-right: 10px;
+  }
+  .action-item-icon-import {
+    padding-right: 3px;
+  }
+
   span {
     font-weight: 700;
   }
 
 }
 
-.log-out-button {
-  bottom: 15px;
-    position: absolute;
+:global(.light-mode) {
+  .action-item {
+    color: black;
+
+    .action-item-icon i {
+       color: $multi-account-icon-grey !important;
+    }
+
+  }
 }
 
-// stuff we need
+.log-out-button {
+  bottom: 25px;
+  position: absolute;
+  width: 290px;
+  left: 7%;
+}
+
 
 

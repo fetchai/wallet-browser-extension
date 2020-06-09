@@ -212,7 +212,7 @@ export const AddAddressWizard: FunctionComponent<NewAddressWizardProps> = observ
         </div>
         {wizardComplete && isRegistering ? <WelcomeInPage /> : null}
         {wizardComplete && !isRegistering ? <SuccessPage /> : null}
-        {state === RegisterState.INIT ? (
+        {!wizardComplete && state === RegisterState.INIT ? (
           <IntroInPage
             topButton={{
               title: intl.formatMessage({
@@ -241,7 +241,7 @@ export const AddAddressWizard: FunctionComponent<NewAddressWizardProps> = observ
             }}
           />
         ) : null}
-        {state === RegisterState.RECOVERY_CHOICE ? (
+        {!wizardComplete && state === RegisterState.RECOVERY_CHOICE ? (
           <>
             <IntroInPage
               topButton={{
@@ -292,7 +292,7 @@ export const AddAddressWizard: FunctionComponent<NewAddressWizardProps> = observ
             {isRegistering ? <BackButton onClick={onBackToInit} /> : null}
           </>
         ) : null}
-        {state === RegisterState.UPLOAD ? (
+        {!wizardComplete && state === RegisterState.UPLOAD ? (
           <>
             <Upload
               onRegister={onRegister}
@@ -303,7 +303,7 @@ export const AddAddressWizard: FunctionComponent<NewAddressWizardProps> = observ
             <BackButton onClick={onBackToChooseRecoverMethod} />
           </>
         ) : null}{" "}
-        {state === RegisterState.HARDWARE_UPLOAD ? (
+        {!wizardComplete && state === RegisterState.HARDWARE_UPLOAD ? (
           <>
             <Hardware
               onRegister={registerFromHarwareWallet}

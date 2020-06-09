@@ -153,9 +153,6 @@ export class KeyRingKeeper {
   }
 
 
-
-
-
   /**
    * This will clear all key ring data.
    */

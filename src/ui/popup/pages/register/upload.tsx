@@ -248,6 +248,7 @@ export default class Upload extends React.Component<Props, State> {
       });
       return false;
     }
+    return true;
   }
 
   /**
@@ -258,15 +259,11 @@ export default class Upload extends React.Component<Props, State> {
    * @returns {Promise<void>}
    */
   async handleSubmit() {
+    debugger;
     await this.setLoading(true);
     let error = false;
     let file;
     if (!this.validPassword()) error = true;
-
-    if (!this.isRegistering && !(await this.correctPassword())) {
-      error = true;
-    }
-
 
     if (!this.isRegistering && !(await this.correctPassword())) {
       error = true;
@@ -299,13 +296,15 @@ export default class Upload extends React.Component<Props, State> {
           errorMessage: "Error occured"
         });
       }
+      debugger;
       // if we are registering we encrypt with password, else if not we encrypt with the walllet password instead
       const password = this.isRegistering
         ? this.state.password
         : this.state.walletPassword;
-
+      debugger;
       await this.onRegister(mnemonic, password, true);
     } else {
+      debugger;
       await this.setLoading(false);
     }
   }

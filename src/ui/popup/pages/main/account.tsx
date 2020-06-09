@@ -15,7 +15,7 @@ export const AccountView: FunctionComponent = observer(() => {
     <div className={styleAccount.containerAccount}>
       <div style={{ flex: 1 }} />
       <div className={classnames(styleAccount.address, isFirefox() ? styleAccount.firefox: "")}>
-        <Address maxCharacters={28} lineBreakBeforePrefix={false} dotNumber={9} bech32Address={accountStore.bech32Address}>
+        <Address maxCharacters={28} dotNumber={9} bech32Address={accountStore.bech32Address}>
           {accountStore.isAddressFetching ? "..." : accountStore.bech32Address}
         </Address>
       </div>

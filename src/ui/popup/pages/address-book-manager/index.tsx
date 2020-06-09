@@ -5,27 +5,24 @@ import { BackButton } from "../../layouts";
 import { observer } from "mobx-react";
 // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
 // @ts-ignore
-import Expand from "react-expand-animated";
 import { useStore } from "../../stores";
-import { FormattedMessage, useIntl } from "react-intl";
-import flushPromises from "flush-promises";
+import { useIntl } from "react-intl";
 import { lightModeEnabled } from "../../light-mode";
 import classnames from "classnames";
 import style from "./style.module.scss";
 import { Button } from "reactstrap";
-import styleTxButton from "../main/tx-button.module.scss";
 import { ToolTip } from "../../../components/tooltip";
-import { shortenAddress } from "../../../../common/address";
 
 export const AddressBookManagerPage: FunctionComponent<RouteComponentProps> = observer(
   ({ history }) => {
     const { keyRingStore, accountStore } = useStore();
     const intl = useIntl();
-    const transitions = ["height", "opacity", "background"];
-
     const [lightMode, setLightMode] = useState(false);
     const [addressList, setAddressList] = useState<Array<string>>([]);
     const [activeAddress, setActiveAddress] = useState("");
+
+    // indexes of all addresses that have been copied
+    const [copiedIndexes, setCopiedIndexes] = useState<Array<number>>([]);
 
     // on mount
     useEffect(() => {
@@ -76,6 +73,20 @@ export const AddressBookManagerPage: FunctionComponent<RouteComponentProps> = ob
       );
     };
 
+    const toolTipText = (index: number) => {
+      return copiedIndexes.includes(index) ? "Copied!" : "Copy";
+    };
+
+    const getIcon = (el: string) => {
+      if (activeAddress === el) {
+        return require("../../public/assets/account-icon-green.svg");
+      } else if (lightMode) {
+        return require("../../public/assets/account-icon-dark-grey.svg");
+      } else {
+        return require("../../public/assets/account-icon-light-grey.svg");
+      }
+    };
+
     return (
       <HeaderLayout
         showChainName
@@ -101,33 +112,33 @@ export const AddressBookManagerPage: FunctionComponent<RouteComponentProps> = ob
             </h2>
           </div>
           <ul className={classnames(style.addressList, "custom-scrollbar")}>
-            {addressList.map((el, i) => (
-              <li key={i}>
+            {addressList.map((address, index) => (
+              <li key={index}>
                 <img
-                  src={
-                    activeAddress === el
-                      ? require("../../public/assets/account-icon-green.svg")
-                      : require("../../public/assets/account-icon-light-grey.svg")
-                  }
+                  src={getIcon(address)}
                   className={classnames(style.icon, style.clickable)}
-                  onClick={() => changeActiveAddress(el)}
+                  onClick={() => changeActiveAddress(address)}
                 ></img>
                 <div className={style.addressListContent}>
-                  Account {i + 1} <br />
-                  <span className={style.address}>
+                  Account {index + 1} <br />
+                  <span
+                    className={style.address}
+                    onClick={async () => {
+                      await navigator.clipboard.writeText(address);
+                      setCopiedIndexes(copiedIndexes => [
+                        ...copiedIndexes,
+                        index
+                      ]);
+                    }}
+                  >
                     <ToolTip
                       trigger="hover"
                       options={{ placement: "bottom" }}
                       tooltip={
-                        <div
-                          className={"tool-tip"}
-                          style={{ fontSize: "12px" }}
-                        >
-                          {el}
-                        </div>
+                        <div className={"tool-tip"}>{toolTipText(index)}</div>
                       }
                     >
-                        {formatAddress(el)}
+                      {formatAddress(address)}
                     </ToolTip>
                   </span>
                 </div>
@@ -137,7 +148,11 @@ export const AddressBookManagerPage: FunctionComponent<RouteComponentProps> = ob
           <hr className={style.hr}></hr>
           <div className={classnames(style.actionItem)}>
             <span
-              className={classnames(style.actionItemIcon, style.clickable)}
+              className={classnames(
+                style.actionItemIcon,
+                style.clickable,
+                style.actionItemIconCreate
+              )}
               onClick={() => {
                 browser.tabs.create({
                   url: "/popup.html#/add-account/create"
@@ -151,7 +166,11 @@ export const AddressBookManagerPage: FunctionComponent<RouteComponentProps> = ob
           <br></br>
           <div className={classnames(style.actionItem)}>
             <span
-              className={classnames(style.actionItemIcon, style.clickable)}
+              className={classnames(
+                style.actionItemIcon,
+                style.clickable,
+                style.actionItemIconImport
+              )}
               onClick={() => {
                 browser.tabs.create({
                   url: "/popup.html#/add-account/import"
