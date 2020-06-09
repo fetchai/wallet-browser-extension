@@ -19,10 +19,10 @@
   "register.intro.button.import-account.title": "Import existing account",
 
   "register.intro.button.recover-choice.menumonic.title": "Using a word seed",
-  "register.intro.button.recover-choice.menumonic.content": "Use a 12/24 word seed to import an existing wallet",
+  "register.intro.button.recover-choice.menumonic.content": "Use a 12/24 word seed to import an existing address",
 
   "register.intro.button.recover-choice.file.content": "Using a key file",
-  "register.intro.button.recover-choice.file.title": "Use an encrypted key file and your previous password to import an existing wallet",
+  "register.intro.button.recover-choice.file.title": "Use an encrypted key file and your previous password to import an existing address",
 
   "register.intro.button.recover-choice.hardware.content": "Use a Ledger Nano X or S containing your keys",
   "register.intro.button.recover-choice.hardware.title": "Using a Ledger Nano",
@@ -58,6 +58,7 @@
   "register.success.title": "Address successfully added!",
   "register.success.content": "re-open the extension and the new address will be in your address book",
   "register.success.button.done": "Done",
+  "register.general.error.address.exists.already": "Address exists already in wallet",
 
    "settings.update-password.new.error.required": "New password required",
    "settings.update-password.new.error.unchanged": "New password equals current password",

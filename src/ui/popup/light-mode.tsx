@@ -7,9 +7,6 @@ export const STORAGE_KEY = "light-mode";
 import React from "react";
 import classnames from "classnames";
 import { BrowserKVStore } from "../../common/kvstore";
-import { GetKeyRingStatusMsg, KeyRingStatus } from "../../background/keyring";
-import { sendMessage } from "../../common/message/send";
-import { BACKGROUND_PORT } from "../../common/message/constant";
 
 type State = {
   lightMode?: boolean;
@@ -43,7 +40,13 @@ class LightMode extends React.Component<Props, State> {
     // set light mode status from local storage
     const result = await this.state.store.get(STORAGE_KEY);
 
-    const mode = typeof result !== "undefined" ? (result as boolean) : false;
+    // check the mode from storage
+    let mode = typeof result !== "undefined" ? (result as boolean) : false;
+
+    if(!this.amIInPopUp()){
+      // for signup flow we currently don't allow
+      mode = false;
+    }
     this.setState({
       lightMode: mode
     });

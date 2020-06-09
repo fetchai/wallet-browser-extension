@@ -152,7 +152,6 @@ export class KeyRingKeeper {
     return this.keyRing.getActiveAddress();
   }
 
-
   /**
    * This will clear all key ring data.
    */

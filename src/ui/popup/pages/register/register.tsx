@@ -9,6 +9,9 @@ import { FormattedMessage, useIntl } from "react-intl";
 import { NunWords } from "./index";
 import { strongPassword } from "../../../../common/strong-password";
 import { EncryptedKeyStructure } from "../../../../background/keyring/crypto";
+import { generateWalletFromMnemonic } from "@everett-protocol/cosmosjs/utils/key";
+import { useStore } from "../../stores";
+import {mnemonicToAddress} from "../../../../common/utils/mnemonic-to-address";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const bip39 = require("bip39");
 
@@ -29,6 +32,7 @@ export const RegisterInPage: FunctionComponent<{
   onRegister: (words: string, password: string, recovered: boolean) => void;
   requestChaneNumWords?: (numWords: NunWords) => void;
   numWords?: NunWords;
+  addressList: Array<string>;
   isRecover: boolean;
   isLoading: boolean;
   words: string;
@@ -40,7 +44,9 @@ export const RegisterInPage: FunctionComponent<{
 }> = props => {
   const intl = useIntl();
 
-  const { isRecover, isRegistering, verifyPassword } = props;
+  const { accountStore } = useStore();
+
+  const { isRecover, isRegistering, verifyPassword, addressList } = props;
   const { register, handleSubmit, setValue, getValues, errors } = useForm<
     FormData
   >({
@@ -58,6 +64,8 @@ export const RegisterInPage: FunctionComponent<{
       setValue("words", "");
     }
   }, [isRecover, props.words, setValue]);
+
+
 
   return (
     <div>
@@ -145,6 +153,17 @@ export const RegisterInPage: FunctionComponent<{
                   id: "register.create.textarea.mnemonic.error.invalid"
                 });
               }
+
+              const address = mnemonicToAddress(
+                value,
+                accountStore.chainInfo.bech32Config.bech32PrefixAccAddr
+              );
+              // if we already have the address in our wallet, it cannot be added again.
+              if (!isRegistering && addressList.includes(address)) {
+                return intl.formatMessage({
+                  id: "register.general.error.address.exists.already"
+                });
+              }
             }
           })}
           error={errors.words && errors.words.message}
@@ -182,10 +201,13 @@ export const RegisterInPage: FunctionComponent<{
                 // if we are not registering we check it is the correct pwd of the wallet
                 const correctPassword = await verifyPassword(password);
 
-                if (!correctPassword)
+                if (!correctPassword) {
                   return intl.formatMessage({
                     id: "register.create.input.password.error.incorrect"
                   });
+                }
+
+                //
               }
             }
           })}

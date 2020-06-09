@@ -27,7 +27,7 @@ import { GetBalanceMsg } from "../../../../background/api";
 
 export class AccountStore {
   @observable
-  private chainInfo!: ChainInfo;
+  chainInfo!: ChainInfo;
 
   @observable
   public isAddressFetching!: boolean;
@@ -75,7 +75,6 @@ export class AccountStore {
 
     this.bip44Account = 0;
     this.bip44Index = 0;
-
     this.keyRingStatus = KeyRingStatus.NOTLOADED;
   }
 
@@ -106,11 +105,9 @@ export class AccountStore {
   @actionAsync
   public async fetchEveryAddress(): Promise<Array<string>> {
     const fetchEveryAddressMsg = FetchEveryAddressMsg.create();
-    debugger;
     const addressList = await task(
       sendMessage(BACKGROUND_PORT, fetchEveryAddressMsg)
     );
-    debugger;
     return addressList.AddressList;
   }
 

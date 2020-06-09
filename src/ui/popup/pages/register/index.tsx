@@ -1,4 +1,9 @@
-import React, { FunctionComponent, useCallback, useState } from "react";
+import React, {
+  FunctionComponent,
+  useCallback,
+  useEffect,
+  useState
+} from "react";
 import { EmptyLayout } from "../../layouts/empty-layout";
 import { RegisterInPage } from "./register";
 import { VerifyInPage } from "./verify";
@@ -7,7 +12,6 @@ import { observer } from "mobx-react";
 import { useStore } from "../../stores";
 import { IntroInPage } from "./intro";
 import style from "./style.module.scss";
-import { KeyRingStatus } from "../../../../background/keyring";
 import { Button } from "reactstrap";
 import { KeyRingStore } from "../../stores/keyring";
 import { WelcomeInPage } from "./welcome";
@@ -58,6 +62,7 @@ export const AddAddressWizard: FunctionComponent<NewAddressWizardProps> = observ
     const [state, setState] = useState<RegisterState>(
       determineInitialState(initialRegisterState)
     );
+    const { accountStore } = useStore();
 
     const [accountIsCreating, setAccountIsCreating] = useState(false);
     const [words, setWords] = useState("");
@@ -66,6 +71,18 @@ export const AddAddressWizard: FunctionComponent<NewAddressWizardProps> = observ
     const [hardwareErrorMessage, setHardwareErrorMessage] = useState("");
     const [address, setAddress] = useState("");
     const [wizardComplete, setWizardComplete] = useState(false);
+    const [addressList, setAddressList] = useState<Array<string>>([]);
+
+    // on mount we fetch all addresses if they are logged in. this list is then passed into whichever method they use to recover an account and
+    // is checked against to make sure that we do not register the same address twice
+    useEffect(() => {
+      // we fetch all addresses
+      const fetchEveryAddress = async () => {
+        const everyAddress = await accountStore.fetchEveryAddress();
+        setAddressList(everyAddress);
+      };
+      fetchEveryAddress();
+    }, []);
 
     /**
      * If the page is being shown from the address book then we will want to skip the initial page and go directly to the upload page,
@@ -103,6 +120,15 @@ export const AddAddressWizard: FunctionComponent<NewAddressWizardProps> = observ
 
       if (typeof result.errorMessage !== "undefined") {
         error = true;
+        // if the hardware error message is one in particular that is wierd that looks like a bug/type we cut off part of it
+        if (
+          result.errorMessage.includes(
+            "Ledger Device is busy (lock getVersion)"
+          )
+        ) {
+          result.errorMessage = result.errorMessage.split(" (lock")[0];
+        }
+
         setHardwareErrorMessage(result.errorMessage);
       }
 
@@ -268,7 +294,6 @@ export const AddAddressWizard: FunctionComponent<NewAddressWizardProps> = observ
                 onClick: async () => {
                   const hasHardwareWallet = await readyToRegisterThroughHardwareWallet();
                   if (hasHardwareWallet) {
-                    debugger;
                     const cosmosAddress = await getAddressFromNano();
                     setAddress(cosmosAddress);
                     setState(RegisterState.HARDWARE_UPLOAD);
@@ -299,6 +324,7 @@ export const AddAddressWizard: FunctionComponent<NewAddressWizardProps> = observ
               getMnemonic={keyRingStore.getMnemonic}
               verifyPassword={keyRingStore.verifyPassword}
               isRegistering={isRegistering}
+              addressList={addressList}
             />
             <BackButton onClick={onBackToChooseRecoverMethod} />
           </>
@@ -322,6 +348,7 @@ export const AddAddressWizard: FunctionComponent<NewAddressWizardProps> = observ
                 setNumWords(numWords);
                 generateMnemonic(numWords);
               }}
+              addressList={addressList}
               numWords={numWords}
               words={words}
               isRecover={false}
@@ -335,6 +362,7 @@ export const AddAddressWizard: FunctionComponent<NewAddressWizardProps> = observ
         {!wizardComplete && state === RegisterState.RECOVER ? (
           <>
             <RegisterInPage
+              addressList={addressList}
               onRegister={onRegister}
               words={words}
               isRecover={true}

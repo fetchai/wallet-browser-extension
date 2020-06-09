@@ -5,6 +5,8 @@ import { strongPassword } from "../../../../common/strong-password";
 import { validJSONString } from "../../../../common/utils/valid-json-string";
 import { EncryptedKeyStructure } from "../../../../background/keyring/crypto";
 import { Label } from "reactstrap";
+import { mnemonicToAddress } from "../../../../common/utils/mnemonic-to-address";
+import { NativeChainInfos } from "../../../../chain-info";
 
 const FILE_REQUIRED_ERROR_MESSAGE = "File required";
 const INCORRECT_FILE_TYPE_ERROR_MESSAGE = "Incorrect file type";
@@ -30,6 +32,7 @@ type Props = {
   onRegister: any;
   verifyPassword: any;
   getMnemonic: any;
+  addressList: Array<string>;
   isRegistering: boolean;
 };
 
@@ -57,7 +60,7 @@ export default class Upload extends React.Component<Props, State> {
         keyFile: EncryptedKeyStructure
       ) => Promise<string | false>)
     | ((password: string, keyFile: EncryptedKeyStructure) => Promise<string>);
-
+  private addressList: Array<string>;
   private isRegistering: boolean;
 
   constructor(props: any) {
@@ -66,6 +69,7 @@ export default class Upload extends React.Component<Props, State> {
     this.verifyPassword = props.verifyPassword;
     this.getMnemonic = props.getMnemonic;
     this.isRegistering = props.isRegistering;
+    this.addressList = props.addressList;
   }
 
   public readonly state: State = {
@@ -286,27 +290,48 @@ export default class Upload extends React.Component<Props, State> {
       }
     }
 
-    if (!error) {
-      const mnemonic = await this.getMnemonic(
-        this.state.password,
-        JSON.parse(file as string)
-      );
-      if (mnemonic === false) {
-        this.setState({
-          errorMessage: "Error occured"
-        });
-      }
-      debugger;
-      // if we are registering we encrypt with password, else if not we encrypt with the walllet password instead
-      const password = this.isRegistering
-        ? this.state.password
-        : this.state.walletPassword;
-      debugger;
-      await this.onRegister(mnemonic, password, true);
-    } else {
-      debugger;
+    if (error) {
+      this.setState({
+        errorMessage: "Error occured"
+      });
       await this.setLoading(false);
+      return;
     }
+
+    const mnemonic = await this.getMnemonic(
+      this.state.password,
+      JSON.parse(file as string)
+    );
+    if (mnemonic === false) {
+      this.setState({
+        errorMessage: "Error occured"
+      });
+      await this.setLoading(false);
+      return;
+    }
+
+    // if we are adding an address to a pre-existing wallet then lets check it doesn't already exist in the wallet
+
+    const address = mnemonicToAddress(
+      mnemonic,
+      NativeChainInfos[0].bech32Config.bech32PrefixAccAddr
+    );
+
+    if (!this.isRegistering && this.addressList.includes(address)) {
+      this.setLoading(false);
+      this.setState({
+        errorMessage: "Address already exists"
+      });
+      return;
+    }
+
+    // if we are registering we encrypt with password, else if not we encrypt with the walllet password instead
+    const password = this.isRegistering
+      ? this.state.password
+      : this.state.walletPassword;
+
+    await this.onRegister(mnemonic, password, true);
+    await this.setLoading(false);
   }
 
   render() {
