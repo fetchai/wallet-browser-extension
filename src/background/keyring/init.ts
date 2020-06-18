@@ -24,7 +24,7 @@ import {
   RequestTxBuilderConfigMsg,
   GetRequestedTxBuilderConfigMsg,
   GetKeyFileMsg,
-  IsHardwareLinkedMsg, FetchEveryAddressMsg, SetActiveAddressMsg, GetActiveAddressMsg
+  IsHardwareLinkedMsg, FetchEveryAddressMsg, SetActiveAddressMsg, GetActiveAddressMsg, GetDeleteAddressMsg
 } from "./messages";
 import { ROUTE } from "./constants";
 import { getHandler } from "./handler";
@@ -60,6 +60,7 @@ export function init(
   messageManager.registerMessage(RejectTxBuilderConfigMsg);
   messageManager.registerMessage(RequestSignMsg);
   messageManager.registerMessage(GetRequestedMessage);
+  messageManager.registerMessage(GetDeleteAddressMsg);
   messageManager.registerMessage(ApproveSignMsg);
   messageManager.registerMessage(RejectSignMsg);
 

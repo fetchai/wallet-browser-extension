@@ -142,8 +142,6 @@ export const AddressBookManagerPage: FunctionComponent<RouteComponentProps> = ob
                       {formatAddress(address)}
                     </ToolTip>
                   </span>
-                </div>
-
                 <span
                   className={classnames(style.closeIcon, style.clickable)}
                   onClick={() => {
@@ -153,8 +151,9 @@ export const AddressBookManagerPage: FunctionComponent<RouteComponentProps> = ob
                     });
                   }}
                 >
-                  <i className="fas fa-1x fa-close"></i>
+                  <i className="fa fa-2x fa-close"></i>
                 </span>
+                </div>
               </li>
             ))}
           </ul>

@@ -1,8 +1,6 @@
 import { Crypto, EncryptedKeyStructure } from "./crypto";
 import { generateWalletFromMnemonic } from "@everett-protocol/cosmosjs/utils/key";
 import {
-  PrivKey,
-  PrivKeySecp256k1,
   PubKeySecp256k1
 } from "@everett-protocol/cosmosjs/crypto";
 import { KVStore } from "../../common/kvstore";
@@ -52,6 +50,8 @@ export class KeyRing {
     this.loaded = false;
   }
 
+
+
   /**
    * The active address is the address currently displayed in the wallet, which is then used for balance, sending ect.
    * This method finds its index in the address book
@@ -78,6 +78,11 @@ export class KeyRing {
   private getActiveAddressItem(): HardwareAddressItem | RegularAddressItem {
     const index = this.activeAddressAddressBookIndex() || 0;
     return this.addressBook[index];
+  }
+
+  public deleteAddress(address: string): void {
+      const index = this.addressBook.findIndex(el => el.address === address);
+       this.addressBook = this.addressBook.splice(index, 1)
   }
 
   public setActiveAddress(address: string) {

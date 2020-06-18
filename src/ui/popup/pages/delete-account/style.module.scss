@@ -217,8 +217,15 @@ $settings-width: 293px;
   }
 }
 
-.log-out-button {
-  bottom: 25px;
+.delete-button {
+      top: 190px;
+  position: absolute;
+  width: 290px;
+  left: 7%;
+}
+
+.cancel-button {
+   top: 260px;
   position: absolute;
   width: 290px;
   left: 7%;

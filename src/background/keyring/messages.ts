@@ -903,6 +903,30 @@ export class ApproveSignMsg extends Message<void> {
   }
 }
 
+export class GetDeleteAddressMsg extends Message<void> {
+  public static type() {
+    return "delete message";
+  }
+
+  public static create(address: string): GetDeleteAddressMsg {
+    const msg = new GetDeleteAddressMsg();
+    msg.address = address;
+    return msg;
+  }
+
+  public address: string = "";
+
+  validateBasic(): void {}
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return GetDeleteAddressMsg.type();
+  }
+}
+
 export class RejectSignMsg extends Message<void> {
   public static type() {
     return "reject-sign";

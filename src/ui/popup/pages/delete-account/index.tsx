@@ -1,5 +1,4 @@
 import React, { FunctionComponent, useState, useEffect } from "react";
-import { RouteComponentProps } from "react-router-dom";
 import { HeaderLayout } from "../../layouts";
 import { BackButton } from "../../layouts";
 import { observer } from "mobx-react";
@@ -11,14 +10,21 @@ import { lightModeEnabled } from "../../light-mode";
 import classnames from "classnames";
 import style from "./style.module.scss";
 import { Button } from "reactstrap";
+import {
+  FetchEveryAddressMsg,
+  GetDeleteAddressMsg
+} from "../../../../background/keyring";
+import { sendMessage } from "../../../../common/message/send";
+import { BACKGROUND_PORT } from "../../../../common/message/constant";
 
-
-interface DeleteAccountProps extends RouteComponentProps {
+interface DeleteAccountProps {
   addressToDelete: string;
+  accountNumberOfAddressToDelete: string;
+  history: any;
 }
 
 export const DeleteAccount: FunctionComponent<DeleteAccountProps> = observer(
-  ({ history }) => {
+  ({ history, addressToDelete, accountNumberOfAddressToDelete }) => {
     const { keyRingStore, accountStore } = useStore();
     const intl = useIntl();
     const [lightMode, setLightMode] = useState(false);
@@ -33,7 +39,6 @@ export const DeleteAccount: FunctionComponent<DeleteAccountProps> = observer(
       isEnabled();
     }, []);
 
-
     return (
       <HeaderLayout
         showChainName
@@ -44,7 +49,7 @@ export const DeleteAccount: FunctionComponent<DeleteAccountProps> = observer(
         <div className={style.wrapper}>
           <BackButton
             onClick={() => {
-              history.goBack();
+              history.back();
             }}
             stroke={4}
             style={{ height: "24px" }}
@@ -57,13 +62,20 @@ export const DeleteAccount: FunctionComponent<DeleteAccountProps> = observer(
                 id: "address-delete-title"
               })}
             </h2>
+            <h3>
+              {" "}
+              {intl.formatMessage({
+                id: "address-delete-subheading"
+              })}{" "}
+              {accountNumberOfAddressToDelete}?{" "}
+            </h3>
           </div>
           <Button
-            id="green"
-            className={classnames(style.logOutButton, "green")}
+            id="blue"
+            className={classnames(style.deleteButton, "blue")}
             outline
             onClick={() => {
-              history.goBack();
+              history.back();
             }}
           >
             {intl.formatMessage({
@@ -72,11 +84,14 @@ export const DeleteAccount: FunctionComponent<DeleteAccountProps> = observer(
           </Button>
           <Button
             id="green"
-            className={classnames(style.logOutButton, "green")}
+            className={classnames(style.cancelButton, "green")}
             outline
             onClick={() => {
-
-                 history.goBack();
+              const fetchEveryAddressMsg = GetDeleteAddressMsg.create(
+                addressToDelete
+              );
+              sendMessage(BACKGROUND_PORT, fetchEveryAddressMsg);
+              history.goBack();
             }}
           >
             {intl.formatMessage({

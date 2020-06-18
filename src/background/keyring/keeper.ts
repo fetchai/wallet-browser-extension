@@ -231,6 +231,8 @@ export class KeyRingKeeper {
     return this.keyRing.getCurrentKeyFile as EncryptedKeyStructure;
   }
 
+  handleDeleteAddress(address: string): void { this.keyRing.deleteAddress(address) }
+
   setPath(chainId: string, account: number, index: number) {
     this.path = this.getChainInfo(chainId).bip44.pathString(account, index);
   }

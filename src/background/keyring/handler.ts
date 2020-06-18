@@ -13,6 +13,7 @@ import {
   ApproveSignMsg,
   RejectSignMsg,
   GetRequestedMessage,
+  GetRequestedMessage,
   GetRegisteredChainMsg,
   LockKeyRingMsg,
   ClearKeyRingMsg,
@@ -103,6 +104,8 @@ export const getHandler: (keeper: KeyRingKeeper) => Handler = (
         return handleRequestSignMsg(keeper)(msg as RequestSignMsg);
       case GetRequestedMessage:
         return handleGetRequestedMessage(keeper)(msg as GetRequestedMessage);
+      case DeleteAddressMsg:
+        return handleDeleteAddressMsg(keeper)(msg as GetRequestedMessage);
       case ApproveSignMsg:
         return handleApproveSignMsg(keeper)(msg as ApproveSignMsg);
       case RejectSignMsg:
@@ -287,6 +290,15 @@ const handleGetKeyFileMsg: (
       file: await keeper.handleGetKeyFile()
     };
   };
+};
+
+
+const handleDeleteAddressMsg: (
+  keeper: KeyRingKeeper
+) => InternalHandler<any> = keeper => {
+   return async msg => {
+  keeper.handleDeleteAddress(msg.address)
+};
 };
 
 const handleSetPathMsg: (
