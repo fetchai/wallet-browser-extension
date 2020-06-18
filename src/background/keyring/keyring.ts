@@ -74,6 +74,7 @@ export class KeyRing {
     return this.addressBook.map(el => el.address);
   }
 
+
   private getActiveAddressItem(): HardwareAddressItem | RegularAddressItem {
     const index = this.activeAddressAddressBookIndex() || 0;
     return this.addressBook[index];

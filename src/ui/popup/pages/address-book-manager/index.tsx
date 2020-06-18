@@ -98,7 +98,7 @@ export const AddressBookManagerPage: FunctionComponent<RouteComponentProps> = ob
         <div className={style.wrapper}>
           <BackButton
             onClick={() => {
-              history.goBack();
+              history.push("/address-book-manager");
             }}
             stroke={4}
             style={{ height: "24px" }}
@@ -143,6 +143,18 @@ export const AddressBookManagerPage: FunctionComponent<RouteComponentProps> = ob
                     </ToolTip>
                   </span>
                 </div>
+
+                <span
+                  className={classnames(style.closeIcon, style.clickable)}
+                  onClick={() => {
+                    history.push({
+                      pathname: "/address-delete",
+                      search: `?address=${address}&accountNumber=${index + 1}`
+                    });
+                  }}
+                >
+                  <i className="fas fa-1x fa-close"></i>
+                </span>
               </li>
             ))}
           </ul>

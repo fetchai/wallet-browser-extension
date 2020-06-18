@@ -587,7 +587,6 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
                 </output>
               </Expand>
             </form>
-
             <h3
               className={classnames(style.subHeading, style.clickable)}
               onClick={() => toggle("2b")}

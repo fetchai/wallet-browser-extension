@@ -123,6 +123,7 @@ ReactDOM.render(
               <Route exact path="/send" component={SendPage} />
               <Route exact path="/settings" component={SettingsPage} />
               <Route exact path="/address-book-manager" component={AddressBookManagerPage} />
+              <Route exact path="/add-account/import"  render={() => <AddAddressWizard isRegistering={false} initialRegisterState={RegisterState.RECOVERY_CHOICE}  />}/>
               <Route exact path="/fee/:id" component={FeePage} />
               <Route path="/sign/:id" component={SignPage} />
             </HashRouter>
