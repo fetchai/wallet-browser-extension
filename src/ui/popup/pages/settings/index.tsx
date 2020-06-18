@@ -18,12 +18,18 @@ import {
   STORAGE_KEY
 } from "../../light-mode";
 import { Button, ButtonGroup } from "reactstrap";
+// @ts-ignore
 import OutsideClickHandler from "react-outside-click-handler";
 import classnames from "classnames";
+import { EndpointData } from "../../../../chain-info";
+import { isURL } from "../../../../common/utils/is-url";
+import ActiveEndpoint from "../../../../common/utils/active-endpoint";
+
+const CUSTOM_ENDPOINT = "custom";
 
 export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
   ({ history }) => {
-    const { keyRingStore } = useStore();
+    const { keyRingStore, chainStore, accountStore } = useStore();
     const intl = useIntl();
     const transitions = ["height", "opacity", "background"];
 
@@ -42,6 +48,13 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
     const [showDeleteConfirmation, setshowDeleteConfirmation] = useState(false);
     const [lightMode, setLightMode] = useState(false);
     const [keyFile, setKeyFile] = useState("");
+    const [network, setNetwork] = useState("");
+    const [endpoints, setEndpoints] = useState();
+
+    const [customRPC, setCustomRPC] = useState("");
+    const [customREST, setCustomREST] = useState("");
+    const [customEndpointOutput, setCustomEndpointOutput] = useState("");
+    const [customEndpointHasError, setCustomEndpointHasError] = useState(false);
 
     useEffect(() => {
       const getFile = async () => {
@@ -50,8 +63,31 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
           setKeyFile(JSON.stringify(json));
         }
       };
+      // on mount we get active endpoint so we can get dropdown initially have this one selected
+      const findActiveEndpoint = async () => {
+        const network = await ActiveEndpoint.getActiveEndpoint();
+        setNetwork(network.name);
+      };
       getFile();
+      findActiveEndpoint();
     }, []);
+
+    useEffect(() => {
+      const endpointData: Array<EndpointData> = [];
+      // since chain store is a proxy/observer we cannot directly include it in dom
+      // so we intead take its values and push them into a state variable.
+      const getEndpoints = async () => {
+        chainStore.chainInfo.endpoints.map(endpoint => {
+          endpointData.push({
+            name: endpoint.name,
+            rest: endpoint.rest,
+            rpc: endpoint.rpc
+          });
+        });
+        setEndpoints(endpointData);
+      };
+      getEndpoints();
+    }, [chainStore]);
 
     useEffect(() => {
       const isEnabled = async () => {
@@ -71,6 +107,79 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
       setPasswordConfirmError(false);
       setPasswordError(false);
       setNewPasswordError(false);
+    };
+
+    /**
+     *
+     * Custom endpoint should be refactored to  be a seperate module before completion, as can some other the others in settings page
+     *
+     * We look check that the custom rpc and rest are valid urls and if true we add them
+     *
+     * note: multiple exits (returns)
+     */
+    const handleCustomEndpointSubmission = async () => {
+      // check that neither rest nor rpc urls are empty
+      if (customREST === "" || customRPC === "") {
+        setCustomEndpointHasError(true);
+        setCustomEndpointOutput(
+          intl.formatMessage({
+            id: "register.custom.endpoint.url.empty"
+          })
+        );
+        return;
+      }
+
+      // check the rest url is a valid URL
+      if (!isURL(customREST)) {
+        setCustomEndpointHasError(true);
+        setCustomEndpointOutput(
+          intl.formatMessage({
+            id: "register.custom.endpoint.url.invalid.rest"
+          })
+        );
+        return;
+      }
+      // check rpc url is a valid URL
+      if (!isURL(customRPC)) {
+        setCustomEndpointHasError(true);
+        setCustomEndpointOutput(
+          intl.formatMessage({
+            id: "register.custom.endpoint.url.invalid.rest"
+          })
+        );
+        return;
+      }
+
+      // success we then add the custom endpoint
+      await ActiveEndpoint.addCustomEndpoint(
+        CUSTOM_ENDPOINT,
+        customRPC,
+        customREST
+      );
+
+      await ActiveEndpoint.setActiveEndpointName(CUSTOM_ENDPOINT);
+       setCustomRPC("")
+       setCustomREST("")
+      setCustomEndpointOutput(
+        intl.formatMessage({
+          id: "register.custom.endpoint.url.success"
+        })
+      );
+       await accountStore.clearAssets(true);
+       await accountStore.fetchAccount();
+    };
+
+    const handleNetworkChange = async (event: any) => {
+      const selectedNetwork = event.target.value;
+      setNetwork(selectedNetwork);
+
+      // if it is a custom endpoint we allow user to put in their rpc and rest URIs before refreshing balance
+      // but if not we refresh balance
+      if (selectedNetwork !== CUSTOM_ENDPOINT) {
+        await ActiveEndpoint.setActiveEndpointName(selectedNetwork);
+        await accountStore.clearAssets(true)
+        await accountStore.fetchAccount();
+      }
     };
 
     const correctPassword = async (): Promise<boolean> => {
@@ -222,7 +331,6 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
       }
 
       if (index === "2b") {
-        debugger;
         setcollapsible2b(prev => !prev);
       } else {
         setcollapsible2b(false);
@@ -332,6 +440,70 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
             ) : (
               ""
             )}
+
+            <div className="input_container">
+              <label htmlFor="conversion">
+                Choose Network
+              </label>
+              <div className="select_container">
+                <select
+                  key={1}
+                  onChange={handleNetworkChange}
+                  id="network"
+                  className="custom_select"
+                  name="network"
+                >
+                  {endpoints
+                    ? endpoints.map((el: EndpointData) => {
+                        return (
+                          <option
+                            value={el.name}
+                            key={el.name}
+                            selected={network === el.name}
+                          >
+                            {el.name}
+                          </option>
+                        );
+                      })
+                    : ""}
+                  <option
+                    value={CUSTOM_ENDPOINT}
+                    key={CUSTOM_ENDPOINT}
+                    selected={network === CUSTOM_ENDPOINT}
+                  >
+                    {CUSTOM_ENDPOINT}
+                  </option>
+                </select>
+                {network === CUSTOM_ENDPOINT ? (
+                  <>
+                    <input
+                      type="text"
+                      placeholder="RPC"
+                      value={customRPC}
+                      onChange={event => setCustomRPC(event.target.value)}
+                    ></input>
+                    <input
+                      type="text"
+                      placeholder="REST"
+                      value={customREST}
+                      onChange={event => setCustomREST(event.target.value)}
+                    ></input>
+                    <button
+                      type="submit"
+                      className={`green ${style.button}`}
+                      onClick={handleCustomEndpointSubmission}
+                    >
+                      Update
+                    </button>
+                  </>
+                ) : (
+                  ""
+                )}
+                <span className={customEndpointHasError ? "red" : ""}>
+                  {customEndpointOutput}
+                </span>
+              </div>
+            </div>
           </Expand>
 
           <div className={style.mainButton} onClick={() => toggle(2)}>

@@ -71,19 +71,14 @@ export class CoinUtils {
   static getCoinFromDecimals(decAmountStr: string, denom: string): Coin {
 
     const currency = getCurrencyFromDenom(denom);
-     debugger;
     if (!currency) {
-       debugger;
       throw new Error("Invalid currency");
     }
-    debugger;
     let precision = new Dec(1);
     for (let i = 0; i < currency.coinDecimals; i++) {
       precision = precision.mul(new Dec(10));
     }
-    debugger;
     let decAmount = new Dec(decAmountStr);
-    debugger;
     // decAmount = decAmount.mul(precision);
 
     if (!new Dec(decAmount.truncate()).equals(decAmount)) {

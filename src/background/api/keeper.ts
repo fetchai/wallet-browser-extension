@@ -1,5 +1,12 @@
 import Axios, { AxiosRequestConfig, CancelToken } from "axios";
 import { AccountData, BaseAccountConstructor } from "./types";
+import {
+  AUTH_REST_API_PATH,
+  BALANCE_REST_API_PATH,
+  PUBLIC_KEY_TYPE,
+  QUERY_TYPE,
+  STATUS_ERROR
+} from "./constants";
 
 /**
  * since we cannot serialize and deserialize a Coin object to send between threads we send the params and construct the Coin from this
@@ -24,7 +31,7 @@ export class APIKeeper {
     bech32Address: string,
     cancelToken: CancelToken | null = null
   ): Promise<CoinParams[]> {
-    const url = `${rest}/bank/balances/${bech32Address}`;
+    const url = `${rest}${BALANCE_REST_API_PATH}${bech32Address}`;
     const coins: CoinParams[] = [];
 
     const config: AxiosRequestConfig = {};
@@ -34,9 +41,10 @@ export class APIKeeper {
     }
 
     const resp = await Axios.get(url, config);
+    if (resp.status !== 200) {
+      throw new Error(STATUS_ERROR);
+    }
 
-    if (resp.status !== 200)
-      throw new Error("HTTP status code doesn't equal 200");
 
     resp.data.result.forEach((el: any) => {
       coins.push({ denom: el.denom, amount: el.amount.toString() });
@@ -50,7 +58,7 @@ export class APIKeeper {
     bech32Address: string,
     cancelToken: CancelToken | null = null
   ): Promise<AccountData> {
-    const url = `${rest}/auth/accounts/${bech32Address}`;
+    const url = `${rest}${AUTH_REST_API_PATH}${bech32Address}`;
 
     const config: AxiosRequestConfig = {};
 
@@ -68,7 +76,7 @@ export class APIKeeper {
     };
 
     if (resp.status !== 200) {
-      throw new Error("HTTP status code doesn't equal 200");
+      throw new Error(STATUS_ERROR);
     }
 
     return resp.data.result.value;
@@ -99,7 +107,7 @@ export class APIKeeper {
     // We take data from the above two api requests and use it to
     // make the object used to construct
     const base: any = {};
-    base.type = "cosmos-sdk/Account";
+    base.type = QUERY_TYPE;
 
     const coins: {
       denom: string;
@@ -117,7 +125,7 @@ export class APIKeeper {
 
     const base64 = btoa(account.public_key);
     base.value.public_key = {
-      type: "tendermint/PubKeySecp256k1",
+      type: PUBLIC_KEY_TYPE,
       value: base64
     };
 

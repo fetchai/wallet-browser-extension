@@ -263,7 +263,6 @@ export default class Upload extends React.Component<Props, State> {
    * @returns {Promise<void>}
    */
   async handleSubmit() {
-    debugger;
     await this.setLoading(true);
     let error = false;
     let file;

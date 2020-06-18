@@ -61,6 +61,7 @@ export const AddressBookManagerPage: FunctionComponent<RouteComponentProps> = ob
       // set active address in the background script
       await accountStore.setActiveAddress(address);
       // refetch account data eg balance
+      await accountStore.clearAssets(true);
       await accountStore.fetchAccount();
     };
 

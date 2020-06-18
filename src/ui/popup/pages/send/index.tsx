@@ -152,7 +152,6 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
     const [allBalance, setAllBalance] = useState(false);
 
     const onChangeAllBalance = useCallback((allBalance: boolean) => {
-        debugger;
       setAllBalance(allBalance);
     }, []);
 
@@ -477,7 +476,6 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
                           chainStore.chainInfo.bech32Config,
                           () => {
                             try {
-                                debugger;
                               AccAddress.fromBech32(value);
                             } catch (e) {
                               return intl.formatMessage({

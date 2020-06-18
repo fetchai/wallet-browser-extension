@@ -2,9 +2,11 @@ import { ChainInfo } from "../../../../chain-info";
 
 import { sendMessage } from "../../../../common/message";
 import {
-  FetchEveryAddressMsg, GetActiveAddressMsg,
+  FetchEveryAddressMsg,
+  GetActiveAddressMsg,
   GetKeyMsg,
-  KeyRingStatus, SetActiveAddressMsg,
+  KeyRingStatus,
+  SetActiveAddressMsg,
   SetPathMsg
 } from "../../../../background/keyring";
 
@@ -24,6 +26,7 @@ import {
 } from "../../../../config";
 import { CoinUtils } from "../../../../common/coin-utils";
 import { GetBalanceMsg } from "../../../../background/api";
+import ActiveEndpoint from "../../../../common/utils/active-endpoint";
 
 export class AccountStore {
   @observable
@@ -76,6 +79,15 @@ export class AccountStore {
     this.bip44Account = 0;
     this.bip44Index = 0;
     this.keyRingStatus = KeyRingStatus.NOTLOADED;
+  }
+
+  @action
+  public async clearAssets(clearStorage = false) {
+    this.assets = [];
+
+    if (clearStorage) {
+      await browser.storage.local.remove("assets");
+    }
   }
 
   // This will be called by chain store.
@@ -175,7 +187,6 @@ export class AccountStore {
     // No need to set origin, because this is internal.
     const getKeyMsg = GetKeyMsg.create(this.chainInfo.chainId, "");
     const result = await task(sendMessage(BACKGROUND_PORT, getKeyMsg));
-    debugger;
     const prevBech32Address = this.bech32Address;
 
     this.bech32Address = result.bech32Address;
@@ -213,16 +224,13 @@ export class AccountStore {
 
     this.isAssetFetching = true;
 
-    // const msg = GetBalanceMsg.create(this.chainInfo.rest, this.bech32Address);
+    const endpointData = await task(ActiveEndpoint.getActiveEndpoint());
 
     try {
       if (COSMOS_SDK_VERSION > 37) {
-        const msg = GetBalanceMsg.create(
-          this.chainInfo.rest,
-          this.bech32Address
-        );
-        const res = await task(sendMessage(BACKGROUND_PORT, msg));
+        const msg = GetBalanceMsg.create(endpointData.rest, this.bech32Address);
 
+        const res = await task(sendMessage(BACKGROUND_PORT, msg));
         let coins: Coin[] = [];
         res.coins.forEach((el: any) => {
           coins.push(new Coin(el.denom, el.amount));
@@ -234,13 +242,12 @@ export class AccountStore {
           queryAccount(
             this.chainInfo.bech32Config,
             Axios.create({
-              baseURL: this.chainInfo.rpc,
+              baseURL: endpointData.rpc,
               cancelToken: this.lastFetchingCancleToken.token
             }),
             this.bech32Address
           )
         );
-        debugger;
         this.assets = account.getCoins();
       }
 

@@ -80,7 +80,6 @@ export const FeeButtons: FunctionComponent<FeeButtonsProps> = ({
   const [feeHigh, setFeeHigh] = useState<Coin | undefined>();
 
   useEffect(() => {
-    debugger;
     if (price.gt(new Dec(0))) {
       let precision = new Dec(1);
       for (let i = 0; i < currency.coinDecimals; i++) {

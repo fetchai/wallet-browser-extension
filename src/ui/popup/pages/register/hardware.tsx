@@ -33,7 +33,6 @@ export const Hardware: FunctionComponent<Props> = observer(
     const [passwordConfirm, setPasswordConfirm] = useState("");
     const [passwordErrorMessage, setPasswordErrorMessage] = useState("");
     const [publicKeyHex, setPublicKeyHex] = useState("");
-
     const [address, setAddress] = useState(propsAddress);
     const [
       passwordConfirmErrorMessage,

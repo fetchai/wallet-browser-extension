@@ -321,7 +321,6 @@ const handleGetKeyMsg: (
     }
 
     const key = await keeper.getKey();
-    debugger;
     return {
       algo: "secp256k1",
       pubKeyHex: Buffer.from(key.pubKey).toString("hex"),

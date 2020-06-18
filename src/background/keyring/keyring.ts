@@ -332,7 +332,6 @@ export class KeyRing {
     //   const serialized: any = el;
     //   if (!el.hdWallet && typeof el.privateKey !== "undefined") {
     //     const uint8array = serialized.privateKey.serialize();
-    //     debugger;
     //     serialized.privateKey = new TextDecoder("utf-8").decode(uint8array);
     //   }
     //   addressBook.push(serialized);
@@ -377,8 +376,6 @@ export class KeyRing {
     } else {
       addressBook = addressBook.map((el: any) => {
         if (!el.hdWallet) {
-          // // @ts-ignore
-          // debugger;
           // const uint8array = new TextEncoder("utf-8").encode(el.privateKey);
           el.privateKey = generateWalletFromMnemonic(el.mnemonic);
         }
@@ -427,6 +424,7 @@ export class KeyRing {
       );
     } else {
       const activeKey = this.getActiveAddressItem() as RegularAddressItem;
+      // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
       // @ts-ignore
       pubKey = activeKey.privateKey.toPubKey();
     }
