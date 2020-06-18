@@ -123,7 +123,7 @@ export const AddressBookManagerPage: FunctionComponent<RouteComponentProps> = ob
                 <div className={style.addressListContent}>
                   Account {index + 1} <br />
                   <span
-                    className={style.address}
+                    className={classnames(style.address, style.clickable)}
                     onClick={async () => {
                       await navigator.clipboard.writeText(address);
                       setCopiedIndexes(copiedIndexes => [

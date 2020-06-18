@@ -139,6 +139,7 @@ $input-height: 46px;
   border-style: solid;
   border-color: white;
   color: white;
+  vertical-align: middle;
 }
 
 .recover-button {
@@ -146,13 +147,12 @@ $input-height: 46px;
   width: $container-width;
   height: $input-height;
   border-radius: 6px;
-  margin-top: 5px;
   font-weight: 600;
   display: block;
-  margin-bottom: 5px;
 
   &::after {
-    top: 376px !important;
+    position: relative !important;
+    margin-top: -22px;
   }
 }
 
