@@ -76,6 +76,7 @@
    "settings.light-mode.pill.title": "Switch Theme",
    "settings.light-mode.pill.light": "Light",
    "settings.light-mode.pill.dark": "Dark",
+   "settings.choose-network": "Choose Network",
 
   "settings.heading": "Settings",
   "settings.update-password.heading.change-password": "Change Password",

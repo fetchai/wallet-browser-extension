@@ -55,6 +55,7 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
     const [customREST, setCustomREST] = useState("");
     const [customEndpointOutput, setCustomEndpointOutput] = useState("");
     const [customEndpointHasError, setCustomEndpointHasError] = useState(false);
+    const [showDropdown, setShowDropdown] = useState(false);
 
     useEffect(() => {
       const getFile = async () => {
@@ -158,15 +159,15 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
       );
 
       await ActiveEndpoint.setActiveEndpointName(CUSTOM_ENDPOINT);
-       setCustomRPC("")
-       setCustomREST("")
+      setCustomRPC("");
+      setCustomREST("");
       setCustomEndpointOutput(
         intl.formatMessage({
           id: "register.custom.endpoint.url.success"
         })
       );
-       await accountStore.clearAssets(true);
-       await accountStore.fetchAccount();
+      await accountStore.clearAssets(true);
+      await accountStore.fetchAccount();
     };
 
     const handleNetworkChange = async (event: any) => {
@@ -177,7 +178,7 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
       // but if not we refresh balance
       if (selectedNetwork !== CUSTOM_ENDPOINT) {
         await ActiveEndpoint.setActiveEndpointName(selectedNetwork);
-        await accountStore.clearAssets(true)
+        await accountStore.clearAssets(true);
         await accountStore.fetchAccount();
       }
     };
@@ -442,38 +443,94 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
             )}
 
             <div className="input_container">
-              <label htmlFor="conversion">
-                Choose Network
-              </label>
-              <div className="select_container">
-                <select
-                  key={1}
-                  onChange={handleNetworkChange}
-                  id="network"
-                  className="custom_select"
-                  name="network"
+              <h3 className={style.subHeading}>
+                {intl.formatMessage({
+                  id: "settings.choose-network"
+                })}
+              </h3>
+              <div className={style.dropdown}>
+                <OutsideClickHandler
+                  onOutsideClick={() => {
+                    setShowDropdown(false);
+                  }}
                 >
-                  {endpoints
-                    ? endpoints.map((el: EndpointData) => {
-                        return (
-                          <option
-                            value={el.name}
-                            key={el.name}
-                            selected={network === el.name}
-                          >
-                            {el.name}
-                          </option>
-                        );
-                      })
-                    : ""}
-                  <option
-                    value={CUSTOM_ENDPOINT}
-                    key={CUSTOM_ENDPOINT}
-                    selected={network === CUSTOM_ENDPOINT}
-                  >
-                    {CUSTOM_ENDPOINT}
-                  </option>
-                </select>
+                  <br></br>
+                  <div className={style.dropdown}>
+                    <button
+                      onClick={() => {
+                        const toggled = !showDropdown;
+                        setShowDropdown(toggled);
+                      }}
+                      className={style.dropButton}
+                    >
+                      Dropdown
+                      <svg
+                        className={style.svg}
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fill="transparent"
+                          strokeWidth={3}
+                          stroke={
+                            lightMode ? "hsl(0, 100%, 0%)" : "hsl(0, 0%, 100%)"
+                          }
+                          strokeLinecap="round"
+                          d="M 6.5 10 L 13.5 3.5 M 6.5 10 L 13.5 16.5"
+                        />
+                      </svg>
+                    </button>
+                    <div
+                      className={classnames(
+                        style.dropdownContent,
+                        showDropdown ? style.showDropdown : ""
+                      )}
+                    >
+                      <div>
+                        Link 1
+                        <span
+                          className={classnames(
+                            style.closeIcon,
+                            style.clickable
+                          )}
+                          onClick={() => {
+                            debugger;
+                          }}
+                        >
+                          <i className="fa fa-2x fa-close"></i>
+                        </span>
+                      </div>
+                      <div>
+                        Link 2
+                        <span
+                          className={classnames(
+                            style.closeIcon,
+                            style.clickable
+                          )}
+                          onClick={() => {
+                            debugger;
+                          }}
+                        >
+                          <i className="fa fa-2x fa-close"></i>
+                        </span>
+                      </div>
+                      <div>
+                        Link 3
+                        <span
+                          className={classnames(
+                            style.closeIcon,
+                            style.clickable
+                          )}
+                          onClick={() => {
+                            debugger;
+                          }}
+                        >
+                          <i className="fa fa-2x fa-close"></i>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </OutsideClickHandler>
                 {network === CUSTOM_ENDPOINT ? (
                   <>
                     <input

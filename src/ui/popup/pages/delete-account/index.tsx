@@ -4,7 +4,6 @@ import { BackButton } from "../../layouts";
 import { observer } from "mobx-react";
 // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
 // @ts-ignore
-import { useStore } from "../../stores";
 import { useIntl } from "react-intl";
 import { lightModeEnabled } from "../../light-mode";
 import classnames from "classnames";
@@ -80,11 +79,7 @@ export const DeleteAccount: FunctionComponent<DeleteAccountProps> = observer(
               const fetchEveryAddressMsg = GetDeleteAddressMsg.create(
                 addressToDelete
               );
-              const res = await sendMessage(
-                BACKGROUND_PORT,
-                fetchEveryAddressMsg
-              );
-              debugger;
+              await sendMessage(BACKGROUND_PORT, fetchEveryAddressMsg);
               history.back();
             }}
           >

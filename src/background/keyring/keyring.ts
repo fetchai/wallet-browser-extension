@@ -76,7 +76,6 @@ export class KeyRing {
 
   private getActiveAddressItem(): HardwareAddressItem | RegularAddressItem {
     const index = this.activeAddressAddressBookIndex() || 0;
-    debugger;
     return this.addressBook[index];
   }
 
@@ -84,8 +83,6 @@ export class KeyRing {
     // if wallet has only 1 address we cannot delete through this method. You should instead
     // clear entire account which also deletes the other preferences as when you
     // have 0 addresses you cannot use this wallet
-    debugger;
-
     if (this.addressBook.length === 1) {
       return false;
     }
@@ -98,7 +95,6 @@ export class KeyRing {
     }
 
     const index = this.addressBook.findIndex(el => el.address === address);
-    debugger;
     this.addressBook.splice(index, 1);
     await this.save();
     return true;
@@ -109,7 +105,6 @@ export class KeyRing {
   }
 
   public getActiveAddress(): string {
-    debugger;
     return this.activeAddress || this.addressBook[0].address;
   }
 

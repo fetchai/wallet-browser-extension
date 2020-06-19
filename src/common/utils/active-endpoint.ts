@@ -34,7 +34,12 @@ export default class ActiveEndpoint {
       if (endpointData === null)
         throw new Error(`name (${name})not found for endpoint`);
 
-      return endpointData;
+      const endPoint = endpointData.find(el => el.name === name);
+
+      if (typeof endPoint === "undefined")
+        throw new Error(`name (${name})not found for endpoint`);
+
+      return endPoint;
     }
     return NativeChainInfos[0].endpoints.filter(el => el.name === name)[0];
   }
@@ -53,12 +58,22 @@ export default class ActiveEndpoint {
     rpc: string,
     rest: string
   ) {
+    // this is rarely changed hence it just being saved and restored directly from local storage.
+    // we retrieve the current end-point data
+    let rawData = await ActiveEndpoint.getCustomEndpointData();
+
+    rawData = rawData !== null ? rawData : [];
+
+    // then add in our new end point data.
     const store = new BrowserKVStore("");
     const data: EndpointData = { name: name, rpc: rpc, rest: rest };
-    await store.set(CUSTOM_ENDPOINT_DATA, JSON.stringify(data));
+    rawData.push(data);
+    await store.set(CUSTOM_ENDPOINT_DATA, JSON.stringify(rawData));
   }
 
-  public static async getCustomEndpointData(): Promise<null | EndpointData> {
+  public static async getCustomEndpointData(): Promise<null | Array<
+    EndpointData
+  >> {
     const store = new BrowserKVStore("");
     return new Promise(resolve =>
       store.get(CUSTOM_ENDPOINT_DATA).then((result: any) => {
