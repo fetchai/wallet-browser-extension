@@ -10,10 +10,7 @@ import { lightModeEnabled } from "../../light-mode";
 import classnames from "classnames";
 import style from "./style.module.scss";
 import { Button } from "reactstrap";
-import {
-  FetchEveryAddressMsg,
-  GetDeleteAddressMsg
-} from "../../../../background/keyring";
+import { GetDeleteAddressMsg } from "../../../../background/keyring";
 import { sendMessage } from "../../../../common/message/send";
 import { BACKGROUND_PORT } from "../../../../common/message/constant";
 
@@ -25,7 +22,6 @@ interface DeleteAccountProps {
 
 export const DeleteAccount: FunctionComponent<DeleteAccountProps> = observer(
   ({ history, addressToDelete, accountNumberOfAddressToDelete }) => {
-    const { keyRingStore, accountStore } = useStore();
     const intl = useIntl();
     const [lightMode, setLightMode] = useState(false);
 
@@ -66,15 +62,29 @@ export const DeleteAccount: FunctionComponent<DeleteAccountProps> = observer(
               {" "}
               {intl.formatMessage({
                 id: "address-delete-subheading"
-              })}{" "}
-              {accountNumberOfAddressToDelete}?{" "}
+              })}
+              <span className={style.accountNumber}>
+                {intl.formatMessage({
+                  id: "address-delete-subheading-account"
+                })}
+                {accountNumberOfAddressToDelete}
+              </span>
+              ?
             </h3>
           </div>
           <Button
             id="blue"
             className={classnames(style.deleteButton, "blue")}
             outline
-            onClick={() => {
+            onClick={async () => {
+              const fetchEveryAddressMsg = GetDeleteAddressMsg.create(
+                addressToDelete
+              );
+              const res = await sendMessage(
+                BACKGROUND_PORT,
+                fetchEveryAddressMsg
+              );
+              debugger;
               history.back();
             }}
           >
@@ -87,11 +97,7 @@ export const DeleteAccount: FunctionComponent<DeleteAccountProps> = observer(
             className={classnames(style.cancelButton, "green")}
             outline
             onClick={() => {
-              const fetchEveryAddressMsg = GetDeleteAddressMsg.create(
-                addressToDelete
-              );
-              sendMessage(BACKGROUND_PORT, fetchEveryAddressMsg);
-              history.goBack();
+              history.back();
             }}
           >
             {intl.formatMessage({

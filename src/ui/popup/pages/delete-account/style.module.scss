@@ -18,6 +18,15 @@ $settings-width: 293px;
     font-size: 18px;
     color: white !important;
   }
+
+  h3 {
+     color: $grey-main;
+
+    .account-number {
+      color:white;
+    }
+  }
+
 }
 
 :global(.light-mode) {
@@ -225,10 +234,11 @@ $settings-width: 293px;
 }
 
 .cancel-button {
-   top: 260px;
-  position: absolute;
-  width: 290px;
-  left: 7%;
+ top: 249px;
+    position: absolute;
+    width: 290px;
+    left: 7%;
+    margin-left: 0 !important;
 }
 
 

@@ -24,7 +24,11 @@ import {
   RequestTxBuilderConfigMsg,
   GetRequestedTxBuilderConfigMsg,
   GetKeyFileMsg,
-  IsHardwareLinkedMsg, FetchEveryAddressMsg, SetActiveAddressMsg, GetActiveAddressMsg, GetDeleteAddressMsg
+  IsHardwareLinkedMsg,
+  FetchEveryAddressMsg,
+  SetActiveAddressMsg,
+  GetActiveAddressMsg,
+  GetDeleteAddressMsg
 } from "./messages";
 import { ROUTE } from "./constants";
 import { getHandler } from "./handler";

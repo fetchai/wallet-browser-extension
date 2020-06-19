@@ -1,8 +1,6 @@
 import { Crypto, EncryptedKeyStructure } from "./crypto";
 import { generateWalletFromMnemonic } from "@everett-protocol/cosmosjs/utils/key";
-import {
-  PubKeySecp256k1
-} from "@everett-protocol/cosmosjs/crypto";
+import { PubKeySecp256k1 } from "@everett-protocol/cosmosjs/crypto";
 import { KVStore } from "../../common/kvstore";
 import {
   AddressBook,
@@ -50,8 +48,6 @@ export class KeyRing {
     this.loaded = false;
   }
 
-
-
   /**
    * The active address is the address currently displayed in the wallet, which is then used for balance, sending ect.
    * This method finds its index in the address book
@@ -62,7 +58,11 @@ export class KeyRing {
       return null;
     }
 
-    return this.addressBook.findIndex(el => el.address === this.activeAddress);
+    const index = this.addressBook.findIndex(el => el.address === this.activeAddress);
+
+    // if not found just say it is index 0
+    if(index === -1) return 0
+    else return index;
   }
 
   public isActiveAddressHardwareAssociated() {
@@ -74,15 +74,34 @@ export class KeyRing {
     return this.addressBook.map(el => el.address);
   }
 
-
   private getActiveAddressItem(): HardwareAddressItem | RegularAddressItem {
     const index = this.activeAddressAddressBookIndex() || 0;
+    debugger;
     return this.addressBook[index];
   }
 
-  public deleteAddress(address: string): void {
-      const index = this.addressBook.findIndex(el => el.address === address);
-       this.addressBook = this.addressBook.splice(index, 1)
+  public async deleteAddress(address: string): Promise<boolean> {
+    // if wallet has only 1 address we cannot delete through this method. You should instead
+    // clear entire account which also deletes the other preferences as when you
+    // have 0 addresses you cannot use this wallet
+    debugger;
+
+    if (this.addressBook.length === 1) {
+      return false;
+    }
+
+    // if active address is current address then set active address to 0;
+    const active = this.getActiveAddressItem();
+
+    if (active.address === address) {
+      this.setActiveAddress(this.addressBook[0].address);
+    }
+
+    const index = this.addressBook.findIndex(el => el.address === address);
+    debugger;
+    this.addressBook.splice(index, 1);
+    await this.save();
+    return true;
   }
 
   public setActiveAddress(address: string) {
@@ -90,7 +109,8 @@ export class KeyRing {
   }
 
   public getActiveAddress(): string {
-    return this.activeAddress || "";
+    debugger;
+    return this.activeAddress || this.addressBook[0].address;
   }
 
   /**

@@ -98,7 +98,7 @@ export const AddressBookManagerPage: FunctionComponent<RouteComponentProps> = ob
         <div className={style.wrapper}>
           <BackButton
             onClick={() => {
-              history.push("/address-book-manager");
+              history.goBack();
             }}
             stroke={4}
             style={{ height: "24px" }}
@@ -121,7 +121,7 @@ export const AddressBookManagerPage: FunctionComponent<RouteComponentProps> = ob
                   onClick={() => changeActiveAddress(address)}
                 ></img>
                 <div className={style.addressListContent}>
-                  Account {index + 1} <br />
+                  Account {addressList.length > 1 ? index + 1 : ""} <br />
                   <span
                     className={classnames(style.address, style.clickable)}
                     onClick={async () => {
@@ -142,18 +142,20 @@ export const AddressBookManagerPage: FunctionComponent<RouteComponentProps> = ob
                       {formatAddress(address)}
                     </ToolTip>
                   </span>
-                <span
-                  className={classnames(style.closeIcon, style.clickable)}
-                  onClick={() => {
-                    history.push({
-                      pathname: "/address-delete",
-                      search: `?address=${address}&accountNumber=${index + 1}`
-                    });
-                  }}
-                >
-                  <i className="fa fa-2x fa-close"></i>
-                </span>
                 </div>
+                {addressList.length > 1 ? (
+                  <span
+                    className={classnames(style.closeIcon, style.clickable)}
+                    onClick={() => {
+                      history.push({
+                        pathname: "/address-delete",
+                        search: `?address=${address}&accountNumber=${index + 1}`
+                      });
+                    }}
+                  >
+                    <i className="fa fa-2x fa-close"></i>
+                  </span>
+                ) : null}
               </li>
             ))}
           </ul>
