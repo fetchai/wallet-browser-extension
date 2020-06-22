@@ -42,6 +42,7 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
     const [collapsible3, setcollapsible3] = useState(false);
     const [collapsible2a, setcollapsible2a] = useState(false);
     const [collapsible2b, setcollapsible2b] = useState(false);
+    const [collapsible1aa, setcollapsible1aa] = useState(false);
     const [collapsible1a, setcollapsible1a] = useState(false);
     const [passwordConfirmError, setPasswordConfirmError] = useState(false);
     const [passwordError, setPasswordError] = useState(false);
@@ -66,6 +67,7 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
     const [customRPC, setCustomRPC] = useState("");
     const [customREST, setCustomREST] = useState("");
     const [customName, setCustomName] = useState("");
+    const [addingNewEndpoint, setAddingNewEndpoint] = useState(false);
     const [customEndpointOutput, setCustomEndpointOutput] = useState("");
     const [customEndpointHasError, setCustomEndpointHasError] = useState(false);
     const [showDropdown, setShowDropdown] = useState(false);
@@ -130,6 +132,17 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
       setNewPasswordError(false);
     };
 
+    const clearCustomUrlForm = async () => {
+      return new Promise(async (resolve: any) => {
+        setCustomRPC("");
+        setCustomREST("");
+        setCustomName("");
+        setCustomEndpointOutput("");
+        await flushPromises();
+        resolve();
+      });
+    };
+
     /**
      *
      * Custom endpoint should be refactored to  be a seperate module before completion, as can some other the others in settings page
@@ -138,7 +151,19 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
      *
      * note: multiple exits (returns)
      */
-    const handleCustomEndpointSubmission = async () => {
+    const handleCustomEndpointSubmission = async (event: MouseEvent) => {
+      event.preventDefault();
+
+      // check that nickname is set and not null
+      if (customName === "") {
+        setCustomEndpointHasError(true);
+        setCustomEndpointOutput(
+          intl.formatMessage({
+            id: "register.custom.endpoint.name.empty"
+          })
+        );
+        return;
+      }
       // check that neither rest nor rpc urls are empty
       if (customREST === "" || customRPC === "") {
         setCustomEndpointHasError(true);
@@ -174,10 +199,15 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
       // success we then add the custom endpoint
       await ActiveEndpoint.addCustomEndpoint(customName, customRPC, customREST);
 
+      const nextCustomEndpoints = customEndpoints.concat({
+        name: customName,
+        rest: customREST,
+        rpc: customREST
+      });
+      setCustomEndpoints(nextCustomEndpoints);
+
       await ActiveEndpoint.setActiveEndpointName(customName);
-      setCustomRPC("");
-      setCustomREST("");
-      setCustomName("");
+      await clearCustomUrlForm();
       setCustomEndpointOutput(
         intl.formatMessage({
           id: "register.custom.endpoint.url.success"
@@ -188,21 +218,19 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
     };
 
     const deleteCustomNetwork = async (name: string): Promise<void> => {
+      // delete from our list of custom endpoints
+      const list = customEndpoints;
+      const index = list.findIndex((el: EndpointData) => el.name === name);
+      list.splice(index, 1);
+      setCustomEndpoints(list);
+
       // if it is the active endpoint switch to the first of the default endpoints.
       if (activeNetwork === name) {
         await handleSetActiveNetwork(nonCustomEndpoints[0].name);
       }
 
       // delete from storage
-      // await ActiveEndpoint.deleteCustomEndpoint(name);
-
-      // delete from our list of custom endpoints
-      const list = nonCustomEndpoints;
-      const index = list.findIndex((el: EndpointData) => el.name === name);
-      debugger;
-      list.splice(index, 1);
-      debugger;
-      setCustomEndpoints(list);
+      await ActiveEndpoint.deleteCustomEndpoint(name);
     };
 
     const handleSetActiveNetwork = async (name: string): Promise<void> => {
@@ -531,7 +559,12 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
                               key={index}
                               onClick={async () => {
                                 setShowDropdown(false);
-                                setcollapsible1a(false);
+                                setCustomREST(el.rest);
+                                setCustomRPC(el.rpc);
+                                setCustomEndpointOutput("");
+
+                                setcollapsible1a(true);
+                                setcollapsible1aa(false);
                                 await handleSetActiveNetwork(el.name);
                               }}
                               className={classnames(
@@ -548,10 +581,10 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
                         className={classnames(style.clickable)}
                         onClick={async () => {
                           setcollapsible1a(true);
+                          setcollapsible1aa(true);
+                          setAddingNewEndpoint(true);
                           await setShowDropdown(false);
-                          setCustomREST("");
-                          setCustomRPC("");
-                          setCustomName("");
+                          await clearCustomUrlForm();
                         }}
                       >
                         Add Custom
@@ -564,9 +597,12 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
                               onClick={async () => {
                                 setShowDropdown(false);
                                 setcollapsible1a(true);
+                                setcollapsible1aa(true);
+                                setAddingNewEndpoint(false);
                                 setCustomREST(el.rest);
                                 setCustomRPC(el.rpc);
                                 setCustomName(el.name);
+                                setCustomEndpointOutput("");
                                 await handleSetActiveNetwork(el.name);
                               }}
                               className={classnames(
@@ -578,9 +614,10 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
                               {el.name}
                               <span
                                 className={style.closeIcon}
-                                onClick={(event: MouseEvent) => {
+                                onClick={async (event: MouseEvent) => {
                                   event.stopPropagation();
-                                  deleteCustomNetwork(el.name);
+                                  await deleteCustomNetwork(el.name);
+                                  setShowDropdown(false);
                                 }}
                               >
                                 <i
@@ -606,32 +643,37 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
                   <form className={style.customNetworkForm}>
                     <input
                       type="text"
-                      placeholder="nick name"
-                      value={customName}
-                      onChange={event => setCustomName(event.target.value)}
-                    ></input>
-                    <input
-                      type="text"
-                      placeholder="RPC"
+                      placeholder="RPC URL"
                       value={customRPC}
                       onChange={event => setCustomRPC(event.target.value)}
                     ></input>
                     <input
                       type="text"
-                      placeholder="REST"
+                      placeholder="REST URL"
                       value={customREST}
                       onChange={event => setCustomREST(event.target.value)}
                     ></input>
-                    <button
-                      type="submit"
-                      className={`green ${style.button}`}
-                      onClick={handleCustomEndpointSubmission}
+                    <Expand
+                      open={collapsible1aa}
+                      duration={500}
+                      transitions={transitions}
                     >
-                      Update
-                    </button>
+                      <input
+                        type="text"
+                        placeholder="Nickname"
+                        value={customName}
+                        onChange={event => setCustomName(event.target.value)}
+                      ></input>
+                      <button
+                        type="submit"
+                        className={`green ${style.button}`}
+                        onClick={handleCustomEndpointSubmission}
+                      >
+                        {addingNewEndpoint ? "Submit" : "Update"}
+                      </button>
+                    </Expand>
                   </form>
                 </Expand>
-
                 <span className={customEndpointHasError ? "red" : ""}>
                   {customEndpointOutput}
                 </span>
