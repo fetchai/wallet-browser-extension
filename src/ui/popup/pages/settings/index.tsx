@@ -1,4 +1,9 @@
-import React, { FunctionComponent, useState, useEffect } from "react";
+import React, {
+  FunctionComponent,
+  useState,
+  useEffect,
+  MouseEvent
+} from "react";
 import { RouteComponentProps } from "react-router-dom";
 import { HeaderLayout } from "../../layouts";
 import { BackButton } from "../../layouts";
@@ -18,14 +23,13 @@ import {
   STORAGE_KEY
 } from "../../light-mode";
 import { Button, ButtonGroup } from "reactstrap";
+// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
 // @ts-ignore
 import OutsideClickHandler from "react-outside-click-handler";
 import classnames from "classnames";
 import { EndpointData } from "../../../../chain-info";
 import { isURL } from "../../../../common/utils/is-url";
 import ActiveEndpoint from "../../../../common/utils/active-endpoint";
-
-const CUSTOM_ENDPOINT = "custom";
 
 export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
   ({ history }) => {
@@ -38,6 +42,7 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
     const [collapsible3, setcollapsible3] = useState(false);
     const [collapsible2a, setcollapsible2a] = useState(false);
     const [collapsible2b, setcollapsible2b] = useState(false);
+    const [collapsible1a, setcollapsible1a] = useState(false);
     const [passwordConfirmError, setPasswordConfirmError] = useState(false);
     const [passwordError, setPasswordError] = useState(false);
     const [newPasswordError, setNewPasswordError] = useState(false);
@@ -48,11 +53,19 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
     const [showDeleteConfirmation, setshowDeleteConfirmation] = useState(false);
     const [lightMode, setLightMode] = useState(false);
     const [keyFile, setKeyFile] = useState("");
-    const [network, setNetwork] = useState("");
-    const [endpoints, setEndpoints] = useState();
+    const [activeNetwork, setActiveNetwork] = useState("");
+
+    const [nonCustomEndpoints, setNonCustomEndpoints] = useState<
+      Array<EndpointData>
+    >([]);
+
+    const [customEndpoints, setCustomEndpoints] = useState<Array<EndpointData>>(
+      []
+    );
 
     const [customRPC, setCustomRPC] = useState("");
     const [customREST, setCustomREST] = useState("");
+    const [customName, setCustomName] = useState("");
     const [customEndpointOutput, setCustomEndpointOutput] = useState("");
     const [customEndpointHasError, setCustomEndpointHasError] = useState(false);
     const [showDropdown, setShowDropdown] = useState(false);
@@ -67,10 +80,17 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
       // on mount we get active endpoint so we can get dropdown initially have this one selected
       const findActiveEndpoint = async () => {
         const network = await ActiveEndpoint.getActiveEndpoint();
-        setNetwork(network.name);
+        setActiveNetwork(network.name);
       };
+
+      const getCustomEndpointData = async () => {
+        const customEndpointData = await ActiveEndpoint.getCustomEndpointData();
+        setCustomEndpoints(customEndpointData);
+      };
+
       getFile();
       findActiveEndpoint();
+      getCustomEndpointData();
     }, []);
 
     useEffect(() => {
@@ -85,7 +105,7 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
             rpc: endpoint.rpc
           });
         });
-        setEndpoints(endpointData);
+        setNonCustomEndpoints(endpointData);
       };
       getEndpoints();
     }, [chainStore]);
@@ -152,15 +172,12 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
       }
 
       // success we then add the custom endpoint
-      await ActiveEndpoint.addCustomEndpoint(
-        CUSTOM_ENDPOINT,
-        customRPC,
-        customREST
-      );
+      await ActiveEndpoint.addCustomEndpoint(customName, customRPC, customREST);
 
-      await ActiveEndpoint.setActiveEndpointName(CUSTOM_ENDPOINT);
+      await ActiveEndpoint.setActiveEndpointName(customName);
       setCustomRPC("");
       setCustomREST("");
+      setCustomName("");
       setCustomEndpointOutput(
         intl.formatMessage({
           id: "register.custom.endpoint.url.success"
@@ -170,17 +187,29 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
       await accountStore.fetchAccount();
     };
 
-    const handleNetworkChange = async (event: any) => {
-      const selectedNetwork = event.target.value;
-      setNetwork(selectedNetwork);
-
-      // if it is a custom endpoint we allow user to put in their rpc and rest URIs before refreshing balance
-      // but if not we refresh balance
-      if (selectedNetwork !== CUSTOM_ENDPOINT) {
-        await ActiveEndpoint.setActiveEndpointName(selectedNetwork);
-        await accountStore.clearAssets(true);
-        await accountStore.fetchAccount();
+    const deleteCustomNetwork = async (name: string): Promise<void> => {
+      // if it is the active endpoint switch to the first of the default endpoints.
+      if (activeNetwork === name) {
+        await handleSetActiveNetwork(nonCustomEndpoints[0].name);
       }
+
+      // delete from storage
+      // await ActiveEndpoint.deleteCustomEndpoint(name);
+
+      // delete from our list of custom endpoints
+      const list = nonCustomEndpoints;
+      const index = list.findIndex((el: EndpointData) => el.name === name);
+      debugger;
+      list.splice(index, 1);
+      debugger;
+      setCustomEndpoints(list);
+    };
+
+    const handleSetActiveNetwork = async (name: string): Promise<void> => {
+      setActiveNetwork(name);
+      await ActiveEndpoint.setActiveEndpointName(name);
+      await accountStore.clearAssets(true);
+      await accountStore.fetchAccount();
     };
 
     const correctPassword = async (): Promise<boolean> => {
@@ -316,9 +345,16 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
       // or in else clause we close it (unless it is a sub collapsible eg 2b then we don't close 2 but do nothing with it)
       if (index === 1) {
         setcollapsible1(prev => !prev);
-      } else {
+      } else if (!index.toString().includes("1")) {
         setcollapsible1(false);
       }
+
+      if (index === "1a") {
+        setcollapsible1a(prev => !prev);
+      } else {
+        setcollapsible1a(false);
+      }
+
       if (index === 2) {
         setcollapsible2(prev => !prev);
       } else if (!index.toString().includes("2")) {
@@ -454,16 +490,18 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
                     setShowDropdown(false);
                   }}
                 >
-                  <br></br>
                   <div className={style.dropdown}>
                     <button
                       onClick={() => {
                         const toggled = !showDropdown;
                         setShowDropdown(toggled);
                       }}
-                      className={style.dropButton}
+                      className={classnames(
+                        style.dropButton,
+                        showDropdown ? style.showDropdown : ""
+                      )}
                     >
-                      Dropdown
+                      {collapsible1a ? "Custom" : activeNetwork}
                       <svg
                         className={style.svg}
                         xmlns="http://www.w3.org/2000/svg"
@@ -471,7 +509,7 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
                       >
                         <path
                           fill="transparent"
-                          strokeWidth={3}
+                          strokeWidth={2}
                           stroke={
                             lightMode ? "hsl(0, 100%, 0%)" : "hsl(0, 0%, 100%)"
                           }
@@ -486,53 +524,92 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
                         showDropdown ? style.showDropdown : ""
                       )}
                     >
-                      <div>
-                        Link 1
-                        <span
-                          className={classnames(
-                            style.closeIcon,
-                            style.clickable
-                          )}
-                          onClick={() => {
-                            debugger;
-                          }}
-                        >
-                          <i className="fa fa-2x fa-close"></i>
-                        </span>
+                      {nonCustomEndpoints.map(
+                        (el: EndpointData, index: number) => {
+                          return (
+                            <div
+                              key={index}
+                              onClick={async () => {
+                                setShowDropdown(false);
+                                setcollapsible1a(false);
+                                await handleSetActiveNetwork(el.name);
+                              }}
+                              className={classnames(
+                                style.clickable,
+                                activeNetwork === el.name ? style.active : ""
+                              )}
+                            >
+                              {el.name}
+                            </div>
+                          );
+                        }
+                      )}
+                      <div
+                        className={classnames(style.clickable)}
+                        onClick={async () => {
+                          setcollapsible1a(true);
+                          await setShowDropdown(false);
+                          setCustomREST("");
+                          setCustomRPC("");
+                          setCustomName("");
+                        }}
+                      >
+                        Add Custom
                       </div>
-                      <div>
-                        Link 2
-                        <span
-                          className={classnames(
-                            style.closeIcon,
-                            style.clickable
-                          )}
-                          onClick={() => {
-                            debugger;
-                          }}
-                        >
-                          <i className="fa fa-2x fa-close"></i>
-                        </span>
-                      </div>
-                      <div>
-                        Link 3
-                        <span
-                          className={classnames(
-                            style.closeIcon,
-                            style.clickable
-                          )}
-                          onClick={() => {
-                            debugger;
-                          }}
-                        >
-                          <i className="fa fa-2x fa-close"></i>
-                        </span>
-                      </div>
+                      {customEndpoints.map(
+                        (el: EndpointData, index: number) => {
+                          return (
+                            <div
+                              key={index}
+                              onClick={async () => {
+                                setShowDropdown(false);
+                                setcollapsible1a(true);
+                                setCustomREST(el.rest);
+                                setCustomRPC(el.rpc);
+                                setCustomName(el.name);
+                                await handleSetActiveNetwork(el.name);
+                              }}
+                              className={classnames(
+                                style.closableRow,
+                                style.clickable,
+                                activeNetwork === el.name ? style.active : ""
+                              )}
+                            >
+                              {el.name}
+                              <span
+                                className={style.closeIcon}
+                                onClick={(event: MouseEvent) => {
+                                  event.stopPropagation();
+                                  deleteCustomNetwork(el.name);
+                                }}
+                              >
+                                <i
+                                  className={classnames(
+                                    "fa",
+                                    "fa-2x",
+                                    "fa-close"
+                                  )}
+                                ></i>
+                              </span>
+                            </div>
+                          );
+                        }
+                      )}
                     </div>
                   </div>
                 </OutsideClickHandler>
-                {network === CUSTOM_ENDPOINT ? (
-                  <>
+                <Expand
+                  open={collapsible1a}
+                  duration={500}
+                  transitions={transitions}
+                >
+                  <form className={style.customNetworkForm}>
+                    <input
+                      type="text"
+                      placeholder="nick name"
+                      value={customName}
+                      onChange={event => setCustomName(event.target.value)}
+                    ></input>
                     <input
                       type="text"
                       placeholder="RPC"
@@ -552,10 +629,9 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
                     >
                       Update
                     </button>
-                  </>
-                ) : (
-                  ""
-                )}
+                  </form>
+                </Expand>
+
                 <span className={customEndpointHasError ? "red" : ""}>
                   {customEndpointOutput}
                 </span>

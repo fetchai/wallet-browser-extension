@@ -55,8 +55,8 @@ $settings-width: 293px;
   padding: 10px;
   border-radius: 10px;
   margin-top: 5px;
-  overflow: hidden;
-  height: 440px;
+  overflow: visible;
+  height: 513px;
 }
 
 :global(.light-mode) {
@@ -145,22 +145,26 @@ $settings-width: 293px;
 }
 
 .drop-button {
-    width:100%;
-    text-align: left;
-    background-color: $fetch-blue;
-    color: white;
-    padding: 2px;
-    text-indent: 5px;
-    text-ident: 5px;
-    font-size: 16px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    border-style: solid;
-    border-width: 1px;
+  width: 100%;
+  text-align: left;
+  background-color: $fetch-blue;
+  color: white;
+  padding: 2px;
+  text-indent: 5px;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  border-style: solid;
+  border-width: 1px;
+
+  &.show-dropdown {
+    border-radius: 5px 5px 0 0;
+  }
 }
 
-.drop-button:hover, .drop-button:focus {
+.drop-button:hover,
+.drop-button:focus {
   background-color: $fetch-blue;
 }
 
@@ -175,15 +179,18 @@ $settings-width: 293px;
   position: absolute;
   background-color: $fetch-blue;
   color: white;
-  width:100%;
+  width: 100%;
   overflow: auto;
-  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
   z-index: 1;
+  border-style: none solid solid solid;
+  border-radius: 0 0 5px 5px;
+  border-width: 1px;
 }
 
 .dropdown-content div {
   color: white;
-  padding: 12px 16px;
+  padding: 3px 5px;
   text-decoration: none;
   display: block;
 }
@@ -197,19 +204,45 @@ $settings-width: 293px;
 }
 
 .svg {
-   height: 24px;
-   transform: rotate(270deg);
-      float: right;
-    margin-right: 5px;
+  height: 20px;
+  transform: rotate(270deg);
+  float: right;
+  padding-right: 5px;
+  margin-right: 5px;
 }
 
 .closeIcon {
   font-size: 8px;
-  right: 5px;
-  position: absolute;
-  top: 0%;
+    float: right;
+  margin-right:4px;
+    color:  $grey-main;
+    margin-top: 3.5px;
+}
+
+.closableRow {
   display: block;
-  color: $grey-main;
+}
+
+.customNetworkForm {
+  input {
+    border-style: solid !important;
+    font-size: 13px;
+    padding: 3px 0;
+    border-width: 1px;
+    width: 100%;
+    margin-top: 13px;
+    background: inherit;
+    color: $grey-main;
+    border-color: $grey-main;
+    text-indent: 5px;
+    border-radius: 5px;
   }
 
+  button {
+    margin-top: 13px;
+  }
+}
 
+.active {
+  background-color: rgb(46, 69, 87) !important;
+}

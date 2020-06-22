@@ -31,9 +31,6 @@ export default class ActiveEndpoint {
   private static async getEndpointData(name: string): Promise<EndpointData> {
     if (!NativeChainInfos[0].endpoints.some(el => el.name === name)) {
       const endpointData = await ActiveEndpoint.getCustomEndpointData();
-      if (endpointData === null)
-        throw new Error(`name (${name})not found for endpoint`);
-
       const endPoint = endpointData.find(el => el.name === name);
 
       if (typeof endPoint === "undefined")
@@ -45,11 +42,34 @@ export default class ActiveEndpoint {
   }
 
   /**
+   * delete a custom endpoint by name
+   *
+   * returns true if was found and deleted and false if was not found.
+   *
+   * @param name of custom endpoint to delete
+   */
+  public static async deleteCustomEndpoint(name: string): Promise<boolean> {
+    // get all custom endpoints
+    const rawData = await ActiveEndpoint.getCustomEndpointData();
+    if (!rawData.length) return false;
+
+    // find index of our named endpoint
+    const index = rawData.findIndex(el => el.name === name);
+    if (index === -1) return false;
+    // delete it
+    debugger;
+    rawData.splice(index, 1);
+    const store = new BrowserKVStore("");
+    // save endpoints minus the one we deleted.
+     debugger;
+    await store.set(CUSTOM_ENDPOINT_DATA, JSON.stringify(rawData));
+    return true;
+  }
+
+  /**
    * Add custom endpoint
    *
    * @param name
-29,981,833 testfet
-
    * @param rpc
    * @param rest
    */
@@ -71,14 +91,14 @@ export default class ActiveEndpoint {
     await store.set(CUSTOM_ENDPOINT_DATA, JSON.stringify(rawData));
   }
 
-  public static async getCustomEndpointData(): Promise<null | Array<
+  public static async getCustomEndpointData(): Promise<Array<
     EndpointData
   >> {
     const store = new BrowserKVStore("");
     return new Promise(resolve =>
       store.get(CUSTOM_ENDPOINT_DATA).then((result: any) => {
         if (typeof result === "undefined" || result === false) {
-          resolve(null);
+          resolve([]);
         } else {
           resolve(JSON.parse(result));
         }

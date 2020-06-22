@@ -215,8 +215,6 @@ export class KeyRing {
     if (this.status !== KeyRingStatus.UNLOCKED) {
       throw new Error("Key ring is not unlocked");
     }
-
-    // this.addressBook = this.deletePrivateKeys(this.addressBook);
     this.unlocked = false;
   }
 
