@@ -314,9 +314,7 @@ export const CustomEndpoint: FunctionComponent<CustomEndpointProps> = observer(
     return (
       <OutsideClickHandler
         onOutsideClick={async () => {
-          debugger;
           await clearCustomUrlForm();
-          debugger;
           setShowDropdown(false);
           setcollapsible1a(false);
           setcollapsible1aa(false);
@@ -437,7 +435,7 @@ export const CustomEndpoint: FunctionComponent<CustomEndpointProps> = observer(
               </Expand>
             </form>
           </Expand>
-          <div className={style.centerText}>
+          <div className={style.outputText}>
             <span className={customEndpointHasError ? "red" : ""}>
               {customEndpointOutput}
             </span>

@@ -163,9 +163,23 @@ $settings-width: 293px;
   }
 }
 
+:global(.light-mode) {
+  .drop-button {
+    background-color: rgb(236, 241, 243);
+    color: black;
+  }
+}
+
 .drop-button:hover,
 .drop-button:focus {
   background-color: $fetch-blue;
+}
+
+:global(.light-mode) {
+  .drop-button:hover,
+.drop-button:focus {
+    background-color: darken(rgb(236, 241, 243), 10%)
+  }
 }
 
 .dropdown {
@@ -188,6 +202,16 @@ $settings-width: 293px;
   border-width: 1px;
 }
 
+
+:global(.light-mode) {
+  .dropdown-content {
+    background-color: rgb(236, 241, 243);
+    border-color: $light-mode-grey;
+    color: black;
+  }
+}
+
+
 .dropdown-content div {
   color: white;
   padding: 3px 5px;
@@ -195,8 +219,20 @@ $settings-width: 293px;
   display: block;
 }
 
+:global(.light-mode) {
+  .dropdown-content div {
+    color: black;
+  }
+}
+
 .dropdown a:hover {
   background-color: $grey;
+}
+
+:global(.light-mode) {
+  .dropdown a:hover {
+  background-color: $light-mode-grey;
+}
 }
 
 .show-dropdown {
@@ -247,14 +283,27 @@ $settings-width: 293px;
   background-color: rgb(46, 69, 87) !important;
 }
 
+:global(.light-mode) {
+  .active {
+     background-color: darken(rgb(236, 241, 243), 10%) !important;
+  }
+
+}
+
 .hide {
   display:none;
 }
 
-.center-text {
+.output-text {
   font-size: 13px;
   text-align: center;
   padding-top: 5px;
+}
+
+:global(.light-mode) {
+  .output-text {
+    color: black;
+  }
 }
 
 .expandable {
