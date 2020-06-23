@@ -9,100 +9,47 @@ import style from "./style.module.scss";
 import Expand from "react-expand-animated";
 import { VERSION } from "../../../../config";
 import { useStore } from "../../stores";
-import { FormattedMessage, useIntl } from "react-intl";
-import { strongPassword } from "../../../../common/strong-password";
-import flushPromises from "flush-promises";
-import {
-  lightModeEnabled,
-  setLightMode as setLightModeModule,
-  STORAGE_KEY
-} from "../../light-mode";
-import { Button, ButtonGroup } from "reactstrap";
+import { useIntl } from "react-intl";
+import { lightModeEnabled } from "../../light-mode";
 // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
 // @ts-ignore
-import OutsideClickHandler from "react-outside-click-handler";
 import classnames from "classnames";
 import { CustomEndpoint } from "./customEndpoint";
-
-interface DownloadKeyFileProps {
-  setHasKeyFile: any;
-}
-
-export const DownloadKeyFile: FunctionComponent<DownloadKeyFileProps> = observer(
-  ({ setHasKeyFile }) => {
-    const [keyFile, setKeyFile] = useState("");
-    const { keyRingStore } = useStore();
-    const intl = useIntl();
-
-    useEffect(() => {
-      const getFile = async () => {
-        const json = await keyRingStore.getKeyFile();
-        if (json !== null) {
-          setKeyFile(JSON.stringify(json));
-          setHasKeyFile(true);
-        }
-      };
-
-      getFile();
-    }, []);
-
-    const downloadKeyFile = async () => {
-      if (!keyFile) return;
-
-      const element = document.createElement("a");
-      const file = new Blob([keyFile], { type: "text/plain" });
-      element.href = URL.createObjectURL(file);
-      element.download = intl.formatMessage({
-        id: "settings.download.key.name"
-      });
-      document.body.appendChild(element);
-      element.click();
-    };
-
-    return (
-      <>
-        <h3 className={style.subHeading}>
-          {" "}
-          {intl.formatMessage({
-            id: "settings.update-password.heading.download"
-          })}
-        </h3>
-
-        <button
-          type="button"
-          className={`green ${style.button}`}
-          onClick={downloadKeyFile}
-        >
-          {intl.formatMessage({
-            id: "settings.update-password.button.download"
-          })}
-        </button>
-      </>
-    );
-  }
-);
+import { DownloadKeyFile } from "./downloadKeyFile";
+import { ChangePassword } from "./changePassword";
+import { DeleteAccount } from "./deleteAccount";
+import {ToggleLightMode} from "./toggleLightMode";
 
 export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
   ({ history }) => {
     const { keyRingStore } = useStore();
     const intl = useIntl();
+
     const transitions = ["height", "opacity", "background"];
 
     const [collapsible1, setcollapsible1] = useState(false);
+    const [collapsible1a, setcollapsible1a] = useState(false);
+    const [collapsible1b, setcollapsible1b] = useState(false);
+    const [collapsible1c, setcollapsible1c] = useState(false);
     const [collapsible2, setcollapsible2] = useState(false);
     const [collapsible3, setcollapsible3] = useState(false);
     const [collapsible2a, setcollapsible2a] = useState(false);
     const [collapsible2b, setcollapsible2b] = useState(false);
     const [lightMode, setLightMode] = useState(false);
-    const [passwordConfirmError, setPasswordConfirmError] = useState(false);
-    const [passwordError, setPasswordError] = useState(false);
-    const [newPasswordError, setNewPasswordError] = useState(false);
-    const [output, setOutput] = useState("");
-    const [password, setPassword] = useState("");
-    const [newPassword, setNewPassword] = useState("");
-    const [newPasswordConfirm, setNewPasswordConfirm] = useState("");
-    const [showDeleteConfirmation, setshowDeleteConfirmation] = useState(false);
-    const [hasKeyFile, setKeyFile] = useState(false);
+
+    const [keyFile, setKeyFile] = useState("");
+
+    useEffect(() => {
+      const getFile = async () => {
+        const json = await keyRingStore.getKeyFile();
+
+        if (json !== null) {
+          setKeyFile(JSON.stringify(json));
+        }
+      };
+
+      getFile();
+    }, []);
 
     useEffect(() => {
       const isEnabled = async () => {
@@ -112,140 +59,46 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
       isEnabled();
     }, [lightMode, setLightMode]);
 
-    const wipeFormErrors = (clearOutput = false) => {
-      if (clearOutput) {
-        setOutput("");
-        setPassword("");
-        setNewPassword("");
-        setNewPasswordConfirm("");
-      }
-      setPasswordConfirmError(false);
-      setPasswordError(false);
-      setNewPasswordError(false);
-    };
-
-    const correctPassword = async (): Promise<boolean> => {
-      if (!password.length) {
-        setPasswordError(true);
-        setOutput(
-          intl.formatMessage({
-            id: "register.create.input.password.error.required"
-          })
-        );
-        return false;
-      }
-
-      if (!(await keyRingStore.verifyPassword(password))) {
-        setPasswordError(true);
-        setOutput(
-          intl.formatMessage({
-            id: "settings.update-password.new.error.invalid"
-          })
-        );
-        return false;
-      }
-      return true;
-    };
-
-    const passwordConfirmValidate = () => {
-      if (!newPassword.length || !newPasswordConfirm.length) return false;
-
-      if (newPassword !== newPasswordConfirm) {
-        setPasswordConfirmError(true);
-        setOutput(
-          intl.formatMessage({
-            id: "register.create.input.confirm-password.error.unmatched"
-          })
-        );
-        return false;
-      }
-      return true;
-    };
-
-    const newPasswordValidate = async () => {
-      if (!newPassword.length) {
-        setNewPasswordError(true);
-        setOutput(
-          intl.formatMessage({
-            id: "settings.update-password.new.error.required"
-          })
-        );
-        return false;
-      }
-
-      if (await keyRingStore.verifyPassword(newPassword)) {
-        setNewPasswordError(true);
-        setOutput(
-          intl.formatMessage({
-            id: "settings.update-password.new.error.unchanged"
-          })
-        );
-        return false;
-      }
-
-      const strong = strongPassword(newPassword);
-
-      if (strong !== true) {
-        setNewPasswordError(true);
-        setOutput(intl.formatMessage({ id: strong }));
-        return false;
-      }
-      return true;
-    };
-
-    const updatePassword = async () => {
-      const success = await keyRingStore.updatePassword(password, newPassword);
-      setPassword("");
-      setNewPassword("");
-      setNewPasswordConfirm("");
-
-      if (success) {
-        setOutput(
-          intl.formatMessage({ id: "settings.update-password.new.success" })
-        );
-      }
-    };
-
     /**
-     * Main controlling logic for updating one's password. Determines if password form is valid and calls update method if true, else we
-     * display error message(s).
+     * Collapsibiles are all toggled using this and then their "index" which is their name eg 2 or 2a.
+     * They are given a number based on their position in the page and then letters for nesting eg 1a and 1b are
+     * within 1 and 1aa would be nested within 1a
      *
-     * @param event
-     * @returns {Promise<void>}
+     * This function looks very complex but very simple whereby we go through every collapsible on page and if the collapsible was the clicked collasible
+     * we toggle it ( this functions top level if clauses)
+     * or else in the respective else clauses we close it (unless it is a sub collapsible eg 2b then we don't close 2 but do do'nt change its state).
+     *
+     * It will toggle one top level collapsible and close all others if called with an index of a top level collapsible.
+     *
+     * @param index
      */
-    const handlePasswordUpdate = async (event: any): Promise<void> => {
-      event.preventDefault();
-      wipeFormErrors();
-      await flushPromises();
-      if (!(await correctPassword())) return;
-      if (!(await newPasswordValidate())) return;
-      if (!passwordConfirmValidate()) return;
-      await updatePassword();
-    };
-
-    const hasError = (): boolean => {
-      return passwordConfirmError || passwordError || newPasswordError;
-    };
-
-    const handleDelete = async () => {
-      if (showDeleteConfirmation) {
-        await keyRingStore.clear();
-        browser.storage.sync.remove(STORAGE_KEY);
-        history.goBack();
-      }
-      setshowDeleteConfirmation(true);
-    };
-
     const toggle = async (index: number | string): Promise<void> => {
-      wipeFormErrors(true);
+      //todo look at reimplementing this is forwardrefs
       // wait for the expanandables before closing for better UI
-      setTimeout(setshowDeleteConfirmation.bind(null, false), 500);
-      // looks very complex but very simple whereby if the collapsible is clicked we toggle it (if clause)
-      // or in else clause we close it (unless it is a sub collapsible eg 2b then we don't close 2 but do nothing with it)
+      // setTimeout(setshowDeleteConfirmation.bind(null, false), 500);
+
       if (index === 1) {
         setcollapsible1(prev => !prev);
       } else if (!index.toString().includes("1")) {
         setcollapsible1(false);
+      }
+
+      if (index === "1a") {
+        setcollapsible1a(prev => !prev);
+      } else {
+        setcollapsible1a(false);
+      }
+
+      if (index === "1b") {
+        setcollapsible1b(prev => !prev);
+      } else {
+        setcollapsible1b(false);
+      }
+
+      if (index === "1c") {
+        setcollapsible1c(prev => !prev);
+      } else {
+        setcollapsible1c(false);
       }
 
       if (index === 2) {
@@ -315,48 +168,63 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
             General
           </div>
           <Expand open={collapsible1} duration={500} transitions={transitions}>
-            <h3 className={style.subHeading}>
-              {" "}
+            <h3
+              className={classnames("clickable", style.subHeading)}
+              onClick={() => toggle("1a")}
+            >
               {intl.formatMessage({
                 id: "settings.light-mode.pill.title"
               })}
             </h3>
-            <ButtonGroup
-              className={style.pillGroup}
-              style={{ marginBottom: "4px" }}
+
+            <Expand
+              open={collapsible1a}
+              duration={500}
+              transitions={transitions}
             >
-              <Button
-                type="button"
-                id={lightMode ? "green-solid" : ""}
-                className={lightMode ? style.pill : ""}
-                onClick={() => {
-                  setLightMode(true);
-                  setLightModeModule(true, true);
-                }}
-              >
-                <FormattedMessage id="settings.light-mode.pill.light" />
-              </Button>
-              <Button
-                type="button"
-                id={lightMode ? "" : "green-solid"}
-                className={lightMode ? "" : style.pill}
-                onClick={() => {
-                  setLightMode(false);
-                  setLightModeModule(false, true, true);
-                }}
-              >
-                <FormattedMessage id="settings.light-mode.pill.dark" />
-              </Button>
-            </ButtonGroup>
-            {hasKeyFile ? <DownloadKeyFile setHasKeyFile={setKeyFile} /> : null}
+              <ToggleLightMode
+                lightMode={lightMode}
+                setLightMode={setLightMode}
+              />
+            </Expand>
+
+            {keyFile ? (
+              <>
+                <h3
+                  className={classnames("clickable", style.subHeading)}
+                  onClick={() => toggle("1b")}
+                >
+                  {" "}
+                  {intl.formatMessage({
+                    id: "settings.update-password.heading.download"
+                  })}
+                </h3>
+                <Expand
+                  open={collapsible1b}
+                  duration={500}
+                  transitions={transitions}
+                >
+                  <DownloadKeyFile keyFileProps={keyFile} />
+                </Expand>
+              </>
+            ) : null}
 
             <div className="input_container">
-              <h3 className={style.subHeading}>
+              <h3
+                className={classnames("clickable", style.subHeading)}
+                onClick={() => toggle("1c")}
+              >
                 {intl.formatMessage({
                   id: "settings.choose-network"
                 })}
               </h3>
-              <CustomEndpoint lightMode={lightMode}></CustomEndpoint>
+              <Expand
+                open={collapsible1c}
+                duration={500}
+                transitions={transitions}
+              >
+                <CustomEndpoint lightMode={lightMode}></CustomEndpoint>
+              </Expand>
             </div>
           </Expand>
 
@@ -364,83 +232,22 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
             Security & Privacy
           </div>
           <Expand open={collapsible2} duration={500} transitions={transitions}>
-            <form id="form">
-              <h3
-                className={classnames(style.subHeading, style.clickable)}
-                onClick={() => toggle("2a")}
-              >
-                {intl.formatMessage({
-                  id: "settings.update-password.heading.change-password"
-                })}
-              </h3>
-              <Expand
-                open={collapsible2a}
-                duration={500}
-                transitions={transitions}
-              >
-                <input
-                  type="password"
-                  className={`white-border ${style.input} ${
-                    passwordError ? "red" : ""
-                  }`}
-                  placeholder={intl.formatMessage({
-                    id: "settings.update-password.form.placeholder.original"
-                  })}
-                  id="password"
-                  name="password"
-                  value={password}
-                  onChange={event => {
-                    wipeFormErrors();
-                    setPassword(event.target.value);
-                  }}
-                ></input>
-                <input
-                  type="password"
-                  className={`white-border  ${style.input} ${
-                    newPasswordError ? "red" : ""
-                  }`}
-                  placeholder={intl.formatMessage({
-                    id: "settings.update-password.form.placeholder.new"
-                  })}
-                  id="new_password"
-                  name="new_password"
-                  value={newPassword}
-                  onChange={event => {
-                    wipeFormErrors();
-                    setNewPassword(event.target.value);
-                  }}
-                ></input>
-                <input
-                  type="password"
-                  className={`white-border  ${style.input} ${
-                    passwordConfirmError ? "red" : ""
-                  }`}
-                  placeholder={intl.formatMessage({
-                    id: "settings.update-password.form.placeholder.confirm"
-                  })}
-                  id="new_password_confirm"
-                  name="new_password_confirm"
-                  value={newPasswordConfirm}
-                  onChange={event => {
-                    wipeFormErrors();
-                    setNewPasswordConfirm(event.target.value);
-                  }}
-                ></input>
-                <button
-                  type="submit"
-                  className={`green ${style.button}`}
-                  onClick={handlePasswordUpdate}
-                >
-                  Update
-                </button>
-                <output
-                  className={classnames(style.output, hasError() ? "red" : "")}
-                  id="output"
-                >
-                  {output}
-                </output>
-              </Expand>
-            </form>
+            <h3
+              className={classnames(style.subHeading, style.clickable)}
+              onClick={() => toggle("2a")}
+            >
+              {intl.formatMessage({
+                id: "settings.update-password.heading.change-password"
+              })}
+            </h3>
+            <Expand
+              open={collapsible2a}
+              duration={500}
+              transitions={transitions}
+            >
+              <ChangePassword />
+            </Expand>
+
             <h3
               className={classnames(style.subHeading, style.clickable)}
               onClick={() => toggle("2b")}
@@ -455,30 +262,10 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
               duration={500}
               transitions={transitions}
             >
-              <div className={style.warningWrapper}>
-                <span className={style.warning}>
-                  {getStorageClearanceWarningMessage()}
-                </span>
-              </div>
-              <OutsideClickHandler
-                onOutsideClick={() => {
-                  setshowDeleteConfirmation(false);
-                }}
-              >
-                <button
-                  type="submit"
-                  className={`blue ${style.button}`}
-                  onClick={handleDelete}
-                >
-                  {showDeleteConfirmation
-                    ? intl.formatMessage({
-                        id: "settings.update-password.button.delete"
-                      })
-                    : intl.formatMessage({
-                        id: "settings.update-password.button.delete-confirm"
-                      })}
-                </button>
-              </OutsideClickHandler>
+              <DeleteAccount
+                hasKeyFile={keyFile !== null}
+                history={history}
+              ></DeleteAccount>
             </Expand>
           </Expand>
           <div className={style.mainButton} onClick={() => toggle(3)}>

@@ -29,7 +29,7 @@ import Modal from "react-modal";
 import { SettingsPage } from "./pages/settings";
 import { LightMode } from "./light-mode";
 import { AddressBookManagerPage } from "./pages/address-book-manager";
-import { DeleteAccount } from "./pages/delete-account";
+import { DeleteAddress } from "./pages/delete-address";
 
 // Make sure that icon file will be included in bundle
 require("./public/assets/fetch-logo.svg");
@@ -160,7 +160,7 @@ ReactDOM.render(
                   const address = params.get("address");
                   const accountNumber = params.get("accountNumber");
                   return (
-                    <DeleteAccount
+                    <DeleteAddress
                       addressToDelete={address as string}
                       accountNumberOfAddressToDelete={accountNumber as string}
                       history={history}

@@ -19,7 +19,10 @@ interface DeleteAccountProps {
   history: any;
 }
 
-export const DeleteAccount: FunctionComponent<DeleteAccountProps> = observer(
+/**
+ * This page is for deleting individual address
+ */
+export const DeleteAddress: FunctionComponent<DeleteAccountProps> = observer(
   ({ history, addressToDelete, accountNumberOfAddressToDelete }) => {
     const intl = useIntl();
     const [lightMode, setLightMode] = useState(false);

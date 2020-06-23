@@ -24,16 +24,22 @@ interface CustomEndpointProps {
   lightMode: boolean;
 }
 
+/**
+ * The drop down was not implemented with a select since an <option> tag may only contain text by html rules and not clickables eg closable cross.
+ *
+ * It is therefore a button with a div that is displayed when the button is clicked on as per this tutorial: https://www.w3schools.com/howto/howto_js_dropdown.asp
+ */
 export const CustomEndpoint: FunctionComponent<CustomEndpointProps> = observer(
   ({ lightMode }) => {
-    // const CustomEndpoint = (props: { lightMode: boolean }) => {
     const [collapsible1aa, setcollapsible1aa] = useState(false);
     const [collapsible1a, setcollapsible1a] = useState(false);
     const [isLightMode, setIsLightMode] = useState(lightMode);
 
+    // active network which the wallet curently displays data for of list.
     const [activeNetwork, setActiveNetwork] = useState("");
 
-    const [nonCustomEndpoints, setNonCustomEndpoints] = useState<
+    // intrinsic endpoints are those predefined in configs
+    const [intrinsicEndpoints, setIntrinsicEndpoints] = useState<
       Array<EndpointData>
     >([]);
 
@@ -49,6 +55,9 @@ export const CustomEndpoint: FunctionComponent<CustomEndpointProps> = observer(
     const [customEndpointHasError, setCustomEndpointHasError] = useState(false);
     const [showDropdown, setShowDropdown] = useState(false);
 
+    // from the dropdown which item is selected and defaults to the first.
+    const [selectedNetworkInList, setSelectedNetworkInList] = useState("");
+
     const { chainStore, accountStore } = useStore();
     const intl = useIntl();
     const transitions = ["height", "opacity", "background"];
@@ -56,6 +65,15 @@ export const CustomEndpoint: FunctionComponent<CustomEndpointProps> = observer(
     useEffect(() => {
       setIsLightMode(lightMode);
     }, [lightMode]);
+
+    //create your forceUpdate hook
+    function useForceUpdate() {
+      const [, setValue] = useState(0); // integer state
+      return () => setValue(value => ++value); // update the state to force render
+    }
+
+    // call your hook here
+    const forceUpdate = useForceUpdate();
 
     useEffect(() => {
       // on mount we get active endpoint so we can get dropdown initially have this one selected
@@ -85,7 +103,7 @@ export const CustomEndpoint: FunctionComponent<CustomEndpointProps> = observer(
             rpc: endpoint.rpc
           });
         });
-        setNonCustomEndpoints(endpointData);
+        setIntrinsicEndpoints(endpointData);
       };
       getEndpoints();
     }, [chainStore]);
@@ -102,7 +120,6 @@ export const CustomEndpoint: FunctionComponent<CustomEndpointProps> = observer(
     };
 
     /**
-     *
      * Custom endpoint should be refactored to  be a seperate module before completion, as can some other the others in settings page
      *
      * We look check that the custom rpc and rest are valid urls and if true we add them
@@ -154,6 +171,7 @@ export const CustomEndpoint: FunctionComponent<CustomEndpointProps> = observer(
         return;
       }
 
+      setCustomEndpointHasError(false);
       // success we then add the custom endpoint
       await ActiveEndpoint.addCustomEndpoint(customName, customRPC, customREST);
 
@@ -162,7 +180,12 @@ export const CustomEndpoint: FunctionComponent<CustomEndpointProps> = observer(
         rest: customREST,
         rpc: customREST
       });
+
+      // update the state related to this around the page, and close the add endpoint form
       setCustomEndpoints(nextCustomEndpoints);
+      setcollapsible1a(false);
+      setcollapsible1aa(false);
+      setActiveNetwork(customName);
 
       await ActiveEndpoint.setActiveEndpointName(customName);
       await clearCustomUrlForm();
@@ -175,7 +198,11 @@ export const CustomEndpoint: FunctionComponent<CustomEndpointProps> = observer(
       await accountStore.fetchAccount();
     };
 
-    const deleteCustomNetwork = async (name: string): Promise<void> => {
+    const deleteCustomNetwork = async (
+      name: string,
+      event: MouseEvent
+    ): Promise<void> => {
+      event.stopPropagation();
       // delete from our list of custom endpoints
       const list = customEndpoints;
       const index = list.findIndex((el: EndpointData) => el.name === name);
@@ -184,7 +211,7 @@ export const CustomEndpoint: FunctionComponent<CustomEndpointProps> = observer(
 
       // if it is the active endpoint switch to the first of the default endpoints.
       if (activeNetwork === name) {
-        await handleSetActiveNetwork(nonCustomEndpoints[0].name);
+        await handleSetActiveNetwork(intrinsicEndpoints[0].name);
       }
 
       // delete from storage
@@ -198,13 +225,104 @@ export const CustomEndpoint: FunctionComponent<CustomEndpointProps> = observer(
       await accountStore.fetchAccount();
     };
 
+    /**
+     * get button text (which is where the first element on the drop down would be were it a select)
+     */
+    const getButtonText = (): string => {
+      // if the active network is not custom then show it on button
+      if (
+        intrinsicEndpoints.some((el: EndpointData) => {
+          return el.name === activeNetwork;
+        })
+      ) {
+        return activeNetwork;
+      }
+
+      // if it is custom then show edit custom
+      if (
+        customEndpoints.some((el: EndpointData) => {
+          return el.name === activeNetwork;
+        })
+      ) {
+        return intl.formatMessage({
+          id: "register.custom.endpoint.url.custom"
+        });
+      }
+      // else we add custom
+      return intl.formatMessage({
+        id: "register.custom.endpoint.url.add-custom"
+      });
+    };
+
+    /**
+     * When you click on non custom element in dropdown this sets the data in the form below and also
+     * sets the active network to the value of the clicked element.
+     *
+     * @param element
+     */
+    const selectIntrinsicEndpoint = async (element: EndpointData) => {
+      setShowDropdown(false);
+      setcollapsible1a(true);
+      setcollapsible1aa(false);
+      setSelectedNetworkInList(element.name);
+
+      // prefill the form below that we show when clicked
+      setCustomREST(element.rest);
+      setCustomRPC(element.rpc);
+      setCustomEndpointOutput("");
+
+      await handleSetActiveNetwork(element.name);
+      forceUpdate();
+    };
+
+    const selectCustomEndpoint = async (element: EndpointData) => {
+      setShowDropdown(false);
+      setcollapsible1a(true);
+      setcollapsible1aa(true);
+      setAddingNewEndpoint(false);
+      setSelectedNetworkInList(element.name);
+
+      // prefill the form below that we show when clicked
+      setCustomREST(element.rest);
+      setCustomRPC(element.rpc);
+      setCustomName(element.name);
+      setCustomEndpointOutput("");
+
+      await handleSetActiveNetwork(element.name);
+      forceUpdate();
+    };
+
+    /**
+     *  clears the form and shows it when we click on add custom within the dropdown
+     *
+     */
+    const handleClickOnAddCustomListElement = async () => {
+      setcollapsible1a(true);
+      setcollapsible1aa(true);
+      setAddingNewEndpoint(true);
+      setShowDropdown(false);
+      setSelectedNetworkInList("");
+      await clearCustomUrlForm();
+    };
+
+    const isIntrinsicSelected = (): boolean => {
+      return intrinsicEndpoints.some((el: EndpointData) => {
+        return selectedNetworkInList === el.name;
+      });
+    };
+
     return (
-      <div className={style.dropdown}>
-        <OutsideClickHandler
-          onOutsideClick={() => {
-            setShowDropdown(false);
-          }}
-        >
+      <OutsideClickHandler
+        onOutsideClick={async () => {
+          debugger;
+          await clearCustomUrlForm();
+          debugger;
+          setShowDropdown(false);
+          setcollapsible1a(false);
+          setcollapsible1aa(false);
+        }}
+      >
+        <div className={classnames(style.dropdown, style.expandable)}>
           <div className={style.dropdown}>
             <button
               onClick={() => {
@@ -216,7 +334,7 @@ export const CustomEndpoint: FunctionComponent<CustomEndpointProps> = observer(
                 showDropdown ? style.showDropdown : ""
               )}
             >
-              {collapsible1a ? "Custom" : activeNetwork}
+              {getButtonText()}
               <svg
                 className={style.svg}
                 xmlns="http://www.w3.org/2000/svg"
@@ -237,19 +355,11 @@ export const CustomEndpoint: FunctionComponent<CustomEndpointProps> = observer(
                 showDropdown ? style.showDropdown : ""
               )}
             >
-              {nonCustomEndpoints.map((el: EndpointData, index: number) => {
+              {intrinsicEndpoints.map((el: EndpointData, index: number) => {
                 return (
                   <div
                     key={index}
-                    onClick={async () => {
-                      setShowDropdown(false);
-                      setCustomREST(el.rest);
-                      setCustomRPC(el.rpc);
-                      setCustomEndpointOutput("");
-                      setcollapsible1a(true);
-                      setcollapsible1aa(false);
-                      await handleSetActiveNetwork(el.name);
-                    }}
+                    onClick={selectIntrinsicEndpoint.bind(null, el)}
                     className={classnames(
                       style.clickable,
                       activeNetwork === el.name ? style.active : ""
@@ -261,31 +371,17 @@ export const CustomEndpoint: FunctionComponent<CustomEndpointProps> = observer(
               })}
               <div
                 className={classnames(style.clickable)}
-                onClick={async () => {
-                  setcollapsible1a(true);
-                  setcollapsible1aa(true);
-                  setAddingNewEndpoint(true);
-                  await setShowDropdown(false);
-                  await clearCustomUrlForm();
-                }}
+                onClick={handleClickOnAddCustomListElement}
               >
-                Add Custom
+                {intl.formatMessage({
+                  id: "register.custom.endpoint.url.add-custom"
+                })}
               </div>
               {customEndpoints.map((el: EndpointData, index: number) => {
                 return (
                   <div
                     key={index}
-                    onClick={async () => {
-                      setShowDropdown(false);
-                      setcollapsible1a(true);
-                      setcollapsible1aa(true);
-                      setAddingNewEndpoint(false);
-                      setCustomREST(el.rest);
-                      setCustomRPC(el.rpc);
-                      setCustomName(el.name);
-                      setCustomEndpointOutput("");
-                      await handleSetActiveNetwork(el.name);
-                    }}
+                    onClick={selectCustomEndpoint.bind(null, el)}
                     className={classnames(
                       style.closableRow,
                       style.clickable,
@@ -295,11 +391,7 @@ export const CustomEndpoint: FunctionComponent<CustomEndpointProps> = observer(
                     {el.name}
                     <span
                       className={style.closeIcon}
-                      onClick={async (event: MouseEvent) => {
-                        event.stopPropagation();
-                        await deleteCustomNetwork(el.name);
-                        setShowDropdown(false);
-                      }}
+                      onClick={deleteCustomNetwork.bind(null, el.name)}
                     >
                       <i className={classnames("fa", "fa-2x", "fa-close")}></i>
                     </span>
@@ -308,46 +400,50 @@ export const CustomEndpoint: FunctionComponent<CustomEndpointProps> = observer(
               })}
             </div>
           </div>
-        </OutsideClickHandler>
-        <Expand open={collapsible1a} duration={500} transitions={transitions}>
-          <form className={style.customNetworkForm}>
-            <input
-              type="text"
-              placeholder="RPC URL"
-              value={customRPC}
-              onChange={event => setCustomRPC(event.target.value)}
-            ></input>
-            <input
-              type="text"
-              placeholder="REST URL"
-              value={customREST}
-              onChange={event => setCustomREST(event.target.value)}
-            ></input>
-            <Expand
-              open={collapsible1aa}
-              duration={500}
-              transitions={transitions}
-            >
+          <Expand open={collapsible1a} duration={500} transitions={transitions}>
+            <form className={style.customNetworkForm}>
               <input
                 type="text"
-                placeholder="Nickname"
-                value={customName}
-                onChange={event => setCustomName(event.target.value)}
+                placeholder="RPC URL"
+                value={customRPC}
+                disabled={isIntrinsicSelected()}
+                onChange={event => setCustomRPC(event.target.value)}
               ></input>
-              <button
-                type="submit"
-                className={`green ${style.button}`}
-                onClick={handleCustomEndpointSubmission}
+              <input
+                type="text"
+                disabled={isIntrinsicSelected()}
+                placeholder="REST URL"
+                value={customREST}
+                onChange={event => setCustomREST(event.target.value)}
+              ></input>
+              <Expand
+                open={collapsible1aa}
+                duration={500}
+                transitions={transitions}
               >
-                {addingNewEndpoint ? "Submit" : "Update"}
-              </button>
-            </Expand>
-          </form>
-        </Expand>
-        <span className={customEndpointHasError ? "red" : ""}>
-          {customEndpointOutput}
-        </span>
-      </div>
+                <input
+                  type="text"
+                  placeholder="Nickname"
+                  value={customName}
+                  onChange={event => setCustomName(event.target.value)}
+                ></input>
+                <button
+                  type="submit"
+                  className={`green ${style.button}`}
+                  onClick={handleCustomEndpointSubmission}
+                >
+                  {addingNewEndpoint ? "Submit" : "Update"}
+                </button>
+              </Expand>
+            </form>
+          </Expand>
+          <div className={style.centerText}>
+            <span className={customEndpointHasError ? "red" : ""}>
+              {customEndpointOutput}
+            </span>
+          </div>
+        </div>
+      </OutsideClickHandler>
     );
   }
 );
