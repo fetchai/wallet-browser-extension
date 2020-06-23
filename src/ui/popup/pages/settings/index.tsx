@@ -126,19 +126,6 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
       }
     };
 
-    const getStorageClearanceWarningMessage = () => {
-      if (!showDeleteConfirmation) return null;
-      // if there is a key file then it cannot be hardware-linked
-      if (hasKeyFile)
-        return intl.formatMessage({
-          id: "settings.update-password.button.delete-confirmation-message"
-        });
-      else
-        return intl.formatMessage({
-          id:
-            "settings.update-password.button.delete-confirmation-message-hardware-linked"
-        });
-    };
 
     return (
       <HeaderLayout
