@@ -57,11 +57,9 @@ export default class ActiveEndpoint {
     const index = rawData.findIndex(el => el.name === name);
     if (index === -1) return false;
     // delete it
-    debugger;
     rawData.splice(index, 1);
     const store = new BrowserKVStore("");
     // save endpoints minus the one we deleted.
-     debugger;
     await store.set(CUSTOM_ENDPOINT_DATA, JSON.stringify(rawData));
     return true;
   }

@@ -53,7 +53,6 @@ export const AssetView: FunctionComponent = observer(() => {
     accountStore.assets,
     nativeCurrency.coinDenom
   );
-
   const dollarCurrencyIsDisplayed = () => {
     const test =
       fiat &&

@@ -402,12 +402,13 @@ export default class Upload extends React.Component<Props, State> {
             className={classnames(style.output, this.hasError() ? "red" : "")}
             id="output"
           >
-            {this.state.errorMessage}
+            {this.hasError() ? this.state.errorMessage : ""}
           </output>
           <div className={style.output}>
             <button
               type="submit"
               data-loading={this.state.loading}
+              id={style.recoverButton}
               className={classnames(style.recoverButton, "green")}
               onClick={event => {
                 event.preventDefault();

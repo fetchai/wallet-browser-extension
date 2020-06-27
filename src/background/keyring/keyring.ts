@@ -116,7 +116,6 @@ export class KeyRing {
 
     // if there is no active key(
     if (!index || this.addressBook[index].hdWallet) return null;
-    debugger;
     return (this.addressBook[index] as RegularAddressItem)
       .encryptedKeyStructure;
   }

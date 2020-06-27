@@ -25,8 +25,8 @@ export const Currencies: {
 } = {
   testfet: {
     coinDenom: "testfet",
-    coinMinimalDenom: "testfet",
-    coinDecimals: 6,
+    coinMinimalDenom: "atestfet",
+    coinDecimals: 18,
     coinGeckoId: "fetch-ai"
   }
 };
@@ -84,6 +84,11 @@ export const NativeChainInfos: ChainInfo[] = [
         name: "pre-mainnet",
         rpc: "http://pre-mainnet.sandbox.fetch-ai.com:12000",
         rest: "http://pre-mainnet.sandbox.fetch-ai.com:12200"
+      },
+      {
+        name: "agent-land",
+        rpc: "https://rpc-agent-land.fetch.ai/",
+        rest: "https://rest-agent-land.fetch.ai/"
       }
     ],
     defaultEndpoint: "eae",

@@ -26,13 +26,18 @@ $settings-width: 293px;
       color:white;
     }
   }
-
 }
+
+
 
 :global(.light-mode) {
   .title-wrapper {
     h2 {
       color: $light-mode-grey !important;
+    }
+
+     .account-number {
+      color:$grey-main;
     }
   }
 }
