@@ -13,7 +13,6 @@ import { ToolTip } from "../../../components/tooltip";
 import { lightModeEnabled } from "../../light-mode";
 import { autorun } from "mobx";
 import { insertCommas } from "../../../../common/utils/insert-commas";
-import { Price } from "../../stores/price";
 
 export const AssetView: FunctionComponent = observer(() => {
   const { chainStore, accountStore, priceStore } = useStore();
@@ -51,7 +50,7 @@ export const AssetView: FunctionComponent = observer(() => {
 
   const coinAmount = CoinUtils.amountOf(
     accountStore.assets,
-    nativeCurrency.coinDenom
+    nativeCurrency.coinMinimalDenom
   );
   const dollarCurrencyIsDisplayed = () => {
     const test =
@@ -79,18 +78,22 @@ export const AssetView: FunctionComponent = observer(() => {
       return "";
     } else if (fiat.value.equals(new Dec(0))) {
       return "0";
-    } else if (fiat.value.mul(new Dec(coinAmount)).gt(new Dec(100))) {
-      // if dollar amount is greater than 100 then cut off the cent amount
-      let amount = fiat.value.mul(new Dec(coinAmount)).toString();
-      amount = cutOffDecimals(amount);
-      return "$" + parseFloat(amount).toLocaleString();
     } else {
-      return (
-        "$" +
-        parseFloat(
-          (fiat as Price).value.mul(new Dec(coinAmount)).toString()
-        ).toLocaleString()
-      );
+      debugger;
+      // if dollar amount is greater than 100 then cut off the cent amount
+      const reciprocal = 1 / nativeCurrency.coinDecimals;
+      // if dollar amount is greater than 100 then cut off the cent amount
+      let amount: Dec | string = fiat.value
+        .mul(new Dec(coinAmount))
+        .mul(new Dec(reciprocal.toString()));
+
+      if (fiat.value.mul(amount).gt(new Dec(100))) {
+        amount = amount.toString();
+        amount = cutOffDecimals(amount);
+        return "$" + parseFloat(amount).toLocaleString();
+      } else {
+        return "$" + parseFloat(amount.toString()).toLocaleString();
+      }
     }
   };
 

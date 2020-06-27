@@ -231,13 +231,13 @@ export class AccountStore {
         const msg = GetBalanceMsg.create(endpointData.rest, this.bech32Address);
 
         const res = await task(sendMessage(BACKGROUND_PORT, msg));
-        let coins: Coin[] = [];
+        const coins: Coin[] = [];
         res.coins.forEach((el: any) => {
           coins.push(new Coin(el.denom, el.amount));
         });
-        debugger;
-        coins = CoinUtils.convertCoinsFromMinimalDenomAmount(coins);
-        debugger;
+        // debugger;
+        // coins = CoinUtils.convertCoinsFromMinimalDenomAmount(coins);
+        // debugger;
         this.assets = coins;
       } else {
         const account = await task(

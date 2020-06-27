@@ -10,6 +10,12 @@ import {
 import { Currency } from "../../chain-info";
 
 export class CoinUtils {
+
+  /**
+   *
+   * @param coins
+   * @param denom
+   */
   static amountOf(coins: Coin[], denom: string): Int {
     const coin = coins.find(coin => {
       return coin.denom === denom;
