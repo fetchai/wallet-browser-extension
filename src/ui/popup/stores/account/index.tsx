@@ -24,7 +24,6 @@ import {
   AutoFetchingAssetsInterval,
   COSMOS_SDK_VERSION
 } from "../../../../config";
-import { CoinUtils } from "../../../../common/coin-utils";
 import { GetBalanceMsg } from "../../../../background/api";
 import ActiveEndpoint from "../../../../common/utils/active-endpoint";
 

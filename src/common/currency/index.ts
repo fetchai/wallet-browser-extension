@@ -66,6 +66,26 @@ export function getCurrenciesFromDenoms(denoms: string[]): Currency[] {
   return currencies;
 }
 
+/**
+ * if this denom is within any currency in chain info we return name (first match)
+ */
+export function getCurrencyFromUnknownDenom(
+  denom: string
+): Currency | undefined {
+  for (const key in Currencies) {
+    const currency = Currencies[key];
+    if (denom === currency.coinMinimalDenom) {
+      return currency;
+    }
+
+    if (denom === currency.coinDenom) {
+      return currency;
+    }
+  }
+
+  return undefined;
+}
+
 export function getCurrencyFromMinimalDenom(
   denom: string
 ): Currency | undefined {
