@@ -100,7 +100,8 @@ export const CustomEndpoint: FunctionComponent<CustomEndpointProps> = observer(
           endpointData.push({
             name: endpoint.name,
             rest: endpoint.rest,
-            rpc: endpoint.rpc
+            rpc: endpoint.rpc,
+            chainId: "tododeleteplaceholder"
           });
         });
         setIntrinsicEndpoints(endpointData);
@@ -178,7 +179,8 @@ export const CustomEndpoint: FunctionComponent<CustomEndpointProps> = observer(
       const nextCustomEndpoints = customEndpoints.concat({
         name: customName,
         rest: customREST,
-        rpc: customREST
+        rpc: customREST,
+          chainid: "testing"
       });
 
       // update the state related to this around the page, and close the add endpoint form

@@ -6,6 +6,7 @@ import { sendMessage } from "../../../../common/message";
 import { BACKGROUND_PORT } from "../../../../common/message/constant";
 
 import { BIP44 } from "@everett-protocol/cosmosjs/core/bip44";
+import { RootStore } from "../root";
 
 type Writeable<T> = { -readonly [P in keyof T]: T[P] };
 
@@ -14,18 +15,28 @@ export class ChainStore {
 
   @observable
   public chainInfo!: ChainInfo;
+  private isChainSet: boolean;
 
-
-
-  constructor() {
+  constructor(private rootStore: RootStore) {
     this.setChainList(NativeChainInfos);
     this.chainInfo = this.chainList[0];
+    this.isChainSet = false;
+  }
+
+
+    @action
+  public setChain() {
+    this.isChainSet = true;
+
+    this.rootStore.setChainInfo(this.chainInfo);
   }
 
   @actionAsync
   public async init() {
     await task(this.getChainInfosFromBackground());
   }
+
+
 
   @actionAsync
   private async getChainInfosFromBackground() {
