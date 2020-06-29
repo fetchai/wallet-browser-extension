@@ -28,7 +28,7 @@ export class RootStore {
   }
 
   public setKeyRingStatus(status: KeyRingStatus) {
-    this.accountStore.setKeyRingStatus(status);
+    this.accountStore.setKeyRingStatus(status);q
   }
 }
 
