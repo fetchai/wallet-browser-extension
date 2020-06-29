@@ -19,6 +19,9 @@ import OutsideClickHandler from "react-outside-click-handler";
 // @ts-ignore
 import Expand from "react-expand-animated";
 import { observer } from "mobx-react";
+import { BACKGROUND_PORT } from "../../../../common/message/constant";
+import { GetChainIdMsg } from "../../../../background/api";
+import { sendMessage } from "../../../../common/message/send";
 
 interface CustomEndpointProps {
   lightMode: boolean;
@@ -173,14 +176,24 @@ export const CustomEndpoint: FunctionComponent<CustomEndpointProps> = observer(
       }
 
       setCustomEndpointHasError(false);
+
+      const msg = GetChainIdMsg.create(customRPC);
+      //todo look at how error is handled here. maybe send some message to user
+      const res = await sendMessage(BACKGROUND_PORT, msg);
+      debugger;
       // success we then add the custom endpoint
-      await ActiveEndpoint.addCustomEndpoint(customName, customRPC, customREST);
+      await ActiveEndpoint.addCustomEndpoint(
+        customName,
+        customRPC,
+        customREST,
+        res.chainId
+      );
 
       const nextCustomEndpoints = customEndpoints.concat({
         name: customName,
         rest: customREST,
-        rpc: customREST,
-          chainid: "testing"
+        rpc: customRPC,
+        chainId: res.chainId
       });
 
       // update the state related to this around the page, and close the add endpoint form

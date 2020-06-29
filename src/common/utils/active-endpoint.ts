@@ -74,7 +74,8 @@ export default class ActiveEndpoint {
   public static async addCustomEndpoint(
     name: string,
     rpc: string,
-    rest: string
+    rest: string,
+    chainId: string
   ) {
     // this is rarely changed hence it just being saved and restored directly from local storage.
     // we retrieve the current end-point data
@@ -84,14 +85,17 @@ export default class ActiveEndpoint {
 
     // then add in our new end point data.
     const store = new BrowserKVStore("");
-    const data: EndpointData = { name: name, rpc: rpc, rest: rest };
+    const data: EndpointData = {
+      name: name,
+      rpc: rpc,
+      rest: rest,
+      chainId: chainId
+    };
     rawData.push(data);
     await store.set(CUSTOM_ENDPOINT_DATA, JSON.stringify(rawData));
   }
 
-  public static async getCustomEndpointData(): Promise<Array<
-    EndpointData
-  >> {
+  public static async getCustomEndpointData(): Promise<Array<EndpointData>> {
     const store = new BrowserKVStore("");
     return new Promise(resolve =>
       store.get(CUSTOM_ENDPOINT_DATA).then((result: any) => {

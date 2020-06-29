@@ -35,11 +35,11 @@ export class APIKeeper {
       throw new Error(STATUS_ERROR);
     }
 
-    if (!resp?.data?.result?.network) {
+    if (!resp?.data?.result?.node_info?.network) {
       throw new Error(MALFORMED_RESPONSE);
     }
 
-    return resp.data.result.network;
+    return resp.data.result.node_info.network;
   }
 
   /**
