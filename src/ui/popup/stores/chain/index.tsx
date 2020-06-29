@@ -19,24 +19,17 @@ export class ChainStore {
 
   constructor(private rootStore: RootStore) {
     this.setChainList(NativeChainInfos);
-    this.chainInfo = this.chainList[0];
     this.isChainSet = false;
-  }
-
-
-    @action
-  public setChain() {
-    this.isChainSet = true;
-
-    this.rootStore.setChainInfo(this.chainInfo);
   }
 
   @actionAsync
   public async init() {
     await task(this.getChainInfosFromBackground());
+    if (!this.isChainSet) {
+      this.chainInfo = this.chainList[0];
+      this.rootStore.setChainInfo(this.chainInfo);
+    }
   }
-
-
 
   @actionAsync
   private async getChainInfosFromBackground() {

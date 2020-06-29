@@ -72,7 +72,7 @@ export class PopupWalletProvider implements WalletProvider {
    * Received tx builder config can be changed in the client. The wallet provider must verify that it is the same as the tx builder config sent earlier or warn the user before signing.
    */
   getTxBuilderConfig(
-    context: Context,
+    _context: Context,
     config: TxBuilderConfig
   ): Promise<TxBuilderConfig> {
     if (!this.feeApprover) {
@@ -83,9 +83,9 @@ export class PopupWalletProvider implements WalletProvider {
     crypto.getRandomValues(random);
     const id = Buffer.from(random).toString("hex");
 
-    debugger; // check what is chainid here
-    const x = context.get("chainId");
-    debugger;
+    // debugger; // check what is chainid here
+    // const x = context.get("chainId");
+    // debugger;
 
     const requestTxBuilderConfig = RequestTxBuilderConfigMsg.create(
       {
@@ -115,7 +115,7 @@ export class PopupWalletProvider implements WalletProvider {
    * Request signature from matched address if user have approved the access.
    */
   sign(
-    context: Context,
+    _context: Context,
     bech32Address: string,
     message: Uint8Array
   ): Promise<Uint8Array> {
