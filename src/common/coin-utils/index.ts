@@ -8,9 +8,9 @@ import {
 } from "../currency";
 // @ts-ignore
 import { Currency } from "../../chain-info";
+import { DecUtils } from "../dec-utils";
 
 export class CoinUtils {
-
   /**
    *
    * @param coins
@@ -77,7 +77,6 @@ export class CoinUtils {
     return coins;
   }
   static getCoinFromDecimals(decAmountStr: string, denom: string): Coin {
-
     const currency = getCurrencyFromDenom(denom);
     if (!currency) {
       throw new Error("Invalid currency");
@@ -86,8 +85,9 @@ export class CoinUtils {
     for (let i = 0; i < currency.coinDecimals; i++) {
       precision = precision.mul(new Dec(10));
     }
-    let decAmount = new Dec(decAmountStr);
-    // decAmount = decAmount.mul(precision);
+    const sanitized = DecUtils.sanitizeDecimal(decAmountStr);
+    let decAmount = new Dec(sanitized);
+    decAmount = decAmount.mul(precision);
 
     if (!new Dec(decAmount.truncate()).equals(decAmount)) {
       throw new Error("Can't divide anymore");

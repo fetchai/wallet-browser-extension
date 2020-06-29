@@ -39,7 +39,6 @@ import {
 } from "../../../../common/currency";
 import style from "./style.module.scss";
 import classnames from "classnames";
-import { CoinUtils } from "../../../../common/coin-utils";
 import { Dec } from "@everett-protocol/cosmosjs/common/decimal";
 import { useNotification } from "../../../components/notification";
 import { Int } from "@everett-protocol/cosmosjs/common/int";
@@ -58,6 +57,10 @@ import { lightModeEnabled } from "../../light-mode";
 import { Currency } from "../../../../chain-info";
 import { ETHEREUM_CHAIN_ID, TOKEN_CONTRACT } from "../../../../config";
 import { BurnMessage, LockMessage } from "./transfer-msg";
+import { multiplybyDecimals } from "../../../../common/utils/multiply-decimals";
+import { countDecimalPlaces } from "../../../../common/utils/count-decimal-places";
+import { DecUtils } from "../../../../common/dec-utils";
+import { CoinUtils } from "../../../../common/coin-utils";
 
 interface FormData {
   recipient: string;
@@ -200,19 +203,30 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
       try {
         if (currency && amount) {
           let find = false;
+
+          if (countDecimalPlaces(amount) > currency.coinDecimals) {
+            setError(
+              "amount",
+              "not-enough-fund",
+              intl.formatMessage({
+                id: "send.input.amount.error.precision-error"
+              })
+            );
+            return;
+          }
+
+          amount = DecUtils.sanitizeDecimal(amount);
+          const amountInATestFet = multiplybyDecimals(
+            new Dec(amount),
+            currency.coinDecimals
+          );
+
           for (const balance of accountStore.assets) {
-            if (balance.denom === currency.coinDenom) {
-              let precision = new Dec(1);
-              for (let i = 0; i < currency.coinDecimals; i++) {
-                precision = precision.mul(new Dec(10));
-              }
-
-              const balanceMinimalDenom = new Dec(balance.amount)
-                .mul(precision)
-                .truncate();
-              const amountInt = new Dec(amount).mul(precision).truncate();
-
-              if (amountInt.add(feeAmount).gt(balanceMinimalDenom)) {
+            if (balance.denom === currency.coinMinimalDenom) {
+              const totalCost = amountInATestFet.add(
+                new Dec(feeAmount.toString())
+              );
+              if (totalCost.gt(new Dec(balance.amount.toString()))) {
                 setError(
                   "amount",
                   "not-enough-fund",
@@ -322,12 +336,20 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
               }
 
               handleSubmit(async (data: FormData) => {
-                if (data.amount.toString().includes(".")) {
-                  window.alert("testnet does not support decimals");
-                  return;
-                }
+                // const currency = getCurrencyFromDenom(denom) as Currency;
+                // const amount = multiplybyDecimals(
+                //   new Dec(DecUtils.sanitizeDecimal(data.amount)),
+                //   currency.coinDecimals
+                // );
+                //
+                // const f = DecUtils.decToStrWithoutTrailingZeros(amount);
+                // debugger;
+                // const coin = new Coin(denom, f);
 
                 const coin = CoinUtils.getCoinFromDecimals(data.amount, denom);
+
+                debugger;
+
                 await useBech32ConfigPromise(
                   chainStore.chainInfo.bech32Config,
                   async () => {

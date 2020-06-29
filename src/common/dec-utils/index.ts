@@ -37,4 +37,13 @@ export class DecUtils {
     DecUtils.precisions[precision.toString()] = dec;
     return dec;
   }
+
+  /**
+ *
+ * very small utility method. Dec library doesn;t accept ".1" as constructor input, but does accept "0.1" so
+ * we just look for strings that start with a decimal point, and prepend with 0.
+ */
+  public static sanitizeDecimal(s: string): string {
+    return (s.trim().charAt(0) === ".")? "0" + s.trim(): s;
+}
 }

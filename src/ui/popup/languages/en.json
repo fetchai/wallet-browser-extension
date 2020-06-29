@@ -118,6 +118,7 @@
   "send.input.amount": "Amount",
   "send.input.amount.error.required": "Amount is required",
   "send.input.amount.error.insufficient": "Insufficient funds",
+  "send.input.amount.error.precision-error": "max decimals exceeded ",
   "send.input.amount.error.no-funds": " no funds",
   "send.input.memo": "Memo (Optional)",
   "send.input.fee": "Fee",

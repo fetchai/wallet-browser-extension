@@ -87,12 +87,12 @@ export const NativeChainInfos: ChainInfo[] = [
       },
       {
         name: "agent-land",
-        rpc: "https://rpc-agent-land.fetch.ai/",
-        rest: "https://rest-agent-land.fetch.ai/"
+        rpc: " http://rpc-agent-land.sandbox.fetch-ai.com:26657",
+        rest: "http://rest-agent-land.sandbox.fetch-ai.com:1317"
       }
     ],
     defaultEndpoint: "eae",
-    chainId: "aea-testnet",
+    chainId: "agent-land",
     chainName: "gaia-sandbox",
     nativeCurrency: "testfet",
     walletUrl:

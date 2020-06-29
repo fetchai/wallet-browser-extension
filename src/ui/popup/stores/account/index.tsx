@@ -234,9 +234,7 @@ export class AccountStore {
         res.coins.forEach((el: any) => {
           coins.push(new Coin(el.denom, el.amount));
         });
-        // debugger;
         // coins = CoinUtils.convertCoinsFromMinimalDenomAmount(coins);
-        // debugger;
         this.assets = coins;
       } else {
         const account = await task(

@@ -6,8 +6,12 @@ import { useStore } from "../../stores";
 import styleAsset from "./asset.module.scss";
 import { CoinUtils } from "../../../../common/coin-utils";
 import { Currency } from "../../../../chain-info";
+// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+// @ts-ignore
+
 import {
   getCurrency,
+  getCurrencyFromMinimalDenom,
   getCurrencyFromUnknownDenom
 } from "../../../../common/currency";
 import classnames from "classnames";
@@ -17,8 +21,7 @@ import { lightModeEnabled } from "../../light-mode";
 import { autorun } from "mobx";
 import { insertCommas } from "../../../../common/utils/insert-commas";
 import { Price } from "../../stores/price";
-import { BigFloat32 } from "bigfloat";
-import { Coin } from "@everett-protocol/cosmosjs/common/coin";
+import {divideByDecimals} from "../../../../common/utils/divide-decimals";
 
 export const AssetView: FunctionComponent = observer(() => {
   const { chainStore, accountStore, priceStore } = useStore();
@@ -43,33 +46,26 @@ export const AssetView: FunctionComponent = observer(() => {
     chainStore.chainInfo.nativeCurrency
   ) as Currency;
 
-  const [selectedCurrency, setSelectedCurrency] = useState(
-    nativeCurrency.coinDenom
-  );
+  const [selectedDenom, setSelectedDenom] = useState(nativeCurrency.coinDenom);
 
   // correct use of reaction: reacts to length and title changes
   autorun(() => {
     if (accountStore.assets.length === 1) {
-      setSelectedCurrency(accountStore.assets[0].denom);
+      setSelectedDenom(accountStore.assets[0].denom);
     }
   });
 
   // amount of minimal denom user has
-  const coinAmountOfMinimalDenom = CoinUtils.amountOf(
+  const amount = CoinUtils.amountOf(
     accountStore.assets,
     nativeCurrency.coinMinimalDenom
-  );
-
-  // amount of regular denom user has
-  const coinAmountMainDenom = CoinUtils.amountOf(
-    accountStore.assets,
-    nativeCurrency.coinDenom
   );
 
   const dollarCurrencyIsDisplayed = () => {
     const test =
       fiat &&
-      selectedCurrency === chainStore.chainInfo.nativeCurrency &&
+      (selectedDenom === nativeCurrency.coinDenom ||
+        selectedDenom === nativeCurrency.coinMinimalDenom) &&
       !fiat.value.equals(new Dec(0));
     return test;
   };
@@ -82,51 +78,45 @@ export const AssetView: FunctionComponent = observer(() => {
     // if selected from dropdown and selected currency is not the one for which we have dollar price
     if (
       typeof fiat === "undefined" ||
-      selectedCurrency !== chainStore.chainInfo.nativeCurrency
+      (selectedDenom !== nativeCurrency.coinMinimalDenom &&
+        selectedDenom !== nativeCurrency.coinDenom)
     ) {
       return "";
+    } else if (
+      accountStore.assets.length === 1 &&
+      accountStore.assets[0].denom !== nativeCurrency.coinMinimalDenom
+    ) {
+      return "";
+    } else if (fiat.value.equals(new Dec(0))) {
+      return "0";
     }
 
-    const amount = calculateDollarAmountOfNativeCurrency();
 
-    if (amount > 100) {
-      const display = cutOffDecimals(amount.toString());
-      return "$" + parseFloat(display).toLocaleString();
+    const coinAmount: string = divideByDecimals(
+      amount.toString(),
+      nativeCurrency.coinDecimals
+    );
+
+    if (fiat.value.mul(new Dec(coinAmount)).gt(new Dec(100))) {
+      // if dollar amount is greater than 100 then cut off the cent amount
+      let amount = fiat.value.mul(new Dec(coinAmount)).toString();
+      amount = cutOffDecimals(amount);
+      return "$" + parseFloat(amount).toLocaleString();
     } else {
-      return "$" + parseFloat(amount.toString()).toLocaleString();
-    }
-  };
+      const d =
+        "$" +
+        parseFloat(
+          (fiat as Price).value.mul(new Dec(coinAmount)).toString()
+        ).toLocaleString();
 
-  /**
-   * Balamce can return either
-   *
-   */
-  const calculateDollarAmountOfNativeCurrency = (): number => {
-    let dollarAmount: number = 0;
-    // we calc the amount in dollars of any amount of minimal demon held
-    if (coinAmountOfMinimalDenom) {
-      const amount: string = (fiat as Price).value
-        .mul(new Dec(coinAmountOfMinimalDenom))
-        .toString();
-      // if dollar amount is greater than 100 then cut off the cent amount
-      const reciprocal = 1 / nativeCurrency.coinDecimals;
-      dollarAmount += parseFloat(amount) * reciprocal;
-    }
-    // we calc the amount in dollars of any amount of minimal demon held
-    if (coinAmountMainDenom) {
-      const amountMainDenom: string = (fiat as Price).value
-        .mul(new Dec(coinAmountMainDenom))
-        .toString();
-      // if dollar amount is greater than 100 then cut off the cent amount
-      dollarAmount += parseFloat(amountMainDenom);
-    }
 
-    return dollarAmount;
+      return d;
+    }
   };
 
   const currencyChange = (event: any) => {
     const selectedCurency = event.target.value;
-    setSelectedCurrency(selectedCurency);
+    setSelectedDenom(selectedCurency);
   };
 
   const getAmount = (denom: string): string | undefined => {
@@ -143,43 +133,18 @@ export const AssetView: FunctionComponent = observer(() => {
       return undefined;
     }
 
-    // we find out how much we have of this currency in both the coing denom and minimal denom by loooking through the coins
-    // held in the store.
-    const denomAmount = accountStore.assets.find(
-      el => el.denom === currency.coinDenom
-    );
-    const minimalDenomAmount = accountStore.assets.find(
-      el => el.denom === currency.coinMinimalDenom
+    const output = divideByDecimals(
+      amount.toString(),
+      nativeCurrency.coinDecimals
     );
 
-    if (!denomAmount && !minimalDenomAmount) return undefined;
-
-    let result = new BigFloat32(0);
-
-    if (typeof minimalDenomAmount !== undefined) {
-      // we multiple by reciprocal since no division in this lib
-      // we have to work out how many full coins we have of this currency stored in the minimal denom
-      const reciprocal = 1 / currency.coinDecimals;
-
-      const dec = new BigFloat32(
-        (minimalDenomAmount as Coin).amount.toString()
-      ).mul(reciprocal);
-
-      result = result.add(dec);
-    }
-
-    if (typeof denomAmount !== undefined) {
-      // we also want to determine how many coins we have stored in the main denom
-      const dec = new BigFloat32((denomAmount as Coin).amount.toString());
-
-      result = result.add(dec);
-    }
-
-    return result.toString();
+    return output;
   };
 
+
+
   const getCurrencyAmount = () => {
-    const selected = selectedCurrency;
+    const selected = selectedDenom;
     const amount = getAmount(selected);
     return typeof amount !== "undefined" ? insertCommas(amount) : "0";
   };
@@ -194,9 +159,13 @@ export const AssetView: FunctionComponent = observer(() => {
   const getSingleCurrencyDisplay = () => {
     if (accountStore.assets.length === 0) {
       return nativeCurrency.coinDenom;
-      coinAmountMainDenom;
     }
-    return accountStore.assets[0].denom;
+
+    const currency = getCurrencyFromMinimalDenom(accountStore.assets[0].denom);
+
+    return typeof currency !== "undefined"
+      ? currency.coinDenom
+      : accountStore.assets[0].denom;
   };
 
   const getDropDownOptions = () => {

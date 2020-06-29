@@ -24,6 +24,7 @@ import {
 
 import classnames from "classnames";
 import { Int } from "@everett-protocol/cosmosjs/common/int";
+import { divideByDecimals } from "../../../common/utils/divide-decimals";
 
 export type GasPriceStep = {
   low: Dec;
@@ -131,9 +132,14 @@ export const FeeButtons: FunctionComponent<FeeButtonsProps> = ({
   }, [feeAverage, feeHigh, feeLow, feeSelect, name, setValue]);
 
   const formatDollarString = (s: string) => {
-    return parseFloat(s)
-      .toFixed(2)
-      .toLocaleString();
+    if (parseFloat(s) < 0.01) return "< $.01";
+
+    return (
+      "$" +
+      parseFloat(s)
+        .toFixed(2)
+        .toLocaleString()
+    );
   };
 
   /**
@@ -142,7 +148,10 @@ export const FeeButtons: FunctionComponent<FeeButtonsProps> = ({
    * @param fee
    */
   const dollarPrice = (fee: Int): string => {
+    fee = divideByDecimals(fee.toString(), currency.coinDecimals);
+
     const amount = new Dec(fee).mul(price).toString();
+
     return formatDollarString(amount);
   };
 
@@ -176,7 +185,7 @@ export const FeeButtons: FunctionComponent<FeeButtonsProps> = ({
             })}
           >
             {price.gt(new Dec(0)) && feeLow
-              ? `$${dollarPrice(feeLow.amount)}`
+              ? `${dollarPrice(feeLow.amount)}`
               : "?"}
           </div>
           <div
@@ -187,7 +196,7 @@ export const FeeButtons: FunctionComponent<FeeButtonsProps> = ({
             {feeLow
               ? `${DecUtils.removeTrailingZerosFromDecStr(
                   CoinUtils.parseDecAndDenomFromCoin(feeLow).amount
-                )} ${currency.coinDenom}`
+                )} ${currency.coinMinimalDenom}`
               : "loading"}
           </div>
         </Button>
@@ -208,7 +217,7 @@ export const FeeButtons: FunctionComponent<FeeButtonsProps> = ({
             })}
           >
             {price.gt(new Dec(0)) && feeAverage
-              ? `$${dollarPrice(feeAverage.amount)}`
+              ? `${dollarPrice(feeAverage.amount)}`
               : "?"}
           </div>
           <div
@@ -219,7 +228,7 @@ export const FeeButtons: FunctionComponent<FeeButtonsProps> = ({
             {feeAverage
               ? `${DecUtils.removeTrailingZerosFromDecStr(
                   CoinUtils.parseDecAndDenomFromCoin(feeAverage).amount
-                )} ${currency.coinDenom}`
+                )} ${currency.coinMinimalDenom}`
               : "loading"}
           </div>
         </Button>
@@ -239,7 +248,7 @@ export const FeeButtons: FunctionComponent<FeeButtonsProps> = ({
             })}
           >
             {price.gt(new Dec(0)) && feeHigh
-              ? `$${dollarPrice(feeHigh.amount)}`
+              ? `${dollarPrice(feeHigh.amount)}`
               : "?"}
           </div>
           <div
@@ -250,7 +259,7 @@ export const FeeButtons: FunctionComponent<FeeButtonsProps> = ({
             {feeHigh
               ? `${DecUtils.removeTrailingZerosFromDecStr(
                   CoinUtils.parseDecAndDenomFromCoin(feeHigh).amount
-                )} ${currency.coinDenom}`
+                )} ${currency.coinMinimalDenom}`
               : "loading"}
           </div>
         </Button>
