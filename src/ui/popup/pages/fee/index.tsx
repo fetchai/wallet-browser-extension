@@ -99,8 +99,7 @@ export const FeePage: FunctionComponent<RouteComponentProps<{
   const feePrice = priceStore.getValue("usd", feeCurrency?.coinGeckoId);
 
   const onConfigInit = useCallback(
-    (chainId: string, config: TxBuilderConfig) => {
-      chainStore.setChain(chainId);
+    (config: TxBuilderConfig) => {
       setValue("gas", config.gas.toString());
       // Always returns the fee by fee buttons.
       /*if (config.fee instanceof Coin) {
@@ -151,7 +150,6 @@ export const FeePage: FunctionComponent<RouteComponentProps<{
 
   return (
     <HeaderLayout
-      showChainName
       canChangeChainInfo={false}
       onBackButton={
         !external

@@ -75,24 +75,8 @@ export class LockMessage extends Msg {
     return [this.cosmosSender];
   }
 
-  public validateBasic(): void {
-    //   for (const coin of this.amount) {
-    //     if (coin.amount.lte(new Int(0))) {
-    //       throw new Error("Send amount is invalid");
-    //     }
-    //   }
-  }
+  public validateBasic(): void {}
 
-  // public getSignBytes(codec: Codec): Uint8Array {
-  //   const retval = super.getSignBytes(codec);
-  //   const jsonStr = new TextDecoder().decode(retval);
-  //   let json_des = JSON.parse(jsonStr);
-  //   let json = json_des.value;
-  //   json.ethereum_chain_id = this.ethereumChainID;
-  //   json.ethereum_receiver = uint8ArrayToChecksumEthAddress(this.ethereumReceiver, this.ethereumChainID, this.web3);
-  //   json.token_contract_address = uint8ArrayToChecksumEthAddress(this.tokenContract, this.ethereumChainID, this.web3);
-  //   return Buffer.from(sortJSON(JSON.stringify(json)), "utf8");
-  // }
 }
 @DefineStruct()
 export class BurnMessage extends LockMessage {}

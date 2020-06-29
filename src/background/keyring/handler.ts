@@ -7,7 +7,6 @@ import {
   CreateKeyMsg,
   GetKeyMsg,
   UnlockKeyRingMsg,
-  SetPathMsg,
   FetchEveryAddressMsg,
   RequestSignMsg,
   ApproveSignMsg,
@@ -74,8 +73,6 @@ export const getHandler: (keeper: KeyRingKeeper) => Handler = (
         return handleUpdatePasswordMsg(keeper)(msg as UpdatePasswordMsg);
       case GetKeyFileMsg:
         return handleGetKeyFileMsg(keeper)(msg as GetKeyFileMsg);
-      case SetPathMsg:
-        return handleSetPathMsg(keeper)(msg as SetPathMsg);
       case FetchEveryAddressMsg:
         return handleFetchEveryAddressMsg(keeper)(msg as FetchEveryAddressMsg);
       case SetActiveAddressMsg:
@@ -129,11 +126,7 @@ const handleVerifyPasswordKeyRingMsg: (
 const handleEnableKeyRingMsg: (
   keeper: KeyRingKeeper
 ) => InternalHandler<EnableKeyRingMsg> = keeper => {
-  return async msg => {
-    if (msg.origin) {
-      keeper.checkAccessOrigin(msg.chainId, msg.origin);
-    }
-
+  return async () => {
     return {
       status: await keeper.enable()
     };
@@ -300,17 +293,6 @@ const handleDeleteAddressMsg: (
   };
 };
 
-const handleSetPathMsg: (
-  keeper: KeyRingKeeper
-) => InternalHandler<SetPathMsg> = keeper => {
-  return async msg => {
-    keeper.setPath(msg.chainId, msg.account, msg.index);
-    return {
-      success: true
-    };
-  };
-};
-
 const handleFetchEveryAddressMsg: (
   keeper: KeyRingKeeper
 ) => InternalHandler<FetchEveryAddressMsg> = keeper => {
@@ -325,20 +307,13 @@ const handleFetchEveryAddressMsg: (
 const handleGetKeyMsg: (
   keeper: KeyRingKeeper
 ) => InternalHandler<GetKeyMsg> = keeper => {
-  return async msg => {
-    const getKeyMsg = msg as GetKeyMsg;
-    if (getKeyMsg.origin) {
-      keeper.checkAccessOrigin(getKeyMsg.chainId, getKeyMsg.origin);
-    }
-
+  return async () => {
     const key = await keeper.getKey();
     return {
       algo: "secp256k1",
       pubKeyHex: Buffer.from(key.pubKey).toString("hex"),
       addressHex: Buffer.from(key.address).toString("hex"),
-      bech32Address: new Address(key.address).toBech32(
-        keeper.getChainInfo(getKeyMsg.chainId).bech32Config.bech32PrefixAccAddr
-      )
+      bech32Address: new Address(key.address).toBech32("cosmos")
     };
   };
 };
@@ -347,12 +322,6 @@ const handleRequestTxBuilderConfigMsg: (
   keeper: KeyRingKeeper
 ) => InternalHandler<RequestTxBuilderConfigMsg> = keeper => {
   return async msg => {
-    if (msg.origin) {
-      // `config` in msg can't be null because `validateBasic` ensures that `config` is not null.
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      keeper.checkAccessOrigin(msg.config!.chainId, msg.origin);
-    }
-
     const config = await keeper.requestTxBuilderConfig(
       // `config` in msg can't be null because `validateBasic` ensures that `config` is not null.
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -404,16 +373,9 @@ const handleRequestSignMsg: (
   keeper: KeyRingKeeper
 ) => InternalHandler<RequestSignMsg> = keeper => {
   return async msg => {
-    if (msg.origin) {
-      keeper.checkAccessOrigin(msg.chainId, msg.origin);
-    }
-
-    await keeper.checkBech32Address(msg.chainId, msg.bech32Address);
-
     return {
       signatureHex: Buffer.from(
         await keeper.requestSign(
-          msg.chainId,
           new Uint8Array(Buffer.from(msg.messageHex, "hex")),
           msg.id,
           msg.openPopup
@@ -430,7 +392,6 @@ const handleGetRequestedMessage: (
     const message = keeper.getRequestedMessage(msg.id);
 
     return {
-      chainId: message.chainId,
       messageHex: Buffer.from(message.message).toString("hex")
     };
   };

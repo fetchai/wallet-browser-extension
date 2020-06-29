@@ -18,7 +18,7 @@ import { CustomEndpoint } from "./customEndpoint";
 import { DownloadKeyFile } from "./downloadKeyFile";
 import { ChangePassword } from "./changePassword";
 import { DeleteAccount } from "./deleteAccount";
-import {ToggleLightMode} from "./toggleLightMode";
+import { ToggleLightMode } from "./toggleLightMode";
 
 export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
   ({ history }) => {
@@ -126,10 +126,8 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
       }
     };
 
-
     return (
       <HeaderLayout
-        showChainName={false}
         canChangeChainInfo={false}
         fetchIcon={true}
         lightMode={lightMode}

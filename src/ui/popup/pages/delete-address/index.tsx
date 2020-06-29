@@ -39,7 +39,6 @@ export const DeleteAddress: FunctionComponent<DeleteAccountProps> = observer(
 
     return (
       <HeaderLayout
-        showChainName
         canChangeChainInfo={false}
         fetchIcon={true}
         lightMode={lightMode}

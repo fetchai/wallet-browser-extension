@@ -296,7 +296,6 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
 
     return (
       <HeaderLayout
-        showChainName
         canChangeChainInfo={false}
         fetchIcon={true}
         rightRenderer={<SignOutButton />}

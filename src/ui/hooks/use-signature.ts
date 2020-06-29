@@ -16,11 +16,9 @@ import { BACKGROUND_PORT } from "../../common/message/constant";
  * `loading` means if approving or rejecting is requesting.
  * `error` is the thrown error during approving or rejecting.
  * @param id Id of requested signing.
- * @param onMessageInit This will be called whenever message is initialized. Make sure that onMessageInit should not make re-render unnecessarily by using useCallback.
  */
 export const useSignature = (
   id: string,
-  onMessageInit: (chainId: string, message: string) => void
 ) => {
   const [initializing, setInitializing] = useState(false);
   const [message, setMessage] = useState("");
@@ -40,9 +38,6 @@ export const useSignature = (
         const result = await sendMessage(BACKGROUND_PORT, msg);
 
         const message = Buffer.from(result.messageHex, "hex").toString();
-        if (isMounted) {
-          onMessageInit(result.chainId, message);
-        }
 
         if (isMounted) {
           setMessage(message);
@@ -61,8 +56,7 @@ export const useSignature = (
     return () => {
       isMounted = false;
     };
-    // Make sure that onMessageInit should not make re-render unnecessarily by using useCallback.
-  }, [id, onMessageInit]);
+  }, [id]);
 
   const [approve, setApprove] = useState<(() => Promise<void>) | undefined>(
     undefined

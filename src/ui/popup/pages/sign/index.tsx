@@ -89,17 +89,9 @@ export const SignPage: FunctionComponent<RouteComponentProps<{
 
   const intl = useIntl();
 
-  const { chainStore, keyRingStore } = useStore();
+  const { keyRingStore } = useStore();
 
-  const signing = useSignature(
-    id,
-    useCallback(
-      chainId => {
-        chainStore.setChain(chainId);
-      },
-      [chainStore]
-    )
-  );
+  const signing = useSignature(id);
 
   useEffect(() => {
     // Force reject when closing window.
@@ -170,7 +162,6 @@ export const SignPage: FunctionComponent<RouteComponentProps<{
 
   return (
     <HeaderLayout
-      showChainName
       canChangeChainInfo={false}
       onBackButton={
         !external

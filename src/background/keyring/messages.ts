@@ -4,8 +4,7 @@ import { ChainInfo } from "../../chain-info";
 import { KeyRingStatus } from "./keyring";
 import { KeyHex } from "./keeper";
 import {
-  TxBuilderConfigPrimitive,
-  TxBuilderConfigPrimitiveWithChainId
+  TxBuilderConfigPrimitive
 } from "./types";
 import { AsyncApprover } from "../../common/async-approver";
 import { EncryptedKeyStructure } from "./crypto";
@@ -17,21 +16,15 @@ export class EnableKeyRingMsg extends Message<{
     return "enable-keyring";
   }
 
-  public static create(chainId: string, origin: string): EnableKeyRingMsg {
+  public static create(origin: string): EnableKeyRingMsg {
     const msg = new EnableKeyRingMsg();
-    msg.chainId = chainId;
     msg.origin = origin;
     return msg;
   }
 
-  public chainId: string = "";
   public origin: string = "";
 
-  validateBasic(): void {
-    if (!this.chainId) {
-      throw new Error("chain id is empty");
-    }
-  }
+  validateBasic(): void {}
 
   // Approve external approves sending message if they submit their origin correctly.
   // Keeper or handler must check that this origin has right permission.
@@ -350,6 +343,7 @@ export class VerifyPasswordKeyRingMsg extends Message<{
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/class-name-casing
 export class makeMnemonicMsg extends Message<{
   mnemonic: string;
 }> {
@@ -451,49 +445,7 @@ export class GetKeyFileMsg extends Message<{
   }
 }
 
-export class SetPathMsg extends Message<{ success: boolean }> {
-  public static type() {
-    return "set-path";
-  }
 
-  public static create(
-    chainId: string,
-    account: number,
-    index: number
-  ): SetPathMsg {
-    const msg = new SetPathMsg();
-    msg.chainId = chainId;
-    msg.account = account;
-    msg.index = index;
-    return msg;
-  }
-
-  public chainId: string = "";
-  public account: number = -1;
-  public index: number = -1;
-
-  validateBasic(): void {
-    if (!this.chainId) {
-      throw new Error("chain id not set");
-    }
-
-    if (this.account < 0) {
-      throw new Error("Invalid account");
-    }
-
-    if (this.index < 0) {
-      throw new Error("Invalid index");
-    }
-  }
-
-  route(): string {
-    return ROUTE;
-  }
-
-  type(): string {
-    return SetPathMsg.type();
-  }
-}
 export class FetchEveryAddressMsg extends Message<{
   AddressList: Array<string>;
 }> {
@@ -569,21 +521,15 @@ export class GetKeyMsg extends Message<KeyHex> {
     return "get-key";
   }
 
-  public static create(chainId: string, origin: string): GetKeyMsg {
+  public static create(origin: string): GetKeyMsg {
     const msg = new GetKeyMsg();
-    msg.chainId = chainId;
     msg.origin = origin;
     return msg;
   }
 
-  public chainId = "";
   public origin: string = "";
 
-  validateBasic(): void {
-    if (!this.chainId) {
-      throw new Error("chain id not set");
-    }
-  }
+  validateBasic(): void {}
 
   // Approve external approves sending message if they submit their origin correctly.
   // Keeper or handler must check that this origin has right permission.
@@ -623,7 +569,7 @@ export class RequestTxBuilderConfigMsg extends Message<{
   }
 
   public static create(
-    config: TxBuilderConfigPrimitiveWithChainId,
+    config: TxBuilderConfigPrimitive,
     id: string,
     openPopup: boolean,
     origin: string
@@ -636,7 +582,7 @@ export class RequestTxBuilderConfigMsg extends Message<{
     return msg;
   }
 
-  public config?: TxBuilderConfigPrimitiveWithChainId;
+  public config?: TxBuilderConfigPrimitive;
   public id: string = "";
   public openPopup: boolean = false;
   public origin: string = "";
@@ -680,7 +626,7 @@ export class RequestTxBuilderConfigMsg extends Message<{
 }
 
 export class GetRequestedTxBuilderConfigMsg extends Message<{
-  config: TxBuilderConfigPrimitiveWithChainId;
+  config: TxBuilderConfigPrimitive;
 }> {
   public static type() {
     return "get-requested-tx-builder-config";
@@ -774,7 +720,6 @@ export class RequestSignMsg extends Message<{ signatureHex: string }> {
   }
 
   public static create(
-    chainId: string,
     id: string,
     bech32Address: string,
     messageHex: string,
@@ -782,7 +727,6 @@ export class RequestSignMsg extends Message<{ signatureHex: string }> {
     origin: string
   ): RequestSignMsg {
     const msg = new RequestSignMsg();
-    msg.chainId = chainId;
     msg.id = id;
     msg.bech32Address = bech32Address;
     msg.messageHex = messageHex;
@@ -791,7 +735,6 @@ export class RequestSignMsg extends Message<{ signatureHex: string }> {
     return msg;
   }
 
-  public chainId: string = "";
   public id: string = "";
   public bech32Address: string = "";
   // Hex encoded message.
@@ -800,9 +743,6 @@ export class RequestSignMsg extends Message<{ signatureHex: string }> {
   public origin: string = "";
 
   validateBasic(): void {
-    if (!this.chainId) {
-      throw new Error("chain id not set");
-    }
 
     if (!this.bech32Address) {
       throw new Error("bech32 address not set");
@@ -846,7 +786,6 @@ export class RequestSignMsg extends Message<{ signatureHex: string }> {
 }
 
 export class GetRequestedMessage extends Message<{
-  chainId: string;
   messageHex: string;
 }> {
   public static type() {

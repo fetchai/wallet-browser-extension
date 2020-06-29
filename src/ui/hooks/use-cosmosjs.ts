@@ -1,5 +1,4 @@
 import { ChainInfo } from "../../chain-info";
-import { WalletProvider } from "@everett-protocol/cosmosjs/core/walletProvider";
 import { Context } from "@everett-protocol/cosmosjs/core/context";
 import { GaiaRest } from "@everett-protocol/cosmosjs/gaia/rest";
 import { Codec } from "@node-a-team/ts-amino";
@@ -13,9 +12,7 @@ import * as Gov from "@everett-protocol/cosmosjs/x/gov";
 import { Rest } from "@everett-protocol/cosmosjs/core/rest";
 import { useCallback, useEffect, useState } from "react";
 import { Msg } from "@everett-protocol/cosmosjs/core/tx";
-import {
-  TxBuilderConfig
-} from "@everett-protocol/cosmosjs/core/txBuilder";
+import { TxBuilderConfig } from "@everett-protocol/cosmosjs/core/txBuilder";
 import { Api } from "@everett-protocol/cosmosjs/core/api";
 import { defaultTxEncoder } from "@everett-protocol/cosmosjs/common/stdTx";
 import { stdTxBuilder } from "@everett-protocol/cosmosjs/common/stdTxBuilder";
@@ -28,6 +25,7 @@ import { registerPeggyCodecs } from "../popup/pages/send/transfer-msg";
 import { queryAccount } from "@everett-protocol/cosmosjs/core/query";
 import { COSMOS_SDK_VERSION } from "../../config";
 import ActiveEndpoint from "../../common/utils/active-endpoint";
+import { PopupWalletProvider } from "../popup/wallet-provider";
 
 const Buffer = require("buffer/").Buffer;
 
@@ -56,7 +54,7 @@ export interface CosmosJsHook {
  */
 export const useCosmosJS = <R extends Rest = Rest>(
   chainInfo: ChainInfo,
-  walletProvider: WalletProvider,
+  walletProvider: PopupWalletProvider,
   opts: {
     restFactory?: (context: Context) => R;
     registerCodec?: (codec: Codec) => void;
@@ -90,60 +88,55 @@ export const useCosmosJS = <R extends Rest = Rest>(
   const [addresses, setAddresses] = useState<string[]>([]);
   const [sendMsgs, setSendMsgs] = useState<SendMsgs | undefined>(undefined);
 
-
-
-
   useEffect(() => {
-
     const query = async () => {
-
-      const endpointData = await ActiveEndpoint.getActiveEndpoint()
+      const endpointData = await ActiveEndpoint.getActiveEndpoint();
 
       setLoading(false);
       let isSubscribed = true;
 
       const api = new Api<R>(
-          {
-            chainId: chainInfo.chainId,
-            walletProvider: walletProvider,
-            rpc: endpointData.rpc,
-            rest: endpointData.rest,
-            disableGlobalBech32Config: true
+        {
+          chainId: endpointData.chainId,
+          walletProvider: walletProvider,
+          rpc: endpointData.rpc,
+          rest: endpointData.rest,
+          disableGlobalBech32Config: true
+        },
+        {
+          txEncoder: defaultTxEncoder,
+          txBuilder: stdTxBuilder,
+          restFactory: memorizedRestFactory,
+          queryAccount: async (
+            context: Context,
+            address: string | Uint8Array
+          ): Promise<BaseAccount> => {
+            if (COSMOS_SDK_VERSION > 37) {
+              const keys = await walletProvider.getKeys();
+              const bech32Address = keys[0].bech32Address;
+
+              const queryAccountMsg = QueryAccountMsg.create(
+                endpointData.rest,
+                bech32Address
+              );
+              const baseAccountJson = await sendMessage(
+                BACKGROUND_PORT,
+                queryAccountMsg
+              );
+
+              return BaseAccount.fromJSON(baseAccountJson);
+            } else {
+              return queryAccount(
+                context.get("bech32Config"),
+                context.get("rpcInstance"),
+                address
+              );
+            }
           },
-          {
-            txEncoder: defaultTxEncoder,
-            txBuilder: stdTxBuilder,
-            restFactory: memorizedRestFactory,
-            queryAccount: async (
-                context: Context,
-                address: string | Uint8Array
-            ): Promise<BaseAccount> => {
-              if (COSMOS_SDK_VERSION > 37) {
-                const keys = await walletProvider.getKeys(context);
-                const bech32Address = keys[0].bech32Address;
-
-                const queryAccountMsg = QueryAccountMsg.create(
-                    endpointData.rest,
-                    bech32Address
-                );
-                const baseAccountJson = await sendMessage(
-                    BACKGROUND_PORT,
-                    queryAccountMsg
-                );
-
-                return BaseAccount.fromJSON(baseAccountJson);
-              } else {
-                return queryAccount(
-                    context.get("bech32Config"),
-                    context.get("rpcInstance"),
-                    address
-                );
-              }
-            },
-            bech32Config: chainInfo.bech32Config,
-            bip44: chainInfo.bip44,
-            registerCodec: memorizedRegisterCodec
-          }
+          bech32Config: chainInfo.bech32Config,
+          bip44: chainInfo.bip44,
+          registerCodec: memorizedRegisterCodec
+        }
       );
 
       if (!api.wallet) {
@@ -166,11 +159,11 @@ export const useCosmosJS = <R extends Rest = Rest>(
       }
 
       const _sendMsgs: SendMsgs = async (
-          msgs: Msg[],
-          config: TxBuilderConfig,
-          onSuccess?: () => void,
-          onFail?: (e: Error) => void,
-          mode: "commit" | "sync" | "async" = "commit"
+        msgs: Msg[],
+        config: TxBuilderConfig,
+        onSuccess?: () => void,
+        onFail?: (e: Error) => void,
+        mode: "commit" | "sync" | "async" = "commit"
       ) => {
         if (isSubscribed) {
           setLoading(true);
@@ -188,31 +181,30 @@ export const useCosmosJS = <R extends Rest = Rest>(
                 }
               } else if (result.mode === "commit") {
                 if (
-                    result.checkTx.code !== undefined &&
-                    result.checkTx.code !== 0
+                  result.checkTx.code !== undefined &&
+                  result.checkTx.code !== 0
                 ) {
                   throw new Error(result.checkTx.log);
                 }
                 if (
-                    result.deliverTx.code !== undefined &&
-                    result.deliverTx.code !== 0
+                  result.deliverTx.code !== undefined &&
+                  result.deliverTx.code !== 0
                 ) {
                   throw new Error(result.deliverTx.log);
                 }
               }
             } else {
               const tx = await api.context.get("txBuilder")(
-                  api.context,
-                  msgs,
-                  config
+                api.context,
+                msgs,
+                config
               );
               const bz = api.context.get("txEncoder")(api.context, tx);
 
               const msg = RequestBackgroundTxMsg.create(
-                  api.context.get("chainId"),
-                  Buffer.from(bz).toString("hex"),
-                  mode,
-                  window.location.origin
+                Buffer.from(bz).toString("hex"),
+                mode,
+                window.location.origin
               );
               await sendMessage(BACKGROUND_PORT, msg);
             }
@@ -242,9 +234,8 @@ export const useCosmosJS = <R extends Rest = Rest>(
       return () => {
         isSubscribed = false;
       };
-
-    }
-    query()
+    };
+    query();
   }, [
     chainInfo,
     walletProvider,

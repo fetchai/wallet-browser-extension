@@ -1,6 +1,6 @@
 import { Crypto, EncryptedKeyStructure } from "./crypto";
 import { generateWalletFromMnemonic } from "@everett-protocol/cosmosjs/utils/key";
-import { PubKeySecp256k1 } from "@everett-protocol/cosmosjs/crypto";
+import { PrivKey, PubKeySecp256k1 } from "@everett-protocol/cosmosjs/crypto";
 import { KVStore } from "../../common/kvstore";
 import {
   AddressBook,
@@ -58,10 +58,12 @@ export class KeyRing {
       return null;
     }
 
-    const index = this.addressBook.findIndex(el => el.address === this.activeAddress);
+    const index = this.addressBook.findIndex(
+      el => el.address === this.activeAddress
+    );
 
     // if not found just say it is index 0
-    if(index === -1) return 0
+    if (index === -1) return 0;
     else return index;
   }
 
@@ -342,19 +344,6 @@ export class KeyRing {
   public async save() {
     // // we don't save the private jeys or mnemonics to local storage.
     const addressBook = this.deletePrivateKeys(this.addressBook, true);
-
-    // const addressBook: any = [];
-    //
-    // // serialize the pk object when saving.
-    // this.addressBook.forEach(el => {
-    //   const serialized: any = el;
-    //   if (!el.hdWallet && typeof el.privateKey !== "undefined") {
-    //     const uint8array = serialized.privateKey.serialize();
-    //     serialized.privateKey = new TextDecoder("utf-8").decode(uint8array);
-    //   }
-    //   addressBook.push(serialized);
-    // });
-
     await this.kvStore.set<AddressBook>(ADDRESS_BOOK_KEY, addressBook);
 
     if (typeof this.activeAddress !== "undefined") {
@@ -497,6 +486,6 @@ export class KeyRing {
     }
 
     const regularAddressItem = this.addressBook[index] as RegularAddressItem;
-    return regularAddressItem.privateKey.sign(message);
+    return (regularAddressItem.privateKey as PrivKey).sign(message);
   }
 }

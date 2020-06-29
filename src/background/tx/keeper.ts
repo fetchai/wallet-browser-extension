@@ -27,14 +27,8 @@ interface ABCIMessageLog {
 export class BackgroundTxKeeper {
   constructor(private keyRingKeeper: KeyRingKeeper) {}
 
-  async requestTx(
-    chainId: string,
-    txBytes: string,
-    mode: "sync" | "async" | "commit"
-  ) {
-
-
-    const endpointData = await ActiveEndpoint.getActiveEndpoint()
+  async requestTx(txBytes: string, mode: "sync" | "async" | "commit") {
+    const endpointData = await ActiveEndpoint.getActiveEndpoint();
     const instance = Axios.create({
       baseURL: endpointData.rpc
     });
@@ -143,9 +137,5 @@ export class BackgroundTxKeeper {
         message
       });
     }
-  }
-
-  checkAccessOrigin(chainId: string, origin: string) {
-    this.keyRingKeeper.checkAccessOrigin(chainId, origin);
   }
 }

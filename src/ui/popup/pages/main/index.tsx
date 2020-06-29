@@ -24,7 +24,6 @@ export const MainPage: FunctionComponent = () => {
 
   return (
     <HeaderLayout
-      showChainName
       canChangeChainInfo
       menuRenderer={undefined}
       fetchIcon={true}

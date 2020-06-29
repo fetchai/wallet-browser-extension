@@ -34,8 +34,3 @@ export interface HardwareAddressItem {
  */
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface AddressBook extends Array<HardwareAddressItem | RegularAddressItem>{}
-
-export interface TxBuilderConfigPrimitiveWithChainId
-  extends TxBuilderConfigPrimitive {
-  chainId: string;
-}

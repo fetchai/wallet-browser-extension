@@ -90,7 +90,6 @@ export const AddressBookManagerPage: FunctionComponent<RouteComponentProps> = ob
 
     return (
       <HeaderLayout
-        showChainName
         canChangeChainInfo={false}
         fetchIcon={true}
         lightMode={lightMode}

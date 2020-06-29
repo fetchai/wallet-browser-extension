@@ -49,9 +49,8 @@ export class PopupWalletProvider implements WalletProvider {
   /**
    * Get array of keys that includes bech32 address string, address bytes and public key from wallet if user have approved the access.
    */
-  async getKeys(context: Context): Promise<Key[]> {
+  async getKeys(): Promise<Key[]> {
     const msg = GetKeyMsg.create(
-      context.get("chainId"),
       // There is no need to set origin because this wallet provider is used in internal.
       ""
     );
@@ -84,9 +83,12 @@ export class PopupWalletProvider implements WalletProvider {
     crypto.getRandomValues(random);
     const id = Buffer.from(random).toString("hex");
 
+    debugger; // check what is chainid here
+    const x = context.get("chainId");
+    debugger;
+
     const requestTxBuilderConfig = RequestTxBuilderConfigMsg.create(
       {
-        chainId: context.get("chainId"),
         ...txBuilderConfigToPrimitive(config)
       },
       id,
@@ -122,7 +124,6 @@ export class PopupWalletProvider implements WalletProvider {
     const id = Buffer.from(random).toString("hex");
 
     const requestSignMsg = RequestSignMsg.create(
-      context.get("chainId"),
       id,
       bech32Address,
       Buffer.from(message).toString("hex"),

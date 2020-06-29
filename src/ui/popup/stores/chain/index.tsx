@@ -1,13 +1,6 @@
 import { observable, action } from "mobx";
 import { actionAsync, task } from "mobx-utils";
-
-import { RootStore } from "../root";
-
 import { ChainInfo, NativeChainInfos } from "../../../../chain-info";
-import {
-  SetPersistentMemoryMsg,
-  GetPersistentMemoryMsg
-} from "../../../../background/persistent-memory";
 import { GetRegisteredChainMsg } from "../../../../background/keyring";
 import { sendMessage } from "../../../../common/message";
 import { BACKGROUND_PORT } from "../../../../common/message/constant";
@@ -22,57 +15,16 @@ export class ChainStore {
   @observable
   public chainInfo!: ChainInfo;
 
-  // Indicate whether the chain info is set.
-  private isChainSet = false;
 
-  constructor(private rootStore: RootStore) {
+
+  constructor() {
     this.setChainList(NativeChainInfos);
-
-    this.setChain(this.chainList[0].chainId);
-    this.isChainSet = false;
-  }
-
-  @action
-  public setChain(chainId: string) {
-    let chainInfo: ChainInfo | null = null;
-    for (const ci of this.chainList) {
-      if (ci.chainId === chainId) {
-        chainInfo = ci;
-      }
-    }
-    // If no match chain id, throw error.
-    if (chainInfo === null) {
-      throw new Error("Invalid chain id");
-    }
-
-    this.chainInfo = chainInfo;
-    this.isChainSet = true;
-
-    this.rootStore.setChainInfo(chainInfo);
-  }
-
-  @actionAsync
-  public async saveLastViewChainId() {
-    // Save last view chain id to persistent background
-    const msg = SetPersistentMemoryMsg.create({
-      lastViewChainId: this.chainInfo.chainId
-    });
-    await task(sendMessage(BACKGROUND_PORT, msg));
+    this.chainInfo = this.chainList[0];
   }
 
   @actionAsync
   public async init() {
     await task(this.getChainInfosFromBackground());
-
-    // Get last view chain id to persistent background
-    const msg = GetPersistentMemoryMsg.create();
-    const result = await task(sendMessage(BACKGROUND_PORT, msg));
-    if (result && result.lastViewChainId) {
-      // If chain info is already set, skip setting the last used chain info.
-      if (!this.isChainSet) {
-        this.setChain(result.lastViewChainId);
-      }
-    }
   }
 
   @actionAsync

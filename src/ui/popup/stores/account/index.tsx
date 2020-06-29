@@ -7,7 +7,6 @@ import {
   GetKeyMsg,
   KeyRingStatus,
   SetActiveAddressMsg,
-  SetPathMsg
 } from "../../../../background/keyring";
 
 import { action, observable } from "mobx";
@@ -175,16 +174,8 @@ export class AccountStore {
   @actionAsync
   private async fetchBech32Address() {
     this.isAddressFetching = true;
-
-    const setPathMsg = SetPathMsg.create(
-      this.chainInfo.chainId,
-      this.bip44Account,
-      this.bip44Index
-    );
-    await task(sendMessage(BACKGROUND_PORT, setPathMsg));
-
     // No need to set origin, because this is internal.
-    const getKeyMsg = GetKeyMsg.create(this.chainInfo.chainId, "");
+    const getKeyMsg = GetKeyMsg.create("");
     const result = await task(sendMessage(BACKGROUND_PORT, getKeyMsg));
     const prevBech32Address = this.bech32Address;
 

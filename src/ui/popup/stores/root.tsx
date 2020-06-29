@@ -15,7 +15,7 @@ export class RootStore {
     this.accountStore = new AccountStore(this);
     this.keyRingStore = new KeyRingStore(this);
     this.priceStore = new PriceStore();
-    this.chainStore = new ChainStore(this);
+    this.chainStore = new ChainStore();
 
     this.chainStore.init();
     this.keyRingStore.restore();
