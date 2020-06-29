@@ -22,7 +22,7 @@ export class GetBalanceMsg extends Message<{
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   validateBasic(): void {
     if (!this.rest) {
-      throw new Error("rpc not set");
+      throw new Error("rest not set");
     }
 
     if (!this.bech32Address) {
@@ -36,6 +36,36 @@ export class GetBalanceMsg extends Message<{
 
   type(): string {
     return GetBalanceMsg.type();
+  }
+}
+export class GetChainIdMsg extends Message<{
+  chainId: string;
+}> {
+  public rpc: string = "";
+
+  public static type() {
+    return "get-chain-id";
+  }
+
+  public static create(rpc: string): GetChainIdMsg {
+    const msg = new GetChainIdMsg();
+    msg.rpc = rpc;
+    return msg;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  validateBasic(): void {
+    if (!this.rpc) {
+      throw new Error("rest url not set");
+    }
+  }
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return GetChainIdMsg.type();
   }
 }
 
@@ -58,7 +88,7 @@ export class QueryAccountMsg extends Message<{}> {
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   validateBasic(): void {
     if (!this.rest) {
-      throw new Error("rpc not set");
+      throw new Error("rest url not set");
     }
 
     if (!this.bech32Address) {

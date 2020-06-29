@@ -1,5 +1,5 @@
 import { Handler, InternalHandler, Message } from "../../common/message";
-import { GetBalanceMsg, QueryAccountMsg } from "./messages";
+import { GetBalanceMsg, GetChainIdMsg, QueryAccountMsg } from "./messages";
 import { APIKeeper, CoinParams } from "./keeper";
 
 export const getHandler: (keeper: APIKeeper) => Handler = keeper => {
@@ -7,6 +7,8 @@ export const getHandler: (keeper: APIKeeper) => Handler = keeper => {
     switch (msg.constructor) {
       case GetBalanceMsg:
         return handleGetBalanceMsg()(msg as GetBalanceMsg);
+      case GetChainIdMsg:
+        return handleGetChainIdMsg()(msg as GetChainIdMsg);
       case QueryAccountMsg:
         return handleQueryAccountMsg(keeper)(msg as GetBalanceMsg);
       default:
@@ -21,6 +23,16 @@ const handleGetBalanceMsg: () => (
   return async msg => {
     return {
       coins: await APIKeeper.getBalance(msg.rest, msg.bech32Address)
+    };
+  };
+};
+
+const handleGetChainIdMsg: () => (
+  msg: any
+) => Promise<{ chainId: string }> = () => {
+  return async msg => {
+    return {
+      chainId: await APIKeeper.getChainId(msg.rpc)
     };
   };
 };

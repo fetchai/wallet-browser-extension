@@ -27,7 +27,7 @@ export class LedgerNanoMsg extends Message<{
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   validateBasic(): void {
     if (!this.method) {
-      throw new Error("rpc not set");
+      throw new Error("method not set");
     }
   }
 
