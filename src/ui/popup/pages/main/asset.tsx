@@ -71,6 +71,7 @@ export const AssetView: FunctionComponent = observer(() => {
       (selectedDenom === nativeCurrency.coinDenom ||
         selectedDenom === nativeCurrency.coinMinimalDenom) &&
       !fiat.value.equals(new Dec(0));
+    debugger;
     return test;
   };
 
@@ -88,7 +89,8 @@ export const AssetView: FunctionComponent = observer(() => {
       return "";
     } else if (
       accountStore.assets.length === 1 &&
-      accountStore.assets[0].denom !== nativeCurrency.coinMinimalDenom
+       (selectedDenom !== nativeCurrency.coinMinimalDenom &&
+        selectedDenom !== nativeCurrency.coinDenom)
     ) {
       return "";
     } else if (fiat.value.equals(new Dec(0))) {
@@ -104,12 +106,13 @@ export const AssetView: FunctionComponent = observer(() => {
       // if dollar amount is greater than 100 then cut off the cent amount
       let amount = fiat.value.mul(new Dec(coinAmount)).toString();
       amount = cutOffDecimals(amount);
+      debugger;
       return "$" + parseFloat(amount).toLocaleString();
     } else {
       const d = parseFloat(
         (fiat as Price).value.mul(new Dec(coinAmount)).toString()
       ).toFixed(4);
-
+  debugger;
       const r = "$" + removeTrailingZeros(d).toLocaleString();
       return r;
     }
@@ -138,8 +141,9 @@ export const AssetView: FunctionComponent = observer(() => {
       amount.toString(),
       nativeCurrency.coinDecimals
     );
-
-    return parseFloat(output).toFixed(4);
+    // small neaten before display
+    const fixed = parseFloat(output).toFixed(4);
+    return removeTrailingZeros(fixed).toLocaleString();
   };
 
   const getCurrencyAmount = () => {
@@ -212,7 +216,7 @@ export const AssetView: FunctionComponent = observer(() => {
       <div className={styleAsset.amount}>
         <div>
           <span className={dollarCurrencyIsDisplayed() ? "" : styleAsset.block}>
-            {!(accountStore.assets.length === 0) ? getCurrencyAmount() : "0"}{" "}
+            {accountStore.assets.length ? getCurrencyAmount() : "0"}{" "}
           </span>
           {accountStore.assets.length > 1 ? (
             <select
