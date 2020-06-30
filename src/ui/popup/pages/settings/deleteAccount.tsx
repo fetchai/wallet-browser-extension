@@ -1,5 +1,4 @@
 import React, { FunctionComponent, useState } from "react";
-import { RouteComponentProps } from "react-router";
 import { observer } from "mobx-react";
 import { useIntl } from "react-intl";
 import { useStore } from "../../stores";

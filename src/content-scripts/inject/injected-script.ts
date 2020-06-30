@@ -57,7 +57,7 @@ export class InjectedWalletProvider implements WalletProvider {
    * Received tx builder config can be changed in the client. The wallet provider must verify that it is the same as the tx builder config sent earlier or warn the user before signing.
    */
   async getTxBuilderConfig(
-    context: Context,
+    _context: Context,
     config: TxBuilderConfig
   ): Promise<TxBuilderConfig> {
     const random = new Uint8Array(4);

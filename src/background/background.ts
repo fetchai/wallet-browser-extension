@@ -17,7 +17,7 @@ PersistentMemory.init(messageManager, persistentMemory);
 const keyRingKeeper = new KeyRing.KeyRingKeeper(new BrowserKVStore("keyring"));
 KeyRing.init(messageManager, keyRingKeeper);
 
-const backgroundTxKeeper = new BackgroundTx.BackgroundTxKeeper(keyRingKeeper);
+const backgroundTxKeeper = new BackgroundTx.BackgroundTxKeeper();
 BackgroundTx.init(messageManager, backgroundTxKeeper);
 
 LedgerNano.init(messageManager);

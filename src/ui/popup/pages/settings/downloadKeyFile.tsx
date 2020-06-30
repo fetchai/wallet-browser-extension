@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useEffect, useState } from "react";
+import React, { FunctionComponent, useState } from "react";
 import { observer } from "mobx-react";
 import classnames from "classnames";
 import { useIntl } from "react-intl";

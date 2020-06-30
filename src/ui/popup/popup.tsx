@@ -71,7 +71,7 @@ Modal.defaultStyles = {
 };
 
 const StateRenderer: FunctionComponent<RouteComponentProps> = observer(
-  ({ location, history }) => {
+  ({ location }) => {
     const { keyRingStore } = useStore();
     const intl = useIntl();
     if (keyRingStore.status === KeyRingStatus.UNLOCKED) {

@@ -9,7 +9,6 @@ import { FormattedMessage, useIntl } from "react-intl";
 import { NunWords } from "./index";
 import { strongPassword } from "../../../../common/strong-password";
 import { EncryptedKeyStructure } from "../../../../background/keyring/crypto";
-import { generateWalletFromMnemonic } from "@everett-protocol/cosmosjs/utils/key";
 import { useStore } from "../../stores";
 import {mnemonicToAddress} from "../../../../common/utils/mnemonic-to-address";
 // eslint-disable-next-line @typescript-eslint/no-var-requires

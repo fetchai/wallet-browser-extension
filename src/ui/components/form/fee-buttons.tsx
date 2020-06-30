@@ -25,6 +25,7 @@ import {
 import classnames from "classnames";
 import { Int } from "@everett-protocol/cosmosjs/common/int";
 import { divideByDecimals } from "../../../common/utils/divide-decimals";
+import {formatDollarString} from "../../../common/utils/formatDollarStringFee";
 
 export type GasPriceStep = {
   low: Dec;
@@ -131,16 +132,7 @@ export const FeeButtons: FunctionComponent<FeeButtonsProps> = ({
     }
   }, [feeAverage, feeHigh, feeLow, feeSelect, name, setValue]);
 
-  const formatDollarString = (s: string) => {
-    if (parseFloat(s) < 0.01) return "< $.01";
 
-    return (
-      "$" +
-      parseFloat(s)
-        .toFixed(2)
-        .toLocaleString()
-    );
-  };
 
   /**
    * Get the dollar price of the fee as a 2 sig fig string
@@ -148,9 +140,9 @@ export const FeeButtons: FunctionComponent<FeeButtonsProps> = ({
    * @param fee
    */
   const dollarPrice = (fee: Int): string => {
-    fee = divideByDecimals(fee.toString(), currency.coinDecimals);
+    const divided = divideByDecimals(fee.toString(), currency.coinDecimals);
 
-    const amount = new Dec(fee).mul(price).toString();
+    const amount = new Dec(divided).mul(price).toString();
 
     return formatDollarString(amount);
   };

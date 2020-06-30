@@ -1,5 +1,4 @@
 import { ChainInfo } from "../../chain-info";
-import { WalletProvider } from "@everett-protocol/cosmosjs/core/walletProvider";
 import { Context } from "@everett-protocol/cosmosjs/core/context";
 import { GaiaRest } from "@everett-protocol/cosmosjs/gaia/rest";
 import { Codec } from "@node-a-team/ts-amino";

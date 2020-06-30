@@ -169,7 +169,7 @@ export const CustomEndpoint: FunctionComponent<CustomEndpointProps> = observer(
         setCustomEndpointHasError(true);
         setCustomEndpointOutput(
           intl.formatMessage({
-            id: "register.custom.endpoint.url.invalid.rest"
+            id: "register.custom.endpoint.url.invalid.rpc"
           })
         );
         return;
@@ -180,7 +180,6 @@ export const CustomEndpoint: FunctionComponent<CustomEndpointProps> = observer(
       const msg = GetChainIdMsg.create(customRPC);
       //todo look at how error is handled here. maybe send some message to user
       const res = await sendMessage(BACKGROUND_PORT, msg);
-      debugger;
       // success we then add the custom endpoint
       await ActiveEndpoint.addCustomEndpoint(
         customName,

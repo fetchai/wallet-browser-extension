@@ -21,7 +21,11 @@ import { lightModeEnabled } from "../../light-mode";
 import { autorun } from "mobx";
 import { insertCommas } from "../../../../common/utils/insert-commas";
 import { Price } from "../../stores/price";
-import {divideByDecimals} from "../../../../common/utils/divide-decimals";
+import { divideByDecimals } from "../../../../common/utils/divide-decimals";
+
+// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+// @ts-ignore
+import removeTrailingZeros from "remove-trailing-zeros";
 
 export const AssetView: FunctionComponent = observer(() => {
   const { chainStore, accountStore, priceStore } = useStore();
@@ -91,7 +95,6 @@ export const AssetView: FunctionComponent = observer(() => {
       return "0";
     }
 
-
     const coinAmount: string = divideByDecimals(
       amount.toString(),
       nativeCurrency.coinDecimals
@@ -103,14 +106,12 @@ export const AssetView: FunctionComponent = observer(() => {
       amount = cutOffDecimals(amount);
       return "$" + parseFloat(amount).toLocaleString();
     } else {
-      const d =
-        "$" +
-        parseFloat(
-          (fiat as Price).value.mul(new Dec(coinAmount)).toString()
-        ).toLocaleString();
+      const d = parseFloat(
+        (fiat as Price).value.mul(new Dec(coinAmount)).toString()
+      ).toFixed(4);
 
-
-      return d;
+      const r = "$" + removeTrailingZeros(d).toLocaleString();
+      return r;
     }
   };
 
@@ -138,10 +139,8 @@ export const AssetView: FunctionComponent = observer(() => {
       nativeCurrency.coinDecimals
     );
 
-    return output;
+    return parseFloat(output).toFixed(4);
   };
-
-
 
   const getCurrencyAmount = () => {
     const selected = selectedDenom;

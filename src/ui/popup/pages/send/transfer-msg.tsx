@@ -3,7 +3,6 @@ import { Coin } from "@everett-protocol/cosmosjs/common/coin";
 import { Msg } from "@everett-protocol/cosmosjs/core/tx";
 import { Codec, Type, Amino } from "@node-a-team/ts-amino";
 import { hexEthAddressToUint8Array } from "../../../../../src/common/utils/buffer-convert";
-import Web3 from "web3";
 const { DefineStruct, Field } = Amino;
 
 @DefineStruct()
@@ -50,7 +49,6 @@ export class LockMessage extends Msg {
     }
   )
   public ethereumReceiver: Uint8Array;
-  private web3 = new Web3();
 
   constructor(
     cosmosSender: AccAddress,
