@@ -2,12 +2,16 @@
 @import "~argon-dashboard-react/src/assets/scss/argon-dashboard/custom/functions";
 @import "~argon-dashboard-react/src/assets/scss/argon-dashboard/custom/mixins";
 @import "~argon-dashboard-react/src/assets/scss/argon-dashboard/custom/variables";
+@import "../../popup/styles/var";
 
 .input {
   box-shadow: $input-alternative-box-shadow !important;
 
+  border:none;
   &:focus {
     box-shadow: $input-focus-alternative-box-shadow !important;
+    background: none;
+    border:none;
 
     & + .select {
       box-shadow: $input-focus-alternative-box-shadow !important;
@@ -15,44 +19,55 @@
   }
 }
 
-.select-container {
-  &::after {
-    border-radius: 2px;
-    content: " ";
-    display: block;
-    height: 0.625em;
-    margin-top: -0.4375em;
-    pointer-events: none;
-    position: absolute;
-    top: 50%;
-    transform: rotate(-45deg);
-    transform-origin: center;
-    width: 0.625em;
-    border: 0 solid black;
-    border-bottom-width: 3px;
-    border-left-width: 3px;
-    right: 1.125em;
-    z-index: 4;
-  }
+:global(.light-mode) {
+ .input {
+   box-shadow: none !important;
+   &:focus {
+     box-shadow: none !important;
+   }
+      & + .select {
+        box-shadow: none !important;
+      }
+   }
+ }
 
-  &:global(.disabled) {
-    &::after {
-      border-color: #aaaaaa;
-    }
-  }
+.fet {
+    margin: auto;
+    padding-right: 10px;
 }
 
 .select {
+
+  background-color: inherit;
+  color: white;
   box-shadow: $input-alternative-box-shadow !important;
   border: none;
   text-align-last: center;
 
   flex: 0 !important;
-  min-width: 100px;
+  min-width: 75px;
+    margin-right: 10px;
+  & option {
+    background-color: #1e2844;
+    color: white;
+    border-radius: 5px;
+    border-color: white;
+  }
 
-  -moz-appearance: none;
-  -webkit-appearance: none;
-  appearance: none;
+}
+
+.single-currency {
+  margin: auto 10px;
+}
+
+:global(.light-mode) {
+  .select {
+     color: $light-mode-grey;
+     & option {
+         background-color: #eaf1f3;
+          color: $light-mode-grey;
+    }
+  }
 }
 
 .balance {

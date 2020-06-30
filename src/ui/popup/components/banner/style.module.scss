@@ -8,28 +8,57 @@
 }
 
 .flex-horizontal {
+      position: absolute;
   display: flex;
   flex-direction: row;
 }
 
+.video {
+  top: 0;
+  float: left;
+  width: 100%;
+}
+
+.video > video {
+  display: block;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+}
+
+
 .empty {
+      position: absolute;
   flex: 1;
 }
 
 .icon {
   object-fit: contain;
   height: 100px;
-
   margin-bottom: 30px;
 }
 
 .logo {
-  object-fit: contain;
-  height: 32px;
-
-  margin-bottom: 4px;
+ position: absolute;
+  top: 1px;
+  width: 150px;
 }
+
+.light-mode {
+.logo {
+   img {
+    filter: invert(1);
+  }
+}
+}
+
 
 .subtitle {
   font-size: 18px;
+      position: absolute;
+    width: 300px;
+    top: 461px;
+    left: 100px;
 }

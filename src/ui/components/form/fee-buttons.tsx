@@ -6,8 +6,8 @@ import React, {
   useState
 } from "react";
 
+import style from "./form.module.scss";
 import styleFeeButtons from "./fee-buttons.module.scss";
-
 import { Currency } from "../../../chain-info";
 import { Dec } from "@everett-protocol/cosmosjs/common/decimal";
 import { Coin } from "@everett-protocol/cosmosjs/common/coin";
@@ -23,6 +23,9 @@ import {
 } from "reactstrap";
 
 import classnames from "classnames";
+import { Int } from "@everett-protocol/cosmosjs/common/int";
+import { divideByDecimals } from "../../../common/utils/divide-decimals";
+import {formatDollarString} from "../../../common/utils/formatDollarStringFee";
 
 export type GasPriceStep = {
   low: Dec;
@@ -129,6 +132,21 @@ export const FeeButtons: FunctionComponent<FeeButtonsProps> = ({
     }
   }, [feeAverage, feeHigh, feeLow, feeSelect, name, setValue]);
 
+
+
+  /**
+   * Get the dollar price of the fee as a 2 sig fig string
+   *
+   * @param fee
+   */
+  const dollarPrice = (fee: Int): string => {
+    const divided = divideByDecimals(fee.toString(), currency.coinDecimals);
+
+    const amount = new Dec(divided).mul(price).toString();
+
+    return formatDollarString(amount);
+  };
+
   const [inputId] = useState(() => {
     const bytes = new Uint8Array(4);
     crypto.getRandomValues(bytes);
@@ -138,15 +156,15 @@ export const FeeButtons: FunctionComponent<FeeButtonsProps> = ({
   return (
     <FormGroup>
       {label ? (
-        <Label for={inputId} className="form-control-label">
+        <Label for={inputId} className={style.formControlLabel}>
           {label}
         </Label>
       ) : null}
       <ButtonGroup id={inputId} className={styleFeeButtons.buttons}>
         <Button
           type="button"
+          id={feeSelect === FeeSelect.LOW ? "green-solid" : ""}
           className={styleFeeButtons.button}
-          color={feeSelect === FeeSelect.LOW ? "primary" : undefined}
           onClick={useCallback((e: MouseEvent) => {
             setFeeSelect(FeeSelect.LOW);
             e.preventDefault();
@@ -159,14 +177,7 @@ export const FeeButtons: FunctionComponent<FeeButtonsProps> = ({
             })}
           >
             {price.gt(new Dec(0)) && feeLow
-              ? `$${DecUtils.removeTrailingZerosFromDecStr(
-                  new Dec(feeLow.amount)
-                    .quoTruncate(
-                      DecUtils.getPrecisionDec(currency.coinDecimals)
-                    )
-                    .mul(price)
-                    .toString(4)
-                )}`
+              ? `${dollarPrice(feeLow.amount)}`
               : "?"}
           </div>
           <div
@@ -177,12 +188,13 @@ export const FeeButtons: FunctionComponent<FeeButtonsProps> = ({
             {feeLow
               ? `${DecUtils.removeTrailingZerosFromDecStr(
                   CoinUtils.parseDecAndDenomFromCoin(feeLow).amount
-                )}${currency.coinDenom}`
+                )} ${currency.coinMinimalDenom}`
               : "loading"}
           </div>
         </Button>
         <Button
           type="button"
+          id={feeSelect === FeeSelect.AVERAGE ? "green-solid" : ""}
           className={styleFeeButtons.button}
           color={feeSelect === FeeSelect.AVERAGE ? "primary" : undefined}
           onClick={useCallback((e: MouseEvent) => {
@@ -197,14 +209,7 @@ export const FeeButtons: FunctionComponent<FeeButtonsProps> = ({
             })}
           >
             {price.gt(new Dec(0)) && feeAverage
-              ? `$${DecUtils.removeTrailingZerosFromDecStr(
-                  new Dec(feeAverage.amount)
-                    .quoTruncate(
-                      DecUtils.getPrecisionDec(currency.coinDecimals)
-                    )
-                    .mul(price)
-                    .toString(4)
-                )}`
+              ? `${dollarPrice(feeAverage.amount)}`
               : "?"}
           </div>
           <div
@@ -215,14 +220,14 @@ export const FeeButtons: FunctionComponent<FeeButtonsProps> = ({
             {feeAverage
               ? `${DecUtils.removeTrailingZerosFromDecStr(
                   CoinUtils.parseDecAndDenomFromCoin(feeAverage).amount
-                )}${currency.coinDenom}`
+                )} ${currency.coinMinimalDenom}`
               : "loading"}
           </div>
         </Button>
         <Button
           type="button"
           className={styleFeeButtons.button}
-          color={feeSelect === FeeSelect.HIGH ? "primary" : undefined}
+          id={feeSelect === FeeSelect.HIGH ? "green-solid" : ""}
           onClick={useCallback((e: MouseEvent) => {
             setFeeSelect(FeeSelect.HIGH);
             e.preventDefault();
@@ -235,14 +240,7 @@ export const FeeButtons: FunctionComponent<FeeButtonsProps> = ({
             })}
           >
             {price.gt(new Dec(0)) && feeHigh
-              ? `$${DecUtils.removeTrailingZerosFromDecStr(
-                  new Dec(feeHigh.amount)
-                    .quoTruncate(
-                      DecUtils.getPrecisionDec(currency.coinDecimals)
-                    )
-                    .mul(price)
-                    .toString(4)
-                )}`
+              ? `${dollarPrice(feeHigh.amount)}`
               : "?"}
           </div>
           <div
@@ -253,7 +251,7 @@ export const FeeButtons: FunctionComponent<FeeButtonsProps> = ({
             {feeHigh
               ? `${DecUtils.removeTrailingZerosFromDecStr(
                   CoinUtils.parseDecAndDenomFromCoin(feeHigh).amount
-                )}${currency.coinDenom}`
+                )} ${currency.coinMinimalDenom}`
               : "loading"}
           </div>
         </Button>

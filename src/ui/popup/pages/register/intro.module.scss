@@ -5,17 +5,20 @@
 
   width: 100%;
   min-height: 144px;
+  color: white;
 
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2), 0 2px 1px -1px rgba(0, 0, 0, 0.12),
     0 1px 1px 0 rgba(0, 0, 0, 0.14);
-  background-color: #fafafa;
 
   .icon {
     margin: 0 24px;
+    color: white;
+
   }
 
   .arrow {
     margin: 0 18px;
+    color: white;
   }
 
   .description {
@@ -25,24 +28,50 @@
 
     .title {
       font-size: 24px;
-      letter-spacing: -1.07px;
+      letter-spacing: -2.2px;
+      font-weight: normal;
     }
 
     .content {
       font-size: 16px;
       letter-spacing: -0.71px;
-      color: #6b6b6b;
     }
   }
 
-  &:not(:last-of-type) {
-    margin-bottom: 20px;
-  }
+  //&:not(:last-of-type) {
+  //  margin-bottom: 21px;
+  //}
 }
 
 .sub-content {
-  font-size: 16px;
+  font-size: 13px;
   letter-spacing: -0.31px;
   text-align: center;
-  color: #a7a7a7;
+  color: #d1dbe0;
+}
+
+.top {
+  background-color: red;
+  border-color: rgba(43, 181, 162, 1);
+  border-style: solid;
+  border-width: 13px;
+}
+
+.bottom {
+  background-color: rgba(88, 135, 218, 0.3);
+  border-color: rgba(88, 135, 218, 1);
+  border-style: solid;
+  border-width: 3px;
+}
+
+.error {
+  display:block;
+  color: red;
+  height: 21px;
+      font-size: 13px;
+      text-align: center;
+}
+
+.multiline-error {
+  height: 40px;
 }

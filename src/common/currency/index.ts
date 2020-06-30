@@ -50,6 +50,41 @@ export function getCurrenciesFromDenoms(denoms: string[]): Currency[] {
   return currencies;
 }
 
+/**
+ * if this denom is within any currency in chain info we return name (first match)
+ */
+export function getCurrencyFromUnknownDenom(
+  denom: string
+): Currency | undefined {
+  for (const key in Currencies) {
+    const currency = Currencies[key];
+    if (denom === currency.coinMinimalDenom) {
+      return currency;
+    }
+
+    if (denom === currency.coinDenom) {
+      return currency;
+    }
+  }
+
+  return undefined;
+}
+
+/**
+ * We look through the predefined currencies and see if this denom is minimal or not.
+ *
+ * @param denom
+ */
+export function isMinimalDenom(denom: string): boolean {
+  for (const key in Currencies) {
+    const currency = Currencies[key];
+    if (denom === currency.coinMinimalDenom) {
+      return true;
+    }
+  }
+  return false;
+}
+
 export function getCurrencyFromMinimalDenom(
   denom: string
 ): Currency | undefined {

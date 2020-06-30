@@ -1,4 +1,3 @@
-import { KeyRingKeeper } from "../keyring/keeper";
 import Axios, { AxiosInstance } from "axios";
 
 import { Context, IContext } from "@everett-protocol/cosmosjs/core/context";
@@ -7,6 +6,7 @@ import {
   ResultBroadcastTx,
   ResultBroadcastTxCommit
 } from "@everett-protocol/cosmosjs/rpc/tx";
+import ActiveEndpoint from "../../common/utils/active-endpoint";
 
 const Buffer = require("buffer/").Buffer;
 
@@ -24,16 +24,11 @@ interface ABCIMessageLog {
 }
 
 export class BackgroundTxKeeper {
-  constructor(private keyRingKeeper: KeyRingKeeper) {}
 
-  async requestTx(
-    chainId: string,
-    txBytes: string,
-    mode: "sync" | "async" | "commit"
-  ) {
-    const info = this.keyRingKeeper.getChainInfo(chainId);
+  async requestTx(txBytes: string, mode: "sync" | "async" | "commit") {
+    const endpointData = await ActiveEndpoint.getActiveEndpoint();
     const instance = Axios.create({
-      baseURL: info.rpc
+      baseURL: endpointData.rpc
     });
 
     // Do not await.
@@ -58,9 +53,9 @@ export class BackgroundTxKeeper {
     try {
       browser.notifications.create({
         type: "basic",
-        iconUrl: browser.runtime.getURL("assets/temp-icon.svg"),
+        iconUrl: browser.runtime.getURL("assets/fetch-logo.svg"),
         title: "Tx is pending...",
-        message: "Wait a second"
+        message: ""
       });
 
       if (mode === "commit") {
@@ -84,13 +79,13 @@ export class BackgroundTxKeeper {
           throw new Error(result.deliverTx.log);
         }
       }
-
+      // AFB9A1A5871026052D2D49CEC6007D6CA57C0B00C214C06C45B16171D05F277F
       browser.notifications.create({
         type: "basic",
-        iconUrl: browser.runtime.getURL("assets/temp-icon.svg"),
-        title: "Tx succeeds",
+        iconUrl: browser.runtime.getURL("assets/fetch-logo.svg"),
+        title: "Transaction succeeded",
         // TODO: Let users know the tx id?
-        message: "Congratulations!"
+        message: ""
       });
     } catch (e) {
       console.log(e);
@@ -135,14 +130,10 @@ export class BackgroundTxKeeper {
 
       browser.notifications.create({
         type: "basic",
-        iconUrl: browser.runtime.getURL("assets/temp-icon.svg"),
-        title: "Tx failed",
+        iconUrl: browser.runtime.getURL("assets/fetch-logo.svg"),
+        title: "Transaction failed",
         message
       });
     }
-  }
-
-  checkAccessOrigin(chainId: string, origin: string) {
-    this.keyRingKeeper.checkAccessOrigin(chainId, origin);
   }
 }

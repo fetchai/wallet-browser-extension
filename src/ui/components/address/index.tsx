@@ -6,13 +6,27 @@ import { shortenAddress } from "../../../common/address";
 export interface AddressProps {
   maxCharacters: number;
   children: string;
+  dotNumber?: number;
   tooltipFontSize?: string;
   tooltipAddress?: string;
-
-  lineBreakBeforePrefix?: boolean;
+  bech32Address: string;
 }
 
-export class Address extends React.Component<AddressProps> {
+export interface AddressState {
+  copied: boolean;
+}
+
+export class Address extends React.Component<AddressProps, AddressState> {
+  constructor(props: any) {
+    super(props);
+    this.copy = this.copy.bind(this);
+    this.toolTipText = this.toolTipText.bind(this);
+
+    this.state = {
+      copied: false
+    };
+  }
+
   copyRef = React.createRef<HTMLDivElement>();
 
   componentDidMount(): void {
@@ -27,36 +41,45 @@ export class Address extends React.Component<AddressProps> {
     }
   }
 
+  toolTipText(tooltipAddress: string): JSX.Element | string {
+    if (this.state.copied) {
+      return <div key={1}>Copied!</div>;
+    }
+
+    return tooltipAddress;
+  }
+
+  async copy(): Promise<void> {
+    this.setState({ copied: true });
+    await navigator.clipboard.writeText(this.props.bech32Address);
+  }
+
   render() {
-    const { tooltipFontSize, lineBreakBeforePrefix, children } = this.props;
+    const { tooltipFontSize, children } = this.props;
 
     const tooltipAddress = this.props.tooltipAddress
       ? this.props.tooltipAddress
       : children;
 
+    const dotNumber = this.props.dotNumber ? this.props.dotNumber : null;
     return (
-      <ToolTip
-        trigger="hover"
-        options={{ placement: "top" }}
-        tooltip={
-          <div
-            ref={this.copyRef}
-            className="address-tooltip"
-            style={{ fontSize: tooltipFontSize }}
-          >
-            {lineBreakBeforePrefix && tooltipAddress.length > 0
-              ? tooltipAddress.split("1").map((item, i) => {
-                  if (i === 0) {
-                    return <div key={i}>{item + "1"}</div>;
-                  }
-                  return <div key={i}>{item}</div>;
-                })
-              : tooltipAddress}
-          </div>
-        }
-      >
-        {shortenAddress(children, this.props.maxCharacters)}
-      </ToolTip>
+      <div onClick={this.copy}>
+        <ToolTip
+          trigger="hover"
+          options={{ placement: "bottom" }}
+          tooltip={
+            <div
+              ref={this.copyRef}
+              className={"tool-tip"}
+              style={{ fontSize: tooltipFontSize }}
+            >
+              {this.toolTipText(tooltipAddress)}
+            </div>
+          }
+        >
+          {shortenAddress(children, this.props.maxCharacters, dotNumber)}
+        </ToolTip>
+      </div>
     );
   }
 
@@ -65,6 +88,7 @@ export class Address extends React.Component<AddressProps> {
       // Remove line breaks.
       const pre = await navigator.clipboard.readText();
       await navigator.clipboard.writeText(pre.replace(/(\r\n|\n|\r)/gm, ""));
+      this.setState({ copied: true });
     }
   };
 }

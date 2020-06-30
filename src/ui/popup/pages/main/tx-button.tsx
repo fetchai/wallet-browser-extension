@@ -8,22 +8,14 @@ import React, {
 } from "react";
 
 import styleTxButton from "./tx-button.module.scss";
-
 import { Button, Tooltip } from "reactstrap";
 import { Address } from "../../../components/address";
-
 import { observer } from "mobx-react";
-
 import { useStore } from "../../stores";
-
 import Modal from "react-modal";
-import { useNotification } from "../../../components/notification";
-
 import { FormattedMessage } from "react-intl";
 import { useHistory } from "react-router";
-
 import classnames from "classnames";
-
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const QrCode = require("qrcode");
 
@@ -38,28 +30,6 @@ const DepositModal: FunctionComponent<{
     }
   }, [bech32Address]);
 
-  const notification = useNotification();
-
-  const copyAddress = useCallback(
-    async (e: MouseEvent) => {
-      await navigator.clipboard.writeText(bech32Address);
-      // TODO: Show success tooltip.
-      notification.push({
-        placement: "top-center",
-        type: "success",
-        duration: 2,
-        content: "Address copied!",
-        canDelete: true,
-        transition: {
-          duration: 0.25
-        }
-      });
-
-      e.preventDefault();
-    },
-    [notification, bech32Address]
-  );
-
   return (
     <div
       style={{ display: "flex", flexDirection: "column", height: "250px" }}
@@ -71,11 +41,11 @@ const DepositModal: FunctionComponent<{
         <canvas id="qrcode" ref={qrCodeRef} />
         <div style={{ flex: 1 }} />
       </div>
-      <div className={styleTxButton.address} onClick={copyAddress}>
+      <div className={styleTxButton.address}>
         <Address
           maxCharacters={28}
-          lineBreakBeforePrefix={false}
           tooltipFontSize="12px"
+          bech32Address={bech32Address}
         >
           {bech32Address}
         </Address>
@@ -101,11 +71,17 @@ export const TxButtonView: FunctionComponent = observer(() => {
 
   const history = useHistory();
 
+  useEffect(() => {
+    document.body.style.backgroundColor = isDepositOpen
+      ? "rgb(234, 241, 243)"
+      : "transparent";
+  }, [isDepositOpen]);
+
   const onSendButton = useCallback(
     (e: MouseEvent) => {
-      if (accountStore.assets.length !== 0) {
-        history.push("/send");
-      }
+      // if (accountStore.assets.length !== 0) {
+      history.push("/send");
+      // }
 
       e.preventDefault();
     },
@@ -124,8 +100,7 @@ export const TxButtonView: FunctionComponent = observer(() => {
         <DepositModal bech32Address={accountStore.bech32Address} />
       </Modal>
       <Button
-        className={styleTxButton.button}
-        color="primary"
+        className={classnames([styleTxButton.button, "blue"])}
         outline
         onClick={toggleDepositModal}
       >
@@ -137,11 +112,8 @@ export const TxButtonView: FunctionComponent = observer(() => {
         To solve this problem, don't add "disabled" property to button tag and just add "disabled" class manually.
        */}
       <Button
-        id="btn-send"
-        className={classnames(styleTxButton.button, {
-          disabled: accountStore.assets.length === 0
-        })}
-        color="primary"
+        id="green"
+        className={classnames(styleTxButton.button, "green")}
         outline
         onClick={onSendButton}
       >
@@ -151,7 +123,7 @@ export const TxButtonView: FunctionComponent = observer(() => {
         <Tooltip
           placement="bottom"
           isOpen={tooltipOpen}
-          target="btn-send"
+          target="green"
           toggle={toogleTooltip}
           fade
         >

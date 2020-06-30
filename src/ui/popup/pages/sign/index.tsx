@@ -6,15 +6,11 @@ import React, {
 } from "react";
 import { Button } from "reactstrap";
 import { RouteComponentProps } from "react-router";
-
 import { HeaderLayout } from "../../layouts";
-
 import style from "./style.module.scss";
-
 import queryString from "query-string";
 import { useStore } from "../../stores";
 import { useSignature } from "../../../hooks";
-
 import classnames from "classnames";
 import { DataTab } from "./data-tab";
 import { DetailsTab } from "./details-tab";
@@ -24,6 +20,11 @@ import {
   enableScroll,
   fitWindow
 } from "../../../../common/window";
+import { lightModeEnabled } from "../../light-mode";
+import { LedgerNanoMsg } from "../../../../background/ledger-nano";
+import { METHODS } from "../../../../background/ledger-nano/constants";
+import { sendMessage } from "../../../../common/message/send";
+import { BACKGROUND_PORT } from "../../../../common/message/constant";
 
 enum Tab {
   Details,
@@ -35,6 +36,13 @@ export const SignPage: FunctionComponent<RouteComponentProps<{
 }>> = ({ history, match, location }) => {
   const query = queryString.parse(location.search);
   const external = query.external ?? false;
+  const [lightMode, setLightMode] = useState(false);
+  const [hardwareErrorMessage, setHardwareErrorMessage] = useState("");
+  // if we require a ledger nano but it is unavailable then we set this variable to disable the sending of transaction
+  const [
+    isNanoUnavailableAndRequired,
+    setIsNanoUnavailableAndRequired
+  ] = useState(false);
 
   useEffect(() => {
     if (external) {
@@ -43,7 +51,37 @@ export const SignPage: FunctionComponent<RouteComponentProps<{
     } else {
       enableScroll();
     }
-  }, [external]);
+
+    const isEnabled = async () => {
+      const enabled = await lightModeEnabled();
+      setLightMode(enabled);
+    };
+    isEnabled();
+  }, [external, lightMode, setLightMode]);
+
+  // on mount we check if it is hardware linked wallet and if it is then we show an info message staying the issue.
+  useEffect(() => {
+    (async () => {
+      const hardwareLinked: boolean = await keyRingStore.isHardwareLinked();
+      if (hardwareLinked) {
+        let hardwareError = false;
+
+        const msg = LedgerNanoMsg.create(METHODS.isCosmosAppOpen);
+        const result = await sendMessage(BACKGROUND_PORT, msg);
+
+        if (typeof result.errorMessage !== "undefined") {
+          setHardwareErrorMessage(result.errorMessage);
+          setIsNanoUnavailableAndRequired(true);
+          hardwareError = true;
+          return;
+        }
+
+        if (!hardwareError) {
+          setHardwareErrorMessage("");
+        }
+      }
+    })();
+  }, []);
 
   const id = match.params.id;
 
@@ -51,17 +89,9 @@ export const SignPage: FunctionComponent<RouteComponentProps<{
 
   const intl = useIntl();
 
-  const { chainStore } = useStore();
+  const { keyRingStore } = useStore();
 
-  const signing = useSignature(
-    id,
-    useCallback(
-      chainId => {
-        chainStore.setChain(chainId);
-      },
-      [chainStore]
-    )
-  );
+  const signing = useSignature(id);
 
   useEffect(() => {
     // Force reject when closing window.
@@ -87,7 +117,28 @@ export const SignPage: FunctionComponent<RouteComponentProps<{
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [signing.reject, signing.id, external]);
 
+  const resolveError = () => {
+    setIsNanoUnavailableAndRequired(false);
+  };
+
   const onApproveClick = useCallback(async () => {
+    const hardwareLinked: boolean = await keyRingStore.isHardwareLinked();
+    if (hardwareLinked) {
+      const hardwareError = false;
+
+      // try {
+      //   await LedgerNano.testDevice();
+      // } catch (error) {
+      //   setHardwareErrorMessage(error.message);
+      //   hardwareError = true;
+      //   return;
+      // }
+
+      if (!hardwareError) {
+        setHardwareErrorMessage("");
+      }
+    }
+
     if (signing.approve) {
       await signing.approve();
     }
@@ -111,7 +162,6 @@ export const SignPage: FunctionComponent<RouteComponentProps<{
 
   return (
     <HeaderLayout
-      showChainName
       canChangeChainInfo={false}
       onBackButton={
         !external
@@ -120,7 +170,8 @@ export const SignPage: FunctionComponent<RouteComponentProps<{
             }
           : undefined
       }
-      style={{ background: "white" }}
+      style={{ background: "none" }}
+      lightMode={lightMode}
     >
       <div className={style.container}>
         <div className={classnames(style.tabs)}>
@@ -151,16 +202,20 @@ export const SignPage: FunctionComponent<RouteComponentProps<{
             </li>
           </ul>
         </div>
-        <div className={style.tabContainer}>
+        <div className={classnames(style.tabContainer, "custom-scrollbar")}>
           {tab === Tab.Data ? <DataTab message={signing.message} /> : null}
           {tab === Tab.Details ? (
-            <DetailsTab message={signing.message} />
+            <DetailsTab
+              message={signing.message}
+              hardwareErrorMessage={hardwareErrorMessage}
+              resolveError={resolveError}
+            />
           ) : null}
         </div>
         <div style={{ flex: 1 }} />
         <div className={style.buttons}>
           <Button
-            className={style.button}
+            className={classnames(style.button, "blue")}
             color="danger"
             disabled={
               signing.message == null ||
@@ -172,16 +227,17 @@ export const SignPage: FunctionComponent<RouteComponentProps<{
             outline
           >
             {intl.formatMessage({
-              id: "sign.button.reject"
+              id: "sign.button.cancel"
             })}
           </Button>
           <Button
-            className={style.button}
+            className={classnames(style.button, "green")}
             color="primary"
             disabled={
               signing.message == null ||
               signing.message === "" ||
-              signing.initializing
+              signing.initializing ||
+              isNanoUnavailableAndRequired
             }
             data-loading={signing.requested}
             onClick={onApproveClick}

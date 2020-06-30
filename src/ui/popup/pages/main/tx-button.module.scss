@@ -1,16 +1,22 @@
 @import "../../styles/var";
 
 .container-tx-button {
-  display: flex;
+  display: block;
   flex-direction: row;
 
   .button {
     flex: 1;
-
-    margin-right: $layout-margin;
+    border-radius: 4px;
+    display: block;
+    width: 100%;
+    margin: 10px $layout-margin auto auto;
 
     &:last-child {
       margin-right: 0;
+    }
+
+    &:last-of-type {
+      margin-top: 15px;
     }
   }
 }
@@ -23,8 +29,7 @@
     border: solid 1px #e6e6e6;
     border-radius: 100px;
     padding: 0 8px;
-
-    color: #474747;
+    color: 	#404040;
 
     cursor: pointer;
   }

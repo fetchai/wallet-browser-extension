@@ -69,9 +69,6 @@ export const useValidator = (baseUrl: string) => {
      * There will be a better naming.
      */
     let isMounted = true;
-
-    // Fetch thumbnail.
-    // Return whether there is a change
     const fetchThumbnail = async (
       reminder: number,
       len: number

@@ -9,7 +9,7 @@ export interface Currency {
   coinMinimalDenom: string;
   coinDecimals: number;
   /**
-   * This is used to fetch asset's fiat value from coingecko.
+   * This is used to stakech asset's fiat value from coingecko.
    * You can get id from https://api.coingecko.com/api/v3/coins/list.
    */
   coinGeckoId?: string;
@@ -17,39 +17,45 @@ export interface Currency {
 
 /**
  * Currencis include the currency information for matched coin.
+ *
+ * Note: do not allow two coins with Minimal denom of same name.
  */
 export const Currencies: {
   readonly [currency: string]: Currency;
 } = {
-  atom: {
-    coinDenom: "ATOM",
-    coinMinimalDenom: "uatom",
-    coinDecimals: 6,
-    coinGeckoId: "cosmos"
-  },
-  kava: {
-    coinDenom: "KAVA",
-    coinMinimalDenom: "ukava",
-    coinDecimals: 6,
-    coinGeckoId: "kava"
+  testfet: {
+    coinDenom: "testfet",
+    coinMinimalDenom: "atestfet",
+    coinDecimals: 18,
+    coinGeckoId: "fetch-ai"
   }
 };
 
-export interface ChainInfo {
+/**
+ * Currently just put an array of endpoints in this variable, and
+ * this is used for drop down for users to select from different endpoints,
+ *
+ *
+ * The default endpoint selects which of these endpoints is the default one if user doesn't change things in settings.
+ */
+
+export interface EndpointData {
   readonly rpc: string;
+  readonly name: string;
   readonly rest: string;
   readonly chainId: string;
-  readonly chainName: string;
+}
+
+export interface ChainInfo {
+  readonly endpoints: Array<EndpointData>;
+  readonly defaultEndpoint: string;
   /**
    * This indicates the type of coin that can be used for stake.
    * You can get actual currency information from Currencies.
    */
   readonly nativeCurrency: string;
-  readonly walletUrl: string;
-  readonly walletUrlForStaking?: string;
   readonly bip44: BIP44;
   readonly bech32Config: Bech32Config;
-
   readonly currencies: string[];
   /**
    * This indicates which coin or token can be used for fee to send transaction.
@@ -65,44 +71,33 @@ export interface ChainInfo {
 
 export const NativeChainInfos: ChainInfo[] = [
   {
-    rpc: "https://node-cosmoshub-3.keplr.app/rpc",
-    rest: "https://node-cosmoshub-3.keplr.app/rest",
-    chainId: "cosmoshub-3",
-    chainName: "Cosmos",
-    nativeCurrency: "atom",
-    walletUrl:
-      process.env.NODE_ENV === "production"
-        ? "https://wallet.keplr.app/#/cosmoshub-3"
-        : "http://localhost:8081/#/cosmoshub-3",
-    walletUrlForStaking:
-      process.env.NODE_ENV === "production"
-        ? "https://wallet.keplr.app/#/cosmoshub-3"
-        : "http://localhost:8081/#/cosmoshub-3",
+    endpoints: [
+      {
+        name: "eae",
+        rpc: "http://aea-testnet.sandbox.fetch-ai.com:36657",
+        rest: "http://aea-testnet.sandbox.fetch-ai.com:1317",
+        chainId: "aea-testnet"
+      },
+      {
+        name: "pre-mainnet",
+        rpc: "http://pre-mainnet.sandbox.fetch-ai.com:12000",
+        rest: "http://pre-mainnet.sandbox.fetch-ai.com:12200",
+        chainId: "aea-testnet"
+      },
+      {
+        name: "agent-land",
+        rpc: " http://rpc-agent-land.sandbox.fetch-ai.com:26657",
+        rest: "http://rest-agent-land.sandbox.fetch-ai.com:1317",
+        chainId: "agent-land"
+      }
+    ],
+    defaultEndpoint: "eae",
+    nativeCurrency: "testfet",
     bip44: new BIP44(44, 118, 0),
     bech32Config: defaultBech32Config("cosmos"),
-    currencies: ["atom"],
-    feeCurrencies: ["atom"],
+    currencies: ["testfet"],
+    feeCurrencies: ["testfet"],
     coinType: 118
-  },
-  {
-    rpc: "https://node-kava-2.keplr.app/rpc",
-    rest: "https://node-kava-2.keplr.app/rest",
-    chainId: "kava-2",
-    chainName: "Kava",
-    nativeCurrency: "kava",
-    walletUrl:
-      process.env.NODE_ENV === "production"
-        ? "https://wallet.keplr.app/#/kava-2"
-        : "http://localhost:8081/#/kava-2",
-    walletUrlForStaking:
-      process.env.NODE_ENV === "production"
-        ? "https://wallet.keplr.app/#/kava-2"
-        : "http://localhost:8081/#/kava-2",
-    bip44: new BIP44(44, 118, 0),
-    bech32Config: defaultBech32Config("kava"),
-    currencies: ["kava"],
-    feeCurrencies: ["kava"],
-    coinType: 459
   }
 ];
 
@@ -111,22 +106,4 @@ export interface AccessOrigin {
   origins: string[];
 }
 
-/**
- * This declares which origins can access extension without explicit approval.
- */
-export const ExtensionAccessOrigins: AccessOrigin[] = [
-  {
-    chainId: "cosmoshub-3",
-    origins:
-      process.env.NODE_ENV === "production"
-        ? ["https://wallet.keplr.app"]
-        : ["http://localhost:8081"]
-  },
-  {
-    chainId: "kava-2",
-    origins:
-      process.env.NODE_ENV === "production"
-        ? ["https://wallet.keplr.app"]
-        : ["http://localhost:8081"]
-  }
-];
+

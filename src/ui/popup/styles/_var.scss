@@ -1,11 +1,18 @@
-$background-color: #fafbfd;
-
-$popup-size-width: 360px;
-$popup-size-height: 580px;
-
+$background-color: none;
+$popup-size-width: 337px;
+$popup-size-height: 599px;
 $header-height: 64px;
-
 $layout-padding: 12px;
 $layout-margin: 12px;
-
 $main-card-padding: 16px;
+
+$grey: #8888;
+$grey-no-opacity: rgba(80,80,81,1);
+$grey-main: rgba(154, 180, 191, 1);
+$fetch-blue: #1e2844;
+
+$light-mode-blue: rgb(28, 40, 70);
+$light-mode-grey: rgb(91, 96, 101);
+
+/* the grey used for the fill property in one svg icon, this is then used to match with other icons only on pages where that icon is shown */
+$multi-account-icon-grey: #5c6065

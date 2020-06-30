@@ -14,9 +14,8 @@ import {
 } from "../../../components/form";
 import { RouteComponentProps } from "react-router-dom";
 import { useStore } from "../../stores";
-
 import { HeaderLayout } from "../../layouts";
-
+import { BackButton } from "../../layouts";
 import { PopupWalletProvider } from "../../wallet-provider";
 
 import { MsgSend } from "@everett-protocol/cosmosjs/x/bank";
@@ -38,13 +37,12 @@ import {
   getCurrency,
   getCurrencyFromDenom
 } from "../../../../common/currency";
-
 import style from "./style.module.scss";
-import { CoinUtils } from "../../../../common/coin-utils";
+import classnames from "classnames";
 import { Dec } from "@everett-protocol/cosmosjs/common/decimal";
 import { useNotification } from "../../../components/notification";
 import { Int } from "@everett-protocol/cosmosjs/common/int";
-
+import Web3 from "web3";
 import { useIntl } from "react-intl";
 import { Button } from "reactstrap";
 
@@ -54,6 +52,15 @@ import {
   isValidENS,
   useENS
 } from "../../../hooks/use-ens";
+import { SignOutButton } from "../main/sign-out";
+import { lightModeEnabled } from "../../light-mode";
+import { Currency } from "../../../../chain-info";
+import { ETHEREUM_CHAIN_ID, TOKEN_CONTRACT } from "../../../../config";
+import { BurnMessage, LockMessage } from "./transfer-msg";
+import { multiplybyDecimals } from "../../../../common/utils/multiply-decimals";
+import { countDecimalPlaces } from "../../../../common/utils/count-decimal-places";
+import { DecUtils } from "../../../../common/dec-utils";
+import { CoinUtils } from "../../../../common/coin-utils";
 
 interface FormData {
   recipient: string;
@@ -86,6 +93,23 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
       triggerValidation
     } = formMethods;
 
+    const [lightMode, setLightMode] = useState(false);
+    // flag specifying if cosmos being sent, or is ethereum being sent
+    const [isCosmosBeingSent, setisCosmosBeingSent] = useState(true);
+
+    const toggleCosmosBeingSent = () => {
+      const cosmos = isCosmosBeingSent;
+      setisCosmosBeingSent(!cosmos);
+    };
+
+    useEffect(() => {
+      const isEnabled = async () => {
+        const enabled = await lightModeEnabled();
+        setLightMode(enabled);
+      };
+      isEnabled();
+    }, [lightMode, setLightMode]);
+
     register(
       { name: "fee" },
       {
@@ -98,6 +122,13 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
     const notification = useNotification();
 
     const { chainStore, accountStore, priceStore } = useStore();
+
+    const nativeCurrency = getCurrency(
+      chainStore.chainInfo.nativeCurrency
+    ) as Currency;
+
+    const [denom, setDenom] = useState(nativeCurrency.coinDenom);
+
     const [walletProvider] = useState(
       new PopupWalletProvider(undefined, {
         onRequestSignature: (id: string) => {
@@ -129,18 +160,17 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
 
     const fee = watch("fee");
     const amount = watch("amount");
-    const denom = watch("denom");
 
-    useEffect(() => {
+    const balanceValidate = (fee: Coin | undefined, denom: string) => {
       if (allBalance) {
         setValue("amount", "");
 
         const currency = getCurrencyFromDenom(denom);
         if (fee && denom && currency) {
           let allAmount = new Int(0);
-          for (const balacne of accountStore.assets) {
-            if (balacne.denom === currency.coinMinimalDenom) {
-              allAmount = balacne.amount;
+          for (const balance of accountStore.assets) {
+            if (balance.denom === currency.coinMinimalDenom) {
+              allAmount = balance.amount;
               break;
             }
           }
@@ -161,23 +191,42 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
           }
         }
       }
-    }, [fee, accountStore.assets, allBalance, setValue, denom]);
+    };
 
-    useEffect(() => {
+    const amountValidate = (
+      amount: string,
+      denom: string,
+      fee: Coin | undefined
+    ) => {
       const feeAmount = fee ? fee.amount : new Int(0);
       const currency = getCurrencyFromDenom(denom);
       try {
         if (currency && amount) {
           let find = false;
-          for (const balacne of accountStore.assets) {
-            if (balacne.denom === currency.coinMinimalDenom) {
-              let precision = new Dec(1);
-              for (let i = 0; i < currency.coinDecimals; i++) {
-                precision = precision.mul(new Dec(10));
-              }
 
-              const amountInt = new Dec(amount).mul(precision).truncate();
-              if (amountInt.add(feeAmount).gt(balacne.amount)) {
+          if (countDecimalPlaces(amount) > currency.coinDecimals) {
+            setError(
+              "amount",
+              "not-enough-fund",
+              intl.formatMessage({
+                id: "send.input.amount.error.precision-error"
+              })
+            );
+            return;
+          }
+
+          amount = DecUtils.sanitizeDecimal(amount);
+          const amountInATestFet = multiplybyDecimals(
+            new Dec(amount),
+            currency.coinDecimals
+          );
+
+          for (const balance of accountStore.assets) {
+            if (balance.denom === currency.coinMinimalDenom) {
+              const totalCost = amountInATestFet.add(
+                new Dec(feeAmount.toString())
+              );
+              if (totalCost.gt(new Dec(balance.amount.toString()))) {
                 setError(
                   "amount",
                   "not-enough-fund",
@@ -198,7 +247,7 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
               "amount",
               "not-enough-fund",
               intl.formatMessage({
-                id: "send.input.amount.error.insufficient"
+                id: "send.input.amount.error.no-funds"
               })
             );
           }
@@ -208,16 +257,10 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
       } catch {
         clearError("amount");
       }
-    }, [accountStore.assets, amount, clearError, denom, fee, intl, setError]);
+    };
 
     const recipient = watch("recipient");
     const ens = useENS(chainStore.chainInfo, recipient);
-
-    useEffect(() => {
-      if (isValidENS(recipient)) {
-        triggerValidation({ name: "recipient" });
-      }
-    }, [ens, recipient, triggerValidation]);
 
     const switchENSErrorToIntl = (e: Error) => {
       if (e instanceof InvalidENSNameError) {
@@ -239,216 +282,326 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
       }
     };
 
+    const hasError = (errors: any, ens: any) => {
+      if (!isCosmosBeingSent)
+        return errors.recipient && errors.recipient.message;
+      else
+        return (
+          (isValidENS(recipient) &&
+            ens.error &&
+            switchENSErrorToIntl(ens.error)) ||
+          (errors.recipient && errors.recipient.message)
+        );
+    };
+
     return (
       <HeaderLayout
-        showChainName
         canChangeChainInfo={false}
-        onBackButton={() => {
-          history.goBack();
-        }}
+        fetchIcon={true}
+        rightRenderer={<SignOutButton />}
+        lightMode={lightMode}
       >
-        <form
-          className={style.formContainer}
-          onSubmit={e => {
-            // React form hook doesn't block submitting when error is delivered outside.
-            // So, jsut check if errors exists manually, and if it exists, do nothing.
-            if (errors.amount && errors.amount.message) {
-              e.preventDefault();
-              return;
-            }
+        <div className={style.wrapper}>
+          <BackButton
+            onClick={() => {
+              history.goBack();
+            }}
+            stroke={4}
+            style={{ height: "24px" }}
+            className={style.backButton}
+            lightMode={lightMode}
+          ></BackButton>
+          <form
+            //TODO change denom back from this to selected currency rather than being just called FET.
+            onSubmit={e => {
+              if (isValidENS(recipient)) {
+                triggerValidation({ name: "recipient" });
+              }
+              balanceValidate(fee, denom);
 
-            // If recipient is ENS name and ENS is loading,
-            // don't send the assets before ENS is fully loaded.
-            if (isValidENS(recipient) && ens.loading) {
-              e.preventDefault();
-              return;
-            }
+              amountValidate(amount, denom, fee);
+              // React form hook doesn't block submitting when error is delivered outside.
+              // So, jsut check if errors exists manually, and if it exists, do nothing.
+              if (errors.amount && errors.amount.message) {
+                e.preventDefault();
+                return;
+              }
 
-            handleSubmit(async (data: FormData) => {
-              const coin = CoinUtils.getCoinFromDecimals(
-                data.amount,
-                data.denom
-              );
+              // If recipient is ENS name and ENS is loading,
+              // don't send the assets before ENS is fully loaded.
+              if (isValidENS(recipient) && ens.loading) {
+                e.preventDefault();
+                return;
+              }
 
-              await useBech32ConfigPromise(
-                chainStore.chainInfo.bech32Config,
-                async () => {
-                  const recipient = isValidENS(data.recipient)
-                    ? ens.bech32Address
-                    : data.recipient;
-                  if (!recipient) {
-                    throw new Error("Fail to fetch address from ENS");
-                  }
-                  const msg = new MsgSend(
-                    AccAddress.fromBech32(accountStore.bech32Address),
-                    AccAddress.fromBech32(recipient),
-                    [coin]
-                  );
+              handleSubmit(async (data: FormData) => {
+                // const currency = getCurrencyFromDenom(denom) as Currency;
+                // const amount = multiplybyDecimals(
+                //   new Dec(DecUtils.sanitizeDecimal(data.amount)),
+                //   currency.coinDecimals
+                // );
+                //
+                // const f = DecUtils.decToStrWithoutTrailingZeros(amount);
+                // debugger;
+                // const coin = new Coin(denom, f);
 
-                  const config: TxBuilderConfig = {
-                    gas: bigInteger(gasForSendMsg),
-                    memo: data.memo,
-                    fee: data.fee as Coin
-                  };
+                const coin = CoinUtils.getCoinFromDecimals(data.amount, denom);
 
-                  if (cosmosJS.sendMsgs) {
-                    await cosmosJS.sendMsgs(
-                      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                      [msg!],
-                      config,
-                      () => {
-                        history.replace("/");
-                      },
-                      e => {
-                        history.replace("/");
-                        notification.push({
-                          type: "danger",
-                          content: e.toString(),
-                          duration: 5,
-                          canDelete: true,
-                          placement: "top-center",
-                          transition: {
-                            duration: 0.25
-                          }
-                        });
-                      },
-                      "commit"
-                    );
-                  }
-                }
-              );
-            })(e);
-          }}
-        >
-          <div className={style.formInnerContainer}>
-            <div>
-              <Input
-                type="text"
-                label={intl.formatMessage({ id: "send.input.recipient" })}
-                name="recipient"
-                text={
-                  isValidENS(recipient) ? (
-                    ens.loading ? (
-                      <i className="fas fa-spinner fa-spin" />
-                    ) : (
-                      ens.bech32Address
-                    )
-                  ) : (
-                    undefined
-                  )
-                }
-                error={
-                  (isValidENS(recipient) &&
-                    ens.error &&
-                    switchENSErrorToIntl(ens.error)) ||
-                  (errors.recipient && errors.recipient.message)
-                }
-                ref={register({
-                  required: intl.formatMessage({
-                    id: "send.input.recipient.error.required"
-                  }),
-                  validate: async (value: string) => {
-                    if (!isValidENS(value)) {
-                      // This is not react hook.
-                      // eslint-disable-next-line react-hooks/rules-of-hooks
-                      return useBech32Config(
-                        chainStore.chainInfo.bech32Config,
-                        () => {
-                          try {
-                            AccAddress.fromBech32(value);
-                          } catch (e) {
-                            return intl.formatMessage({
-                              id: "send.input.recipient.error.invalid"
-                            });
-                          }
-                        }
+                debugger;
+
+                await useBech32ConfigPromise(
+                  chainStore.chainInfo.bech32Config,
+                  async () => {
+                    const recipient = isValidENS(data.recipient)
+                      ? ens.bech32Address
+                      : data.recipient;
+                    if (!recipient) {
+                      throw new Error("Fail to fetch address from ENS");
+                    }
+
+                    const msgs = [];
+
+                    if (isCosmosBeingSent) {
+                      msgs.push(
+                        new MsgSend(
+                          AccAddress.fromBech32(accountStore.bech32Address),
+                          AccAddress.fromBech32(recipient),
+                          [coin]
+                        )
                       );
                     } else {
-                      if (ens.error) {
-                        return ens.error.message;
-                      }
+                      msgs.push(
+                        new LockMessage(
+                          AccAddress.fromBech32(accountStore.bech32Address),
+                          [coin],
+                          ETHEREUM_CHAIN_ID,
+                          recipient,
+                          TOKEN_CONTRACT
+                        )
+                      );
+                      msgs.push(
+                        new BurnMessage(
+                          AccAddress.fromBech32(accountStore.bech32Address),
+                          [coin],
+                          ETHEREUM_CHAIN_ID,
+                          recipient,
+                          TOKEN_CONTRACT
+                        )
+                      );
+                    }
+                    const config: TxBuilderConfig = {
+                      gas: bigInteger(gasForSendMsg),
+                      memo: data.memo,
+                      fee: data.fee as Coin
+                    };
+
+                    if (cosmosJS.sendMsgs) {
+                      await cosmosJS.sendMsgs(
+                        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                        msgs,
+                        config,
+                        () => {
+                          history.replace("/");
+                        },
+                        e => {
+                          history.replace("/");
+
+                          notification.push({
+                            type: "danger",
+                            content: e.toString(),
+                            duration: 90,
+                            canDelete: true,
+                            placement: "top-center",
+                            transition: {
+                              duration: 3
+                            }
+                          });
+                        },
+                        "commit"
+                      );
                     }
                   }
-                })}
-              />
-              <CoinInput
-                currencies={getCurrencies(chainStore.chainInfo.currencies)}
-                label={intl.formatMessage({ id: "send.input.amount" })}
-                balances={accountStore.assets}
-                balanceText={intl.formatMessage({
-                  id: "send.input-button.balance"
-                })}
-                onChangeAllBanace={onChangeAllBalance}
-                error={
-                  (errors.amount && errors.amount.message) ||
-                  (errors.denom && errors.denom.message)
-                }
-                input={{
-                  name: "amount",
-                  ref: register({
-                    required: intl.formatMessage({
-                      id: "send.input.amount.error.required"
-                    }),
-                    validate: () => {
-                      // Without this, react-form-hooks clears the errors added manually when validating.
-                      // So, re-validation per onChange will clear the errors related to amount.
-                      // To avoid this problem, jsut return the previous error when validating.
-                      // This is not good solution.
-                      // TODO: Make the process that checks that a user has enough assets be better.
-                      return errors?.amount?.message;
-                    }
-                  })
-                }}
-                select={{
-                  name: "denom",
-                  ref: register({
-                    required: intl.formatMessage({
-                      id: "send.input.amount.error.required"
-                    })
-                  })
-                }}
-              />
-              <TextArea
-                label={intl.formatMessage({ id: "send.input.memo" })}
-                name="memo"
-                rows={2}
-                style={{ resize: "none" }}
-                error={errors.memo && errors.memo.message}
-                ref={register({ required: false })}
-              />
-              <FormContext {...formMethods}>
-                <FeeButtons
-                  label={intl.formatMessage({ id: "send.input.fee" })}
-                  feeSelectLabels={{
-                    low: intl.formatMessage({ id: "fee-buttons.select.low" }),
-                    average: intl.formatMessage({
-                      id: "fee-buttons.select.average"
-                    }),
-                    high: intl.formatMessage({ id: "fee-buttons.select.high" })
+                );
+              })(e);
+            }}
+          >
+            <div className={style.formInnerContainer}>
+              <div>
+                <div className={style.radioButtons}>
+                  <p className={style.radioButtonsLabelLeft}>
+                    <input
+                      type="radio"
+                      name="react-tips"
+                      value="option1"
+                      checked={isCosmosBeingSent}
+                      onChange={toggleCosmosBeingSent}
+                    />
+                    <span>
+                      {intl.formatMessage({ id: "send.input.radio.cosmos" })}
+                    </span>
+                  </p>{" "}
+                  <p className={style.radioButtonsLabelRight}>
+                    <input
+                      type="radio"
+                      name="react-tips"
+                      value="option2"
+                      checked={!isCosmosBeingSent}
+                      onChange={toggleCosmosBeingSent}
+                    />
+                    <span>
+                      {intl.formatMessage({ id: "send.input.radio.ethereum" })}
+                    </span>
+                  </p>
+                </div>
+                <Input
+                  type="text"
+                  onChange={() => {
+                    clearError("recipient");
                   }}
-                  name="fee"
-                  error={errors.fee && errors.fee.message}
-                  currency={feeCurrency!}
-                  price={feeValue}
-                  gasPriceStep={DefaultGasPriceStep}
-                  gas={gasForSendMsg}
+                  className={classnames(
+                    "white-border",
+                    style.offWhiteAutoFill,
+                    hasError(errors, ens) ? style.red : false
+                  )}
+                  label={intl.formatMessage({ id: "send.input.recipient" })}
+                  name="recipient"
+                  text={
+                    isValidENS(recipient) ? (
+                      ens.loading ? (
+                        <i className="fas fa-spinner fa-spin" />
+                      ) : (
+                        ens.bech32Address
+                      )
+                    ) : (
+                      undefined
+                    )
+                  }
+                  error={hasError(errors, ens)}
+                  ref={register({
+                    required: intl.formatMessage({
+                      id: "send.input.recipient.error.required"
+                    }),
+                    validate: async (value: string) => {
+                      if (!isCosmosBeingSent) {
+                        return Web3.utils.isAddress(value)
+                          ? undefined
+                          : intl.formatMessage({
+                              id: "send.input.recipient.error.invalid.ethereum"
+                            });
+                      }
+
+                      if (!isValidENS(value)) {
+                        // This is not react hook.
+                        // eslint-disable-next-line react-hooks/rules-of-hooks
+                        return useBech32Config(
+                          chainStore.chainInfo.bech32Config,
+                          () => {
+                            try {
+                              AccAddress.fromBech32(value);
+                            } catch (e) {
+                              return intl.formatMessage({
+                                id: "send.input.recipient.error.invalid"
+                              });
+                            }
+                          }
+                        );
+                      } else {
+                        if (ens.error) {
+                          return ens.error.message;
+                        }
+                      }
+                    }
+                  })}
                 />
-              </FormContext>
+                <CoinInput
+                  currencies={getCurrencies(chainStore.chainInfo.currencies)}
+                  label={intl.formatMessage({ id: "send.input.amount" })}
+                  clearError={clearError}
+                  isCosmosBeingSent={isCosmosBeingSent}
+                  balances={undefined}
+                  balanceText={intl.formatMessage({
+                    id: "send.input-button.balance"
+                  })}
+                  onChangeAllBanace={onChangeAllBalance}
+                  error={
+                    (errors.amount && errors.amount.message) ||
+                    (errors.denom && errors.denom.message)
+                  }
+                  input={{
+                    name: "amount",
+                    ref: register({
+                      required: intl.formatMessage({
+                        id: "send.input.amount.error.required"
+                      }),
+                      validate: () => {
+                        // Without this, react-form-hooks clears the errors added manually when validating.
+                        // So, re-validation per onChange will clear the errors related to amount.
+                        // To avoid this problem, jsut return the previous error when validating.
+                        // This is not good solution.
+                        // TODO: Make the process that checks that a user has enough assets be better.
+                        return errors?.amount?.message;
+                      }
+                    })
+                  }}
+                  select={{
+                    name: "denom",
+                    callBack: setDenom,
+                    ref: register({
+                      required: intl.formatMessage({
+                        id: "send.input.amount.error.required"
+                      })
+                    })
+                  }}
+                />
+                <TextArea
+                  label={intl.formatMessage({ id: "send.input.memo" })}
+                  className={classnames(
+                    "white-border",
+                    style.offWhiteAutoFill,
+                    style.input
+                  )}
+                  name="memo"
+                  rows={2}
+                  style={{ resize: "none" }}
+                  error={errors.memo && errors.memo.message}
+                  ref={register({ required: false })}
+                />
+                <FormContext {...formMethods}>
+                  <FeeButtons
+                    label={intl.formatMessage({ id: "send.input.fee" })}
+                    feeSelectLabels={{
+                      low: intl.formatMessage({ id: "fee-buttons.select.low" }),
+                      average: intl.formatMessage({
+                        id: "fee-buttons.select.average"
+                      }),
+                      high: intl.formatMessage({
+                        id: "fee-buttons.select.high"
+                      })
+                    }}
+                    name="fee"
+                    error={errors.fee && errors.fee.message}
+                    currency={feeCurrency!}
+                    price={feeValue}
+                    gasPriceStep={DefaultGasPriceStep}
+                    gas={gasForSendMsg}
+                  />
+                </FormContext>
+              </div>
+              <div style={{ flex: 1 }} />
+              <Button
+                type="submit"
+                className="green"
+                block
+                data-loading={cosmosJS.loading}
+                disabled={cosmosJS.sendMsgs == null}
+              >
+                {intl.formatMessage({
+                  id: "send.button.send"
+                })}
+              </Button>
             </div>
-            <div style={{ flex: 1 }} />
-            <Button
-              type="submit"
-              color="primary"
-              block
-              data-loading={cosmosJS.loading}
-              disabled={cosmosJS.sendMsgs == null}
-            >
-              {intl.formatMessage({
-                id: "send.button.send"
-              })}
-            </Button>
-          </div>
-        </form>
+          </form>
+        </div>
       </HeaderLayout>
     );
   }

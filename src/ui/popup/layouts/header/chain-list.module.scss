@@ -1,5 +1,5 @@
 .chain-list-container {
-  padding: 12px;
+  padding: 1px;
   min-width: 200px;
   text-align: center;
   max-height: 300px;
@@ -17,7 +17,7 @@
     }
 
     &:not(:global(.selected)):hover {
-      background: rgba(255, 255, 255, 0.1);
+      background: indigo;
       color: white;
     }
 

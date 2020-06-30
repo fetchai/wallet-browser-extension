@@ -1,4 +1,8 @@
-export function shortenAddress(bech32: string, maxCharacters: number): string {
+export function shortenAddress(
+  bech32: string,
+  maxCharacters: number,
+  dotNumber: number | null = null
+): string {
   if (maxCharacters >= bech32.length) {
     return bech32;
   }
@@ -27,5 +31,12 @@ export function shortenAddress(bech32: string, maxCharacters: number): string {
     }
   }
 
-  return prefix + "1" + former + "..." + latter;
+  let dots;
+  if (dotNumber == null) {
+    dots = "...";
+  } else {
+    dots = ".".repeat(dotNumber);
+  }
+
+  return prefix + "1" + former + dots + latter;
 }

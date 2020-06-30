@@ -2,7 +2,8 @@ import React, {
   FunctionComponent,
   useCallback,
   useEffect,
-  useMemo
+  useMemo,
+  useState
 } from "react";
 
 import { HeaderLayout } from "../../layouts/header-layout";
@@ -16,7 +17,6 @@ import {
 import { Button } from "reactstrap";
 
 import { RouteComponentProps } from "react-router";
-
 import { useTxBuilderConfig } from "../../../hooks";
 import useForm, { FormContext } from "react-hook-form";
 import { TxBuilderConfig } from "@everett-protocol/cosmosjs/core/txBuilder";
@@ -39,6 +39,7 @@ import {
 } from "../../../../common/window";
 
 import { FormattedMessage, useIntl } from "react-intl";
+import { lightModeEnabled } from "../../light-mode";
 
 interface FormData {
   gas: string;
@@ -51,8 +52,16 @@ export const FeePage: FunctionComponent<RouteComponentProps<{
 }>> = observer(({ match, location, history }) => {
   const query = queryString.parse(location.search);
   const external = query.external ?? false;
-
   const intl = useIntl();
+  const [lightMode, setLightMode] = useState(false);
+
+  useEffect(() => {
+    const isEnabled = async () => {
+      const enabled = await lightModeEnabled();
+      setLightMode(enabled);
+    };
+    isEnabled();
+  }, [lightMode, setLightMode]);
 
   useEffect(() => {
     if (external) {
@@ -90,11 +99,8 @@ export const FeePage: FunctionComponent<RouteComponentProps<{
   const feePrice = priceStore.getValue("usd", feeCurrency?.coinGeckoId);
 
   const onConfigInit = useCallback(
-    (chainId: string, config: TxBuilderConfig) => {
-      chainStore.setChain(chainId);
-
+    (config: TxBuilderConfig) => {
       setValue("gas", config.gas.toString());
-
       // Always returns the fee by fee buttons.
       /*if (config.fee instanceof Coin) {
         setValue("fee", config.fee);
@@ -144,7 +150,6 @@ export const FeePage: FunctionComponent<RouteComponentProps<{
 
   return (
     <HeaderLayout
-      showChainName
       canChangeChainInfo={false}
       onBackButton={
         !external
@@ -153,6 +158,7 @@ export const FeePage: FunctionComponent<RouteComponentProps<{
             }
           : undefined
       }
+      lightMode={lightMode}
     >
       <form
         className={style.formContainer}
@@ -174,6 +180,7 @@ export const FeePage: FunctionComponent<RouteComponentProps<{
         <div className={style.formInnerContainer}>
           <div>
             <Input
+              className="white-border"
               type="number"
               step="1"
               label={intl.formatMessage({
@@ -200,6 +207,7 @@ export const FeePage: FunctionComponent<RouteComponentProps<{
               label={intl.formatMessage({
                 id: "fee.input.memo"
               })}
+              className="white-border"
               name="memo"
               rows={2}
               style={{ resize: "none" }}

@@ -1,9 +1,20 @@
 import { Coin } from "@everett-protocol/cosmosjs/common/coin";
 import { Int } from "@everett-protocol/cosmosjs/common/int";
 import { Dec } from "@everett-protocol/cosmosjs/common/decimal";
-import { getCurrencyFromDenom, getCurrencyFromMinimalDenom } from "../currency";
+import {
+  getCurrencyFromDenom,
+  getCurrencyFromMinimalDenom
+} from "../currency";
+// @ts-ignore
+import { Currency } from "../../chain-info";
+import { DecUtils } from "../dec-utils";
 
 export class CoinUtils {
+  /**
+   *
+   * @param coins
+   * @param denom
+   */
   static amountOf(coins: Coin[], denom: string): Int {
     const coin = coins.find(coin => {
       return coin.denom === denom;
@@ -22,18 +33,37 @@ export class CoinUtils {
     });
   }
 
+  /**
+   * toto
+doesn't work delete   *
+   * @param currency
+   * @param amount
+   */
+
+  static convertMinimalDenomAmountToDenomAmount(
+    currency: Currency,
+    amount: Int
+  ) {
+    if (currency.coinDecimals === 0) return amount;
+    if (currency.coinMinimalDenom === currency.coinDenom) return amount;
+    // no power method in this , but this is workaround.
+    const multiplier = "1" + "0".repeat(currency.coinDecimals);
+    const r = amount.div(new Int(multiplier));
+    debugger;
+    return r;
+  }
+
   static getCoinFromDecimals(decAmountStr: string, denom: string): Coin {
     const currency = getCurrencyFromDenom(denom);
     if (!currency) {
       throw new Error("Invalid currency");
     }
-
     let precision = new Dec(1);
     for (let i = 0; i < currency.coinDecimals; i++) {
       precision = precision.mul(new Dec(10));
     }
-
-    let decAmount = new Dec(decAmountStr);
+    const sanitized = DecUtils.sanitizeDecimal(decAmountStr);
+    let decAmount = new Dec(sanitized);
     decAmount = decAmount.mul(precision);
 
     if (!new Dec(decAmount.truncate()).equals(decAmount)) {
@@ -51,10 +81,11 @@ export class CoinUtils {
       throw new Error("Invalid currency");
     }
 
-    let precision = new Dec(1);
-    for (let i = 0; i < currency.coinDecimals; i++) {
-      precision = precision.mul(new Dec(10));
-    }
+    const precision = new Dec(1);
+    // This is the logic for when we wish to send by minimal denom as when we used ufet in testnet before
+    // for (let i = 0; i < currency.coinDecimals; i++) {
+    //   precision = precision.mul(new Dec(10));
+    // }
 
     const decAmount = new Dec(coin.amount).quoTruncate(precision);
     return {

@@ -4,10 +4,10 @@ import { ChainInfo } from "../../chain-info";
 import { KeyRingStatus } from "./keyring";
 import { KeyHex } from "./keeper";
 import {
-  TxBuilderConfigPrimitive,
-  TxBuilderConfigPrimitiveWithChainId
+  TxBuilderConfigPrimitive
 } from "./types";
 import { AsyncApprover } from "../../common/async-approver";
+import { EncryptedKeyStructure } from "./crypto";
 
 export class EnableKeyRingMsg extends Message<{
   status: KeyRingStatus;
@@ -16,21 +16,15 @@ export class EnableKeyRingMsg extends Message<{
     return "enable-keyring";
   }
 
-  public static create(chainId: string, origin: string): EnableKeyRingMsg {
+  public static create(origin: string): EnableKeyRingMsg {
     const msg = new EnableKeyRingMsg();
-    msg.chainId = chainId;
     msg.origin = origin;
     return msg;
   }
 
-  public chainId: string = "";
   public origin: string = "";
 
-  validateBasic(): void {
-    if (!this.chainId) {
-      throw new Error("chain id is empty");
-    }
-  }
+  validateBasic(): void {}
 
   // Approve external approves sending message if they submit their origin correctly.
   // Keeper or handler must check that this origin has right permission.
@@ -83,6 +77,30 @@ export class GetRegisteredChainMsg extends Message<{
 
   type(): string {
     return GetRegisteredChainMsg.type();
+  }
+}
+
+export class GetKeyRingStatusMsg extends Message<{
+  // Need to set prototype for elements of array manually.
+  keyRingStatus: KeyRingStatus;
+}> {
+  public static type() {
+    return "get-key-ring-status";
+  }
+
+  public static create(): GetKeyRingStatusMsg {
+    return new GetKeyRingStatusMsg();
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  validateBasic(): void {}
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return GetKeyRingStatusMsg.type();
   }
 }
 
@@ -148,6 +166,26 @@ export class ClearKeyRingMsg extends Message<{ status: KeyRingStatus }> {
     return ClearKeyRingMsg.type();
   }
 }
+export class IsHardwareLinkedMsg extends Message<{ result: boolean }> {
+  public static type() {
+    return "is-hardware-linked";
+  }
+
+  public static create(): IsHardwareLinkedMsg {
+    return new IsHardwareLinkedMsg();
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  validateBasic(): void {}
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return IsHardwareLinkedMsg.type();
+  }
+}
 
 export class CreateKeyMsg extends Message<{ status: KeyRingStatus }> {
   public static type() {
@@ -180,6 +218,43 @@ export class CreateKeyMsg extends Message<{ status: KeyRingStatus }> {
 
   type(): string {
     return CreateKeyMsg.type();
+  }
+}
+
+export class CreateHardwareKeyMsg extends Message<{ status: KeyRingStatus }> {
+  public static type() {
+    return "create-hardware-key";
+  }
+
+  public static create(
+    publicKeyHex: string,
+    password: string
+  ): CreateHardwareKeyMsg {
+    const msg = new CreateHardwareKeyMsg();
+    msg.publicKeyHex = publicKeyHex;
+    msg.password = password;
+    return msg;
+  }
+
+  public publicKeyHex = "";
+  public password = "";
+
+  validateBasic(): void {
+    if (!this.publicKeyHex) {
+      throw new Error("hex public key not set");
+    }
+
+    if (!this.password) {
+      throw new Error("password not set");
+    }
+  }
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return CreateHardwareKeyMsg.type();
   }
 }
 
@@ -233,38 +308,182 @@ export class UnlockKeyRingMsg extends Message<{ status: KeyRingStatus }> {
   }
 }
 
-export class SetPathMsg extends Message<{ success: boolean }> {
+export class VerifyPasswordKeyRingMsg extends Message<{
+  success: boolean;
+}> {
   public static type() {
-    return "set-path";
+    return "verify-password-keyring";
   }
 
   public static create(
-    chainId: string,
-    account: number,
-    index: number
-  ): SetPathMsg {
-    const msg = new SetPathMsg();
-    msg.chainId = chainId;
-    msg.account = account;
-    msg.index = index;
+    password: string,
+    keyFile: EncryptedKeyStructure | null = null
+  ): VerifyPasswordKeyRingMsg {
+    const msg = new VerifyPasswordKeyRingMsg();
+    msg.password = password;
+    msg.keyFile = keyFile;
     return msg;
   }
 
-  public chainId: string = "";
-  public account: number = -1;
-  public index: number = -1;
+  validateBasic(): void {
+    if (!this.password) {
+      throw new Error("password not set");
+    }
+  }
+
+  public password = "";
+  public keyFile: EncryptedKeyStructure | null = null;
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return VerifyPasswordKeyRingMsg.type();
+  }
+}
+
+// eslint-disable-next-line @typescript-eslint/class-name-casing
+export class makeMnemonicMsg extends Message<{
+  mnemonic: string;
+}> {
+  public static type() {
+    return "get mnemonic";
+  }
+
+  public static create(
+    password: string,
+    keyFile: EncryptedKeyStructure
+  ): makeMnemonicMsg {
+    const msg = new makeMnemonicMsg();
+    msg.password = password;
+    msg.keyFile = keyFile;
+    return msg;
+  }
 
   validateBasic(): void {
-    if (!this.chainId) {
-      throw new Error("chain id not set");
+    if (!this.password) {
+      throw new Error("password not set");
     }
 
-    if (this.account < 0) {
-      throw new Error("Invalid account");
+    if (this.keyFile === null) {
+      throw new Error("password not set");
+    }
+  }
+
+  public password = "";
+  public keyFile: EncryptedKeyStructure | null = null;
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return makeMnemonicMsg.type();
+  }
+}
+
+export class UpdatePasswordMsg extends Message<{
+  success: boolean;
+}> {
+  public static type() {
+    return "update-password-msg";
+  }
+
+  public static create(
+    password: string,
+    newPassword: string
+  ): UpdatePasswordMsg {
+    const msg = new UpdatePasswordMsg();
+    msg.password = password;
+    msg.newPassword = newPassword;
+    return msg;
+  }
+
+  validateBasic(): void {
+    if (!this.password) {
+      throw new Error("password not set");
     }
 
-    if (this.index < 0) {
-      throw new Error("Invalid index");
+    if (!this.newPassword) {
+      throw new Error("new password not set");
+    }
+  }
+
+  public password = "";
+  public newPassword = "";
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return UpdatePasswordMsg.type();
+  }
+}
+
+export class GetKeyFileMsg extends Message<{
+  file: any;
+}> {
+  public static type() {
+    return "get-key-file-msg";
+  }
+
+  public static create(): GetKeyFileMsg {
+    return new GetKeyFileMsg();
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  validateBasic(): void {}
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return GetKeyFileMsg.type();
+  }
+}
+
+
+export class FetchEveryAddressMsg extends Message<{
+  AddressList: Array<string>;
+}> {
+  public static type() {
+    return "fetch-every-address";
+  }
+
+  public static create(): FetchEveryAddressMsg {
+    return new FetchEveryAddressMsg();
+  }
+
+  validateBasic(): void {}
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return FetchEveryAddressMsg.type();
+  }
+}
+
+export class SetActiveAddressMsg extends Message<{}> {
+  public static type() {
+    return "set-active-address";
+  }
+
+  public address: string = "";
+
+  public static create(address: string): SetActiveAddressMsg {
+    const msg = new SetActiveAddressMsg();
+    msg.address = address;
+    return msg;
+  }
+
+  validateBasic(): void {
+    if (!this.address) {
+      throw new Error("address not set");
     }
   }
 
@@ -273,7 +492,27 @@ export class SetPathMsg extends Message<{ success: boolean }> {
   }
 
   type(): string {
-    return SetPathMsg.type();
+    return SetActiveAddressMsg.type();
+  }
+}
+
+export class GetActiveAddressMsg extends Message<{ activeAddress: string }> {
+  public static type() {
+    return "get-active-address";
+  }
+
+  public static create(): GetActiveAddressMsg {
+    return new GetActiveAddressMsg();
+  }
+
+  validateBasic(): void {}
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return GetActiveAddressMsg.type();
   }
 }
 
@@ -282,21 +521,15 @@ export class GetKeyMsg extends Message<KeyHex> {
     return "get-key";
   }
 
-  public static create(chainId: string, origin: string): GetKeyMsg {
+  public static create(origin: string): GetKeyMsg {
     const msg = new GetKeyMsg();
-    msg.chainId = chainId;
     msg.origin = origin;
     return msg;
   }
 
-  public chainId = "";
   public origin: string = "";
 
-  validateBasic(): void {
-    if (!this.chainId) {
-      throw new Error("chain id not set");
-    }
-  }
+  validateBasic(): void {}
 
   // Approve external approves sending message if they submit their origin correctly.
   // Keeper or handler must check that this origin has right permission.
@@ -336,7 +569,7 @@ export class RequestTxBuilderConfigMsg extends Message<{
   }
 
   public static create(
-    config: TxBuilderConfigPrimitiveWithChainId,
+    config: TxBuilderConfigPrimitive,
     id: string,
     openPopup: boolean,
     origin: string
@@ -349,7 +582,7 @@ export class RequestTxBuilderConfigMsg extends Message<{
     return msg;
   }
 
-  public config?: TxBuilderConfigPrimitiveWithChainId;
+  public config?: TxBuilderConfigPrimitive;
   public id: string = "";
   public openPopup: boolean = false;
   public origin: string = "";
@@ -393,7 +626,7 @@ export class RequestTxBuilderConfigMsg extends Message<{
 }
 
 export class GetRequestedTxBuilderConfigMsg extends Message<{
-  config: TxBuilderConfigPrimitiveWithChainId;
+  config: TxBuilderConfigPrimitive;
 }> {
   public static type() {
     return "get-requested-tx-builder-config";
@@ -487,7 +720,6 @@ export class RequestSignMsg extends Message<{ signatureHex: string }> {
   }
 
   public static create(
-    chainId: string,
     id: string,
     bech32Address: string,
     messageHex: string,
@@ -495,7 +727,6 @@ export class RequestSignMsg extends Message<{ signatureHex: string }> {
     origin: string
   ): RequestSignMsg {
     const msg = new RequestSignMsg();
-    msg.chainId = chainId;
     msg.id = id;
     msg.bech32Address = bech32Address;
     msg.messageHex = messageHex;
@@ -504,7 +735,6 @@ export class RequestSignMsg extends Message<{ signatureHex: string }> {
     return msg;
   }
 
-  public chainId: string = "";
   public id: string = "";
   public bech32Address: string = "";
   // Hex encoded message.
@@ -513,9 +743,6 @@ export class RequestSignMsg extends Message<{ signatureHex: string }> {
   public origin: string = "";
 
   validateBasic(): void {
-    if (!this.chainId) {
-      throw new Error("chain id not set");
-    }
 
     if (!this.bech32Address) {
       throw new Error("bech32 address not set");
@@ -559,7 +786,6 @@ export class RequestSignMsg extends Message<{ signatureHex: string }> {
 }
 
 export class GetRequestedMessage extends Message<{
-  chainId: string;
   messageHex: string;
 }> {
   public static type() {
@@ -613,6 +839,30 @@ export class ApproveSignMsg extends Message<void> {
 
   type(): string {
     return ApproveSignMsg.type();
+  }
+}
+
+export class GetDeleteAddressMsg extends Message<void> {
+  public static type() {
+    return "delete message";
+  }
+
+  public static create(address: string): GetDeleteAddressMsg {
+    const msg = new GetDeleteAddressMsg();
+    msg.address = address;
+    return msg;
+  }
+
+  public address: string = "";
+
+  validateBasic(): void {}
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return GetDeleteAddressMsg.type();
   }
 }
 

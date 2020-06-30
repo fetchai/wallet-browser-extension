@@ -9,15 +9,20 @@
   padding-left: $layout-margin;
 }
 
+.logo {
+  position: absolute;
+  left: 1px;
+  top: 10px;
+  width: 145px;
+}
+
 $menu-icon-size: 20px;
 $menu-icon-gap: 14px;
 
 .menu-img {
   width: $menu-icon-size;
   height: $menu-icon-size;
-
   margin-left: $menu-icon-gap;
-
   cursor: pointer;
 }
 
@@ -44,28 +49,6 @@ $menu-icon-gap: 14px;
 
       margin-top: -6px;
       fill: #8f8f8f;
-    }
-  }
-
-  &:hover {
-    .title {
-      // color: $primary-color;
-    }
-
-    .title-icon {
-      // fill: $primary-color;
-    }
-  }
-}
-
-:global(.show) {
-  .chain-list-container {
-    .title {
-      // color: $primary-color;
-    }
-
-    .title-icon {
-      // fill: $primary-color;
     }
   }
 }

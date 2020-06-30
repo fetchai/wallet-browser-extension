@@ -10,7 +10,12 @@ import {
   CreateKeyMsg,
   UnlockKeyRingMsg,
   LockKeyRingMsg,
-  ClearKeyRingMsg
+  ClearKeyRingMsg,
+  makeMnemonicMsg,
+  UpdatePasswordMsg,
+  GetKeyFileMsg,
+  CreateHardwareKeyMsg,
+  IsHardwareLinkedMsg, GetKeyRingStatusMsg, VerifyPasswordKeyRingMsg
 } from "../../../../background/keyring";
 
 import { action, observable } from "mobx";
@@ -18,6 +23,7 @@ import { actionAsync, task } from "mobx-utils";
 
 import { BACKGROUND_PORT } from "../../../../common/message/constant";
 import { RootStore } from "../root";
+import { EncryptedKeyStructure } from "../../../../background/keyring/crypto";
 
 /*
  Actual key ring logic is managed in persistent background. Refer "src/common/message" and "src/background/keyring"
@@ -63,6 +69,20 @@ export class KeyRingStore {
     this.setStatus(result.status);
   }
 
+  /**
+   * Creates key from hardware, storing a password and public key.
+   * Hardware wallet sign up is slightly different to regular sign up since we don't save a mnemonic.
+   *
+   * @param publicKeyHex
+   * @param password
+   */
+  @actionAsync
+  public async createHardwareKey(publicKeyHex: string, password: string) {
+    const msg = CreateHardwareKeyMsg.create(publicKeyHex, password);
+    const result = await task(sendMessage(BACKGROUND_PORT, msg));
+    this.setStatus(result.status);
+  }
+
   @actionAsync
   public async lock() {
     const msg = LockKeyRingMsg.create();
@@ -71,10 +91,42 @@ export class KeyRingStore {
   }
 
   @actionAsync
-  public async unlock(password: string) {
+  public async unlock(password: string): Promise<KeyRingStatus> {
     const msg = UnlockKeyRingMsg.create(password);
     const result = await task(sendMessage(BACKGROUND_PORT, msg));
     this.setStatus(result.status);
+    return result.status;
+  }
+
+  @actionAsync
+  public async verifyPassword(
+    password: string,
+    keyFile: EncryptedKeyStructure | null = null
+  ): Promise<boolean> {
+    const msg = VerifyPasswordKeyRingMsg.create(password, keyFile);
+    const result = await task(sendMessage(BACKGROUND_PORT, msg));
+    return result.success;
+  }
+
+  @actionAsync
+  public async getMnemonic(password: string, keyFile: EncryptedKeyStructure) {
+    const msg = makeMnemonicMsg.create(password, keyFile);
+    const result = await task(sendMessage(BACKGROUND_PORT, msg));
+    return result.mnemonic;
+  }
+
+  @actionAsync
+  public async updatePassword(password: string, newPassword: string) {
+    const msg = UpdatePasswordMsg.create(password, newPassword);
+    const result = await task(sendMessage(BACKGROUND_PORT, msg));
+    return result.success;
+  }
+
+  @actionAsync
+  public async getKeyFile() {
+    const msg = GetKeyFileMsg.create();
+    const result = await task(sendMessage(BACKGROUND_PORT, msg));
+    return result.file;
   }
 
   @actionAsync
@@ -92,18 +144,30 @@ export class KeyRingStore {
 
   /**
    * Clear key ring data.
-   * This will throw unless you are in a development env.
-   */
+   *
+   * */
   @actionAsync
   public async clear() {
-    if (process.env.NODE_ENV !== "development") {
-      throw new Error(
-        "do not use the clear function unless you are in a development environment"
-      );
-    }
-
     const msg = ClearKeyRingMsg.create();
     const result = await task(sendMessage(BACKGROUND_PORT, msg));
     this.setStatus(result.status);
+  }
+
+  /**
+   * Checks if wallet is associated with hardware wallet, and thus cannot be signed internally.
+   */
+  @actionAsync
+  public async isHardwareLinked(): Promise<boolean> {
+    const msg = IsHardwareLinkedMsg.create();
+    return (await task(sendMessage(BACKGROUND_PORT, msg))).result;
+  }
+
+  /**
+   * get status of keyring
+   */
+  @actionAsync
+  public async GetKeyRingStatus(): Promise<KeyRingStatus> {
+    const msg = GetKeyRingStatusMsg.create();
+    return (await task(sendMessage(BACKGROUND_PORT, msg))).keyRingStatus;
   }
 }

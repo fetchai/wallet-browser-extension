@@ -10,27 +10,70 @@
   .sign-out {
     font-size: 20px;
     padding: 0 8px;
-
+    float: left; /* Float the buttons side by side */
     i {
       cursor: pointer;
-      color: #8f8f8f;
 
       &:hover {
         color: black;
       }
     }
   }
+
+  .sign-out2 {
+    float: left; /* Float the buttons side by side */
+  }
+
+  .settings {
+    float: left; /* Float the buttons side by side */
+  }
 }
+
+.settings-button-wrapper {
+  position: absolute;
+  left: -28px;
+  top: 5px;
+}
+
+.account-manager-button-wrapper {
+  position: absolute;
+  left: -60px;
+  top: 5px;
+}
+
+.button-image {
+    width: 18px;
+    margin-right: 5px;
+
+    &:hover {
+      cursor: pointer;
+    }
+  }
+
+.account-manager-icon {
+    width: 16px;
+    margin-right: 5px;
+
+    &:hover {
+      cursor: pointer;
+    }
+  }
 
 .container-account-inner {
   display: flex;
   flex-direction: column;
   width: 100%;
-  height: 250px - 2 * $main-card-padding;
+  text-align: center;
+  height: 426px;
 }
 
 .card {
   margin-bottom: $layout-margin;
+  background: none;
+
+  &.body {
+    margin-top: 5px;
+  }
 
   &:last-of-type {
     margin-bottom: 0;
@@ -38,5 +81,28 @@
 
   :global(.card-body) {
     padding: $main-card-padding;
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 5px;
   }
+}
+
+:global(.light-mode) {
+  .card > :global(.card-body) {
+     background-color: rgb(234, 241, 243);
+
+    &:global(deposit-modal) {
+      background-color: rgb(240, 245, 247)
+    }
+  }
+}
+
+
+.tool-tip {
+background-color: lightgrey;
+  color: black;
+  line-height: .8;
+}
+
+.tool-tip-arrow {
+  border-color: purple !important;
 }

@@ -3,21 +3,31 @@ import {
   EnableKeyRingMsg,
   RestoreKeyRingMsg,
   SaveKeyRingMsg,
+  SetActiveAddressMsg,
   CreateKeyMsg,
   GetKeyMsg,
   UnlockKeyRingMsg,
-  SetPathMsg,
+  FetchEveryAddressMsg,
   RequestSignMsg,
   ApproveSignMsg,
   RejectSignMsg,
   GetRequestedMessage,
+  GetDeleteAddressMsg,
   GetRegisteredChainMsg,
   LockKeyRingMsg,
   ClearKeyRingMsg,
   RequestTxBuilderConfigMsg,
   GetRequestedTxBuilderConfigMsg,
   ApproveTxBuilderConfigMsg,
-  RejectTxBuilderConfigMsg
+  RejectTxBuilderConfigMsg,
+  VerifyPasswordKeyRingMsg,
+  UpdatePasswordMsg,
+  GetKeyFileMsg,
+  makeMnemonicMsg,
+  CreateHardwareKeyMsg,
+  IsHardwareLinkedMsg,
+  GetKeyRingStatusMsg,
+  GetActiveAddressMsg
 } from "./messages";
 import { KeyRingKeeper } from "./keeper";
 import { Address } from "@everett-protocol/cosmosjs/crypto";
@@ -35,20 +45,40 @@ export const getHandler: (keeper: KeyRingKeeper) => Handler = (
         return handleGetRegisteredChainMsg(keeper)(
           msg as GetRegisteredChainMsg
         );
+      case GetKeyRingStatusMsg:
+        return handleGetKeyRingStatusMsg(keeper)(msg as GetKeyRingStatusMsg);
       case RestoreKeyRingMsg:
         return handleRestoreKeyRingMsg(keeper)(msg as RestoreKeyRingMsg);
       case SaveKeyRingMsg:
         return handleSaveKeyRingMsg(keeper)(msg as SaveKeyRingMsg);
       case ClearKeyRingMsg:
         return handleClearKeyRingMsg(keeper)(msg as ClearKeyRingMsg);
+      case IsHardwareLinkedMsg:
+        return handleIsHardwareLinkedMsg(keeper)(msg as IsHardwareLinkedMsg);
       case CreateKeyMsg:
         return handleCreateKeyMsg(keeper)(msg as CreateKeyMsg);
+      case CreateHardwareKeyMsg:
+        return handleCreateHardwareKeyMsg(keeper)(msg as CreateHardwareKeyMsg);
       case LockKeyRingMsg:
         return handleLockKeyRingMsg(keeper)(msg as LockKeyRingMsg);
+      case VerifyPasswordKeyRingMsg:
+        return handleVerifyPasswordKeyRingMsg(keeper)(
+          msg as VerifyPasswordKeyRingMsg
+        );
       case UnlockKeyRingMsg:
         return handleUnlockKeyRingMsg(keeper)(msg as UnlockKeyRingMsg);
-      case SetPathMsg:
-        return handleSetPathMsg(keeper)(msg as SetPathMsg);
+      case makeMnemonicMsg:
+        return handleMakeMnemonicMsg(keeper)(msg as makeMnemonicMsg);
+      case UpdatePasswordMsg:
+        return handleUpdatePasswordMsg(keeper)(msg as UpdatePasswordMsg);
+      case GetKeyFileMsg:
+        return handleGetKeyFileMsg(keeper)(msg as GetKeyFileMsg);
+      case FetchEveryAddressMsg:
+        return handleFetchEveryAddressMsg(keeper)(msg as FetchEveryAddressMsg);
+      case SetActiveAddressMsg:
+        return handleSetActiveAddressMsg(keeper)(msg as SetActiveAddressMsg);
+      case GetActiveAddressMsg:
+        return handleGetActiveAddressMsg(keeper)(msg as GetActiveAddressMsg);
       case GetKeyMsg:
         return handleGetKeyMsg(keeper)(msg as GetKeyMsg);
       case RequestTxBuilderConfigMsg:
@@ -71,6 +101,8 @@ export const getHandler: (keeper: KeyRingKeeper) => Handler = (
         return handleRequestSignMsg(keeper)(msg as RequestSignMsg);
       case GetRequestedMessage:
         return handleGetRequestedMessage(keeper)(msg as GetRequestedMessage);
+      case GetDeleteAddressMsg:
+        return handleDeleteAddressMsg(keeper)(msg as GetRequestedMessage);
       case ApproveSignMsg:
         return handleApproveSignMsg(keeper)(msg as ApproveSignMsg);
       case RejectSignMsg:
@@ -81,14 +113,20 @@ export const getHandler: (keeper: KeyRingKeeper) => Handler = (
   };
 };
 
+const handleVerifyPasswordKeyRingMsg: (
+  keeper: KeyRingKeeper
+) => InternalHandler<any> = keeper => {
+  return async msg => {
+    return {
+      success: await keeper.verifyPassword(msg.password, msg.keyFile)
+    };
+  };
+};
+
 const handleEnableKeyRingMsg: (
   keeper: KeyRingKeeper
 ) => InternalHandler<EnableKeyRingMsg> = keeper => {
-  return async msg => {
-    if (msg.origin) {
-      keeper.checkAccessOrigin(msg.chainId, msg.origin);
-    }
-
+  return async () => {
     return {
       status: await keeper.enable()
     };
@@ -101,6 +139,16 @@ const handleGetRegisteredChainMsg: (
   return () => {
     return {
       chainInfos: keeper.getRegisteredChains()
+    };
+  };
+};
+
+const handleGetKeyRingStatusMsg: (
+  keeper: KeyRingKeeper
+) => InternalHandler<GetKeyRingStatusMsg> = keeper => {
+  return () => {
+    return {
+      keyRingStatus: keeper.getKeyRingStatus()
     };
   };
 };
@@ -126,6 +174,27 @@ const handleSaveKeyRingMsg: (
   };
 };
 
+const handleSetActiveAddressMsg: (
+  keeper: KeyRingKeeper
+) => InternalHandler<SetActiveAddressMsg> = keeper => {
+  return async msg => {
+    await keeper.setActiveAddress(msg.address);
+    return {
+      success: true
+    };
+  };
+};
+
+const handleGetActiveAddressMsg: (
+  keeper: KeyRingKeeper
+) => InternalHandler<GetActiveAddressMsg> = keeper => {
+  return async () => {
+    return {
+      activeAddress: keeper.getActiveAddress()
+    };
+  };
+};
+
 const handleClearKeyRingMsg: (
   keeper: KeyRingKeeper
 ) => InternalHandler<ClearKeyRingMsg> = keeper => {
@@ -136,12 +205,32 @@ const handleClearKeyRingMsg: (
   };
 };
 
+const handleIsHardwareLinkedMsg: (
+  keeper: KeyRingKeeper
+) => InternalHandler<IsHardwareLinkedMsg> = keeper => {
+  return async () => {
+    return {
+      result: keeper.isHardwareLinked()
+    };
+  };
+};
+
 const handleCreateKeyMsg: (
   keeper: KeyRingKeeper
 ) => InternalHandler<CreateKeyMsg> = keeper => {
   return async msg => {
     return {
       status: await keeper.createKey(msg.mnemonic, msg.password)
+    };
+  };
+};
+
+const handleCreateHardwareKeyMsg: (
+  keeper: KeyRingKeeper
+) => InternalHandler<CreateHardwareKeyMsg> = keeper => {
+  return async msg => {
+    return {
+      status: await keeper.createHardwareKey(msg.publicKeyHex, msg.password)
     };
   };
 };
@@ -166,13 +255,51 @@ const handleUnlockKeyRingMsg: (
   };
 };
 
-const handleSetPathMsg: (
+const handleMakeMnemonicMsg: (
   keeper: KeyRingKeeper
-) => InternalHandler<SetPathMsg> = keeper => {
+) => InternalHandler<any> = keeper => {
   return async msg => {
-    keeper.setPath(msg.chainId, msg.account, msg.index);
     return {
-      success: true
+      mnemonic: await keeper.makeMnemonicgMsg(msg.password, msg.keyFile)
+    };
+  };
+};
+
+const handleUpdatePasswordMsg: (
+  keeper: KeyRingKeeper
+) => InternalHandler<any> = keeper => {
+  return async msg => {
+    return {
+      success: await keeper.updatePassword(msg.password, msg.newPassword)
+    };
+  };
+};
+
+const handleGetKeyFileMsg: (
+  keeper: KeyRingKeeper
+) => InternalHandler<any> = keeper => {
+  return async () => {
+    return {
+      file: await keeper.handleGetKeyFile()
+    };
+  };
+};
+
+const handleDeleteAddressMsg: (
+  keeper: KeyRingKeeper
+) => InternalHandler<any> = keeper => {
+  return async msg => {
+    success: await keeper.handleDeleteAddress(msg.address);
+  };
+};
+
+const handleFetchEveryAddressMsg: (
+  keeper: KeyRingKeeper
+) => InternalHandler<FetchEveryAddressMsg> = keeper => {
+  return async () => {
+    const addressList = keeper.getEveryAddress();
+    return {
+      AddressList: addressList
     };
   };
 };
@@ -180,21 +307,13 @@ const handleSetPathMsg: (
 const handleGetKeyMsg: (
   keeper: KeyRingKeeper
 ) => InternalHandler<GetKeyMsg> = keeper => {
-  return async msg => {
-    const getKeyMsg = msg as GetKeyMsg;
-    if (getKeyMsg.origin) {
-      keeper.checkAccessOrigin(getKeyMsg.chainId, getKeyMsg.origin);
-    }
-
+  return async () => {
     const key = await keeper.getKey();
-
     return {
       algo: "secp256k1",
       pubKeyHex: Buffer.from(key.pubKey).toString("hex"),
       addressHex: Buffer.from(key.address).toString("hex"),
-      bech32Address: new Address(key.address).toBech32(
-        keeper.getChainInfo(getKeyMsg.chainId).bech32Config.bech32PrefixAccAddr
-      )
+      bech32Address: new Address(key.address).toBech32("cosmos")
     };
   };
 };
@@ -203,12 +322,6 @@ const handleRequestTxBuilderConfigMsg: (
   keeper: KeyRingKeeper
 ) => InternalHandler<RequestTxBuilderConfigMsg> = keeper => {
   return async msg => {
-    if (msg.origin) {
-      // `config` in msg can't be null because `validateBasic` ensures that `config` is not null.
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      keeper.checkAccessOrigin(msg.config!.chainId, msg.origin);
-    }
-
     const config = await keeper.requestTxBuilderConfig(
       // `config` in msg can't be null because `validateBasic` ensures that `config` is not null.
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -260,16 +373,9 @@ const handleRequestSignMsg: (
   keeper: KeyRingKeeper
 ) => InternalHandler<RequestSignMsg> = keeper => {
   return async msg => {
-    if (msg.origin) {
-      keeper.checkAccessOrigin(msg.chainId, msg.origin);
-    }
-
-    await keeper.checkBech32Address(msg.chainId, msg.bech32Address);
-
     return {
       signatureHex: Buffer.from(
         await keeper.requestSign(
-          msg.chainId,
           new Uint8Array(Buffer.from(msg.messageHex, "hex")),
           msg.id,
           msg.openPopup
@@ -286,7 +392,6 @@ const handleGetRequestedMessage: (
     const message = keeper.getRequestedMessage(msg.id);
 
     return {
-      chainId: message.chainId,
       messageHex: Buffer.from(message.message).toString("hex")
     };
   };

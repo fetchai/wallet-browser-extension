@@ -9,6 +9,7 @@ import style from "./style.module.scss";
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface Props extends HeaderProps {
   style?: CSSProperties;
+  fetchIcon?: boolean;
 }
 
 export const HeaderLayout: FunctionComponent<Props> = props => {

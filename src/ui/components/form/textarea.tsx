@@ -1,5 +1,7 @@
 import React, { forwardRef, useState } from "react";
 
+import styleInput from "./form.module.scss";
+
 import classnames from "classnames";
 
 import {
@@ -10,6 +12,8 @@ import {
 } from "reactstrap";
 
 const Buffer = require("buffer/").Buffer;
+
+// import style from "./style.module.scss";
 
 export interface TextareaProps {
   label?: string;
@@ -39,13 +43,17 @@ export const TextArea = forwardRef<
   return (
     <FormGroup>
       {label ? (
-        <Label for={inputId} className="form-control-label">
+        <Label for={inputId} className={styleInput.formControlLabel}>
           {label}
         </Label>
       ) : null}
       <ReactStrapInput
         id={inputId}
-        className={classnames("form-control-alternative", props.className)}
+        className={classnames(
+          "form-control-alternative",
+          styleInput.formControlOverride,
+          props.className
+        )}
         type={"textarea" as any}
         innerRef={ref}
         invalid={error != null}

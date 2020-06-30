@@ -1,16 +1,24 @@
 import React from "react";
 import { shortenAddress } from "../../../../common/address";
-import { CoinUtils } from "../../../../common/coin-utils";
+// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+// @ts-ignore
+import removeTrailingZeros from "remove-trailing-zeros";
 import { Coin } from "@everett-protocol/cosmosjs/common/coin";
 import { IntlShape, FormattedMessage } from "react-intl";
+import {
+  getCurrencyFromMinimalDenom,
+  isMinimalDenom
+} from "../../../../common/currency";
+import { Currency } from "../../../../chain-info";
+import { divideByDecimals } from "../../../../common/utils/divide-decimals";
 
 export interface MessageObj {
   type: string;
   value: unknown;
 }
 
-interface MsgSend {
-  type: "cosmos-sdk/MsgSend";
+interface MsgGeneric {
+  type: string;
   value: {
     amount: [
       {
@@ -21,6 +29,18 @@ interface MsgSend {
     from_address: string;
     to_address: string;
   };
+}
+
+interface MsgSend extends MsgGeneric {
+  type: "cosmos-sdk/MsgSend";
+}
+
+interface MsgLock extends MsgGeneric {
+  type: "cosmos-sdk/MsgLock";
+}
+
+interface MsgBurn extends MsgGeneric {
+  type: "cosmos-sdk/MsgBurn";
 }
 
 interface MsgDelegate {
@@ -57,6 +77,8 @@ interface MsgWithdrawDelegatorReward {
 
 type Messages =
   | MsgSend
+  | MsgLock
+  | MsgBurn
   | MsgDelegate
   | MsgUndelegate
   | MsgWithdrawDelegatorReward;
@@ -73,23 +95,27 @@ function MessageType<T extends Messages>(
 export function renderMessage(
   msg: MessageObj,
   intl: IntlShape
-): {
-  icon: string | undefined;
-  title: string;
-  content: React.ReactElement;
-} {
+): { icon: string | undefined; title: string; content: any } | undefined {
   if (MessageType<MsgSend>(msg, "cosmos-sdk/MsgSend")) {
+    debugger;
     const receives: { amount: string; denom: string }[] = [];
     for (const coinPrimitive of msg.value.amount) {
-      const coin = new Coin(coinPrimitive.denom, coinPrimitive.amount);
-      const parsed = CoinUtils.parseDecAndDenomFromCoin(coin);
+      let amount = coinPrimitive.amount;
+      let denom = coinPrimitive.denom;
+      // if it is minimal denom lets convert to regular denom to show user
+
+      if (isMinimalDenom(denom)) {
+        const currency = getCurrencyFromMinimalDenom(denom) as Currency;
+        denom = currency.coinDenom;
+        amount = divideByDecimals(amount.toString(), currency.coinDecimals);
+      }
 
       receives.push({
-        amount: clearDecimals(parsed.amount),
-        denom: parsed.denom
+        amount: removeTrailingZeros(amount),
+        denom: denom
       });
     }
-
+    debugger;
     return {
       icon: "fas fa-paper-plane",
       title: intl.formatMessage({
@@ -112,11 +138,49 @@ export function renderMessage(
     };
   }
 
-  if (MessageType<MsgDelegate>(msg, "cosmos-sdk/MsgDelegate")) {
-    const parsed = CoinUtils.parseDecAndDenomFromCoin(
-      new Coin(msg.value.amount.denom, msg.value.amount.amount)
-    );
+  // This page has the display of the messages in the signing tab. Since an ethereum message is comprised of two messages a lock and a burn but a UI showing
+  // that two messages are being sent would be poor we only show a message for the lock message associated with a peggy transaction, and show no output for the burn message
+  if (MessageType<MsgLock>(msg, "cosmos-sdk/MsgLock")) {
+    const receives: { amount: string; denom: string }[] = [];
+    for (const coinPrimitive of msg.value.amount) {
+      const coin = new Coin(coinPrimitive.denom, coinPrimitive.amount);
 
+      receives.push({
+        amount: coin.amount.toString(),
+        denom: coin.denom
+      });
+    }
+
+    return {
+      icon: "fas fa-paper-plane",
+      title: intl.formatMessage({
+        id: "sign.list.message.cosmos-sdk/MsgLock.title"
+      }),
+      content: (
+        <FormattedMessage
+          id="sign.list.message.cosmos-sdk/MsgLock.content"
+          // assumption that all
+          values={{
+            recipient: shortenAddress(msg.value.to_address, 24),
+            currency: receives[0].denom,
+            amount: receives
+              .map(coin => {
+                return `${coin.amount} ${coin.denom}`;
+              })
+              .join(",")
+          }}
+        />
+      )
+    };
+  }
+
+  // we only display for the lock, and don't display for the burn since Peggy requires two messages in the transaction, but showing two messages in the
+  // wallet would be bad UI.
+  if (MessageType<MsgBurn>(msg, "cosmos-sdk/MsgBurn")) {
+    return undefined;
+  }
+
+  if (MessageType<MsgDelegate>(msg, "cosmos-sdk/MsgDelegate")) {
     return {
       icon: "fas fa-layer-group",
       title: intl.formatMessage({
@@ -128,7 +192,9 @@ export function renderMessage(
           values={{
             b: (...chunks: any[]) => <b>{chunks}</b>,
             validator: shortenAddress(msg.value.validator_address, 24),
-            amount: `${clearDecimals(parsed.amount)} ${parsed.denom}`
+            amount: `${clearDecimals(msg.value.amount.amount)} ${
+              msg.value.amount.denom
+            }`
           }}
         />
       )
@@ -136,10 +202,6 @@ export function renderMessage(
   }
 
   if (MessageType<MsgUndelegate>(msg, "cosmos-sdk/MsgUndelegate")) {
-    const parsed = CoinUtils.parseDecAndDenomFromCoin(
-      new Coin(msg.value.amount.denom, msg.value.amount.amount)
-    );
-
     return {
       icon: "fas fa-layer-group",
       title: intl.formatMessage({
@@ -152,7 +214,9 @@ export function renderMessage(
             b: (...chunks: any[]) => <b>{chunks}</b>,
             br: <br />,
             validator: shortenAddress(msg.value.validator_address, 24),
-            amount: `${clearDecimals(parsed.amount)} ${parsed.denom}`
+            amount: `${clearDecimals(msg.value.amount.amount)} ${
+              msg.value.amount.denom
+            }`
           }}
         />
       )

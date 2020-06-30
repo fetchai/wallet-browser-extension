@@ -20,6 +20,11 @@
   }
 }
 
+.hide {
+  display:none !important;
+}
+
+
 #notification-top-right {
   @include notification;
 

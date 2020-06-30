@@ -23,28 +23,22 @@ const Manifest = require("../../manifest.json");
 const Buffer = require("buffer/").Buffer;
 
 export class InjectedWalletProvider implements WalletProvider {
-  public readonly identifier: string = "keplr-extension";
+  public readonly identifier: string = "fetchai-extension";
   public readonly version: string = Manifest.version;
 
   /**
    * Request access to the user's accounts. Wallet can ask the user to approve or deny access. If user deny access, it will throw error.
    */
-  async enable(context: Context): Promise<void> {
-    const msg = EnableKeyRingMsg.create(
-      context.get("chainId"),
-      window.location.origin
-    );
+  async enable(): Promise<void> {
+    const msg = EnableKeyRingMsg.create(window.location.origin);
     await sendMessage(BACKGROUND_PORT, msg);
   }
 
   /**
    * Get array of keys that includes bech32 address string, address bytes and public key from wallet if user have approved the access.
    */
-  async getKeys(context: Context): Promise<Key[]> {
-    const msg = GetKeyMsg.create(
-      context.get("chainId"),
-      window.location.origin
-    );
+  async getKeys(): Promise<Key[]> {
+    const msg = GetKeyMsg.create(window.location.origin);
     const key = await sendMessage(BACKGROUND_PORT, msg);
     return Promise.resolve([
       {
@@ -63,7 +57,7 @@ export class InjectedWalletProvider implements WalletProvider {
    * Received tx builder config can be changed in the client. The wallet provider must verify that it is the same as the tx builder config sent earlier or warn the user before signing.
    */
   async getTxBuilderConfig(
-    context: Context,
+    _context: Context,
     config: TxBuilderConfig
   ): Promise<TxBuilderConfig> {
     const random = new Uint8Array(4);
@@ -72,7 +66,6 @@ export class InjectedWalletProvider implements WalletProvider {
 
     const requestTxBuilderConfigMsg = RequestTxBuilderConfigMsg.create(
       {
-        chainId: context.get("chainId"),
         ...txBuilderConfigToPrimitive(config)
       },
       id,
@@ -92,7 +85,7 @@ export class InjectedWalletProvider implements WalletProvider {
    * Request signature from matched address if user have approved the access.
    */
   async sign(
-    context: Context,
+    _context: Context,
     bech32Address: string,
     message: Uint8Array
   ): Promise<Uint8Array> {
@@ -101,7 +94,6 @@ export class InjectedWalletProvider implements WalletProvider {
     const id = Buffer.from(random).toString("hex");
 
     const requestSignMsg = RequestSignMsg.create(
-      context.get("chainId"),
       id,
       bech32Address,
       Buffer.from(message).toString("hex"),

@@ -1,36 +1,65 @@
-import React, { FunctionComponent } from "react";
+import React, { FunctionComponent, useEffect, useState } from "react";
 
 import styleIntro from "./intro.module.scss";
+import { FormattedMessage } from "react-intl";
+import { setLightMode } from "../../light-mode";
+import classnames from "classnames";
 
-import { FormattedMessage, useIntl } from "react-intl";
+interface ButtonContent {
+  title: string;
+  content: string;
+  onClick: () => void;
+  errorMessage?: string;
+}
 
 export const IntroInPage: FunctionComponent<{
-  onRequestNewAccount: () => void;
-  onRequestRecoverAccount: () => void;
+  topButton: ButtonContent;
+  bottomButton: ButtonContent;
+  middleButton?: ButtonContent;
 }> = props => {
-  const intl = useIntl();
+  useEffect(() => {
+    // no light-mode from signup.
+    setLightMode(false, false, true);
+  }, []);
+
+  const [middleButtonErrorMessage, setMiddleButtonErrorMessage] = useState("");
+
+  useEffect(() => {
+    if (
+      props.middleButton &&
+      props.middleButton.errorMessage !== middleButtonErrorMessage
+    ) {
+      setMiddleButtonErrorMessage(props.middleButton.errorMessage as string);
+    }
+  }, [props.middleButton]);
 
   return (
     <div>
       <BigButton
-        icon="fa-plus"
-        title={intl.formatMessage({
-          id: "register.intro.button.new-account.title"
-        })}
-        content={intl.formatMessage({
-          id: "register.intro.button.new-account.content"
-        })}
-        onClick={props.onRequestNewAccount}
+        green={true}
+        icon="seed-icon"
+        title={props.topButton.title}
+        content={props.topButton.content}
+        onClick={props.topButton.onClick}
       />
+      {props.middleButton ? (
+        <BigButton
+          green={false}
+          icon="nano-icon"
+          title={props.middleButton.title}
+          content={props.middleButton.content}
+          onClick={props.middleButton.onClick}
+          error={middleButtonErrorMessage}
+        />
+      ) : (
+        ""
+      )}
       <BigButton
-        icon="fa-download"
-        title={intl.formatMessage({
-          id: "register.intro.button.import-account.title"
-        })}
-        content={intl.formatMessage({
-          id: "register.intro.button.import-account.content"
-        })}
-        onClick={props.onRequestRecoverAccount}
+        green={props.middleButton ? true : false}
+        icon="file-icon"
+        title={props.bottomButton.title}
+        content={props.bottomButton.content}
+        onClick={props.bottomButton.onClick}
       />
       <div className={styleIntro.subContent}>
         <FormattedMessage
@@ -45,23 +74,46 @@ export const IntroInPage: FunctionComponent<{
 };
 
 const BigButton: FunctionComponent<{
+  green: boolean;
   icon: string;
   title: string;
   content: string;
   onClick: () => void;
-}> = ({ icon, title, content, onClick }) => {
+  error?: string;
+}> = ({ icon, title, content, onClick, green, error }) => {
+  /**
+   * if error message cannot fit on a single line, then we have to increase spacing between buttons
+   */
+  const isMultilineErrorMessage = (): boolean => {
+    const SINGLE_LINE_LENGTH: number = 65;
+    return Boolean(error && error.length > SINGLE_LINE_LENGTH);
+  };
+
   return (
-    <div className={styleIntro.bigButton} onClick={onClick}>
-      <span className={`icon is-medium ${styleIntro.icon}`}>
-        <i className={`fas fa-2x ${icon}`} />
-      </span>
-      <div className={styleIntro.description}>
-        <div className={styleIntro.title}>{title}</div>
-        <div className={styleIntro.content}>{content}</div>
+    <>
+      <div
+        className={`${styleIntro.bigButton} ${green ? "green" : "blue"}`}
+        onClick={onClick}
+      >
+        <span className={`icon is-medium ${styleIntro.icon}`}>
+          <img src={require(`../../public/assets/${icon}.svg`)} />
+        </span>
+        <div className={styleIntro.description}>
+          <div className={styleIntro.title}>{title}</div>
+          <div className={styleIntro.content}>{content}</div>
+        </div>
+        <span className={`icon is-small ${styleIntro.arrow}`}>
+          <i className="fas fa-angle-right" />
+        </span>
       </div>
-      <span className={`icon is-small ${styleIntro.arrow}`}>
-        <i className="fas fa-angle-right" />
+      <span
+        className={classnames(
+          styleIntro.error,
+          isMultilineErrorMessage() ? styleIntro.multilineError : ""
+        )}
+      >
+        {error ? error : ""}
       </span>
-    </div>
+    </>
   );
 };

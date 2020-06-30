@@ -40,6 +40,7 @@ export class PopupWalletProvider implements WalletProvider {
   /**
    * Request access to the user's accounts. Wallet can ask the user to approve or deny access. If user deny access, it will throw error.
    */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   enable(_: Context): Promise<void> {
     // TODO
     return Promise.resolve();
@@ -48,9 +49,8 @@ export class PopupWalletProvider implements WalletProvider {
   /**
    * Get array of keys that includes bech32 address string, address bytes and public key from wallet if user have approved the access.
    */
-  async getKeys(context: Context): Promise<Key[]> {
+  async getKeys(): Promise<Key[]> {
     const msg = GetKeyMsg.create(
-      context.get("chainId"),
       // There is no need to set origin because this wallet provider is used in internal.
       ""
     );
@@ -72,7 +72,7 @@ export class PopupWalletProvider implements WalletProvider {
    * Received tx builder config can be changed in the client. The wallet provider must verify that it is the same as the tx builder config sent earlier or warn the user before signing.
    */
   getTxBuilderConfig(
-    context: Context,
+    _context: Context,
     config: TxBuilderConfig
   ): Promise<TxBuilderConfig> {
     if (!this.feeApprover) {
@@ -83,9 +83,12 @@ export class PopupWalletProvider implements WalletProvider {
     crypto.getRandomValues(random);
     const id = Buffer.from(random).toString("hex");
 
+    // debugger; // check what is chainid here
+    // const x = context.get("chainId");
+    // debugger;
+
     const requestTxBuilderConfig = RequestTxBuilderConfigMsg.create(
       {
-        chainId: context.get("chainId"),
         ...txBuilderConfigToPrimitive(config)
       },
       id,
@@ -112,7 +115,7 @@ export class PopupWalletProvider implements WalletProvider {
    * Request signature from matched address if user have approved the access.
    */
   sign(
-    context: Context,
+    _context: Context,
     bech32Address: string,
     message: Uint8Array
   ): Promise<Uint8Array> {
@@ -121,7 +124,6 @@ export class PopupWalletProvider implements WalletProvider {
     const id = Buffer.from(random).toString("hex");
 
     const requestSignMsg = RequestSignMsg.create(
-      context.get("chainId"),
       id,
       bech32Address,
       Buffer.from(message).toString("hex"),

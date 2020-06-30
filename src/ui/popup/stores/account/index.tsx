@@ -2,9 +2,11 @@ import { ChainInfo } from "../../../../chain-info";
 
 import { sendMessage } from "../../../../common/message";
 import {
+  FetchEveryAddressMsg,
+  GetActiveAddressMsg,
   GetKeyMsg,
   KeyRingStatus,
-  SetPathMsg
+  SetActiveAddressMsg,
 } from "../../../../background/keyring";
 
 import { action, observable } from "mobx";
@@ -17,11 +19,16 @@ import { queryAccount } from "@everett-protocol/cosmosjs/core/query";
 import { RootStore } from "../root";
 
 import Axios, { CancelTokenSource } from "axios";
-import { AutoFetchingAssetsInterval } from "../../../../config";
+import {
+  AutoFetchingAssetsInterval,
+  COSMOS_SDK_VERSION
+} from "../../../../config";
+import { GetBalanceMsg } from "../../../../background/api";
+import ActiveEndpoint from "../../../../common/utils/active-endpoint";
 
 export class AccountStore {
   @observable
-  private chainInfo!: ChainInfo;
+  chainInfo!: ChainInfo;
 
   @observable
   public isAddressFetching!: boolean;
@@ -69,8 +76,16 @@ export class AccountStore {
 
     this.bip44Account = 0;
     this.bip44Index = 0;
-
     this.keyRingStatus = KeyRingStatus.NOTLOADED;
+  }
+
+  @action
+  public async clearAssets(clearStorage = false) {
+    this.assets = [];
+
+    if (clearStorage) {
+      await browser.storage.local.remove("assets");
+    }
   }
 
   // This will be called by chain store.
@@ -95,6 +110,37 @@ export class AccountStore {
     this.lastFetchingIntervalId = setInterval(() => {
       this.fetchAssets();
     }, AutoFetchingAssetsInterval);
+  }
+
+  @actionAsync
+  public async fetchEveryAddress(): Promise<Array<string>> {
+    const fetchEveryAddressMsg = FetchEveryAddressMsg.create();
+    const addressList = await task(
+      sendMessage(BACKGROUND_PORT, fetchEveryAddressMsg)
+    );
+    return addressList.AddressList;
+  }
+
+  /**
+   * We set which address, of potentially many addresses is going to be active in our wallet ie used for balance/transfers ect.
+   * @param address
+   */
+  @actionAsync
+  public async setActiveAddress(address: string): Promise<void> {
+    const setActiveAddressMsg = SetActiveAddressMsg.create(address);
+
+    await task(sendMessage(BACKGROUND_PORT, setActiveAddressMsg));
+    return;
+  }
+
+  @actionAsync
+  public async getActiveAddress(): Promise<string> {
+    const getActiveAddressMsg = GetActiveAddressMsg.create();
+
+    const activeAddress = await task(
+      sendMessage(BACKGROUND_PORT, getActiveAddressMsg)
+    );
+    return activeAddress.activeAddress;
   }
 
   // This will be called by keyring store.
@@ -128,18 +174,9 @@ export class AccountStore {
   @actionAsync
   private async fetchBech32Address() {
     this.isAddressFetching = true;
-
-    const setPathMsg = SetPathMsg.create(
-      this.chainInfo.chainId,
-      this.bip44Account,
-      this.bip44Index
-    );
-    await task(sendMessage(BACKGROUND_PORT, setPathMsg));
-
     // No need to set origin, because this is internal.
-    const getKeyMsg = GetKeyMsg.create(this.chainInfo.chainId, "");
+    const getKeyMsg = GetKeyMsg.create("");
     const result = await task(sendMessage(BACKGROUND_PORT, getKeyMsg));
-
     const prevBech32Address = this.bech32Address;
 
     this.bech32Address = result.bech32Address;
@@ -177,19 +214,33 @@ export class AccountStore {
 
     this.isAssetFetching = true;
 
-    try {
-      const account = await task(
-        queryAccount(
-          this.chainInfo.bech32Config,
-          Axios.create({
-            baseURL: this.chainInfo.rpc,
-            cancelToken: this.lastFetchingCancleToken.token
-          }),
-          this.bech32Address
-        )
-      );
+    const endpointData = await task(ActiveEndpoint.getActiveEndpoint());
 
-      this.assets = account.getCoins();
+    try {
+      if (COSMOS_SDK_VERSION > 37) {
+        const msg = GetBalanceMsg.create(endpointData.rest, this.bech32Address);
+
+        const res = await task(sendMessage(BACKGROUND_PORT, msg));
+        const coins: Coin[] = [];
+        res.coins.forEach((el: any) => {
+          coins.push(new Coin(el.denom, el.amount));
+        });
+        // coins = CoinUtils.convertCoinsFromMinimalDenomAmount(coins);
+        this.assets = coins;
+      } else {
+        const account = await task(
+          queryAccount(
+            this.chainInfo.bech32Config,
+            Axios.create({
+              baseURL: endpointData.rpc,
+              cancelToken: this.lastFetchingCancleToken.token
+            }),
+            this.bech32Address
+          )
+        );
+        this.assets = account.getCoins();
+      }
+
       this.lastAssetFetchingError = undefined;
       // Save the assets to storage.
       await task(this.saveAssetsToStorage(this.bech32Address, this.assets));

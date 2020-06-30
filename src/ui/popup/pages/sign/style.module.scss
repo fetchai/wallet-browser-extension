@@ -6,6 +6,7 @@
     display: flex;
     flex: 1;
     padding: 0;
+    color: white;
 
     li {
       flex: 1;
@@ -13,13 +14,25 @@
       border-bottom-color: #dbdbdb;
       border-bottom-style: solid;
       border-bottom-width: 1px;
+      color: lightgrey;
 
       &:global(.active) {
-        border-bottom-color: #5e72e4;
-        color: #5e72e4;
+        color: white;
       }
     }
   }
+
+:global(.light-mode) {
+  .tabs {
+    ul > &:global(.active) {
+      color: $light-mode-grey !important;
+    }
+
+  li &:global(.active) {
+      color: $light-mode-grey !important;
+      }
+}
+}
 
   .tab {
     cursor: pointer;
@@ -46,9 +59,12 @@
   overflow: auto;
 }
 
+
+
 .message {
   height: 400px;
   font-size: 12px;
   overflow: visible;
   background: transparent;
+  color: white;
 }

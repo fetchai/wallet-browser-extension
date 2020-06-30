@@ -6,33 +6,56 @@
   flex-direction: column;
   justify-content: space-around;
   align-items: center;
-
-  padding: 20px 0;
+  padding: 17px 0;
 
   .title {
+    color: $grey-main;
     font-size: 14px;
-    letter-spacing: -0.31px;
+    letter-spacing: -0.4px;
+    font-weight: 600;
     text-align: center;
-    color: #4a4a4a;
+    color: $grey-main;
+  }
+
+  .select {
+
+    border-style: none;
+    padding-bottom: 3px;
+    background-color: inherit;
+    color: #9ab4bf;
+
+    & option {
+      background-color: #1e2844;
+    color: #9ab4bf;
+
+    }
+  }
+
+  .circular-logo {
+    width: 130px;
+    margin-bottom: 20px;
+    margin-top: 15px;
   }
 
   .fiat {
     font-size: 36px;
     text-align: center;
-
-    letter-spacing: -0.8px;
-    color: black;
+    font-wieght: 800;
+    line-height: 40px;
+    height: 40px;
+    padding-bottom: 3px;
   }
+
+
 
   .amount {
     position: relative;
     display: flex;
-
-    font-size: 18px;
+    font-size: 17px;
     text-align: center;
-
     letter-spacing: -0.4px;
-    color: #8f8f8f;
+    color: $grey-main;
+    margin-top: -5px;
   }
 
   .indicator-icon {
@@ -45,3 +68,28 @@
     min-width: 140px;
   }
 }
+
+.block {
+  display:block;
+}
+
+.hide {
+  display:none;
+}
+
+:global(.light-mode) {
+  .container-asset > .fiat {
+   color: $light-mode-grey;
+  }
+}
+
+:global(.light-mode) {
+  .select {
+    color: $light-mode-grey;
+     & option {
+         background-color: #eaf1f3;
+       color: $light-mode-grey;
+    }
+  }
+}
+

@@ -80,7 +80,7 @@ export class AsyncApprover<T = unknown, R = void> {
     }
 
     this.requests.delete(id);
-    resolver.reject(new Error("Request rejected"));
+     resolver.reject(new Error("Request rejected!"));
   }
 
   getData(id: string): T | undefined {

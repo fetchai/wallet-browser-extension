@@ -6,37 +6,169 @@ $fa-font-path: "~@fortawesome/fontawesome-free/webfonts";
 @import "~@fortawesome/fontawesome-free/scss/fontawesome";
 @import "~@fortawesome/fontawesome-free/scss/solid";
 
-@import url("https://fonts.googleapis.com/css?family=Nunito+Sans:300,400,700,800&display=swap");
-
-$font-family-base: "Nunito Sans", sans-serif;
 $body-color: black;
 @import "~argon-dashboard-react/src/assets/scss/argon-dashboard-react";
-
-@import url("https://fonts.googleapis.com/css?family=Courier+Prime&display=swap");
 
 @import "../../../palette";
 
 @import "var";
+@import "mixin";
+
+/* Change the white to any color ;) */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 30px #1c2846 inset !important;
+}
+
+
+/*Change text in autofill textbox*/
+input:-webkit-autofill {
+  -webkit-text-fill-color: white !important;
+  &.is-invalid {
+    -webkit-text-fill-color: red !important;
+  }
+}
+
+.light-mode {
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  textarea:-webkit-autofill,
+  textarea:-webkit-autofill:hover,
+  textarea:-webkit-autofill:focus,
+  select:-webkit-autofill,
+  select:-webkit-autofill:hover,
+  select:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0 30px rgb(236, 241, 243) inset !important;
+  }
+
+  input:-webkit-autofill {
+    -webkit-text-fill-color: #5b6065 !important;
+  }
+}
+
+
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type="number"] {
+  -moz-appearance: textfield;
+}
 
 html {
   width: $popup-size-width;
   height: $popup-size-height;
   margin: auto;
-  background-color: white;
+  background-attachment: fixed;
 
-  overflow: auto;
+  height: 100%;
+  overflow: hidden;
+}
+
+.light-mode {
+  html {
+    background-image: none;
+    background-color: white;
+  }
 }
 
 body {
   width: $popup-size-width;
   height: $popup-size-height;
+  background: none;
+  color: white;
+}
 
-  background-color: $background-color;
+.light-mode {
+  body {
+    color: $light-mode-blue;
+  }
 }
 
 #app {
   width: $popup-size-width;
   height: $popup-size-height;
+}
+
+.white-border {
+  border-style: solid;
+  border-width: 2px;
+  border-color: white;
+}
+
+.blue-border {
+  border-color: $light-mode-blue;
+}
+
+.light-mode {
+  .white-border {
+    @extend .blue-border;
+  }
+}
+
+.red {
+  border-color: red !important;
+  color: red !important;
+
+  &:focus {
+    color: red !important;
+  }
+}
+
+.is-invalid {
+  @extend .red;
+
+  &.focus {
+    border-color: red !important;
+  }
+}
+
+.is-invalid::-webkit-input-placeholder {
+  color: red;
+
+  &.focus {
+    color: white;
+  }
+}
+
+/*
+only in light mode should placeholder text be red in the settings page password reset form.
+ */
+
+.light-mode {
+  .red::-webkit-input-placeholder {
+    color: red;
+
+    &.focus {
+      color: white;
+    }
+  }
+}
+
+.on-change-remove-error:focus {
+  border-style: solid !important;
+  border-width: 2px !important;
+  border-color: white !important;
+  color: white !important;
+}
+
+.light-mode {
+  .on-change-remove-error:focus {
+    border-color: $light-mode-blue !important;
+    color: $light-mode-blue !important;
+  }
 }
 
 @keyframes spinAround {
@@ -53,13 +185,133 @@ body {
 .valid-feedback,
 .invalid-feedback {
   position: absolute;
+  color: red;
+}
+
+.grey-hover {
+  &:hover {
+    background-color: $grey;
+    border-color: white;
+    color: white;
+  }
+}
+
+.grey-no-opacity-hover {
+  @extend .grey-hover;
+  &:hover {
+    background-color: $grey-no-opacity;
+  }
+}
+
+.blue {
+  background-color: rgba(88, 135, 218, 0.3);
+  border-color: rgba(88, 135, 218, 1);
+  border-style: solid;
+  border-width: 2px;
+  color: white;
+  cursor: pointer;
+  @extend .grey-hover;
+}
+
+.light-mode {
+  .blue {
+    border-style: none;
+    background-color: rgb(89, 130, 212);
+  }
+}
+
+#green,
+.green {
+  background-color: rgba(43, 181, 162, 0.25);
+  border-color: rgba(43, 181, 162, 1);
+  border-style: solid;
+  border-width: 1px;
+  color: white;
+  cursor: pointer;
+  @extend .grey-hover;
+}
+
+.light-mode {
+  #green,
+  .green {
+    border-style: none;
+    background-color: rgb(48, 175, 156);
+  }
+}
+
+#green:disabled {
+  @extend .green;
+  cursor: not-allowed;
+}
+
+#green-no-opacity {
+  @extend .green;
+  @extend .grey-no-opacity-hover;
+  background-color: rgba(21, 49, 49, 1);
+}
+
+#green-solid,
+.green-solid {
+  cursor: pointer;
+  background-color: rgba(43, 181, 162, 0.25) !important;
+  border-style: none;
+  color: white;
+}
+
+.light-mode {
+  #green-solid,
+  .green-solid {
+    background-color: rgb(48, 175, 156) !important;
+  }
+}
+
+.lock-border {
+  @extend .white-border;
+  // todo question: should we be able to see video through lock password input.
+  // uncomment beloe line across file if yes.
+  //background-image: linear-gradient(to top, #111117, #12121a) !important;
+  border-radius: 5px;
+  font-size: 18px;
+}
+
+.lock-border:focus {
+  @extend .white-border;
+  background: none;
+  //background-image: linear-gradient(to top, #111117, #12121a) !important;;
+  font-size: 18px;
+}
+
+#hr {
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+  border: 1px solid white;
+}
+
+.light-mode {
+  #hr {
+    border-color: $light-mode-grey;
+  }
 }
 
 .form-control {
-  color: black;
+  color: white;
+  background: none;
 
   &:focus {
-    color: black;
+    background: none;
+    color: white;
+    @extend .white-border;
+  }
+}
+
+.light-mode {
+  .form-control {
+    color: $light-mode-grey;
+
+    &:focus {
+      @extend .blue-border;
+      color: $light-mode-grey;
+    }
   }
 }
 
@@ -71,7 +323,6 @@ button[data-loading="true"] {
     position: absolute !important;
     left: calc(50% - (1em / 2));
     top: calc(50% - (1em / 2));
-
     -webkit-animation: spinAround 0.5s infinite linear;
     animation: spinAround 0.5s infinite linear;
     border: 2px solid #dbdbdb;
@@ -84,3 +335,31 @@ button[data-loading="true"] {
     width: 1em;
   }
 }
+
+.tool-tip {
+  font-size: 11px;
+  backgroud-color: light-grey;
+  color: black;
+}
+
+
+.custom-scrollbar::-webkit-scrollbar {
+    width: 10px;
+  height: 0px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, .3);
+    background-color: #808080
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+    background-color: #B8B8B8;
+}
+
+.clickable {
+    cursor: pointer;
+  }

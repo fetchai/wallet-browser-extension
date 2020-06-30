@@ -1,0 +1,37 @@
+@import "../../popup/styles/global";
+
+.form-control-label {
+  color:white;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+ :global(.light-mode) {
+   .form-control-label {
+     color: $light-mode-grey;
+   }
+ }
+
+.form-control-override {
+    color:white;
+}
+
+ :global(.light-mode) {
+   .form-control-override {
+     color: $light-mode-grey;
+   }
+ }
+
+.white-border {
+  @extend .white-border;
+}
+
+ :global(.light-mode) {
+   .white-border {
+     @extend .blue-border;
+   }
+ }
+
+.red {
+  @extend .red;
+}

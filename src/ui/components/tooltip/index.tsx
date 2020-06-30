@@ -19,7 +19,7 @@ interface ToolTipState {
 
 export class ToolTip extends React.Component<ToolTipProps, ToolTipState> {
   static defaultProps = {
-    theme: "dark"
+    theme: "bright"
   };
 
   state = {

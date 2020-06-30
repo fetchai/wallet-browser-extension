@@ -2,6 +2,7 @@ import React, { forwardRef, useState } from "react";
 
 import classnames from "classnames";
 
+
 import {
   FormFeedback,
   FormGroup,
@@ -12,6 +13,8 @@ import {
 import { InputType } from "reactstrap/lib/Input";
 
 const Buffer = require("buffer/").Buffer;
+
+import style from "./form.module.scss";
 
 export interface InputProps {
   type: Exclude<InputType, "textarea">;
@@ -45,13 +48,17 @@ export const Input = forwardRef<
   return (
     <FormGroup>
       {label ? (
-        <Label for={inputId} className="form-control-label">
+        <Label for={inputId} className={style.formControlLabel}>
           {label}
         </Label>
       ) : null}
       <ReactStrapInput
         id={inputId}
-        className={classnames("form-control-alternative", props.className)}
+        className={classnames(
+          "form-control-alternative",
+          style.formControlOverride,
+          props.className
+        )}
         type={type}
         innerRef={ref}
         invalid={error != null}

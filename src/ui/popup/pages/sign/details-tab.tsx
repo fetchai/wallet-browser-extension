@@ -1,6 +1,5 @@
 import React, { FunctionComponent, useEffect, useState } from "react";
 import { Coin } from "@everett-protocol/cosmosjs/common/coin";
-import { CoinUtils } from "../../../../common/coin-utils";
 
 import { Dec } from "@everett-protocol/cosmosjs/common/decimal";
 import { observer } from "mobx-react";
@@ -11,74 +10,114 @@ import styleDetailsTab from "./details-tab.module.scss";
 import classnames from "classnames";
 
 import { MessageObj, renderMessage } from "./messages";
-import { DecUtils } from "../../../../common/dec-utils";
 import { useIntl } from "react-intl";
+import { LedgerNanoMsg } from "../../../../background/ledger-nano";
+import { METHODS } from "../../../../background/ledger-nano/constants";
+import { BACKGROUND_PORT } from "../../../../common/message/constant";
+import { sendMessage } from "../../../../common/message/send";
+import { divideByDecimals } from "../../../../common/utils/divide-decimals";
+import { formatDollarString } from "../../../../common/utils/formatDollarStringFee";
 
-export const DetailsTab: FunctionComponent<{ message: string }> = observer(
-  ({ message }) => {
-    const { priceStore } = useStore();
+export const DetailsTab: FunctionComponent<{
+  message: string;
+  hardwareErrorMessage: string;
+  resolveError: () => void;
+}> = observer(({ message, hardwareErrorMessage, resolveError }) => {
+  const { priceStore } = useStore();
 
-    const intl = useIntl();
+  const intl = useIntl();
+  const [fee, setFee] = useState<Coin[]>([]);
+  const [feeFiat, setFeeFiat] = useState(new Dec(0));
+  const [memo, setMemo] = useState("");
+  const [msgs, setMsgs] = useState<MessageObj[]>([]);
+  const [hardwareErrorMsg, setHardwareErrorMsg] = useState("");
+  const [hardwareErrorResolved, sethardwareErrorResolved] = useState(false);
 
-    const [fee, setFee] = useState<Coin[]>([]);
-    const [feeFiat, setFeeFiat] = useState(new Dec(0));
-    const [memo, setMemo] = useState("");
-    const [msgs, setMsgs] = useState<MessageObj[]>([]);
+  const checkNanoIsReady = async () => {
+    let hardwareError = false;
 
-    useEffect(() => {
-      if (message) {
-        const msgObj: {
-          fee: {
-            amount: [{ amount: string; denom: string }];
-            gas: string;
-          };
-          memo: string;
-          msgs: MessageObj[];
-        } = JSON.parse(message);
+    const msg = LedgerNanoMsg.create(METHODS.isSupportedVersion);
+    const result = await sendMessage(BACKGROUND_PORT, msg);
 
-        setMemo(msgObj.memo);
-        setMsgs(msgObj.msgs);
+    if (typeof result.errorMessage !== "undefined") {
+      hardwareError = true;
+      setHardwareErrorMsg(result.errorMessage);
+    }
 
-        const coinObjs = msgObj.fee.amount;
-        const fees: Coin[] = [];
-        for (const coinObj of coinObjs) {
-          fees.push(new Coin(coinObj.denom, coinObj.amount));
-        }
-        setFee(fees);
+    if (!hardwareError) {
+      sethardwareErrorResolved(true);
+      resolveError();
+    }
+  };
+
+  useEffect(() => {
+    if (hardwareErrorMessage && hardwareErrorMessage !== hardwareErrorMsg) {
+      setHardwareErrorMsg(hardwareErrorMessage);
+    }
+  }, [hardwareErrorMessage]);
+
+  useEffect(() => {
+    if (message) {
+      const msgObj: {
+        fee: {
+          amount: [{ amount: string; denom: string }];
+          gas: string;
+        };
+        memo: string;
+        msgs: MessageObj[];
+      } = JSON.parse(message);
+
+      debugger;
+      setMemo(msgObj.memo);
+      setMsgs(msgObj.msgs);
+
+      const coinObjs = msgObj.fee.amount;
+      const fees: Coin[] = [];
+      for (const coinObj of coinObjs) {
+        fees.push(new Coin(coinObj.denom, coinObj.amount));
       }
-    }, [message]);
+      setFee(fees);
+    }
+  }, [message]);
 
-    useEffect(() => {
-      let price = new Dec(0);
-      for (const coin of fee) {
-        const currency = getCurrencyFromMinimalDenom(coin.denom);
-        if (currency) {
-          const value = priceStore.getValue("usd", currency.coinGeckoId);
-          const parsed = CoinUtils.parseDecAndDenomFromCoin(coin);
-          if (value) {
-            price = price.add(new Dec(parsed.amount).mul(value.value));
-          }
+  useEffect(() => {
+    let price = new Dec(0);
+    for (const coin of fee) {
+      const currency = getCurrencyFromMinimalDenom(coin.denom);
+      if (currency) {
+        const value = priceStore.getValue("usd", currency.coinGeckoId);
+        let amount = divideByDecimals(
+          coin.amount.toString(),
+          currency.coinDecimals
+        );
+        if (value) {
+          price = price.add(new Dec(amount).mul(value.value));
         }
       }
+    }
 
-      setFeeFiat(price);
-    }, [fee, priceStore]);
+    setFeeFiat(price);
+  }, [fee, priceStore]);
 
-    return (
-      <div className={styleDetailsTab.container}>
-        <div
-          className={classnames(
-            styleDetailsTab.section,
-            styleDetailsTab.messages
-          )}
-        >
-          <div className={styleDetailsTab.title}>
-            {intl.formatMessage({
-              id: "sign.list.messages.label"
-            })}
-          </div>
-          {msgs.map((msg, i) => {
-            const msgContent = renderMessage(msg, intl);
+  return (
+    <div className={styleDetailsTab.container}>
+      <div
+        className={classnames(
+          styleDetailsTab.section,
+          styleDetailsTab.messages
+        )}
+      >
+        <div className={styleDetailsTab.title}>
+          {intl.formatMessage({
+            id: "sign.list.messages.label"
+          })}
+        </div>
+        {msgs
+          .filter(msg => {
+            return typeof msg !== "undefined";
+          })
+          .map((msg, i) => {
+            const msgContent = renderMessage(msg, intl) as any;
             return (
               <React.Fragment key={i.toString()}>
                 <Msg icon={msgContent.icon} title={msgContent.title}>
@@ -88,7 +127,8 @@ export const DetailsTab: FunctionComponent<{ message: string }> = observer(
               </React.Fragment>
             );
           })}
-        </div>
+      </div>
+      {!hardwareErrorMessage && !hardwareErrorResolved ? (
         <div className={styleDetailsTab.section}>
           <div className={styleDetailsTab.title}>
             {intl.formatMessage({
@@ -99,32 +139,40 @@ export const DetailsTab: FunctionComponent<{ message: string }> = observer(
             <div>
               {fee
                 .map(fee => {
-                  const parsed = CoinUtils.parseDecAndDenomFromCoin(fee);
-                  return `${DecUtils.removeTrailingZerosFromDecStr(
-                    parsed.amount
-                  )} ${parsed.denom}`;
+                  return `${fee.amount.toString()} ${fee.denom}`;
                 })
                 .join(",")}
             </div>
-            <div
-              className={styleDetailsTab.fiat}
-            >{`$${DecUtils.decToStrWithoutTrailingZeros(feeFiat)}`}</div>
+            <div className={styleDetailsTab.fiat}>
+              {formatDollarString(feeFiat.toString())}
+            </div>
           </div>
         </div>
-        {memo ? (
-          <div className={styleDetailsTab.section}>
-            <div className={styleDetailsTab.title}>
-              {intl.formatMessage({
-                id: "sign.info.memo"
-              })}
-            </div>
-            <div className={styleDetailsTab.memo}>{memo}</div>
+      ) : null}
+      {memo ? (
+        <div className={styleDetailsTab.section}>
+          <div className={styleDetailsTab.title}>
+            {intl.formatMessage({
+              id: "sign.info.memo"
+            })}
           </div>
-        ) : null}
-      </div>
-    );
-  }
-);
+          <div className={styleDetailsTab.memo}>{memo}</div>
+        </div>
+      ) : null}
+      {hardwareErrorMessage && !hardwareErrorResolved ? (
+        <div className={styleDetailsTab.section}>
+          <div className={styleDetailsTab.title}>
+            {intl.formatMessage({
+              id: "sign.info.error"
+            })}
+          </div>
+          <div className={styleDetailsTab.error}>{hardwareErrorMessage}</div>
+          <button onClick={checkNanoIsReady}>resolved</button>
+        </div>
+      ) : null}
+    </div>
+  );
+});
 
 const Msg: FunctionComponent<{
   icon?: string;

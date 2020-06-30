@@ -1,6 +1,7 @@
-$arrow-size: 6px;
+$arrow-size: 5px;
+$arrow-large-size: 19px;
 $dark: rgba(0, 0, 0, 0.75);
-$bright: rgba(255, 255, 255, 0.75);
+$bright:  lightgray;
 
 :global {
   [x-arrow] {
@@ -11,11 +12,16 @@ $bright: rgba(255, 255, 255, 0.75);
   .popper {
     margin-top: $arrow-size;
     margin-bottom: $arrow-size;
+
+    &.large{
+      margin-top: $arrow-size;
+    margin-bottom: $arrow-size;
+    }
+
     background-color: $dark;
     padding: 4px;
-    border-radius: 6px;
+    border-radius: 10px;
     color: white;
-
     z-index: 1000;
     transition: opacity 0.45s;
   }

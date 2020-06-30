@@ -18,7 +18,7 @@ interface CoinGeckoPriceResult {
   };
 }
 
-interface Price {
+export interface Price {
   value: Dec;
   isFetching: boolean;
 }
@@ -69,7 +69,7 @@ export class PriceStore {
     const lastChainInfo = this.chainInfo;
     this.chainInfo = info;
 
-    if (!lastChainInfo || lastChainInfo.chainId !== this.chainInfo.chainId) {
+    if (!lastChainInfo || lastChainInfo.nativeCurrency !== this.chainInfo.nativeCurrency) {
       if (this.lastFetchingIntervalId) {
         clearInterval(this.lastFetchingIntervalId);
         this.lastFetchingIntervalId = undefined;

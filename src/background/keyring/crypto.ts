@@ -16,8 +16,8 @@ interface ScryptParams {
  * This is similar to ethereum's key store.
  * But, the encryped data is not the private key, but the mnemonic words.
  */
-export interface KeyStore {
-  version: "1";
+export interface EncryptedKeyStructure {
+  version: string;
   crypto: {
     cipher: "aes-128-ctr";
     cipherparams: {
@@ -26,15 +26,23 @@ export interface KeyStore {
     ciphertext: string;
     kdf: "scrypt";
     kdfparams: ScryptParams;
-    mac: string;
+    mac?: string;
   };
+}
+
+// if user logins in with hardware wallet then we store alternate details
+// aka a hash of their password, and their public key
+
+export interface HardwareStore {
+  hash: string;
+  publicKeyHex: string;
 }
 
 export class Crypto {
   public static async encrypt(
     text: string,
     password: string
-  ): Promise<KeyStore> {
+  ): Promise<EncryptedKeyStructure> {
     let random = new Uint8Array(32);
     crypto.getRandomValues(random);
     const salt = Buffer.from(random).toString("hex");
@@ -77,8 +85,9 @@ export class Crypto {
   }
 
   public static async decrypt(
-    keyStore: KeyStore,
-    password: string
+    keyStore: EncryptedKeyStructure,
+    password: string,
+    ignoreMac: boolean = false
   ): Promise<Uint8Array> {
     const derivedKey = await Crypto.scrpyt(password, keyStore.crypto.kdfparams);
 
@@ -92,7 +101,8 @@ export class Crypto {
         Buffer.from(keyStore.crypto.ciphertext, "hex")
       ])
     );
-    if (!mac.equals(Buffer.from(keyStore.crypto.mac, "hex"))) {
+
+    if (!ignoreMac && !mac.equals(Buffer.from(keyStore.crypto.mac, "hex"))) {
       throw new Error("Unmatched mac");
     }
 

@@ -1,21 +1,23 @@
 import React, { FunctionComponent, useEffect, useState } from "react";
 
 import { Currency } from "../../../chain-info";
-
 import classnames from "classnames";
 import styleCoinInput from "./coin-input.module.scss";
+import style from "./form.module.scss";
 
-import { getCurrencyFromDenom } from "../../../common/currency";
+import { getCurrency, getCurrencyFromDenom } from "../../../common/currency";
 import { Dec } from "@everett-protocol/cosmosjs/common/decimal";
 import { ElementLike } from "react-hook-form/dist/types";
 import { Coin } from "@everett-protocol/cosmosjs/common/coin";
 import { FormFeedback, FormGroup, Input, InputGroup, Label } from "reactstrap";
+import { useStore } from "../../popup/stores";
 
 export interface CoinInputProps {
   currencies: Currency[];
+  isCosmosBeingSent: boolean;
   balances?: Coin[];
   balanceText?: string;
-
+  clearError?: any;
   className?: string;
   label?: string;
   error?: string;
@@ -28,6 +30,7 @@ export interface CoinInputProps {
   select: {
     name: string;
     ref: React.RefObject<HTMLSelectElement> | ElementLike | null;
+    callBack: any;
   };
 
   onChangeAllBanace?: (allBalance: boolean) => void;
@@ -41,6 +44,7 @@ interface DecCoin {
 
 export const CoinInput: FunctionComponent<CoinInputProps> = props => {
   const {
+    isCosmosBeingSent,
     currencies,
     balances,
     balanceText,
@@ -49,14 +53,27 @@ export const CoinInput: FunctionComponent<CoinInputProps> = props => {
     error,
     input,
     select,
-    onChangeAllBanace
+    onChangeAllBanace,
+    clearError
   } = props;
 
+  const { chainStore, accountStore } = useStore();
   const [currency, setCurrency] = useState<Currency | undefined>();
   const [step, setStep] = useState<string | undefined>();
   const [balance, setBalance] = useState<DecCoin | undefined>();
 
   const [allBalance, setAllBalance] = useState(false);
+  const [isCosmosBeingSentProp, setIsCosmosBeingSentProp] = useState(
+    isCosmosBeingSent
+  );
+
+  const nativeCurrency = getCurrency(
+    chainStore.chainInfo.nativeCurrency
+  ) as Currency;
+
+  const [selectedCurrency, setSelectedCurrency] = useState(
+    nativeCurrency.coinDenom
+  );
 
   useEffect(() => {
     // If curreny currency is undefined, or new currencies don't have the matched current currency,
@@ -77,6 +94,10 @@ export const CoinInput: FunctionComponent<CoinInputProps> = props => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currencies]);
+
+  useEffect(() => {
+    setIsCosmosBeingSentProp(isCosmosBeingSent);
+  }, [isCosmosBeingSent]);
 
   useEffect(() => {
     if (balances && currency) {
@@ -117,6 +138,14 @@ export const CoinInput: FunctionComponent<CoinInputProps> = props => {
     }
   }, [currency]);
 
+  const currencyChange = (event: any) => {
+    const selectedCurency = event.target.value;
+    const currency = getCurrencyFromDenom(selectedCurency);
+    setCurrency(currency);
+    setSelectedCurrency(selectedCurency);
+    select.callBack(selectedCurency);
+  };
+
   const canAllBalance =
     onChangeAllBanace && balance && balance.dec.gt(new Dec(0));
 
@@ -126,12 +155,72 @@ export const CoinInput: FunctionComponent<CoinInputProps> = props => {
     return `input-${Buffer.from(bytes).toString("hex")}`;
   });
 
+  const getDropDownOptions = () => {
+    const options = [];
+    for (const coins of accountStore.assets) {
+      if (coins.denom !== nativeCurrency.coinDenom) {
+        options.push(coins.denom);
+      }
+    }
+
+    return options.map((value, index) => {
+      return (
+        <option key={index + 1} value={value}>
+          {value}
+        </option>
+      );
+    });
+  };
+
+  /**
+   * If we have more than one currency we will show the dropdown.
+   */
+  const showDropDown = () => {
+    return accountStore.assets.length > 1;
+  };
+
+  const getSelect = () => {
+    // if we are not sending cosmos then we are sending ethereum via peggy, in which case it is always the
+    // ethereum as the currency the recipient is sending, so always show that regardless.
+    if (!isCosmosBeingSentProp) {
+      return (
+        <span className={styleCoinInput.singleCurrency}>
+          {nativeCurrency.coinDenom}
+        </span>
+      );
+    }
+
+    // if we have multiple currencies in our asset store then we can select any of them to send.
+    if (showDropDown()) {
+      return (
+        <select
+          value={selectedCurrency}
+          id="currency"
+          name="denom"
+          className={styleCoinInput.select}
+          onChange={currencyChange}
+        >
+          <option key={1} value={nativeCurrency.coinDenom}>
+            {nativeCurrency.coinDenom}
+          </option>
+          {getDropDownOptions()}
+        </select>
+      );
+    }
+    // we have only one currency available to send (native) so we just show that currency.
+    return (
+      <span className={styleCoinInput.singleCurrency}>
+        {nativeCurrency.coinDenom}
+      </span>
+    );
+  };
+
   return (
     <FormGroup className={className}>
       {label ? (
         <Label
           for={inputId}
-          className="form-control-label"
+          className={style.formControlLabel}
           style={{ width: "100%" }}
         >
           {label}
@@ -166,15 +255,25 @@ export const CoinInput: FunctionComponent<CoinInputProps> = props => {
       ) : null}
       <InputGroup
         id={inputId}
-        className={classnames(styleCoinInput.selectContainer, {
-          disabled: allBalance
-        })}
+        className={classnames(
+          style.formControlOverride,
+          style.whiteBorder,
+          error ? style.red : false,
+          {
+            disabled: allBalance
+          }
+        )}
       >
         <Input
+          id={styleCoinInput.formControlOverride}
           className={classnames(
             "form-control-alternative",
-            styleCoinInput.input
+            styleCoinInput.input,
+            error ? style.red : false
           )}
+          onChange={() => {
+            clearError("amount");
+          }}
           type="number"
           step={step}
           name={input.name}
@@ -182,32 +281,8 @@ export const CoinInput: FunctionComponent<CoinInputProps> = props => {
           disabled={allBalance}
           autoComplete="off"
         />
-        <Input
-          type="select"
-          className={classnames(
-            "form-control-alternative",
-            styleCoinInput.select
-          )}
-          value={currency ? currency.coinDenom : ""}
-          onChange={e => {
-            const currency = getCurrencyFromDenom(e.target.value);
-            if (currency) {
-              setCurrency(currency);
-            }
-            e.preventDefault();
-          }}
-          name={select.name}
-          innerRef={select.ref as any}
-          disabled={allBalance}
-        >
-          {currencies.map((currency, i) => {
-            return (
-              <option key={i.toString()} value={currency.coinDenom}>
-                {currency.coinDenom}
-              </option>
-            );
-          })}
-        </Input>
+
+        {getSelect()}
       </InputGroup>
       {error ? (
         <FormFeedback style={{ display: "block" }}>{error}</FormFeedback>
