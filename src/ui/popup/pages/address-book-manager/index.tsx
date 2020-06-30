@@ -60,7 +60,7 @@ export const AddressBookManagerPage: FunctionComponent<RouteComponentProps> = ob
       setActiveAddress(address);
       // set active address in the background script
       await accountStore.setActiveAddress(address);
-      // refetch account data eg balance
+      // fetch account data eg balance
       await accountStore.clearAssets(true);
       await accountStore.fetchAccount();
     };
@@ -90,7 +90,6 @@ export const AddressBookManagerPage: FunctionComponent<RouteComponentProps> = ob
 
     return (
       <HeaderLayout
-        showChainName
         canChangeChainInfo={false}
         fetchIcon={true}
         lightMode={lightMode}
@@ -121,7 +120,7 @@ export const AddressBookManagerPage: FunctionComponent<RouteComponentProps> = ob
                   onClick={() => changeActiveAddress(address)}
                 ></img>
                 <div className={style.addressListContent}>
-                  Account {index + 1} <br />
+                  Account {addressList.length > 1 ? index + 1 : ""} <br />
                   <span
                     className={classnames(style.address, style.clickable)}
                     onClick={async () => {
@@ -143,6 +142,19 @@ export const AddressBookManagerPage: FunctionComponent<RouteComponentProps> = ob
                     </ToolTip>
                   </span>
                 </div>
+                {addressList.length > 1 ? (
+                  <span
+                    className={classnames(style.closeIcon, style.clickable)}
+                    onClick={() => {
+                      history.push({
+                        pathname: "/address-delete",
+                        search: `?address=${address}&accountNumber=${index + 1}`
+                      });
+                    }}
+                  >
+                    <i className="fa fa-2x fa-close"></i>
+                  </span>
+                ) : null}
               </li>
             ))}
           </ul>

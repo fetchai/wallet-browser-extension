@@ -6,7 +6,14 @@ import { useStore } from "../../stores";
 import styleAsset from "./asset.module.scss";
 import { CoinUtils } from "../../../../common/coin-utils";
 import { Currency } from "../../../../chain-info";
-import { getCurrency } from "../../../../common/currency";
+// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+// @ts-ignore
+
+import {
+  getCurrency,
+  getCurrencyFromMinimalDenom,
+  getCurrencyFromUnknownDenom
+} from "../../../../common/currency";
 import classnames from "classnames";
 import { FormattedMessage } from "react-intl";
 import { ToolTip } from "../../../components/tooltip";
@@ -14,6 +21,11 @@ import { lightModeEnabled } from "../../light-mode";
 import { autorun } from "mobx";
 import { insertCommas } from "../../../../common/utils/insert-commas";
 import { Price } from "../../stores/price";
+import { divideByDecimals } from "../../../../common/utils/divide-decimals";
+
+// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+// @ts-ignore
+import removeTrailingZeros from "remove-trailing-zeros";
 
 export const AssetView: FunctionComponent = observer(() => {
   const { chainStore, accountStore, priceStore } = useStore();
@@ -38,27 +50,28 @@ export const AssetView: FunctionComponent = observer(() => {
     chainStore.chainInfo.nativeCurrency
   ) as Currency;
 
-  const [selectedCurrency, setSelectedCurrency] = useState(
-    nativeCurrency.coinDenom
-  );
+  const [selectedDenom, setSelectedDenom] = useState(nativeCurrency.coinDenom);
 
   // correct use of reaction: reacts to length and title changes
   autorun(() => {
     if (accountStore.assets.length === 1) {
-      setSelectedCurrency(accountStore.assets[0].denom);
+      setSelectedDenom(accountStore.assets[0].denom);
     }
   });
 
-  const coinAmount = CoinUtils.amountOf(
+  // amount of minimal denom user has
+  const amount = CoinUtils.amountOf(
     accountStore.assets,
-    nativeCurrency.coinDenom
+    nativeCurrency.coinMinimalDenom
   );
 
   const dollarCurrencyIsDisplayed = () => {
     const test =
       fiat &&
-      selectedCurrency === chainStore.chainInfo.nativeCurrency &&
+      (selectedDenom === nativeCurrency.coinDenom ||
+        selectedDenom === nativeCurrency.coinMinimalDenom) &&
       !fiat.value.equals(new Dec(0));
+    debugger;
     return test;
   };
 
@@ -70,50 +83,73 @@ export const AssetView: FunctionComponent = observer(() => {
     // if selected from dropdown and selected currency is not the one for which we have dollar price
     if (
       typeof fiat === "undefined" ||
-      selectedCurrency !== chainStore.chainInfo.nativeCurrency
+      (selectedDenom !== nativeCurrency.coinMinimalDenom &&
+        selectedDenom !== nativeCurrency.coinDenom)
     ) {
       return "";
     } else if (
       accountStore.assets.length === 1 &&
-      accountStore.assets[0].denom !== nativeCurrency.coinDenom
+       (selectedDenom !== nativeCurrency.coinMinimalDenom &&
+        selectedDenom !== nativeCurrency.coinDenom)
     ) {
       return "";
     } else if (fiat.value.equals(new Dec(0))) {
       return "0";
-    } else if (fiat.value.mul(new Dec(coinAmount)).gt(new Dec(100))) {
+    }
+
+    const coinAmount: string = divideByDecimals(
+      amount.toString(),
+      nativeCurrency.coinDecimals
+    );
+
+    if (fiat.value.mul(new Dec(coinAmount)).gt(new Dec(100))) {
       // if dollar amount is greater than 100 then cut off the cent amount
       let amount = fiat.value.mul(new Dec(coinAmount)).toString();
       amount = cutOffDecimals(amount);
+      debugger;
       return "$" + parseFloat(amount).toLocaleString();
     } else {
-      return (
-        "$" +
-        parseFloat(
-          (fiat as Price).value.mul(new Dec(coinAmount)).toString()
-        ).toLocaleString()
-      );
+      const d = parseFloat(
+        (fiat as Price).value.mul(new Dec(coinAmount)).toString()
+      ).toFixed(4);
+  debugger;
+      const r = "$" + removeTrailingZeros(d).toLocaleString();
+      return r;
     }
   };
 
   const currencyChange = (event: any) => {
     const selectedCurency = event.target.value;
-    setSelectedCurrency(selectedCurency);
+    setSelectedDenom(selectedCurency);
   };
 
-  const getAmount = (denom: string) => {
-    for (const coin of accountStore.assets) {
-      if (typeof coin !== "undefined" && coin.denom === denom)
-        return coin.amount;
+  const getAmount = (denom: string): string | undefined => {
+    const currency = getCurrencyFromUnknownDenom(denom);
+
+    if (typeof currency === "undefined") {
+      // it is not a currency about which we store info in the curencies list so cannot associate it with other denom
+      // and just return the amount that we have, this may be novel or custom currency not stored in chain-info file
+      for (const coin of accountStore.assets) {
+        if (typeof coin !== "undefined" && coin.denom === denom)
+          return coin.amount.toString();
+      }
+
+      return undefined;
     }
-    return undefined;
+
+    const output = divideByDecimals(
+      amount.toString(),
+      nativeCurrency.coinDecimals
+    );
+    // small neaten before display
+    const fixed = parseFloat(output).toFixed(4);
+    return removeTrailingZeros(fixed).toLocaleString();
   };
 
   const getCurrencyAmount = () => {
-    const selected = selectedCurrency;
+    const selected = selectedDenom;
     const amount = getAmount(selected);
-    return typeof amount !== "undefined"
-      ? insertCommas(amount.toString())
-      : "0";
+    return typeof amount !== "undefined" ? insertCommas(amount) : "0";
   };
 
   /**
@@ -127,7 +163,12 @@ export const AssetView: FunctionComponent = observer(() => {
     if (accountStore.assets.length === 0) {
       return nativeCurrency.coinDenom;
     }
-    return accountStore.assets[0].denom;
+
+    const currency = getCurrencyFromMinimalDenom(accountStore.assets[0].denom);
+
+    return typeof currency !== "undefined"
+      ? currency.coinDenom
+      : accountStore.assets[0].denom;
   };
 
   const getDropDownOptions = () => {
@@ -175,7 +216,7 @@ export const AssetView: FunctionComponent = observer(() => {
       <div className={styleAsset.amount}>
         <div>
           <span className={dollarCurrencyIsDisplayed() ? "" : styleAsset.block}>
-            {!(accountStore.assets.length === 0) ? getCurrencyAmount() : "0"}{" "}
+            {accountStore.assets.length ? getCurrencyAmount() : "0"}{" "}
           </span>
           {accountStore.assets.length > 1 ? (
             <select

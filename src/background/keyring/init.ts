@@ -5,7 +5,6 @@ import {
   SaveKeyRingMsg,
   CreateKeyMsg,
   CreateHardwareKeyMsg,
-  SetPathMsg,
   GetKeyMsg,
   UnlockKeyRingMsg,
   VerifyPasswordKeyRingMsg,
@@ -24,7 +23,11 @@ import {
   RequestTxBuilderConfigMsg,
   GetRequestedTxBuilderConfigMsg,
   GetKeyFileMsg,
-  IsHardwareLinkedMsg, FetchEveryAddressMsg, SetActiveAddressMsg, GetActiveAddressMsg
+  IsHardwareLinkedMsg,
+  FetchEveryAddressMsg,
+  SetActiveAddressMsg,
+  GetActiveAddressMsg,
+  GetDeleteAddressMsg
 } from "./messages";
 import { ROUTE } from "./constants";
 import { getHandler } from "./handler";
@@ -51,7 +54,6 @@ export function init(
   messageManager.registerMessage(makeMnemonicMsg);
   messageManager.registerMessage(GetKeyFileMsg);
   messageManager.registerMessage(UpdatePasswordMsg);
-  messageManager.registerMessage(SetPathMsg);
   messageManager.registerMessage(FetchEveryAddressMsg);
   messageManager.registerMessage(GetKeyMsg);
   messageManager.registerMessage(RequestTxBuilderConfigMsg);
@@ -60,6 +62,7 @@ export function init(
   messageManager.registerMessage(RejectTxBuilderConfigMsg);
   messageManager.registerMessage(RequestSignMsg);
   messageManager.registerMessage(GetRequestedMessage);
+  messageManager.registerMessage(GetDeleteAddressMsg);
   messageManager.registerMessage(ApproveSignMsg);
   messageManager.registerMessage(RejectSignMsg);
 

@@ -7,7 +7,6 @@ import {
   GetKeyMsg,
   KeyRingStatus,
   SetActiveAddressMsg,
-  SetPathMsg
 } from "../../../../background/keyring";
 
 import { action, observable } from "mobx";
@@ -24,7 +23,6 @@ import {
   AutoFetchingAssetsInterval,
   COSMOS_SDK_VERSION
 } from "../../../../config";
-import { CoinUtils } from "../../../../common/coin-utils";
 import { GetBalanceMsg } from "../../../../background/api";
 import ActiveEndpoint from "../../../../common/utils/active-endpoint";
 
@@ -176,16 +174,8 @@ export class AccountStore {
   @actionAsync
   private async fetchBech32Address() {
     this.isAddressFetching = true;
-
-    const setPathMsg = SetPathMsg.create(
-      this.chainInfo.chainId,
-      this.bip44Account,
-      this.bip44Index
-    );
-    await task(sendMessage(BACKGROUND_PORT, setPathMsg));
-
     // No need to set origin, because this is internal.
-    const getKeyMsg = GetKeyMsg.create(this.chainInfo.chainId, "");
+    const getKeyMsg = GetKeyMsg.create("");
     const result = await task(sendMessage(BACKGROUND_PORT, getKeyMsg));
     const prevBech32Address = this.bech32Address;
 
@@ -231,11 +221,11 @@ export class AccountStore {
         const msg = GetBalanceMsg.create(endpointData.rest, this.bech32Address);
 
         const res = await task(sendMessage(BACKGROUND_PORT, msg));
-        let coins: Coin[] = [];
+        const coins: Coin[] = [];
         res.coins.forEach((el: any) => {
           coins.push(new Coin(el.denom, el.amount));
         });
-        coins = CoinUtils.convertCoinsFromMinimalDenomAmount(coins);
+        // coins = CoinUtils.convertCoinsFromMinimalDenomAmount(coins);
         this.assets = coins;
       } else {
         const account = await task(

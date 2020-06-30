@@ -1,6 +1,5 @@
 import React, { FunctionComponent, useEffect, useState } from "react";
 import { Coin } from "@everett-protocol/cosmosjs/common/coin";
-import { CoinUtils } from "../../../../common/coin-utils";
 
 import { Dec } from "@everett-protocol/cosmosjs/common/decimal";
 import { observer } from "mobx-react";
@@ -11,12 +10,13 @@ import styleDetailsTab from "./details-tab.module.scss";
 import classnames from "classnames";
 
 import { MessageObj, renderMessage } from "./messages";
-import { DecUtils } from "../../../../common/dec-utils";
 import { useIntl } from "react-intl";
 import { LedgerNanoMsg } from "../../../../background/ledger-nano";
 import { METHODS } from "../../../../background/ledger-nano/constants";
 import { BACKGROUND_PORT } from "../../../../common/message/constant";
 import { sendMessage } from "../../../../common/message/send";
+import { divideByDecimals } from "../../../../common/utils/divide-decimals";
+import { formatDollarString } from "../../../../common/utils/formatDollarStringFee";
 
 export const DetailsTab: FunctionComponent<{
   message: string;
@@ -67,6 +67,7 @@ export const DetailsTab: FunctionComponent<{
         msgs: MessageObj[];
       } = JSON.parse(message);
 
+      debugger;
       setMemo(msgObj.memo);
       setMsgs(msgObj.msgs);
 
@@ -85,9 +86,12 @@ export const DetailsTab: FunctionComponent<{
       const currency = getCurrencyFromMinimalDenom(coin.denom);
       if (currency) {
         const value = priceStore.getValue("usd", currency.coinGeckoId);
-        const parsed = CoinUtils.parseDecAndDenomFromCoin(coin);
+        let amount = divideByDecimals(
+          coin.amount.toString(),
+          currency.coinDecimals
+        );
         if (value) {
-          price = price.add(new Dec(parsed.amount).mul(value.value));
+          price = price.add(new Dec(amount).mul(value.value));
         }
       }
     }
@@ -109,11 +113,11 @@ export const DetailsTab: FunctionComponent<{
           })}
         </div>
         {msgs
-          .filter((msg) => {
-            return (typeof msg !== "undefined");
+          .filter(msg => {
+            return typeof msg !== "undefined";
           })
           .map((msg, i) => {
-            const msgContent = renderMessage(msg, intl);
+            const msgContent = renderMessage(msg, intl) as any;
             return (
               <React.Fragment key={i.toString()}>
                 <Msg icon={msgContent.icon} title={msgContent.title}>
@@ -135,16 +139,13 @@ export const DetailsTab: FunctionComponent<{
             <div>
               {fee
                 .map(fee => {
-                  const parsed = CoinUtils.parseDecAndDenomFromCoin(fee);
-                  return `${DecUtils.removeTrailingZerosFromDecStr(
-                    parsed.amount
-                  )} ${parsed.denom}`;
+                  return `${fee.amount.toString()} ${fee.denom}`;
                 })
                 .join(",")}
             </div>
-            <div
-              className={styleDetailsTab.fiat}
-            >{`$${DecUtils.decToStrWithoutTrailingZeros(feeFiat)}`}</div>
+            <div className={styleDetailsTab.fiat}>
+              {formatDollarString(feeFiat.toString())}
+            </div>
           </div>
         </div>
       ) : null}

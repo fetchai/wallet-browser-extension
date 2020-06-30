@@ -3,13 +3,18 @@ import { Int } from "@everett-protocol/cosmosjs/common/int";
 import { Dec } from "@everett-protocol/cosmosjs/common/decimal";
 import {
   getCurrencyFromDenom,
-  getCurrencyFromMinimalDenom,
-  isMinimalDenomOfCurrency
+  getCurrencyFromMinimalDenom
 } from "../currency";
 // @ts-ignore
 import { Currency } from "../../chain-info";
+import { DecUtils } from "../dec-utils";
 
 export class CoinUtils {
+  /**
+   *
+   * @param coins
+   * @param denom
+   */
   static amountOf(coins: Coin[], denom: string): Int {
     const coin = coins.find(coin => {
       return coin.denom === denom;
@@ -29,8 +34,8 @@ export class CoinUtils {
   }
 
   /**
-   * converts amount of currency in minimal denom to amount in regular denom
-   *
+   * toto
+doesn't work delete   *
    * @param currency
    * @param amount
    */
@@ -43,33 +48,12 @@ export class CoinUtils {
     if (currency.coinMinimalDenom === currency.coinDenom) return amount;
     // no power method in this , but this is workaround.
     const multiplier = "1" + "0".repeat(currency.coinDecimals);
-    return amount.div(new Int(multiplier));
+    const r = amount.div(new Int(multiplier));
+    debugger;
+    return r;
   }
 
-  /**
-   * Takes an array of coins and looks at each to see if they are consisting of the minimal denom of another currency eg
-   * if we have 20000000 ufet we convert to 20 fet if decimal points are 6 (specified in the Configs).
-   *
-   * @param coins
-   */
-
-  static convertCoinsFromMinimalDenomAmount(coins: Coin[]): Coin[] {
-    coins = coins.map(coin => {
-      if (isMinimalDenomOfCurrency(coin)) {
-        const curr = getCurrencyFromMinimalDenom(coin.denom) as Currency;
-        const amount = CoinUtils.convertMinimalDenomAmountToDenomAmount(
-          curr,
-          coin.amount
-        );
-
-        return new Coin(curr.coinDenom, amount);
-      }
-      return coin;
-    });
-    return coins;
-  }
   static getCoinFromDecimals(decAmountStr: string, denom: string): Coin {
-
     const currency = getCurrencyFromDenom(denom);
     if (!currency) {
       throw new Error("Invalid currency");
@@ -78,8 +62,9 @@ export class CoinUtils {
     for (let i = 0; i < currency.coinDecimals; i++) {
       precision = precision.mul(new Dec(10));
     }
-    let decAmount = new Dec(decAmountStr);
-    // decAmount = decAmount.mul(precision);
+    const sanitized = DecUtils.sanitizeDecimal(decAmountStr);
+    let decAmount = new Dec(sanitized);
+    decAmount = decAmount.mul(precision);
 
     if (!new Dec(decAmount.truncate()).equals(decAmount)) {
       throw new Error("Can't divide anymore");

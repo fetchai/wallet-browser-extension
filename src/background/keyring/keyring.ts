@@ -1,10 +1,6 @@
 import { Crypto, EncryptedKeyStructure } from "./crypto";
 import { generateWalletFromMnemonic } from "@everett-protocol/cosmosjs/utils/key";
-import {
-  PrivKey,
-  PrivKeySecp256k1,
-  PubKeySecp256k1
-} from "@everett-protocol/cosmosjs/crypto";
+import { PrivKey, PubKeySecp256k1 } from "@everett-protocol/cosmosjs/crypto";
 import { KVStore } from "../../common/kvstore";
 import {
   AddressBook,
@@ -62,7 +58,13 @@ export class KeyRing {
       return null;
     }
 
-    return this.addressBook.findIndex(el => el.address === this.activeAddress);
+    const index = this.addressBook.findIndex(
+      el => el.address === this.activeAddress
+    );
+
+    // if not found just say it is index 0
+    if (index === -1) return 0;
+    else return index;
   }
 
   public isActiveAddressHardwareAssociated() {
@@ -79,12 +81,33 @@ export class KeyRing {
     return this.addressBook[index];
   }
 
+  public async deleteAddress(address: string): Promise<boolean> {
+    // if wallet has only 1 address we cannot delete through this method. You should instead
+    // clear entire account which also deletes the other preferences as when you
+    // have 0 addresses you cannot use this wallet
+    if (this.addressBook.length === 1) {
+      return false;
+    }
+
+    // if active address is current address then set active address to 0;
+    const active = this.getActiveAddressItem();
+
+    if (active.address === address) {
+      this.setActiveAddress(this.addressBook[0].address);
+    }
+
+    const index = this.addressBook.findIndex(el => el.address === address);
+    this.addressBook.splice(index, 1);
+    await this.save();
+    return true;
+  }
+
   public setActiveAddress(address: string) {
     this.activeAddress = address;
   }
 
   public getActiveAddress(): string {
-    return this.activeAddress || "";
+    return this.activeAddress || this.addressBook[0].address;
   }
 
   /**
@@ -95,7 +118,6 @@ export class KeyRing {
 
     // if there is no active key(
     if (!index || this.addressBook[index].hdWallet) return null;
-
     return (this.addressBook[index] as RegularAddressItem)
       .encryptedKeyStructure;
   }
@@ -194,8 +216,6 @@ export class KeyRing {
     if (this.status !== KeyRingStatus.UNLOCKED) {
       throw new Error("Key ring is not unlocked");
     }
-
-    // this.addressBook = this.deletePrivateKeys(this.addressBook);
     this.unlocked = false;
   }
 
@@ -324,19 +344,6 @@ export class KeyRing {
   public async save() {
     // // we don't save the private jeys or mnemonics to local storage.
     const addressBook = this.deletePrivateKeys(this.addressBook, true);
-
-    // const addressBook: any = [];
-    //
-    // // serialize the pk object when saving.
-    // this.addressBook.forEach(el => {
-    //   const serialized: any = el;
-    //   if (!el.hdWallet && typeof el.privateKey !== "undefined") {
-    //     const uint8array = serialized.privateKey.serialize();
-    //     serialized.privateKey = new TextDecoder("utf-8").decode(uint8array);
-    //   }
-    //   addressBook.push(serialized);
-    // });
-
     await this.kvStore.set<AddressBook>(ADDRESS_BOOK_KEY, addressBook);
 
     if (typeof this.activeAddress !== "undefined") {
@@ -479,6 +486,6 @@ export class KeyRing {
     }
 
     const regularAddressItem = this.addressBook[index] as RegularAddressItem;
-    return regularAddressItem.privateKey.sign(message);
+    return (regularAddressItem.privateKey as PrivKey).sign(message);
   }
 }

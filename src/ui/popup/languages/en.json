@@ -46,9 +46,12 @@
   "register.create.input.password.error.no-lowercase": "Password requires a lowercase character",
   "register.create.input.password.error.no-number": "Password requires a number",
    "register.custom.endpoint.url.empty" : "requires both a rest and RPC URL",
+   "register.custom.endpoint.name.empty" : "Nickname cannot be blank",
    "register.custom.endpoint.url.invalid.rest" : "Rest URI is not a valid URI",
    "register.custom.endpoint.url.invalid.rpc" : "RPC URI is not a valid URI",
-   "register.custom.endpoint.url.success" : "endpoint successfully added",
+   "register.custom.endpoint.url.success" : "Endpoint successfully added",
+   "register.custom.endpoint.url.custom" : "Custom",
+   "register.custom.endpoint.url.add-custom" : "Add Custom",
   "register.create.input.confirm-password": "Confirm Password",
   "register.create.input.confirm-password.error.required": "Password confirmation is required",
   "register.create.input.confirm-password.error.unmatched": "Passwords do not match",
@@ -76,6 +79,7 @@
    "settings.light-mode.pill.title": "Switch Theme",
    "settings.light-mode.pill.light": "Light",
    "settings.light-mode.pill.dark": "Dark",
+   "settings.choose-network": "Choose Network",
 
   "settings.heading": "Settings",
   "settings.update-password.heading.change-password": "Change Password",
@@ -89,6 +93,13 @@
   "settings.update-password.button.download": "Download",
 
     "address-book-manager.heading": "My Accounts",
+
+  "address-delete-title": "My Accounts",
+  "address-delete-subheading": "Are you sure you want to permanently delete ",
+  "address-delete-subheading-account": "Account ",
+  "address-delete-delete": "Delete",
+  "address-delete-cancel": "Cancel",
+
 
   "lock.input.password": "Password",
   "lock.input.password.error.required": "Empty password",
@@ -107,6 +118,7 @@
   "send.input.amount": "Amount",
   "send.input.amount.error.required": "Amount is required",
   "send.input.amount.error.insufficient": "Insufficient funds",
+  "send.input.amount.error.precision-error": "max decimals exceeded ",
   "send.input.amount.error.no-funds": " no funds",
   "send.input.memo": "Memo (Optional)",
   "send.input.fee": "Fee",

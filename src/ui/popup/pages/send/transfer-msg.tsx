@@ -3,7 +3,6 @@ import { Coin } from "@everett-protocol/cosmosjs/common/coin";
 import { Msg } from "@everett-protocol/cosmosjs/core/tx";
 import { Codec, Type, Amino } from "@node-a-team/ts-amino";
 import { hexEthAddressToUint8Array } from "../../../../../src/common/utils/buffer-convert";
-import Web3 from "web3";
 const { DefineStruct, Field } = Amino;
 
 @DefineStruct()
@@ -50,7 +49,6 @@ export class LockMessage extends Msg {
     }
   )
   public ethereumReceiver: Uint8Array;
-  private web3 = new Web3();
 
   constructor(
     cosmosSender: AccAddress,
@@ -75,24 +73,8 @@ export class LockMessage extends Msg {
     return [this.cosmosSender];
   }
 
-  public validateBasic(): void {
-    //   for (const coin of this.amount) {
-    //     if (coin.amount.lte(new Int(0))) {
-    //       throw new Error("Send amount is invalid");
-    //     }
-    //   }
-  }
+  public validateBasic(): void {}
 
-  // public getSignBytes(codec: Codec): Uint8Array {
-  //   const retval = super.getSignBytes(codec);
-  //   const jsonStr = new TextDecoder().decode(retval);
-  //   let json_des = JSON.parse(jsonStr);
-  //   let json = json_des.value;
-  //   json.ethereum_chain_id = this.ethereumChainID;
-  //   json.ethereum_receiver = uint8ArrayToChecksumEthAddress(this.ethereumReceiver, this.ethereumChainID, this.web3);
-  //   json.token_contract_address = uint8ArrayToChecksumEthAddress(this.tokenContract, this.ethereumChainID, this.web3);
-  //   return Buffer.from(sortJSON(JSON.stringify(json)), "utf8");
-  // }
 }
 @DefineStruct()
 export class BurnMessage extends LockMessage {}

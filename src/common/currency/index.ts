@@ -1,5 +1,4 @@
 import { Currencies, Currency } from "../../chain-info";
-import { Coin } from "@everett-protocol/cosmosjs/common/coin";
 
 export function getCurrency(type: string): Currency | undefined {
   return Currencies[type];
@@ -20,21 +19,6 @@ export function getCurrencies(types: string[]): Currency[] {
   }
 
   return currencies;
-}
-
-/**
- * Checks is the amount is a minimal denom of another currency.
- *
- * @param coin
- */
-export function isMinimalDenomOfCurrency(coin: Coin): boolean {
-  for (const key in Currencies) {
-    const currency = Currencies[key];
-    if (currency.coinMinimalDenom === coin.denom) {
-      return true;
-    }
-  }
-  return false;
 }
 
 export function getCurrencyFromDenom(denom: string): Currency | undefined {
@@ -64,6 +48,41 @@ export function getCurrenciesFromDenoms(denoms: string[]): Currency[] {
   }
 
   return currencies;
+}
+
+/**
+ * if this denom is within any currency in chain info we return name (first match)
+ */
+export function getCurrencyFromUnknownDenom(
+  denom: string
+): Currency | undefined {
+  for (const key in Currencies) {
+    const currency = Currencies[key];
+    if (denom === currency.coinMinimalDenom) {
+      return currency;
+    }
+
+    if (denom === currency.coinDenom) {
+      return currency;
+    }
+  }
+
+  return undefined;
+}
+
+/**
+ * We look through the predefined currencies and see if this denom is minimal or not.
+ *
+ * @param denom
+ */
+export function isMinimalDenom(denom: string): boolean {
+  for (const key in Currencies) {
+    const currency = Currencies[key];
+    if (denom === currency.coinMinimalDenom) {
+      return true;
+    }
+  }
+  return false;
 }
 
 export function getCurrencyFromMinimalDenom(

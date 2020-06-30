@@ -1,16 +1,9 @@
 import { Key, KeyRing, KeyRingStatus } from "./keyring";
 
-import {
-  AccessOrigin,
-  ChainInfo,
-  ExtensionAccessOrigins,
-  NativeChainInfos
-} from "../../chain-info";
-import { Address } from "@everett-protocol/cosmosjs/crypto";
+import { ChainInfo, NativeChainInfos } from "../../chain-info";
 import { AsyncApprover } from "../../common/async-approver";
 import {
-  TxBuilderConfigPrimitive,
-  TxBuilderConfigPrimitiveWithChainId
+  TxBuilderConfigPrimitive
 } from "./types";
 
 import { KVStore } from "../../common/kvstore";
@@ -26,20 +19,18 @@ export interface KeyHex {
 }
 
 interface SignMessage {
-  chainId: string;
   message: Uint8Array;
 }
 
 export class KeyRingKeeper {
   private readonly keyRing: KeyRing;
-  private path = "";
 
   private readonly unlockApprover = new AsyncApprover({
     defaultTimeout: 3 * 60 * 1000
   });
 
   private readonly txBuilderApprover = new AsyncApprover<
-    TxBuilderConfigPrimitiveWithChainId,
+    TxBuilderConfigPrimitive,
     TxBuilderConfigPrimitive
   >({
     defaultTimeout: 3 * 60 * 1000
@@ -79,57 +70,6 @@ export class KeyRingKeeper {
     return NativeChainInfos;
   }
 
-  getChainInfo(chainId: string): ChainInfo {
-    const chainInfo = this.getRegisteredChains().find(chainInfo => {
-      return chainInfo.chainId === chainId;
-    });
-
-    if (!chainInfo) {
-      throw new Error(`There is no chain info for ${chainId}`);
-    }
-    return chainInfo;
-  }
-
-  getAccessOrigins(): AccessOrigin[] {
-    return ExtensionAccessOrigins;
-  }
-
-  getAccessOrigin(chainId: string): string[] {
-    const accessOrigins = this.getAccessOrigins();
-    const accessOrigin = accessOrigins.find(accessOrigin => {
-      return accessOrigin.chainId == chainId;
-    });
-
-    if (!accessOrigin) {
-      throw new Error(`There is no access origins for ${chainId}`);
-    }
-
-    return accessOrigin.origins;
-  }
-
-  checkAccessOrigin(chainId: string, origin: string) {
-    if (origin === new URL(browser.runtime.getURL("/")).origin) {
-      return;
-    }
-
-    const accessOrigin = this.getAccessOrigin(chainId);
-    if (accessOrigin.indexOf(origin) <= -1) {
-      throw new Error("This origin is not approved");
-    }
-  }
-
-  async checkBech32Address(chainId: string, bech32Address: string) {
-    const key = await this.getKey();
-    if (
-      bech32Address !==
-      new Address(key.address).toBech32(
-        this.getChainInfo(chainId).bech32Config.bech32PrefixAccAddr
-      )
-    ) {
-      throw new Error("Invalid bech32 address");
-    }
-  }
-
   async restore(): Promise<KeyRingStatus> {
     await this.keyRing.restore();
     return this.keyRing.status;
@@ -148,7 +88,7 @@ export class KeyRingKeeper {
     await this.keyRing.setActiveAddress(address);
   }
 
-   public getActiveAddress(): string {
+  public getActiveAddress(): string {
     return this.keyRing.getActiveAddress();
   }
 
@@ -210,7 +150,7 @@ export class KeyRingKeeper {
     return res;
   }
 
-  public getEveryAddress(){
+  public getEveryAddress() {
     return this.keyRing.getEveryAddress();
   }
 
@@ -231,8 +171,8 @@ export class KeyRingKeeper {
     return this.keyRing.getCurrentKeyFile as EncryptedKeyStructure;
   }
 
-  setPath(chainId: string, account: number, index: number) {
-    this.path = this.getChainInfo(chainId).bip44.pathString(account, index);
+  public async handleDeleteAddress(address: string): Promise<boolean> {
+    return this.keyRing.deleteAddress(address);
   }
 
   async getKey(): Promise<Key> {
@@ -240,7 +180,7 @@ export class KeyRingKeeper {
   }
 
   async requestTxBuilderConfig(
-    config: TxBuilderConfigPrimitiveWithChainId,
+    config: TxBuilderConfigPrimitive,
     id: string,
     openPopup: boolean
   ): Promise<TxBuilderConfigPrimitive> {
@@ -256,7 +196,7 @@ export class KeyRingKeeper {
     return result;
   }
 
-  getRequestedTxConfig(id: string): TxBuilderConfigPrimitiveWithChainId {
+  getRequestedTxConfig(id: string): TxBuilderConfigPrimitive {
     const config = this.txBuilderApprover.getData(id);
     if (!config) {
       throw new Error("Unknown config request id");
@@ -274,7 +214,6 @@ export class KeyRingKeeper {
   }
 
   async requestSign(
-    chainId: string,
     message: Uint8Array,
     id: string,
     openPopup: boolean
@@ -285,7 +224,7 @@ export class KeyRingKeeper {
       );
     }
     // this waits until it approval message before going to next line below.
-    await this.signApprover.request(id, { chainId, message });
+    await this.signApprover.request(id, { message });
 
     if (this.keyRing.isActiveAddressHardwareAssociated()) {
       return await this.keyRing.triggerHardwareSigning(message);

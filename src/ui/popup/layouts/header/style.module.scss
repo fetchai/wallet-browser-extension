@@ -51,26 +51,4 @@ $menu-icon-gap: 14px;
       fill: #8f8f8f;
     }
   }
-
-  &:hover {
-    .title {
-      // color: $primary-color;
-    }
-
-    .title-icon {
-      // fill: $primary-color;
-    }
-  }
-}
-
-:global(.show) {
-  .chain-list-container {
-    .title {
-      // color: $primary-color;
-    }
-
-    .title-icon {
-      // fill: $primary-color;
-    }
-  }
 }

@@ -12,7 +12,10 @@ function hexEthAddressToUint8Array(
   chainId?: number
 ): Uint8Array {
   if (verifyChecksumWeb3) {
-    const isValid = verifyChecksumWeb3.utils.checkAddressChecksum(addr, chainId);
+    const isValid = verifyChecksumWeb3.utils.checkAddressChecksum(
+      addr,
+      chainId
+    );
     if (!isValid) {
       throw new Error("Invalid checksum of eth address");
     }

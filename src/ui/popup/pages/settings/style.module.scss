@@ -55,8 +55,8 @@ $settings-width: 293px;
   padding: 10px;
   border-radius: 10px;
   margin-top: 5px;
-  overflow: hidden;
-  height: 440px;
+  overflow: visible;
+  height: 513px;
 }
 
 :global(.light-mode) {
@@ -142,4 +142,170 @@ $settings-width: 293px;
     height: 24px;
     line-height: 4px;
   }
+}
+
+.drop-button {
+  width: 100%;
+  text-align: left;
+  background-color: $fetch-blue;
+  color: white;
+  padding: 2px;
+  text-indent: 5px;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  border-style: solid;
+  border-width: 1px;
+
+  &.show-dropdown {
+    border-radius: 5px 5px 0 0;
+  }
+}
+
+:global(.light-mode) {
+  .drop-button {
+    background-color: rgb(236, 241, 243);
+    color: black;
+  }
+}
+
+.drop-button:hover,
+.drop-button:focus {
+  background-color: $fetch-blue;
+}
+
+:global(.light-mode) {
+  .drop-button:hover,
+.drop-button:focus {
+    background-color: darken(rgb(236, 241, 243), 10%)
+  }
+}
+
+.dropdown {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: $fetch-blue;
+  color: white;
+  width: 100%;
+  overflow: auto;
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+  border-style: none solid solid solid;
+  border-radius: 0 0 5px 5px;
+  border-width: 1px;
+}
+
+
+:global(.light-mode) {
+  .dropdown-content {
+    background-color: rgb(236, 241, 243);
+    border-color: $light-mode-grey;
+    color: black;
+  }
+}
+
+
+.dropdown-content div {
+  color: white;
+  padding: 3px 5px;
+  text-decoration: none;
+  display: block;
+}
+
+:global(.light-mode) {
+  .dropdown-content div {
+    color: black;
+  }
+}
+
+.dropdown a:hover {
+  background-color: $grey;
+}
+
+:global(.light-mode) {
+  .dropdown a:hover {
+  background-color: $light-mode-grey;
+}
+}
+
+.show-dropdown {
+  display: block;
+}
+
+.svg {
+  height: 20px;
+  transform: rotate(270deg);
+  float: right;
+  padding-right: 5px;
+  margin-right: 5px;
+}
+
+.closeIcon {
+  font-size: 8px;
+    float: right;
+  margin-right:4px;
+    color:  $grey-main;
+    margin-top: 3.5px;
+}
+
+.closableRow {
+  display: block;
+}
+
+.customNetworkForm {
+  input, output {
+    border-style: solid !important;
+    font-size: 13px;
+    padding: 3px 0;
+    border-width: 1px;
+    width: 100%;
+    margin-top: 13px;
+    background: inherit;
+    color: $grey-main;
+    border-color: $grey-main;
+    text-indent: 5px;
+    border-radius: 5px;
+  }
+
+  button {
+    margin-top: 13px;
+  }
+}
+
+.active {
+  background-color: rgb(46, 69, 87) !important;
+}
+
+:global(.light-mode) {
+  .active {
+     background-color: darken(rgb(236, 241, 243), 10%) !important;
+  }
+
+}
+
+.hide {
+  display:none;
+}
+
+.output-text {
+  font-size: 13px;
+  text-align: center;
+  padding-top: 5px;
+}
+
+:global(.light-mode) {
+  .output-text {
+    color: black;
+  }
+}
+
+.expandable {
+  margin-top: 15px;
 }

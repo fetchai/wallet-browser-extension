@@ -25,8 +25,8 @@ export const Currencies: {
 } = {
   testfet: {
     coinDenom: "testfet",
-    coinMinimalDenom: "testfet",
-    coinDecimals: 6,
+    coinMinimalDenom: "atestfet",
+    coinDecimals: 18,
     coinGeckoId: "fetch-ai"
   }
 };
@@ -43,20 +43,17 @@ export interface EndpointData {
   readonly rpc: string;
   readonly name: string;
   readonly rest: string;
+  readonly chainId: string;
 }
 
 export interface ChainInfo {
   readonly endpoints: Array<EndpointData>;
   readonly defaultEndpoint: string;
-  readonly chainId: string;
-  readonly chainName: string;
   /**
    * This indicates the type of coin that can be used for stake.
    * You can get actual currency information from Currencies.
    */
   readonly nativeCurrency: string;
-  readonly walletUrl: string;
-  readonly walletUrlForStaking?: string;
   readonly bip44: BIP44;
   readonly bech32Config: Bech32Config;
   readonly currencies: string[];
@@ -78,26 +75,24 @@ export const NativeChainInfos: ChainInfo[] = [
       {
         name: "eae",
         rpc: "http://aea-testnet.sandbox.fetch-ai.com:36657",
-        rest: "http://aea-testnet.sandbox.fetch-ai.com:1317"
+        rest: "http://aea-testnet.sandbox.fetch-ai.com:1317",
+        chainId: "aea-testnet"
       },
       {
         name: "pre-mainnet",
         rpc: "http://pre-mainnet.sandbox.fetch-ai.com:12000",
-        rest: "http://pre-mainnet.sandbox.fetch-ai.com:12200"
+        rest: "http://pre-mainnet.sandbox.fetch-ai.com:12200",
+        chainId: "aea-testnet"
+      },
+      {
+        name: "agent-land",
+        rpc: " http://rpc-agent-land.sandbox.fetch-ai.com:26657",
+        rest: "http://rest-agent-land.sandbox.fetch-ai.com:1317",
+        chainId: "agent-land"
       }
     ],
     defaultEndpoint: "eae",
-    chainId: "aea-testnet",
-    chainName: "gaia-sandbox",
     nativeCurrency: "testfet",
-    walletUrl:
-      process.env.NODE_ENV === "production"
-        ? "https://wallet.keplr.app/#/cosmoshub-3"
-        : "http://127.0.0.1:1317/#/cosmoshub-3",
-    walletUrlForStaking:
-      process.env.NODE_ENV === "production"
-        ? "https://wallet.keplr.app/#/cosmoshub-3"
-        : "http://127.0.0.1:1317/#/cosmoshub-3",
     bip44: new BIP44(44, 118, 0),
     bech32Config: defaultBech32Config("cosmos"),
     currencies: ["testfet"],
@@ -111,15 +106,4 @@ export interface AccessOrigin {
   origins: string[];
 }
 
-/**
- * This declares which origins can access extension without explicit approval.
- */
-export const ExtensionAccessOrigins: AccessOrigin[] = [
-  {
-    chainId: "aea-testnet",
-    origins:
-      process.env.NODE_ENV === "production"
-        ? ["https://wallet.keplr.app"]
-        : ["http://localhost:8081"]
-  }
-];
+

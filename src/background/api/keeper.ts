@@ -3,9 +3,11 @@ import { AccountData, BaseAccountConstructor } from "./types";
 import {
   AUTH_REST_API_PATH,
   BALANCE_REST_API_PATH,
+  MALFORMED_RESPONSE,
   PUBLIC_KEY_TYPE,
   QUERY_TYPE,
-  STATUS_ERROR
+  STATUS_ERROR,
+  STATUS_RPC_API_PATH
 } from "./constants";
 
 /**
@@ -19,6 +21,27 @@ export interface CoinParams {
 }
 
 export class APIKeeper {
+
+
+  /**
+   * Gets the chain id of a network via the rpc status endpoint
+   *
+   * @param rpc
+   */
+  static async getChainId(rpc: string): Promise<string> {
+    const url = `${rpc}${STATUS_RPC_API_PATH}`;
+    const resp = await Axios.get(url, {});
+    if (resp.status !== 200) {
+      throw new Error(STATUS_ERROR);
+    }
+
+    if (!resp?.data?.result?.node_info?.network) {
+      throw new Error(MALFORMED_RESPONSE);
+    }
+
+    return resp.data.result.node_info.network;
+  }
+
   /**
    * Gets balance of an account
    *
@@ -44,7 +67,6 @@ export class APIKeeper {
     if (resp.status !== 200) {
       throw new Error(STATUS_ERROR);
     }
-
 
     resp.data.result.forEach((el: any) => {
       coins.push({ denom: el.denom, amount: el.amount.toString() });

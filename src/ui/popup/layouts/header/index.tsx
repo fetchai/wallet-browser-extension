@@ -10,7 +10,6 @@ import { motion } from "framer-motion";
 import { BackButton } from "./back-button";
 
 export interface Props {
-  showChainName: boolean;
   canChangeChainInfo: boolean;
   menuRenderer?: ReactNode;
   rightRenderer?: ReactNode;

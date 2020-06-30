@@ -167,7 +167,11 @@ export const AddAddressWizard: FunctionComponent<NewAddressWizardProps> = observ
     );
 
     const onRegister = useCallback(
-      (_words: string, password: string, recovered: boolean): void => {
+      async (
+        _words: string,
+        password: string,
+        recovered: boolean
+      ): Promise<void> => {
         if (!recovered) {
           if (words !== _words) {
             throw new Error("Unexpected error");
@@ -175,7 +179,7 @@ export const AddAddressWizard: FunctionComponent<NewAddressWizardProps> = observ
           setPassword(password);
           setState(RegisterState.VERIFY);
         } else {
-          register(_words, password);
+          await register(_words, password);
         }
       },
       [register, words]
