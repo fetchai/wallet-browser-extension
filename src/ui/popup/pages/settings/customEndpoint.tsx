@@ -127,7 +127,8 @@ export const CustomEndpoint: FunctionComponent<CustomEndpointProps> = observer(
     };
 
     /**
-     * All logic from clicking submit dow
+     * All logic from clicking submit on adding custom ednpoint staring with validation, then moving to
+     * adding the ednpoint incl to storage, and then of updating the state variables in the UI.
      *
      * We look check that the custom rpc and rest are valid urls and if true we add them
      *

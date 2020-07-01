@@ -335,19 +335,7 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
               }
 
               handleSubmit(async (data: FormData) => {
-                // const currency = getCurrencyFromDenom(denom) as Currency;
-                // const amount = multiplybyDecimals(
-                //   new Dec(DecUtils.sanitizeDecimal(data.amount)),
-                //   currency.coinDecimals
-                // );
-                //
-                // const f = DecUtils.decToStrWithoutTrailingZeros(amount);
-                // debugger;
-                // const coin = new Coin(denom, f);
-
                 const coin = CoinUtils.getCoinFromDecimals(data.amount, denom);
-
-                debugger;
 
                 await useBech32ConfigPromise(
                   chainStore.chainInfo.bech32Config,

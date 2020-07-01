@@ -52,7 +52,6 @@ const handleGetChainIdAndCheckEndPointsAreOnlineMsg: () => (
 ) => Promise<any> = () => {
   return async msg => {
     let chainId;
-    debugger;
     let error: boolean | string = false;
     try {
       chainId = await APIKeeper.getChainId(msg.rpc);
