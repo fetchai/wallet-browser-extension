@@ -217,24 +217,27 @@ export const CustomEndpoint: FunctionComponent<CustomEndpointProps> = observer(
 
       // success we then add the custom endpoint to storage
       await ActiveEndpoint.addCustomEndpoint(
-        Name,
-        RPC,
-        REST,
+        Name.trim(),
+        RPC.trim(),
+        REST.trim(),
         chainIdResult.chainId as string
       );
 
       // and to state
       const nextCustomEndpoints = customEndpoints.concat({
-        name: Name,
-        rest: REST,
-        rpc: RPC,
+        name: Name.trim(),
+        rest: REST.trim(),
+        rpc: RPC.trim(),
         chainId: chainIdResult.chainId as string
       });
 
       // update the page state related to this around the page, and close the add endpoint form
       setCustomEndpoints(nextCustomEndpoints);
+      // hide the form
       setcollapsible1a(false);
+      // set the active network in this UI
       setActiveNetwork(Name);
+      // thsi variable tracks if we are showing the form to update endpoints or just with intrinsic endpoints as display only
       setShowAddingNewEndpointForm();
 
       await ActiveEndpoint.setActiveEndpointName(Name);
@@ -244,6 +247,7 @@ export const CustomEndpoint: FunctionComponent<CustomEndpointProps> = observer(
           id: "settings.custom.endpoint.url.success"
         })
       );
+      // update the balance and coins stored in  the account
       await accountStore.clearAssets(true);
       await accountStore.fetchAccount();
     };
@@ -259,7 +263,7 @@ export const CustomEndpoint: FunctionComponent<CustomEndpointProps> = observer(
       list.splice(index, 1);
       setCustomEndpoints(list);
 
-      // if it is the active endpoint switch to the first of the default endpoints.
+      // if it is the active endpoint switch the active to the first of the default endpoints.
       if (activeNetwork === name) {
         await handleSetActiveNetwork(intrinsicEndpoints[0].name);
       }
@@ -486,13 +490,19 @@ export const CustomEndpoint: FunctionComponent<CustomEndpointProps> = observer(
                 disabled={isIntrinsicSelected()}
                 onChange={event => setRPC(event.target.value)}
               ></input>
-              <label>
-                {" "}
-                {intl.formatMessage({
-                  id: "settings.custom.endpoint.url.chain-id"
-                })}
-              </label>
-              {chainID ? <output>{chainID}</output> : ""}
+              {chainID ? (
+                <>
+                  <label>
+                    {" "}
+                    {intl.formatMessage({
+                      id: "settings.custom.endpoint.url.chain-id"
+                    })}
+                  </label>
+                  <output>{chainID}</output>
+                </>
+              ) : (
+                ""
+              )}
               {!isIntrinsicSelected() ? (
                 <button
                   type="submit"

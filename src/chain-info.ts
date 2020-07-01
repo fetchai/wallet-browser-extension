@@ -74,8 +74,14 @@ export const NativeChainInfos: ChainInfo[] = [
     endpoints: [
       {
         name: "agent-land-sandbox",
-        rpc: " http://rpc-agent-land.sandbox.fetch-ai.com:26657",
+        rpc: "http://rpc-agent-land.sandbox.fetch-ai.com:26657",
         rest: "http://rest-agent-land.sandbox.fetch-ai.com:1317",
+        chainId: "agent-land"
+      },
+      {
+        name: "agent-land-main",
+        rpc: "https://rpc-agent-land.fetch.ai:443",
+        rest: "https://rest-agent-land.fetch.ai:443",
         chainId: "agent-land"
       },
       {

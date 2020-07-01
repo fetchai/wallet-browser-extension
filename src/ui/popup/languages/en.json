@@ -76,7 +76,7 @@
   "settings.custom.endpoint.url.success": "Endpoint successfully added",
   "settings.custom.endpoint.url.custom": "Custom",
   "settings.custom.endpoint.url.add-custom": "Add Custom",
-  "settings.custom.endpoint.url.assign-nickname": "assign nickname",
+  "settings.custom.endpoint.url.assign-nickname": "Give your network a nickname",
   "settings.custom.endpoint.url.submit": "Submit",
   "settings.custom.endpoint.url.update": "Update",
   "settings.custom.endpoint.url.chain-id": "Chain ID",
