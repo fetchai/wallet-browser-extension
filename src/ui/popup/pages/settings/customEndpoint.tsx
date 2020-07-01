@@ -271,29 +271,20 @@ export const CustomEndpoint: FunctionComponent<CustomEndpointProps> = observer(
      * get button text (which is where the first element on the drop down would be were it a select)
      */
     const getButtonText = (): string => {
-      // if the active network is not custom then show it on button
-      if (
-        intrinsicEndpoints.some((el: EndpointData) => {
-          return el.name === activeNetwork;
-        })
-      ) {
-        return activeNetwork;
-      }
+      const isActiveNetworkCustom = () =>
+        intrinsicEndpoints.some(
+          (el: EndpointData) => el.name === activeNetwork
+        );
 
-      // if it is custom then show edit custom
-      if (
-        customEndpoints.some((el: EndpointData) => {
-          return el.name === activeNetwork;
-        })
-      ) {
-        return intl.formatMessage({
-          id: "settings.custom.endpoint.url.custom"
-        });
-      }
-      // else we add custom
-      return intl.formatMessage({
-        id: "settings.custom.endpoint.url.add-custom"
-      });
+      const isActiveNetworkIntrinsic = () =>
+        customEndpoints.some((el: EndpointData) => el.name === activeNetwork);
+
+      // we can tell if we are adding a new network ( and therefore not display the active network on the button) because the elements name is n
+      return isActiveNetworkCustom || isActiveNetworkIntrinsic
+        ? activeNetwork
+        : intl.formatMessage({
+            id: "settings.custom.endpoint.url.add-custom"
+          });
     };
 
     /**
