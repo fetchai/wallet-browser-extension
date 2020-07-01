@@ -23,11 +23,12 @@ import { BACKGROUND_PORT } from "../../../../common/message/constant";
 import { GetChainIdAndCheckEndPointsAreOnlineMsg } from "../../../../background/api";
 import { sendMessage } from "../../../../common/message/send";
 import { DEFAULT_TRANSITIONS } from "../../../../global-constants";
+import { ChainIdCheckResponse } from "../../../../background/api/handler";
 
 interface CustomEndpointProps {
   lightMode: boolean;
-  addingNewEndpoint: boolean;
-  setAddingNewEndpoint: any;
+  showAddingNewEndpointForm: boolean;
+  setShowAddingNewEndpointForm: any;
 }
 
 /**
@@ -36,7 +37,7 @@ interface CustomEndpointProps {
  * It is therefore a button with a div that is displayed when the button is clicked on as per this tutorial: https://www.w3schools.com/howto/howto_js_dropdown.asp
  */
 export const CustomEndpoint: FunctionComponent<CustomEndpointProps> = observer(
-  ({ lightMode, addingNewEndpoint, setAddingNewEndpoint }) => {
+  ({ lightMode, showAddingNewEndpointForm, setShowAddingNewEndpointForm }) => {
     const [collapsible1a, setcollapsible1a] = useState(false);
     const [isLightMode, setIsLightMode] = useState(lightMode);
 
@@ -56,7 +57,6 @@ export const CustomEndpoint: FunctionComponent<CustomEndpointProps> = observer(
     const [REST, setREST] = useState("");
     const [Name, setName] = useState("");
     const [chainID, setChainID] = useState("");
-    const [loadingChainId, setLoadingChainId] = useState<boolean>(false);
     const [endpointOutput, setEndpointOutput] = useState("");
     const [customEndpointHasError, setCustomEndpointHasError] = useState(false);
     const [showDropdown, setShowDropdown] = useState(false);
@@ -127,7 +127,7 @@ export const CustomEndpoint: FunctionComponent<CustomEndpointProps> = observer(
     };
 
     /**
-     * Custom endpoint should be refactored to  be a seperate module before completion, as can some other the others in settings page
+     * All logic from clicking submit dow
      *
      * We look check that the custom rpc and rest are valid urls and if true we add them
      *
@@ -146,13 +146,33 @@ export const CustomEndpoint: FunctionComponent<CustomEndpointProps> = observer(
         );
         return;
       }
-      debugger;
-      // check that neither rest nor rpc urls are empty
-      if (REST === "" || RPC === "") {
+
+      // if both rest and rpc urls are empty
+      if (REST === "" && RPC === "") {
         setCustomEndpointHasError(true);
         setEndpointOutput(
           intl.formatMessage({
-            id: "settings.custom.endpoint.url.empty"
+            id: "settings.custom.endpoint.url.empty.both"
+          })
+        );
+        return;
+      }
+
+      if (REST === "") {
+        setCustomEndpointHasError(true);
+        setEndpointOutput(
+          intl.formatMessage({
+            id: "settings.custom.endpoint.url.empty.rest"
+          })
+        );
+        return;
+      }
+
+      if (RPC === "") {
+        setCustomEndpointHasError(true);
+        setEndpointOutput(
+          intl.formatMessage({
+            id: "settings.custom.endpoint.url.empty.rpc"
           })
         );
         return;
@@ -182,8 +202,8 @@ export const CustomEndpoint: FunctionComponent<CustomEndpointProps> = observer(
       setCustomEndpointHasError(false);
 
       const chainIdResult = await fetchChainIdAndCheckRestURLIsOnline();
-      debugger;
-      // check if failed to fetch chainId.
+
+      // check if the custom rpc and rest respond to http requests and return a chainId.
       if (typeof chainIdResult.errorId !== "undefined") {
         setCustomEndpointHasError(true);
         setEndpointOutput(
@@ -194,7 +214,7 @@ export const CustomEndpoint: FunctionComponent<CustomEndpointProps> = observer(
         return;
       }
 
-      // success we then add the custom endpoint
+      // success we then add the custom endpoint to storage
       await ActiveEndpoint.addCustomEndpoint(
         Name,
         RPC,
@@ -202,6 +222,7 @@ export const CustomEndpoint: FunctionComponent<CustomEndpointProps> = observer(
         chainIdResult.chainId as string
       );
 
+      // and to state
       const nextCustomEndpoints = customEndpoints.concat({
         name: Name,
         rest: REST,
@@ -209,10 +230,11 @@ export const CustomEndpoint: FunctionComponent<CustomEndpointProps> = observer(
         chainId: chainIdResult.chainId as string
       });
 
-      // update the state related to this around the page, and close the add endpoint form
+      // update the page state related to this around the page, and close the add endpoint form
       setCustomEndpoints(nextCustomEndpoints);
       setcollapsible1a(false);
       setActiveNetwork(Name);
+      setShowAddingNewEndpointForm();
 
       await ActiveEndpoint.setActiveEndpointName(Name);
       await clearCustomUrlForm();
@@ -249,42 +271,21 @@ export const CustomEndpoint: FunctionComponent<CustomEndpointProps> = observer(
      * returns chain id if found from rpc endpoint via status query.
      *
      */
-    const fetchChainIdAndCheckRestURLIsOnline = async (): Promise<{
-      chainId?: string;
-      errorId?: string;
-    }> => {
+    const fetchChainIdAndCheckRestURLIsOnline = async (): Promise<ChainIdCheckResponse> => {
       const msg = GetChainIdAndCheckEndPointsAreOnlineMsg.create(RPC, REST);
-      setLoadingChainId(true);
-      const res = await sendMessage(BACKGROUND_PORT, msg);
-      setLoadingChainId(false);
-      return res;
+      return await sendMessage(BACKGROUND_PORT, msg);
     };
 
+    /**
+     * This is what sets the active network on this page, but also in storage and refetchs account data
+     *
+     * @param name
+     */
     const handleSetActiveNetwork = async (name: string): Promise<void> => {
       setActiveNetwork(name);
       await ActiveEndpoint.setActiveEndpointName(name);
       await accountStore.clearAssets(true);
       await accountStore.fetchAccount();
-    };
-
-    /**
-     * get button text (which is where the first element on the drop down would be were it a select)
-     */
-    const getButtonText = (): string => {
-      const isActiveNetworkCustom = () =>
-        intrinsicEndpoints.some(
-          (el: EndpointData) => el.name === activeNetwork
-        );
-
-      const isActiveNetworkIntrinsic = () =>
-        customEndpoints.some((el: EndpointData) => el.name === activeNetwork);
-
-      // we can tell if we are adding a new network ( and therefore not display the active network on the button) because the elements name is n
-      return isActiveNetworkCustom || isActiveNetworkIntrinsic
-        ? activeNetwork
-        : intl.formatMessage({
-            id: "settings.custom.endpoint.url.add-custom"
-          });
     };
 
     /**
@@ -304,7 +305,7 @@ export const CustomEndpoint: FunctionComponent<CustomEndpointProps> = observer(
       setChainID(element.chainId);
       setName(element.name);
       setEndpointOutput("");
-
+      setShowAddingNewEndpointForm(false);
       await handleSetActiveNetwork(element.name);
       forceUpdate();
     };
@@ -312,7 +313,7 @@ export const CustomEndpoint: FunctionComponent<CustomEndpointProps> = observer(
     const selectCustomEndpoint = async (element: EndpointData) => {
       setShowDropdown(false);
       setcollapsible1a(true);
-      setAddingNewEndpoint(false);
+      setShowAddingNewEndpointForm(false);
       setSelectedNetworkInList(element.name);
 
       // prefill the form below that we show when clicked
@@ -326,19 +327,13 @@ export const CustomEndpoint: FunctionComponent<CustomEndpointProps> = observer(
       forceUpdate();
     };
 
-    const getChainId = (): string => {
-      if (loadingChainId) return "loading ...";
-      if (chainID) return chainID;
-      return "";
-    };
-
     /**
      *  clears the form and shows it when we click on add custom within the dropdown
      *
      */
     const handleClickOnAddCustomListElement = async () => {
       setcollapsible1a(true);
-      setAddingNewEndpoint(true);
+      setShowAddingNewEndpointForm(true);
       setShowDropdown(false);
       setSelectedNetworkInList("");
       await clearCustomUrlForm();
@@ -350,13 +345,21 @@ export const CustomEndpoint: FunctionComponent<CustomEndpointProps> = observer(
       });
     };
 
+    const getDropdownButtonText = () => {
+      return showAddingNewEndpointForm
+        ? intl.formatMessage({
+            id: "settings.custom.endpoint.url.add-custom"
+          })
+        : activeNetwork;
+    };
+
     return (
       <OutsideClickHandler
         onOutsideClick={async () => {
           await clearCustomUrlForm();
           setShowDropdown(false);
           setcollapsible1a(false);
-          setAddingNewEndpoint(false);
+          setShowAddingNewEndpointForm(false);
         }}
       >
         <div className={classnames(style.dropdown, style.expandable)}>
@@ -371,7 +374,7 @@ export const CustomEndpoint: FunctionComponent<CustomEndpointProps> = observer(
                 showDropdown ? style.showDropdown : ""
               )}
             >
-              {getButtonText()}
+              {getDropdownButtonText()}
               <svg
                 className={style.svg}
                 xmlns="http://www.w3.org/2000/svg"
@@ -488,14 +491,14 @@ export const CustomEndpoint: FunctionComponent<CustomEndpointProps> = observer(
                   id: "settings.custom.endpoint.url.chain-id"
                 })}
               </label>
-              <output>{getChainId()}</output>
+              {chainID ? <output>{chainID}</output> : ""}
               {!isIntrinsicSelected() ? (
                 <button
                   type="submit"
                   className={`green ${style.button}`}
                   onClick={handleCustomEndpointSubmission}
                 >
-                  {addingNewEndpoint
+                  {showAddingNewEndpointForm
                     ? intl.formatMessage({
                         id: "settings.custom.endpoint.url.submit"
                       })

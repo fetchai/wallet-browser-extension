@@ -63,7 +63,9 @@
 
 
 
-  "settings.custom.endpoint.url.empty": "requires both a REST and RPC URL",
+  "settings.custom.endpoint.url.empty.both": "requires both a REST and RPC URL",
+  "settings.custom.endpoint.url.empty.rest": "requires REST URL",
+  "settings.custom.endpoint.url.empty.rpc": "requires an RPC URL",
   "settings.custom.endpoint.name.empty": "Nickname cannot be blank",
   "settings.custom.endpoint.url.invalid.rest": "Rest URI is not a valid URI",
   "settings.custom.endpoint.url.invalid.rpc": "RPC URI is not a valid URI",

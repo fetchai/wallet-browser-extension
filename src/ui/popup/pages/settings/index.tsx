@@ -36,7 +36,9 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
     const [collapsible2b, setcollapsible2b] = useState(false);
 
     // this is used to hide the rest of the form if we are adding a custom endpoint, since that form occupies so much space.
-    const [addingNewEndpoint, setAddingNewEndpoint] = useState(false);
+    const [showAddingNewEndpointForm, setShowAddingNewEndpointForm] = useState(
+      false
+    );
 
     const [lightMode, setLightMode] = useState(false);
 
@@ -219,8 +221,8 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
               >
                 <CustomEndpoint
                   lightMode={lightMode}
-                  addingNewEndpoint={addingNewEndpoint}
-                  setAddingNewEndpoint={setAddingNewEndpoint}
+                  showAddingNewEndpointForm={showAddingNewEndpointForm}
+                  setShowAddingNewEndpointForm={setShowAddingNewEndpointForm}
                 ></CustomEndpoint>
               </Expand>
             </div>
@@ -229,7 +231,7 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
           <div
             className={classnames(
               style.mainButton,
-              addingNewEndpoint ? style.delayedHide : ""
+              showAddingNewEndpointForm ? "hide" : ""
             )}
             onClick={() => toggle(2)}
           >
@@ -281,7 +283,7 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
           <div
             className={classnames(
               style.mainButton,
-              addingNewEndpoint ? style.delayedHide : ""
+              showAddingNewEndpointForm ? "hide" : ""
             )}
             onClick={() => toggle(3)}
           >
