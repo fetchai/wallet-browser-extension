@@ -73,7 +73,13 @@ export const NativeChainInfos: ChainInfo[] = [
   {
     endpoints: [
       {
-        name: "eae",
+        name: "agent-land-sandbox",
+        rpc: " http://rpc-agent-land.sandbox.fetch-ai.com:26657",
+        rest: "http://rest-agent-land.sandbox.fetch-ai.com:1317",
+        chainId: "agent-land"
+      },
+      {
+        name: "eae-testnet",
         rpc: "http://aea-testnet.sandbox.fetch-ai.com:36657",
         rest: "http://aea-testnet.sandbox.fetch-ai.com:1317",
         chainId: "aea-testnet"
@@ -83,12 +89,6 @@ export const NativeChainInfos: ChainInfo[] = [
         rpc: "http://pre-mainnet.sandbox.fetch-ai.com:12000",
         rest: "http://pre-mainnet.sandbox.fetch-ai.com:12200",
         chainId: "aea-testnet"
-      },
-      {
-        name: "agent-land",
-        rpc: " http://rpc-agent-land.sandbox.fetch-ai.com:26657",
-        rest: "http://rest-agent-land.sandbox.fetch-ai.com:1317",
-        chainId: "agent-land"
       }
     ],
     defaultEndpoint: "eae",
@@ -105,5 +105,3 @@ export interface AccessOrigin {
   chainId: string;
   origins: string[];
 }
-
-

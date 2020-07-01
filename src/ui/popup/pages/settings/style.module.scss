@@ -177,8 +177,8 @@ $settings-width: 293px;
 
 :global(.light-mode) {
   .drop-button:hover,
-.drop-button:focus {
-    background-color: darken(rgb(236, 241, 243), 10%)
+  .drop-button:focus {
+    background-color: darken(rgb(236, 241, 243), 10%);
   }
 }
 
@@ -202,7 +202,6 @@ $settings-width: 293px;
   border-width: 1px;
 }
 
-
 :global(.light-mode) {
   .dropdown-content {
     background-color: rgb(236, 241, 243);
@@ -210,7 +209,6 @@ $settings-width: 293px;
     color: black;
   }
 }
-
 
 .dropdown-content div {
   color: white;
@@ -231,8 +229,8 @@ $settings-width: 293px;
 
 :global(.light-mode) {
   .dropdown a:hover {
-  background-color: $light-mode-grey;
-}
+    background-color: $light-mode-grey;
+  }
 }
 
 .show-dropdown {
@@ -249,10 +247,10 @@ $settings-width: 293px;
 
 .closeIcon {
   font-size: 8px;
-    float: right;
-  margin-right:4px;
-    color:  $grey-main;
-    margin-top: 3.5px;
+  float: right;
+  margin-right: 4px;
+  color: $grey-main;
+  margin-top: 3.5px;
 }
 
 .closableRow {
@@ -260,18 +258,25 @@ $settings-width: 293px;
 }
 
 .customNetworkForm {
-  input, output {
+  label {
+    font-size: 10px;
+    margin: 6px 0px 3px 4px;
+    color: $grey-main;
+  }
+
+  input,
+  output {
     border-style: solid !important;
     font-size: 13px;
     padding: 3px 0;
     border-width: 1px;
     width: 100%;
-    margin-top: 13px;
     background: inherit;
     color: $grey-main;
     border-color: $grey-main;
     text-indent: 5px;
     border-radius: 5px;
+    height: 26px;
   }
 
   button {
@@ -285,13 +290,38 @@ $settings-width: 293px;
 
 :global(.light-mode) {
   .active {
-     background-color: darken(rgb(236, 241, 243), 10%) !important;
+    background-color: darken(rgb(236, 241, 243), 10%) !important;
   }
-
 }
 
 .hide {
-  display:none;
+  display: none;
+}
+
+.delayed-hide {
+  -moz-animation: cssAnimation 0s ease-in 5s forwards;
+  /* Firefox */
+  -webkit-animation: cssAnimation 0s ease-in 5s forwards;
+  /* Safari and Chrome */
+  -o-animation: cssAnimation 0s ease-in 5s forwards;
+  /* Opera */
+  animation: cssAnimation 0s ease-in 5s forwards;
+  -webkit-animation-fill-mode: forwards;
+  animation-fill-mode: forwards;
+}
+@keyframes cssAnimation {
+  to {
+    width: 0;
+    height: 0;
+    overflow: hidden;
+  }
+}
+@-webkit-keyframes cssAnimation {
+  to {
+    width: 0;
+    height: 0;
+    visibility: hidden;
+  }
 }
 
 .output-text {
