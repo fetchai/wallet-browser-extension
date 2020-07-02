@@ -20,11 +20,15 @@ import OutsideClickHandler from "react-outside-click-handler";
 import Expand from "react-expand-animated";
 import { observer } from "mobx-react";
 import { BACKGROUND_PORT } from "../../../../common/message/constant";
-import { GetChainIdMsg } from "../../../../background/api";
+import { GetChainIdAndCheckEndPointsAreOnlineMsg } from "../../../../background/api";
 import { sendMessage } from "../../../../common/message/send";
+import { DEFAULT_TRANSITIONS } from "../../../../global-constants";
+import { ChainIdCheckResponse } from "../../../../background/api/handler";
 
 interface CustomEndpointProps {
   lightMode: boolean;
+  showAddingNewEndpointForm: boolean;
+  setShowAddingNewEndpointForm: any;
 }
 
 /**
@@ -33,8 +37,7 @@ interface CustomEndpointProps {
  * It is therefore a button with a div that is displayed when the button is clicked on as per this tutorial: https://www.w3schools.com/howto/howto_js_dropdown.asp
  */
 export const CustomEndpoint: FunctionComponent<CustomEndpointProps> = observer(
-  ({ lightMode }) => {
-    const [collapsible1aa, setcollapsible1aa] = useState(false);
+  ({ lightMode, showAddingNewEndpointForm, setShowAddingNewEndpointForm }) => {
     const [collapsible1a, setcollapsible1a] = useState(false);
     const [isLightMode, setIsLightMode] = useState(lightMode);
 
@@ -50,11 +53,11 @@ export const CustomEndpoint: FunctionComponent<CustomEndpointProps> = observer(
       []
     );
 
-    const [customRPC, setCustomRPC] = useState("");
-    const [customREST, setCustomREST] = useState("");
-    const [customName, setCustomName] = useState("");
-    const [addingNewEndpoint, setAddingNewEndpoint] = useState(false);
-    const [customEndpointOutput, setCustomEndpointOutput] = useState("");
+    const [RPC, setRPC] = useState("");
+    const [REST, setREST] = useState("");
+    const [Name, setName] = useState("");
+    const [chainID, setChainID] = useState("");
+    const [endpointOutput, setEndpointOutput] = useState("");
     const [customEndpointHasError, setCustomEndpointHasError] = useState(false);
     const [showDropdown, setShowDropdown] = useState(false);
 
@@ -63,7 +66,6 @@ export const CustomEndpoint: FunctionComponent<CustomEndpointProps> = observer(
 
     const { chainStore, accountStore } = useStore();
     const intl = useIntl();
-    const transitions = ["height", "opacity", "background"];
 
     useEffect(() => {
       setIsLightMode(lightMode);
@@ -104,7 +106,7 @@ export const CustomEndpoint: FunctionComponent<CustomEndpointProps> = observer(
             name: endpoint.name,
             rest: endpoint.rest,
             rpc: endpoint.rpc,
-            chainId: "tododeleteplaceholder"
+            chainId: endpoint.chainId
           });
         });
         setIntrinsicEndpoints(endpointData);
@@ -114,17 +116,19 @@ export const CustomEndpoint: FunctionComponent<CustomEndpointProps> = observer(
 
     const clearCustomUrlForm = async () => {
       return new Promise(async (resolve: any) => {
-        setCustomRPC("");
-        setCustomREST("");
-        setCustomName("");
-        setCustomEndpointOutput("");
+        setRPC("");
+        setChainID("");
+        setREST("");
+        setName("");
+        setEndpointOutput("");
         await flushPromises();
         resolve();
       });
     };
 
     /**
-     * Custom endpoint should be refactored to  be a seperate module before completion, as can some other the others in settings page
+     * All logic from clicking submit on adding custom ednpoint staring with validation, then moving to
+     * adding the ednpoint incl to storage, and then of updating the state variables in the UI.
      *
      * We look check that the custom rpc and rest are valid urls and if true we add them
      *
@@ -134,42 +138,63 @@ export const CustomEndpoint: FunctionComponent<CustomEndpointProps> = observer(
       event.preventDefault();
 
       // check that nickname is set and not null
-      if (customName === "") {
+      if (Name === "") {
         setCustomEndpointHasError(true);
-        setCustomEndpointOutput(
+        setEndpointOutput(
           intl.formatMessage({
-            id: "register.custom.endpoint.name.empty"
+            id: "settings.custom.endpoint.name.empty"
           })
         );
         return;
       }
-      // check that neither rest nor rpc urls are empty
-      if (customREST === "" || customRPC === "") {
+
+      // if both rest and rpc urls are empty
+      if (REST === "" && RPC === "") {
         setCustomEndpointHasError(true);
-        setCustomEndpointOutput(
+        setEndpointOutput(
           intl.formatMessage({
-            id: "register.custom.endpoint.url.empty"
+            id: "settings.custom.endpoint.url.empty.both"
+          })
+        );
+        return;
+      }
+
+      if (REST === "") {
+        setCustomEndpointHasError(true);
+        setEndpointOutput(
+          intl.formatMessage({
+            id: "settings.custom.endpoint.url.empty.rest"
+          })
+        );
+        return;
+      }
+
+      if (RPC === "") {
+        setCustomEndpointHasError(true);
+        setEndpointOutput(
+          intl.formatMessage({
+            id: "settings.custom.endpoint.url.empty.rpc"
           })
         );
         return;
       }
 
       // check the rest url is a valid URL
-      if (!isURL(customREST)) {
+      if (!isURL(REST)) {
         setCustomEndpointHasError(true);
-        setCustomEndpointOutput(
+        setEndpointOutput(
           intl.formatMessage({
-            id: "register.custom.endpoint.url.invalid.rest"
+            id: "settings.custom.endpoint.url.invalid.rest"
           })
         );
         return;
       }
       // check rpc url is a valid URL
-      if (!isURL(customRPC)) {
+      if (!isURL(RPC)) {
         setCustomEndpointHasError(true);
-        setCustomEndpointOutput(
+        setEndpointOutput(
           intl.formatMessage({
-            id: "register.custom.endpoint.url.invalid.rpc"
+            id: "settings.custom.endpoint.url.invalid.rpc"
           })
         );
         return;
@@ -177,37 +202,52 @@ export const CustomEndpoint: FunctionComponent<CustomEndpointProps> = observer(
 
       setCustomEndpointHasError(false);
 
-      const msg = GetChainIdMsg.create(customRPC);
-      //todo look at how error is handled here. maybe send some message to user
-      const res = await sendMessage(BACKGROUND_PORT, msg);
-      // success we then add the custom endpoint
+      const chainIdResult = await fetchChainIdAndCheckRestURLIsOnline();
+
+      // check if the custom rpc and rest respond to http requests and return a chainId.
+      if (typeof chainIdResult.errorId !== "undefined") {
+        setCustomEndpointHasError(true);
+        setEndpointOutput(
+          intl.formatMessage({
+            id: chainIdResult.errorId
+          })
+        );
+        return;
+      }
+
+      // success we then add the custom endpoint to storage
       await ActiveEndpoint.addCustomEndpoint(
-        customName,
-        customRPC,
-        customREST,
-        res.chainId
+        Name.trim(),
+        RPC.trim(),
+        REST.trim(),
+        chainIdResult.chainId as string
       );
 
+      // and to state
       const nextCustomEndpoints = customEndpoints.concat({
-        name: customName,
-        rest: customREST,
-        rpc: customRPC,
-        chainId: res.chainId
+        name: Name.trim(),
+        rest: REST.trim(),
+        rpc: RPC.trim(),
+        chainId: chainIdResult.chainId as string
       });
 
-      // update the state related to this around the page, and close the add endpoint form
+      // update the page state related to this around the page, and close the add endpoint form
       setCustomEndpoints(nextCustomEndpoints);
+      // hide the form
       setcollapsible1a(false);
-      setcollapsible1aa(false);
-      setActiveNetwork(customName);
+      // set the active network in this UI
+      setActiveNetwork(Name);
+      // this variable tracks if we are showing the form to update endpoints or just with intrinsic endpoints as display only
+      setShowAddingNewEndpointForm(false);
 
-      await ActiveEndpoint.setActiveEndpointName(customName);
+      await ActiveEndpoint.setActiveEndpointName(Name);
       await clearCustomUrlForm();
-      setCustomEndpointOutput(
+      setEndpointOutput(
         intl.formatMessage({
-          id: "register.custom.endpoint.url.success"
+          id: "settings.custom.endpoint.url.success"
         })
       );
+      // update the balance and coins stored in  the account
       await accountStore.clearAssets(true);
       await accountStore.fetchAccount();
     };
@@ -223,7 +263,7 @@ export const CustomEndpoint: FunctionComponent<CustomEndpointProps> = observer(
       list.splice(index, 1);
       setCustomEndpoints(list);
 
-      // if it is the active endpoint switch to the first of the default endpoints.
+      // if it is the active endpoint switch the active to the first of the default endpoints.
       if (activeNetwork === name) {
         await handleSetActiveNetwork(intrinsicEndpoints[0].name);
       }
@@ -232,40 +272,25 @@ export const CustomEndpoint: FunctionComponent<CustomEndpointProps> = observer(
       await ActiveEndpoint.deleteCustomEndpoint(name);
     };
 
+    /**
+     * returns chain id if found from rpc endpoint via status query.
+     *
+     */
+    const fetchChainIdAndCheckRestURLIsOnline = async (): Promise<ChainIdCheckResponse> => {
+      const msg = GetChainIdAndCheckEndPointsAreOnlineMsg.create(RPC, REST);
+      return await sendMessage(BACKGROUND_PORT, msg);
+    };
+
+    /**
+     * This is what sets the active network on this page, but also in storage and refetchs account data
+     *
+     * @param name
+     */
     const handleSetActiveNetwork = async (name: string): Promise<void> => {
       setActiveNetwork(name);
       await ActiveEndpoint.setActiveEndpointName(name);
       await accountStore.clearAssets(true);
       await accountStore.fetchAccount();
-    };
-
-    /**
-     * get button text (which is where the first element on the drop down would be were it a select)
-     */
-    const getButtonText = (): string => {
-      // if the active network is not custom then show it on button
-      if (
-        intrinsicEndpoints.some((el: EndpointData) => {
-          return el.name === activeNetwork;
-        })
-      ) {
-        return activeNetwork;
-      }
-
-      // if it is custom then show edit custom
-      if (
-        customEndpoints.some((el: EndpointData) => {
-          return el.name === activeNetwork;
-        })
-      ) {
-        return intl.formatMessage({
-          id: "register.custom.endpoint.url.custom"
-        });
-      }
-      // else we add custom
-      return intl.formatMessage({
-        id: "register.custom.endpoint.url.add-custom"
-      });
     };
 
     /**
@@ -277,14 +302,15 @@ export const CustomEndpoint: FunctionComponent<CustomEndpointProps> = observer(
     const selectIntrinsicEndpoint = async (element: EndpointData) => {
       setShowDropdown(false);
       setcollapsible1a(true);
-      setcollapsible1aa(false);
       setSelectedNetworkInList(element.name);
 
       // prefill the form below that we show when clicked
-      setCustomREST(element.rest);
-      setCustomRPC(element.rpc);
-      setCustomEndpointOutput("");
-
+      setREST(element.rest);
+      setRPC(element.rpc);
+      setChainID(element.chainId);
+      setName(element.name);
+      setEndpointOutput("");
+      setShowAddingNewEndpointForm(false);
       await handleSetActiveNetwork(element.name);
       forceUpdate();
     };
@@ -292,15 +318,15 @@ export const CustomEndpoint: FunctionComponent<CustomEndpointProps> = observer(
     const selectCustomEndpoint = async (element: EndpointData) => {
       setShowDropdown(false);
       setcollapsible1a(true);
-      setcollapsible1aa(true);
-      setAddingNewEndpoint(false);
+      setShowAddingNewEndpointForm(false);
       setSelectedNetworkInList(element.name);
 
       // prefill the form below that we show when clicked
-      setCustomREST(element.rest);
-      setCustomRPC(element.rpc);
-      setCustomName(element.name);
-      setCustomEndpointOutput("");
+      setREST(element.rest);
+      setRPC(element.rpc);
+      setName(element.name);
+      setChainID(element.chainId);
+      setEndpointOutput("");
 
       await handleSetActiveNetwork(element.name);
       forceUpdate();
@@ -312,8 +338,7 @@ export const CustomEndpoint: FunctionComponent<CustomEndpointProps> = observer(
      */
     const handleClickOnAddCustomListElement = async () => {
       setcollapsible1a(true);
-      setcollapsible1aa(true);
-      setAddingNewEndpoint(true);
+      setShowAddingNewEndpointForm(true);
       setShowDropdown(false);
       setSelectedNetworkInList("");
       await clearCustomUrlForm();
@@ -325,13 +350,21 @@ export const CustomEndpoint: FunctionComponent<CustomEndpointProps> = observer(
       });
     };
 
+    const getDropdownButtonText = () => {
+      return showAddingNewEndpointForm
+        ? intl.formatMessage({
+            id: "settings.custom.endpoint.url.add-custom"
+          })
+        : activeNetwork;
+    };
+
     return (
       <OutsideClickHandler
         onOutsideClick={async () => {
           await clearCustomUrlForm();
           setShowDropdown(false);
           setcollapsible1a(false);
-          setcollapsible1aa(false);
+          setShowAddingNewEndpointForm(false);
         }}
       >
         <div className={classnames(style.dropdown, style.expandable)}>
@@ -346,7 +379,7 @@ export const CustomEndpoint: FunctionComponent<CustomEndpointProps> = observer(
                 showDropdown ? style.showDropdown : ""
               )}
             >
-              {getButtonText()}
+              {getDropdownButtonText()}
               <svg
                 className={style.svg}
                 xmlns="http://www.w3.org/2000/svg"
@@ -386,7 +419,7 @@ export const CustomEndpoint: FunctionComponent<CustomEndpointProps> = observer(
                 onClick={handleClickOnAddCustomListElement}
               >
                 {intl.formatMessage({
-                  id: "register.custom.endpoint.url.add-custom"
+                  id: "settings.custom.endpoint.url.add-custom"
                 })}
               </div>
               {customEndpoints.map((el: EndpointData, index: number) => {
@@ -412,46 +445,86 @@ export const CustomEndpoint: FunctionComponent<CustomEndpointProps> = observer(
               })}
             </div>
           </div>
-          <Expand open={collapsible1a} duration={500} transitions={transitions}>
+          <Expand
+            open={collapsible1a}
+            duration={500}
+            transitions={DEFAULT_TRANSITIONS}
+          >
             <form className={style.customNetworkForm}>
+              <label>
+                {" "}
+                {intl.formatMessage({
+                  id: "settings.custom.endpoint.url.name"
+                })}
+              </label>
               <input
                 type="text"
-                placeholder="RPC URL"
-                value={customRPC}
+                placeholder={intl.formatMessage({
+                  id: "settings.custom.endpoint.url.assign-nickname"
+                })}
+                value={Name}
                 disabled={isIntrinsicSelected()}
-                onChange={event => setCustomRPC(event.target.value)}
+                onChange={event => setName(event.target.value)}
               ></input>
+              <label>
+                {" "}
+                {intl.formatMessage({
+                  id: "settings.custom.endpoint.url.rest-url"
+                })}
+              </label>
               <input
                 type="text"
                 disabled={isIntrinsicSelected()}
-                placeholder="REST URL"
-                value={customREST}
-                onChange={event => setCustomREST(event.target.value)}
+                value={REST}
+                onChange={event => setREST(event.target.value)}
               ></input>
-              <Expand
-                open={collapsible1aa}
-                duration={500}
-                transitions={transitions}
-              >
-                <input
-                  type="text"
-                  placeholder="Nickname"
-                  value={customName}
-                  onChange={event => setCustomName(event.target.value)}
-                ></input>
+              <label>
+                {" "}
+                {intl.formatMessage({
+                  id: "settings.custom.endpoint.url.rpc-url"
+                })}
+              </label>
+              <input
+                type="text"
+                value={RPC}
+                disabled={isIntrinsicSelected()}
+                onChange={event => setRPC(event.target.value)}
+              ></input>
+              {chainID ? (
+                <>
+                  <label>
+                    {" "}
+                    {intl.formatMessage({
+                      id: "settings.custom.endpoint.url.chain-id"
+                    })}
+                  </label>
+                  <output>{chainID}</output>
+                </>
+              ) : (
+                ""
+              )}
+              {!isIntrinsicSelected() ? (
                 <button
                   type="submit"
                   className={`green ${style.button}`}
                   onClick={handleCustomEndpointSubmission}
                 >
-                  {addingNewEndpoint ? "Submit" : "Update"}
+                  {showAddingNewEndpointForm
+                    ? intl.formatMessage({
+                        id: "settings.custom.endpoint.url.submit"
+                      })
+                    : intl.formatMessage({
+                        id: "settings.custom.endpoint.url.update"
+                      })}
                 </button>
-              </Expand>
+              ) : (
+                ""
+              )}
             </form>
           </Expand>
           <div className={style.outputText}>
             <span className={customEndpointHasError ? "red" : ""}>
-              {customEndpointOutput}
+              {endpointOutput}
             </span>
           </div>
         </div>

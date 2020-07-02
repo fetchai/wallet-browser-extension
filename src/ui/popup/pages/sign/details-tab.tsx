@@ -67,7 +67,6 @@ export const DetailsTab: FunctionComponent<{
         msgs: MessageObj[];
       } = JSON.parse(message);
 
-      debugger;
       setMemo(msgObj.memo);
       setMsgs(msgObj.msgs);
 

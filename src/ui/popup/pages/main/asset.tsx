@@ -71,7 +71,6 @@ export const AssetView: FunctionComponent = observer(() => {
       (selectedDenom === nativeCurrency.coinDenom ||
         selectedDenom === nativeCurrency.coinMinimalDenom) &&
       !fiat.value.equals(new Dec(0));
-    debugger;
     return test;
   };
 
@@ -106,15 +105,12 @@ export const AssetView: FunctionComponent = observer(() => {
       // if dollar amount is greater than 100 then cut off the cent amount
       let amount = fiat.value.mul(new Dec(coinAmount)).toString();
       amount = cutOffDecimals(amount);
-      debugger;
       return "$" + parseFloat(amount).toLocaleString();
     } else {
       const d = parseFloat(
         (fiat as Price).value.mul(new Dec(coinAmount)).toString()
       ).toFixed(4);
-  debugger;
-      const r = "$" + removeTrailingZeros(d).toLocaleString();
-      return r;
+      return "$" + removeTrailingZeros(d).toLocaleString();
     }
   };
 

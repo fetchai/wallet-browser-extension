@@ -1,11 +1,12 @@
-import Axios, { AxiosRequestConfig, CancelToken } from "axios";
+import Axios, { AxiosRequestConfig, AxiosResponse, CancelToken } from "axios";
 import { AccountData, BaseAccountConstructor } from "./types";
 import {
   AUTH_REST_API_PATH,
   BALANCE_REST_API_PATH,
-  MALFORMED_RESPONSE,
+  NODE_INFO_REST_API_PATH,
   PUBLIC_KEY_TYPE,
   QUERY_TYPE,
+  REGISTER_CUSTOM_ENDPOINT_URL_ERROR_RPC_ID,
   STATUS_ERROR,
   STATUS_RPC_API_PATH
 } from "./constants";
@@ -21,25 +22,55 @@ export interface CoinParams {
 }
 
 export class APIKeeper {
-
-
   /**
    * Gets the chain id of a network via the rpc status endpoint
+   *
+   * either throws an error or else the chain id is returned
    *
    * @param rpc
    */
   static async getChainId(rpc: string): Promise<string> {
     const url = `${rpc}${STATUS_RPC_API_PATH}`;
-    const resp = await Axios.get(url, {});
-    if (resp.status !== 200) {
-      throw new Error(STATUS_ERROR);
+    let error = false;
+    let resp;
+    try {
+      resp = await Axios.get(url, {});
+    } catch (err) {
+      error = true;
     }
 
-    if (!resp?.data?.result?.node_info?.network) {
-      throw new Error(MALFORMED_RESPONSE);
+    if (
+      error ||
+      (resp as AxiosResponse).status !== 200 ||
+      !resp?.data?.result?.node_info?.network
+    ) {
+      throw new Error(REGISTER_CUSTOM_ENDPOINT_URL_ERROR_RPC_ID);
     }
 
     return resp.data.result.node_info.network;
+  }
+
+  /**
+   * We check that the rest url is online by looking for any response but 500
+   *
+   * returns boolean
+   *
+   * @param rpc
+   */
+  static async isRestURLOnline(rest: string): Promise<boolean> {
+    const url = `${rest}${NODE_INFO_REST_API_PATH}`;
+    let error = false;
+    let resp;
+    try {
+      resp = await Axios.get(url);
+    } catch (err) {
+      error = true;
+    }
+
+    if (error || (resp as AxiosResponse).status === 500) {
+      return false;
+    }
+    return true;
   }
 
   /**
@@ -146,11 +177,14 @@ export class APIKeeper {
     };
 
     const base64 = btoa(account.public_key);
+    // suppressed because the caseing are not defined by us us
+    // eslint-disable-next-line @typescript-eslint/camelcase
     base.value.public_key = {
       type: PUBLIC_KEY_TYPE,
       value: base64
     };
-
+    // suppressed because the caseing are not defined by us us
+    // eslint-disable-next-line @typescript-eslint/camelcase
     base.value.account_number = account.account_number;
     base.value.sequence = account.sequence;
     // return BaseAccount.fromJSON(base as BaseAccountConstructor);

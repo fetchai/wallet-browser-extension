@@ -48,9 +48,7 @@ doesn't work delete   *
     if (currency.coinMinimalDenom === currency.coinDenom) return amount;
     // no power method in this , but this is workaround.
     const multiplier = "1" + "0".repeat(currency.coinDecimals);
-    const r = amount.div(new Int(multiplier));
-    debugger;
-    return r;
+    return amount.div(new Int(multiplier));
   }
 
   static getCoinFromDecimals(decAmountStr: string, denom: string): Coin {
