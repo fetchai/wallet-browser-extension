@@ -31,6 +31,6 @@ jobs:
       - name: Run the install
         run: |
           npm install
-      - name: Run the install
+      - name: Run the build
         run: |
           npm run build
