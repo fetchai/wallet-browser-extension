@@ -77,7 +77,6 @@ export const CustomEndpoint: FunctionComponent<CustomEndpointProps> = observer(
       return () => setValue(value => ++value); // update the state to force render
     }
 
-    // call your hook here
     const forceUpdate = useForceUpdate();
 
     useEffect(() => {

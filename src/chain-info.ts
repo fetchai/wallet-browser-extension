@@ -69,6 +69,9 @@ export interface ChainInfo {
   readonly coinType?: number;
 }
 
+/**
+ * ensure default endpoint is name of one of endpoints
+ */
 export const NativeChainInfos: ChainInfo[] = [
   {
     endpoints: [
@@ -85,7 +88,7 @@ export const NativeChainInfos: ChainInfo[] = [
         chainId: "agent-land"
       }
     ],
-    defaultEndpoint: "eae",
+    defaultEndpoint: "agent-land",
     nativeCurrency: "testfet",
     bip44: new BIP44(44, 118, 0),
     bech32Config: defaultBech32Config("cosmos"),
