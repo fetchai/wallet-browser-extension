@@ -238,7 +238,7 @@ export const CustomEndpoint: FunctionComponent<CustomEndpointProps> = observer(
       // set the active network in this UI
       setActiveNetwork(Name);
       // this variable tracks if we are showing the form to update endpoints or just with intrinsic endpoints as display only
-      setShowAddingNewEndpointForm();
+      setShowAddingNewEndpointForm(false);
 
       await ActiveEndpoint.setActiveEndpointName(Name);
       await clearCustomUrlForm();
