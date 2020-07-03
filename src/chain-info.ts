@@ -83,8 +83,8 @@ export const NativeChainInfos: ChainInfo[] = [
       },
       {
         name: "agent-land",
-        rpc: "https://rpc-agent-land.fetch.ai:443",
-        rest: "https://rest-agent-land.fetch.ai:443",
+        rpc: " https://rpc-agent-land.prod.fetch-ai.com:443",
+        rest: " https://rest-agent-land.prod.fetch-ai.com:443",
         chainId: "agent-land"
       }
     ],

@@ -17,20 +17,18 @@
       color: lightgrey;
 
       &:global(.active) {
-        color: white;
+        color: green;
       }
     }
   }
 
 :global(.light-mode) {
   .tabs {
-    ul > &:global(.active) {
-      color: $light-mode-grey !important;
-    }
-
-  li &:global(.active) {
-      color: $light-mode-grey !important;
-      }
+     ul {
+       li {
+         color: black !important;
+       }
+     }
 }
 }
 

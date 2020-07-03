@@ -55,7 +55,7 @@
   "register.create.textarea.mnemonic.error.too-short": "Memonic is too short",
   "register.create.button.next": "Next",
   "register.welcome.title": "You’re all set!",
-  "register.welcome.content": "Open the extension and sign in to begin your interchain journey.",
+  "register.welcome.content": "Welcome to the Fetch.ai Blockchain network",
   "register.welcome.button.done": "Done",
   "register.success.title": "Address successfully added!",
   "register.success.content": "re-open the extension and the new address will be in your address book",
