@@ -114,7 +114,7 @@ export const AddAddressWizard: FunctionComponent<NewAddressWizardProps> = observ
 
     const readyToRegisterThroughHardwareWallet = async (): Promise<boolean> => {
       let error = false;
-
+      debugger;
       const msg = LedgerNanoMsg.create(METHODS.isSupportedVersion);
       const result = await sendMessage(BACKGROUND_PORT, msg);
 
@@ -126,6 +126,7 @@ export const AddAddressWizard: FunctionComponent<NewAddressWizardProps> = observ
             "Ledger Device is busy (lock getVersion)"
           )
         ) {
+          debugger;
           result.errorMessage = result.errorMessage.split(" (lock")[0];
         }
 

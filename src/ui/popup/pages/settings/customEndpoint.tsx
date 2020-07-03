@@ -319,7 +319,7 @@ export const CustomEndpoint: FunctionComponent<CustomEndpointProps> = observer(
       setcollapsible1a(true);
       setShowAddingNewEndpointForm(false);
       setSelectedNetworkInList(element.name);
-
+      setShowAddingNewEndpointForm(true);
       // prefill the form below that we show when clicked
       setREST(element.rest);
       setRPC(element.rpc);
@@ -349,8 +349,14 @@ export const CustomEndpoint: FunctionComponent<CustomEndpointProps> = observer(
       });
     };
 
+    const isCustomSelected = (): boolean => {
+      return customEndpoints.some((el: EndpointData) => {
+        return selectedNetworkInList === el.name;
+      });
+    };
+
     const getDropdownButtonText = () => {
-      return showAddingNewEndpointForm
+      return showAddingNewEndpointForm && !isCustomSelected()
         ? intl.formatMessage({
             id: "settings.custom.endpoint.url.add-custom"
           })
@@ -369,7 +375,11 @@ export const CustomEndpoint: FunctionComponent<CustomEndpointProps> = observer(
         <div className={classnames(style.dropdown, style.expandable)}>
           <div className={style.dropdown}>
             <button
+              onMouseLeave={() => {
+                setShowDropdown(false);
+              }}
               onClick={() => {
+                setShowDropdown(false);
                 const toggled = !showDropdown;
                 setShowDropdown(toggled);
               }}
@@ -398,6 +408,9 @@ export const CustomEndpoint: FunctionComponent<CustomEndpointProps> = observer(
                 style.dropdownContent,
                 showDropdown ? style.showDropdown : ""
               )}
+              onMouseEnter={() => {
+                setShowDropdown(true);
+              }}
             >
               {intrinsicEndpoints.map((el: EndpointData, index: number) => {
                 return (

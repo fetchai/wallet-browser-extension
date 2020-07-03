@@ -27,6 +27,7 @@ const handleLedgerNanoMsg: () => (
      * This differs from the other background messages in that we have one message and several different
      */
     try {
+      debugger;
       const ledger = await LedgerNano.getInstance();
 
       switch (msg.method) {
@@ -46,6 +47,8 @@ const handleLedgerNanoMsg: () => (
           throw new Error("Unknown msg type");
       }
     } catch (error) {
+      debugger;
+
       errorMessage = error.message;
     }
 
