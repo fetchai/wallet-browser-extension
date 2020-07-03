@@ -124,7 +124,6 @@ export default class ActiveEndpoint {
     return new Promise(resolve =>
       store.get(ACTIVE_ENDPOINT_NAME).then((result: any) => {
         if (typeof result === "undefined" || result === false) {
-          debugger;
           resolve(
             ActiveEndpoint.getEndpointData(NativeChainInfos[0].defaultEndpoint)
           );

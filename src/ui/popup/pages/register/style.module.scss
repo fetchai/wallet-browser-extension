@@ -53,11 +53,6 @@ $input-height: 46px;
 
   .password {
     @extend .white-border;
-
-    &:focus {
-      background: none;
-      box-shadow: none;
-    }
   }
 }
 

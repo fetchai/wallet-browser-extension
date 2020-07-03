@@ -46,6 +46,7 @@ const handleLedgerNanoMsg: () => (
           throw new Error("Unknown msg type");
       }
     } catch (error) {
+
       errorMessage = error.message;
     }
 
