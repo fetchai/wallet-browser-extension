@@ -19,13 +19,12 @@ import { DownloadKeyFile } from "./downloadKeyFile";
 import { ChangePassword } from "./changePassword";
 import { DeleteAccount } from "./deleteAccount";
 import { ToggleLightMode } from "./toggleLightMode";
+import { DEFAULT_TRANSITIONS } from "../../../../global-constants";
 
 export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
   ({ history }) => {
     const { keyRingStore } = useStore();
     const intl = useIntl();
-
-    const transitions = ["height", "opacity", "background"];
 
     const [collapsible1, setcollapsible1] = useState(false);
     const [collapsible1a, setcollapsible1a] = useState(false);
@@ -35,6 +34,12 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
     const [collapsible3, setcollapsible3] = useState(false);
     const [collapsible2a, setcollapsible2a] = useState(false);
     const [collapsible2b, setcollapsible2b] = useState(false);
+
+    // this is used to hide the rest of the form if we are adding a custom endpoint, since that form occupies so much space.
+    const [showAddingNewEndpointForm, setShowAddingNewEndpointForm] = useState(
+      false
+    );
+
     const [lightMode, setLightMode] = useState(false);
 
     const [keyFile, setKeyFile] = useState("");
@@ -150,9 +155,15 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
             </h2>
           </div>
           <div className={style.mainButton} onClick={() => toggle(1)}>
-            General
+            {intl.formatMessage({
+              id: "settings.subheading.general"
+            })}
           </div>
-          <Expand open={collapsible1} duration={500} transitions={transitions}>
+          <Expand
+            open={collapsible1}
+            duration={500}
+            transitions={DEFAULT_TRANSITIONS}
+          >
             <h3
               className={classnames("clickable", style.subHeading)}
               onClick={() => toggle("1a")}
@@ -165,7 +176,7 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
             <Expand
               open={collapsible1a}
               duration={500}
-              transitions={transitions}
+              transitions={DEFAULT_TRANSITIONS}
             >
               <ToggleLightMode
                 lightMode={lightMode}
@@ -187,7 +198,7 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
                 <Expand
                   open={collapsible1b}
                   duration={500}
-                  transitions={transitions}
+                  transitions={DEFAULT_TRANSITIONS}
                 >
                   <DownloadKeyFile keyFileProps={keyFile} />
                 </Expand>
@@ -206,17 +217,33 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
               <Expand
                 open={collapsible1c}
                 duration={500}
-                transitions={transitions}
+                transitions={DEFAULT_TRANSITIONS}
               >
-                <CustomEndpoint lightMode={lightMode}></CustomEndpoint>
+                <CustomEndpoint
+                  lightMode={lightMode}
+                  showAddingNewEndpointForm={showAddingNewEndpointForm}
+                  setShowAddingNewEndpointForm={setShowAddingNewEndpointForm}
+                ></CustomEndpoint>
               </Expand>
             </div>
           </Expand>
 
-          <div className={style.mainButton} onClick={() => toggle(2)}>
-            Security & Privacy
+          <div
+            className={classnames(
+              style.mainButton,
+              showAddingNewEndpointForm ? "hide" : ""
+            )}
+            onClick={() => toggle(2)}
+          >
+            {intl.formatMessage({
+              id: "settings.subheading.security"
+            })}
           </div>
-          <Expand open={collapsible2} duration={500} transitions={transitions}>
+          <Expand
+            open={collapsible2}
+            duration={500}
+            transitions={DEFAULT_TRANSITIONS}
+          >
             <h3
               className={classnames(style.subHeading, style.clickable)}
               onClick={() => toggle("2a")}
@@ -228,7 +255,7 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
             <Expand
               open={collapsible2a}
               duration={500}
-              transitions={transitions}
+              transitions={DEFAULT_TRANSITIONS}
             >
               <ChangePassword />
             </Expand>
@@ -245,7 +272,7 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
             <Expand
               open={collapsible2b}
               duration={500}
-              transitions={transitions}
+              transitions={DEFAULT_TRANSITIONS}
             >
               <DeleteAccount
                 hasKeyFile={keyFile !== null}
@@ -253,10 +280,22 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
               ></DeleteAccount>
             </Expand>
           </Expand>
-          <div className={style.mainButton} onClick={() => toggle(3)}>
-            About
+          <div
+            className={classnames(
+              style.mainButton,
+              showAddingNewEndpointForm ? "hide" : ""
+            )}
+            onClick={() => toggle(3)}
+          >
+            {intl.formatMessage({
+              id: "settings.subheading.about"
+            })}
           </div>
-          <Expand open={collapsible3} duration={500} transitions={transitions}>
+          <Expand
+            open={collapsible3}
+            duration={500}
+            transitions={DEFAULT_TRANSITIONS}
+          >
             <div className={style.aboutSection}>
               <p className={style.about}>FET Wallet Version {VERSION}</p>
               <p className={style.about}>

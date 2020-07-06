@@ -97,7 +97,6 @@ export function renderMessage(
   intl: IntlShape
 ): { icon: string | undefined; title: string; content: any } | undefined {
   if (MessageType<MsgSend>(msg, "cosmos-sdk/MsgSend")) {
-    debugger;
     const receives: { amount: string; denom: string }[] = [];
     for (const coinPrimitive of msg.value.amount) {
       let amount = coinPrimitive.amount;
@@ -115,7 +114,6 @@ export function renderMessage(
         denom: denom
       });
     }
-    debugger;
     return {
       icon: "fas fa-paper-plane",
       title: intl.formatMessage({

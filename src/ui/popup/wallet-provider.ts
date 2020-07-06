@@ -83,10 +83,6 @@ export class PopupWalletProvider implements WalletProvider {
     crypto.getRandomValues(random);
     const id = Buffer.from(random).toString("hex");
 
-    // debugger; // check what is chainid here
-    // const x = context.get("chainId");
-    // debugger;
-
     const requestTxBuilderConfig = RequestTxBuilderConfigMsg.create(
       {
         ...txBuilderConfigToPrimitive(config)

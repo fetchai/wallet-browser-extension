@@ -1,6 +1,7 @@
 import { Message } from "../../common/message";
 import { ROUTE } from "../api/constants";
 import { Coin } from "@everett-protocol/cosmosjs/common/coin";
+import { ChainIdCheckResponse } from "./handler";
 
 export class GetBalanceMsg extends Message<{
   coins: Coin[];
@@ -38,24 +39,32 @@ export class GetBalanceMsg extends Message<{
     return GetBalanceMsg.type();
   }
 }
-export class GetChainIdMsg extends Message<{
-  chainId: string;
-}> {
+export class GetChainIdAndCheckEndPointsAreOnlineMsg extends Message<
+  ChainIdCheckResponse
+> {
   public rpc: string = "";
+  public rest: string = "";
 
   public static type() {
     return "get-chain-id";
   }
 
-  public static create(rpc: string): GetChainIdMsg {
-    const msg = new GetChainIdMsg();
+  public static create(
+    rpc: string,
+    rest: string
+  ): GetChainIdAndCheckEndPointsAreOnlineMsg {
+    const msg = new GetChainIdAndCheckEndPointsAreOnlineMsg();
     msg.rpc = rpc;
+    msg.rest = rest;
     return msg;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   validateBasic(): void {
     if (!this.rpc) {
+      throw new Error("rpc url not set");
+    }
+    if (!this.rest) {
       throw new Error("rest url not set");
     }
   }
@@ -65,10 +74,9 @@ export class GetChainIdMsg extends Message<{
   }
 
   type(): string {
-    return GetChainIdMsg.type();
+    return GetChainIdAndCheckEndPointsAreOnlineMsg.type();
   }
 }
-
 
 export class QueryAccountMsg extends Message<{}> {
   public bech32Address: string = "";

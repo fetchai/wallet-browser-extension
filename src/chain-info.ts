@@ -73,21 +73,15 @@ export const NativeChainInfos: ChainInfo[] = [
   {
     endpoints: [
       {
-        name: "eae",
-        rpc: "http://aea-testnet.sandbox.fetch-ai.com:36657",
-        rest: "http://aea-testnet.sandbox.fetch-ai.com:1317",
-        chainId: "aea-testnet"
-      },
-      {
-        name: "pre-mainnet",
-        rpc: "http://pre-mainnet.sandbox.fetch-ai.com:12000",
-        rest: "http://pre-mainnet.sandbox.fetch-ai.com:12200",
-        chainId: "aea-testnet"
+        name: "agent-land-sandbox",
+        rpc: "http://rpc-agent-land.sandbox.fetch-ai.com:26657",
+        rest: "http://rest-agent-land.sandbox.fetch-ai.com:1317",
+        chainId: "agent-land"
       },
       {
         name: "agent-land",
-        rpc: " http://rpc-agent-land.sandbox.fetch-ai.com:26657",
-        rest: "http://rest-agent-land.sandbox.fetch-ai.com:1317",
+        rpc: "https://rpc-agent-land.fetch.ai:443",
+        rest: "https://rest-agent-land.fetch.ai:443",
         chainId: "agent-land"
       }
     ],
@@ -100,10 +94,3 @@ export const NativeChainInfos: ChainInfo[] = [
     coinType: 118
   }
 ];
-
-export interface AccessOrigin {
-  chainId: string;
-  origins: string[];
-}
-
-
