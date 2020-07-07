@@ -11,7 +11,7 @@
     "lint-fix": "eslint --fix \"src/**/*\" webpack.config.js && prettier --write \"src/**/*\" webpack.config.js"
   },
   "keywords": [],
-  "author": "everett-protocol",
+  "author": "fetch.ai",
   "license": "Apache-2.0",
   "dependencies": {
     "@ensdomains/resolver": "^0.2.4",
