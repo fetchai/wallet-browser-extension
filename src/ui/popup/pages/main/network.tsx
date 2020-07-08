@@ -21,7 +21,6 @@ export const Network: FunctionComponent = observer(() => {
     // on mount we get active endpoint so we can display it correctly.
     const findActiveEndpoint = async () => {
       const network = await ActiveEndpoint.getActiveEndpoint();
-      debugger;
       setActiveNetwork(network.name);
     };
 
