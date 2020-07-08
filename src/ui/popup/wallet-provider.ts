@@ -6,6 +6,7 @@ import { Context } from "@everett-protocol/cosmosjs/core/context";
 import {
   ApproveSignMsg,
   GetKeyMsg,
+  IsHardwareLinkedMsg,
   RequestSignMsg,
   RequestTxBuilderConfigMsg
 } from "../../background/keyring";
@@ -16,6 +17,8 @@ import {
   txBuilderConfigFromPrimitive,
   txBuilderConfigToPrimitive
 } from "../../background/keyring/utils";
+import { task } from "mobx-utils";
+import LedgerNano from "./other/ledger-nano";
 
 const Buffer = require("buffer/").Buffer;
 

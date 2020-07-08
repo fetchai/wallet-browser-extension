@@ -63,7 +63,6 @@ export class BackgroundTxKeeper {
       } else {
         result = await rpc.broadcastTx(Buffer.from(txBytes, "hex"), mode);
       }
-
       if (result.mode === "sync" || result.mode === "async") {
         if (result.code !== 0) {
           throw new Error(result.log);
@@ -109,6 +108,7 @@ export class BackgroundTxKeeper {
       } catch {
         // noop
       }
+
 
       try {
         // Cosmos-sdk error in processing message

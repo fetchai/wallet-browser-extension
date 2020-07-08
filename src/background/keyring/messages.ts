@@ -842,6 +842,34 @@ export class ApproveSignMsg extends Message<void> {
   }
 }
 
+export class SubmitSignedLedgerMessage extends Message<void> {
+  public static type() {
+    return "signed-ledger-message";
+  }
+
+  public static create(message: string): SubmitSignedLedgerMessage {
+    const msg = new SubmitSignedLedgerMessage();
+    msg.message = message;
+    return msg;
+  }
+
+  public message: string = "";
+
+  validateBasic(): void {
+    if (!this.message) {
+      throw new Error("message is empty");
+    }
+  }
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return SubmitSignedLedgerMessage.type();
+  }
+}
+
 export class GetDeleteAddressMsg extends Message<void> {
   public static type() {
     return "delete message";

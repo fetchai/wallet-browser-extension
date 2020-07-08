@@ -18,11 +18,8 @@ import { WelcomeInPage } from "./welcome";
 import { FormattedMessage, useIntl } from "react-intl";
 import Upload from "./upload";
 import { Hardware } from "./hardware";
-import { LedgerNanoMsg } from "../../../../background/ledger-nano";
-import { METHODS } from "../../../../background/ledger-nano/constants";
-import { BACKGROUND_PORT } from "../../../../common/message/constant";
-import { sendMessage } from "../../../../common/message/send";
 import { SuccessPage } from "./successPage";
+import LedgerNano from "../../other/ledger-nano";
 
 export enum RegisterState {
   INIT,
@@ -104,32 +101,42 @@ export const AddAddressWizard: FunctionComponent<NewAddressWizardProps> = observ
      * note: fails silently; used only to get load address early from nano so if logged in the next page loads faster
      */
     const getAddressFromNano = async (): Promise<string> => {
-      const msg = LedgerNanoMsg.create(METHODS.getCosmosAddress);
-      const address = await sendMessage(BACKGROUND_PORT, msg);
 
-      return typeof address.errorMessage === "undefined"
-        ? (address.result as string)
-        : "";
+      let errorMessage = "";
+      let ledger;
+      let address;
+
+      try {
+        ledger = await LedgerNano.getInstance();
+        address = await ledger.getCosmosAddress();
+      } catch (error) {
+        errorMessage = error.message;
+      }
+
+      return errorMessage ? "" : (address as string);
     };
 
     const readyToRegisterThroughHardwareWallet = async (): Promise<boolean> => {
+
       let error = false;
+      let errorMessage = "";
+      let ledger;
 
-      const msg = LedgerNanoMsg.create(METHODS.isSupportedVersion);
-      const result = await sendMessage(BACKGROUND_PORT, msg);
+      try {
+        ledger = await LedgerNano.getInstance();
+        await ledger.isSupportedVersion();
+      } catch (error) {
+        errorMessage = error.message;
+      }
 
-      if (typeof result.errorMessage !== "undefined") {
+      if (errorMessage) {
         error = true;
         // if the hardware error message is one in particular that is wierd that looks like a bug/type we cut off part of it
-        if (
-          result.errorMessage.includes(
-            "Ledger Device is busy (lock getVersion)"
-          )
-        ) {
-          result.errorMessage = result.errorMessage.split(" (lock")[0];
+        if (errorMessage.includes("Ledger Device is busy (lock getVersion)")) {
+          errorMessage = errorMessage.split(" (lock")[0];
         }
 
-        setHardwareErrorMessage(result.errorMessage);
+        setHardwareErrorMessage(errorMessage);
       }
 
       return !error;

@@ -17,7 +17,7 @@
   margin: 0 0 8px;
 
   &:last-of-type {
-    margin: 0;
+    margin: 0 0 5px 0;
   }
 
   &.messages {
@@ -29,7 +29,7 @@
     font-weight: bold;
     font-size: 14px;
     color: gray;
-    margin-bottom:5px;
+    margin-bottom: 5px;
   }
 
   .fee {
@@ -50,12 +50,10 @@
     min-height: 30px;
   }
 
-
-
   .error {
     font-size: 14px;
-    color:white;
-        padding-bottom: 5px;
+    color: white;
+    padding-bottom: 5px;
   }
 
   hr {
@@ -65,7 +63,7 @@
 
 :global(.light-mode) {
   i {
-     color: black;
+    color: black;
   }
 }
 
@@ -102,18 +100,22 @@
   }
 }
 
-  :global(.light-mode) {
+.error-button {
+  border-radius: 5px;
+  box-shadow: none;
+  margin-bottom: 5px;
+}
+
+:global(.light-mode) {
   .memo {
-     color: grey;
+    color: grey;
   }
 
-    .fiat {
-     color: grey;
+  .fiat {
+    color: grey;
   }
 
-     .fee {
-     color: grey;
+  .fee {
+    color: grey;
   }
-
-
 }
