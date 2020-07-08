@@ -35,6 +35,8 @@ const ACTIVE_KEY = "active-key";
 export class KeyRing {
   private loaded: boolean;
 
+  public lastSignedHardwareMessage: Uint8Array | undefined;
+
   // in the wallet we have one active address at any time, the one for which data is shown.
   // the active address is the address currently displayed in the wallet, which is then used for balance, sending , downloading ect.
   public activeAddress: string | undefined;
@@ -102,8 +104,9 @@ export class KeyRing {
     return true;
   }
 
-  public setActiveAddress(address: string) {
+  public async setActiveAddress(address: string) {
     this.activeAddress = address;
+    await this.save();
   }
 
   public getActiveAddress(): string {
