@@ -68,9 +68,6 @@ const setBackgroundImage = (light: boolean, inPopUp: boolean) => {
         "style",
         "background-image: linear-gradient(to top,  #0d0d0d, #1e2844)"
       );
-
-    // const posElem = document.getElementsByTagName("HTML")[0];
-    // posElem.style.cssText = "background: linear-gradient(to top, #0d0d0d, #1e2844);";
   }
 
   /**
