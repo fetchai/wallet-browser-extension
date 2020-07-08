@@ -123,11 +123,14 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
 
     const { chainStore, accountStore, priceStore } = useStore();
 
-    const nativeCurrency = getCurrency(
-      chainStore.chainInfo.nativeCurrency
-    ) as Currency;
+    useEffect(() => {
+      const nativeCurrency = getCurrency(
+        chainStore.chainInfo.nativeCurrency
+      ) as Currency;
+      setDenom(nativeCurrency.coinDenom);
+    }, [chainStore]);
 
-    const [denom, setDenom] = useState(nativeCurrency.coinDenom);
+    const [denom, setDenom] = useState("");
 
     const [walletProvider] = useState(
       new PopupWalletProvider(undefined, {

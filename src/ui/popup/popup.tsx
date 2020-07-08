@@ -30,6 +30,7 @@ import { SettingsPage } from "./pages/settings";
 import { LightMode } from "./light-mode";
 import { AddressBookManagerPage } from "./pages/address-book-manager";
 import { DeleteAddress } from "./pages/delete-address";
+import Analytics from "../components/analytics/analytics";
 
 // Make sure that icon file will be included in bundle
 require("./public/assets/fetch-logo.svg");
@@ -111,70 +112,72 @@ const StateRenderer: FunctionComponent<RouteComponentProps> = observer(
 );
 
 ReactDOM.render(
-  <LightMode>
-    <AppIntlProvider>
-      <StoreProvider>
-        <NotificationStoreProvider>
-          <NotificationProvider>
-            <HashRouter>
-              <Route exact path="/" component={StateRenderer} />
-              <Route
-                exact
-                path="/register"
-                render={() => <AddAddressWizard isRegistering={true} />}
-              />
-              <Route
-                exact
-                path="/add-account/create"
-                render={() => (
-                  <AddAddressWizard
-                    isRegistering={false}
-                    initialRegisterState={RegisterState.REGISTER}
-                  />
-                )}
-              />
-              <Route
-                exact
-                path="/add-account/import"
-                render={() => (
-                  <AddAddressWizard
-                    isRegistering={false}
-                    initialRegisterState={RegisterState.RECOVERY_CHOICE}
-                  />
-                )}
-              />
-              <Route exact path="/send" component={SendPage} />
-              <Route exact path="/settings" component={SettingsPage} />
-              <Route
-                exact
-                path="/address-book-manager"
-                component={AddressBookManagerPage}
-              />
-              <Route
-                exact
-                path="/address-delete"
-                render={() => {
-                  const params = new URLSearchParams(
-                    window.location.hash.split("?")[1]
-                  );
-                  const address = params.get("address");
-                  const accountNumber = params.get("accountNumber");
-                  return (
-                    <DeleteAddress
-                      addressToDelete={address as string}
-                      accountNumberOfAddressToDelete={accountNumber as string}
-                      history={history}
+  <Analytics>
+    <LightMode>
+      <AppIntlProvider>
+        <StoreProvider>
+          <NotificationStoreProvider>
+            <NotificationProvider>
+              <HashRouter>
+                <Route exact path="/" component={StateRenderer} />
+                <Route
+                  exact
+                  path="/register"
+                  render={() => <AddAddressWizard isRegistering={true} />}
+                />
+                <Route
+                  exact
+                  path="/add-account/create"
+                  render={() => (
+                    <AddAddressWizard
+                      isRegistering={false}
+                      initialRegisterState={RegisterState.REGISTER}
                     />
-                  );
-                }}
-              />
-              <Route exact path="/fee/:id" component={FeePage} />
-              <Route path="/sign/:id" component={SignPage} />
-            </HashRouter>
-          </NotificationProvider>
-        </NotificationStoreProvider>
-      </StoreProvider>
-    </AppIntlProvider>
-  </LightMode>,
+                  )}
+                />
+                <Route
+                  exact
+                  path="/add-account/import"
+                  render={() => (
+                    <AddAddressWizard
+                      isRegistering={false}
+                      initialRegisterState={RegisterState.RECOVERY_CHOICE}
+                    />
+                  )}
+                />
+                <Route exact path="/send" component={SendPage} />
+                <Route exact path="/settings" component={SettingsPage} />
+                <Route
+                  exact
+                  path="/address-book-manager"
+                  component={AddressBookManagerPage}
+                />
+                <Route
+                  exact
+                  path="/address-delete"
+                  render={() => {
+                    const params = new URLSearchParams(
+                      window.location.hash.split("?")[1]
+                    );
+                    const address = params.get("address");
+                    const accountNumber = params.get("accountNumber");
+                    return (
+                      <DeleteAddress
+                        addressToDelete={address as string}
+                        accountNumberOfAddressToDelete={accountNumber as string}
+                        history={history}
+                      />
+                    );
+                  }}
+                />
+                <Route exact path="/fee/:id" component={FeePage} />
+                <Route path="/sign/:id" component={SignPage} />
+              </HashRouter>
+            </NotificationProvider>
+          </NotificationStoreProvider>
+        </StoreProvider>
+      </AppIntlProvider>
+    </LightMode>
+  </Analytics>,
   document.getElementById("app")
 );
