@@ -27,9 +27,9 @@ import { SignPage } from "./pages/sign";
 import { FeePage } from "./pages/fee";
 import Modal from "react-modal";
 import { SettingsPage } from "./pages/settings";
-import { LightMode } from "./light-mode";
 import { AddressBookManagerPage } from "./pages/address-book-manager";
 import { DeleteAddress } from "./pages/delete-address";
+import { LightMode } from "../components/light-mode/light-mode";
 
 // Make sure that icon file will be included in bundle
 require("./public/assets/fetch-logo.svg");

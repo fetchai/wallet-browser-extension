@@ -7,7 +7,7 @@ import { observer } from "mobx-react";
 // @ts-ignore
 import { useStore } from "../../stores";
 import { useIntl } from "react-intl";
-import { lightModeEnabled } from "../../light-mode";
+import { lightModeEnabled } from "../../../components/light-mode/light-mode";
 import classnames from "classnames";
 import style from "./style.module.scss";
 import { Button } from "reactstrap";

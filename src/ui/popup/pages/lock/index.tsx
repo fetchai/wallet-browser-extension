@@ -18,7 +18,10 @@ import {
   fitWindow
 } from "../../../../common/window";
 import classnames from "classnames";
-import { lightModeEnabled, setLightMode } from "../../light-mode";
+import {
+  lightModeEnabled,
+  setLightMode
+} from "../../../components/light-mode/light-mode";
 import { KeyRingStatus } from "../../stores/keyring";
 
 interface FormData {
@@ -89,7 +92,7 @@ export const LockPage: FunctionComponent<Pick<
           setLoading(true);
           let status;
           try {
-             status = await keyRingStore.unlock(data.password);
+            status = await keyRingStore.unlock(data.password);
             // const passwordForDevelopmentOnly = "Password!12345";
             // status = await keyRingStore.unlock(passwordForDevelopmentOnly);
             if (external) {

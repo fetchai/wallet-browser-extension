@@ -17,8 +17,7 @@ import {
 import classnames from "classnames";
 import { FormattedMessage } from "react-intl";
 import { ToolTip } from "../../../components/tooltip";
-import { lightModeEnabled } from "../../light-mode";
-import { autorun } from "mobx";
+import { lightModeEnabled } from "../../../components/light-mode/light-mode";
 import { insertCommas } from "../../../../common/utils/insert-commas";
 import { Price } from "../../stores/price";
 import { divideByDecimals } from "../../../../common/utils/divide-decimals";
@@ -26,6 +25,7 @@ import { divideByDecimals } from "../../../../common/utils/divide-decimals";
 // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
 // @ts-ignore
 import removeTrailingZeros from "remove-trailing-zeros";
+import { autorun } from "mobx";
 
 export const AssetView: FunctionComponent = observer(() => {
   const { chainStore, accountStore, priceStore } = useStore();
@@ -88,8 +88,8 @@ export const AssetView: FunctionComponent = observer(() => {
       return "";
     } else if (
       accountStore.assets.length === 1 &&
-       (selectedDenom !== nativeCurrency.coinMinimalDenom &&
-        selectedDenom !== nativeCurrency.coinDenom)
+      selectedDenom !== nativeCurrency.coinMinimalDenom &&
+      selectedDenom !== nativeCurrency.coinDenom
     ) {
       return "";
     } else if (fiat.value.equals(new Dec(0))) {

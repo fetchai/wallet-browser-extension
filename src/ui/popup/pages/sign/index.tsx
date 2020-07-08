@@ -20,7 +20,7 @@ import {
   enableScroll,
   fitWindow
 } from "../../../../common/window";
-import { lightModeEnabled } from "../../light-mode";
+import {lightModeEnabled} from "../../../components/light-mode/light-mode";
 import { LedgerNanoMsg } from "../../../../background/ledger-nano";
 import { METHODS } from "../../../../background/ledger-nano/constants";
 import { sendMessage } from "../../../../common/message/send";

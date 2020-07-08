@@ -8,7 +8,7 @@ import { AssetView } from "./asset";
 import classnames from "classnames";
 import { SignOutButton } from "./sign-out";
 import { SettingsButton } from "./settings";
-import { lightModeEnabled } from "../../light-mode";
+import { lightModeEnabled } from "../../../components/light-mode/light-mode";
 import { AddressBookManagerButton } from "./address-book-manager-button";
 
 export const MainPage: FunctionComponent = () => {

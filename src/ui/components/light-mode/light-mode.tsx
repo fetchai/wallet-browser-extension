@@ -2,11 +2,12 @@
  * Default styles are dark mode, we add toggle to light mode hence light mode
  *
  */
+import { BrowserKVStore } from "../../../common/kvstore";
+
 const CLASS_NAME = "light-mode";
 export const STORAGE_KEY = "light-mode";
 import React from "react";
 import classnames from "classnames";
-import { BrowserKVStore } from "../../common/kvstore";
 
 type State = {
   lightMode?: boolean;
@@ -43,7 +44,7 @@ class LightMode extends React.Component<Props, State> {
     // check the mode from storage
     let mode = typeof result !== "undefined" ? (result as boolean) : false;
 
-    if(!this.amIInPopUp()){
+    if (!this.amIInPopUp()) {
       // for signup flow we currently don't allow
       mode = false;
     }
@@ -77,27 +78,19 @@ const setBackgroundImage = (light: boolean, inPopUp: boolean) => {
         "style",
         "background-image: linear-gradient(to top,  #0d0d0d, #1e2844)"
       );
-    //
-    //
-    // const posElem = document.getElementsByTagName("HTML")[0];
-    // posElem.style.cssText = "background: linear-gradient(to top, #0d0d0d, #1e2844);";
   }
 
-    /**
-     * The reason that the background color is effectively set on two seperate elements (html and body)
-     * is because the html is the full width of the page on chrome and firefox BUT additionally firefox
-     * takes the background color property and uses that as the color for  a small "hat like" triangle
-     * above the extensions popup
-     *
-     * we only want such a configuration when the page is displayed in a popup, and not when as a full webpage as with registration
-     */
-if(inPopUp){
-      document.body.style.backgroundColor = light
-    ? "transparent"
-    : "#1e2844";
-}
-
-
+  /**
+   * The reason that the background color is effectively set on two seperate elements (html and body)
+   * is because the html is the full width of the page on chrome and firefox BUT additionally firefox
+   * takes the background color property and uses that as the color for  a small "hat like" triangle
+   * above the extensions popup
+   *
+   * we only want such a configuration when the page is displayed in a popup, and not when as a full webpage as with registration
+   */
+  if (inPopUp) {
+    document.body.style.backgroundColor = light ? "transparent" : "#1e2844";
+  }
 };
 
 const lightModeEnabled = async (): Promise<boolean> => {
