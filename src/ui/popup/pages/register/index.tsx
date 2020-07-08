@@ -363,7 +363,7 @@ export const AddAddressWizard: FunctionComponent<NewAddressWizardProps> = observ
               numWords={numWords}
               words={words}
               isRecover={false}
-              isLoading={accountIsCreating}
+              isLoading={true}
               isRegistering={isRegistering}
               verifyPassword={keyRingStore.verifyPassword}
             />

@@ -70,29 +70,28 @@ $input-height: 46px;
   display: block;
   margin-bottom: 25px;
 
-
   .hardwareSubheading {
-        display: block;
+    display: block;
     font-size: 14px;
     padding-bottom: 10px;
     padding-top: 15px;
-    font-weight:bold;
-}
+    font-weight: bold;
+  }
 
   .address {
     border-radius: 6px;
-    text-align:center;
-    display:block;
-        height: 100px;
-    border-style:solid;
-    border-width:2px;
+    text-align: center;
+    display: block;
+    height: 100px;
+    border-style: solid;
+    border-width: 2px;
     border-color: white;
     font-family: "Sol Pro Regular" !important;
-    font-weight:bold;
-        margin-bottom: 20px;
+    font-weight: bold;
+    margin-bottom: 20px;
     span {
-         position: relative;
-    top: 20px;
+      position: relative;
+      top: 20px;
     }
   }
 }
@@ -115,7 +114,7 @@ $input-height: 46px;
 .recover-title {
   margin-bottom: 0px;
   font-size: 24px;
-    letter-spacing: -1.07px;
+  letter-spacing: -1.07px;
 }
 
 .label {
@@ -126,7 +125,7 @@ $input-height: 46px;
 
 .output {
   height: 30px;
-  display:block;
+  display: block;
 }
 
 .recover-input {
@@ -152,9 +151,15 @@ $input-height: 46px;
 }
 
 #recover-button {
-    &::after {
+  &::after {
     position: relative !important;
     margin-top: -22px;
+  }
+
+  @-moz-document url-prefix() {
+    &::after {
+      margin-top: -45px;
+    }
   }
 }
 
@@ -182,7 +187,7 @@ $input-height: 46px;
 
 .error {
   color: red;
-  display:block;
+  display: block;
   margin-right: 5px;
 }
 
