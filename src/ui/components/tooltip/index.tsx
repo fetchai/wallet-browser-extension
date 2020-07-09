@@ -89,7 +89,7 @@ export class ToolTip extends React.Component<ToolTipProps, ToolTipState> {
       this.props.trigger === "static" ? this.props.show : this.state.show;
 
     return (
-      <div
+      <span
         ref={this.ref}
         className={classNames({
           [style.bright]: theme === "bright",
@@ -101,7 +101,7 @@ export class ToolTip extends React.Component<ToolTipProps, ToolTipState> {
       >
         {/* Screen click capture for click trigger */}
         {trigger === "click" && show && (
-          <div
+          <span
             style={{
               position: "fixed",
               width: "100%",
@@ -112,7 +112,7 @@ export class ToolTip extends React.Component<ToolTipProps, ToolTipState> {
           />
         )}
         {/* Parent div of tooltip */}
-        <div
+        <span
           ref={this.tooltipRef}
           className="popper"
           style={{
@@ -120,11 +120,11 @@ export class ToolTip extends React.Component<ToolTipProps, ToolTipState> {
             opacity: show ? 1 : 0
           }}
         >
-          <div x-arrow="" />
+          <span x-arrow="" />
           {tooltip}
-        </div>
-        <div ref={this.componentRef}>{children}</div>
-      </div>
+        </span>
+        <span ref={this.componentRef}>{children}</span>
+      </span>
     );
   }
 

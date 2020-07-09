@@ -24,13 +24,11 @@
 
 :global(.light-mode) {
   .tabs {
-    ul > &:global(.active) {
-      color: $light-mode-grey !important;
-    }
-
-  li &:global(.active) {
-      color: $light-mode-grey !important;
-      }
+     ul {
+       li {
+         color: black !important;
+       }
+     }
 }
 }
 
@@ -67,4 +65,9 @@
   overflow: visible;
   background: transparent;
   color: white;
+}
+
+
+:global(.light-mode) {
+   color: black;
 }

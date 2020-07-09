@@ -54,6 +54,7 @@ export class PopupWalletProvider implements WalletProvider {
       // There is no need to set origin because this wallet provider is used in internal.
       ""
     );
+
     const key = await sendMessage(BACKGROUND_PORT, msg);
     return Promise.resolve([
       {

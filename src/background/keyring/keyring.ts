@@ -8,7 +8,6 @@ import {
   RegularAddressItem,
   WalletTuple
 } from "./types";
-import LedgerNano from "../ledger-nano/keeper";
 
 const Buffer = require("buffer/").Buffer;
 
@@ -444,24 +443,6 @@ export class KeyRing {
       pubKey: pubKey.serialize(),
       address: pubKey.toAddress().toBytes()
     };
-  }
-
-  public async triggerHardwareSigning(
-    message: Uint8Array
-  ): Promise<Uint8Array> {
-    let signedMessage;
-    try {
-      const ledgerNano = await LedgerNano.getInstance();
-      signedMessage = await ledgerNano.sign(message);
-    } catch (error) {
-      browser.notifications.create({
-        type: "basic",
-        iconUrl: browser.runtime.getURL("assets/fetch-logo.svg"),
-        title: "Signing rejected",
-        message: error.message
-      });
-    }
-    return signedMessage as Buffer;
   }
 
   /**
