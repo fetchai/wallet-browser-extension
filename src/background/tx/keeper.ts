@@ -110,6 +110,7 @@ export class BackgroundTxKeeper {
         // noop
       }
 
+
       try {
         // Cosmos-sdk error in processing message
         const abciMessageLogs: ABCIMessageLog[] = JSON.parse(e.message);

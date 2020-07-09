@@ -11,12 +11,9 @@ import classnames from "classnames";
 
 import { MessageObj, renderMessage } from "./messages";
 import { useIntl } from "react-intl";
-import { LedgerNanoMsg } from "../../../../background/ledger-nano";
-import { METHODS } from "../../../../background/ledger-nano/constants";
-import { BACKGROUND_PORT } from "../../../../common/message/constant";
-import { sendMessage } from "../../../../common/message/send";
 import { divideByDecimals } from "../../../../common/utils/divide-decimals";
 import { formatDollarString } from "../../../../common/utils/formatDollarStringFee";
+import LedgerNano from "../../other/ledger-nano";
 
 export const DetailsTab: FunctionComponent<{
   message: string;
@@ -35,13 +32,18 @@ export const DetailsTab: FunctionComponent<{
 
   const checkNanoIsReady = async () => {
     let hardwareError = false;
+    let errorMessage = "";
+    let ledger;
+    try {
+      ledger = await LedgerNano.getInstance();
+      await ledger.isCosmosAppOpen();
+    } catch (error) {
+      errorMessage = error.message;
+    }
 
-    const msg = LedgerNanoMsg.create(METHODS.isSupportedVersion);
-    const result = await sendMessage(BACKGROUND_PORT, msg);
-
-    if (typeof result.errorMessage !== "undefined") {
+    if (errorMessage) {
       hardwareError = true;
-      setHardwareErrorMsg(result.errorMessage);
+      setHardwareErrorMsg(errorMessage);
     }
 
     if (!hardwareError) {
@@ -85,7 +87,7 @@ export const DetailsTab: FunctionComponent<{
       const currency = getCurrencyFromMinimalDenom(coin.denom);
       if (currency) {
         const value = priceStore.getValue("usd", currency.coinGeckoId);
-        let amount = divideByDecimals(
+        const amount = divideByDecimals(
           coin.amount.toString(),
           currency.coinDecimals
         );
@@ -166,7 +168,9 @@ export const DetailsTab: FunctionComponent<{
             })}
           </div>
           <div className={styleDetailsTab.error}>{hardwareErrorMessage}</div>
-          <button onClick={checkNanoIsReady}>resolved</button>
+          <button className={classnames("green", styleDetailsTab.errorButton)} onClick={checkNanoIsReady}>
+            resolved
+          </button>
         </div>
       ) : null}
     </div>

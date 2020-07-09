@@ -27,7 +27,8 @@ import {
   CreateHardwareKeyMsg,
   IsHardwareLinkedMsg,
   GetKeyRingStatusMsg,
-  GetActiveAddressMsg
+  GetActiveAddressMsg,
+  SubmitSignedLedgerMessage
 } from "./messages";
 import { KeyRingKeeper } from "./keeper";
 import { Address } from "@everett-protocol/cosmosjs/crypto";
@@ -103,6 +104,10 @@ export const getHandler: (keeper: KeyRingKeeper) => Handler = (
         return handleGetRequestedMessage(keeper)(msg as GetRequestedMessage);
       case GetDeleteAddressMsg:
         return handleDeleteAddressMsg(keeper)(msg as GetRequestedMessage);
+      case SubmitSignedLedgerMessage:
+        return handleSubmitSignedLedgerMessage(keeper)(
+          msg as SubmitSignedLedgerMessage
+        );
       case ApproveSignMsg:
         return handleApproveSignMsg(keeper)(msg as ApproveSignMsg);
       case RejectSignMsg:
@@ -119,6 +124,18 @@ const handleVerifyPasswordKeyRingMsg: (
   return async msg => {
     return {
       success: await keeper.verifyPassword(msg.password, msg.keyFile)
+    };
+  };
+};
+
+const handleSubmitSignedLedgerMessage: (
+  keeper: KeyRingKeeper
+) => InternalHandler<any> = keeper => {
+  return async msg => {
+    await keeper.setLastSignedHardwareMessage(msg.message);
+
+    return {
+      success: true
     };
   };
 };
@@ -390,7 +407,6 @@ const handleGetRequestedMessage: (
 ) => InternalHandler<GetRequestedMessage> = keeper => {
   return msg => {
     const message = keeper.getRequestedMessage(msg.id);
-
     return {
       messageHex: Buffer.from(message.message).toString("hex")
     };
