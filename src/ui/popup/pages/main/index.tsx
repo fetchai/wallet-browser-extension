@@ -8,8 +8,10 @@ import { AssetView } from "./asset";
 import classnames from "classnames";
 import { SignOutButton } from "./sign-out";
 import { SettingsButton } from "./settings";
-import { lightModeEnabled } from "../../light-mode";
+import { lightModeEnabled, setBackgroundImage } from "../../light-mode";
 import { AddressBookManagerButton } from "./address-book-manager-button";
+import { amIInPopUp } from "../../../../common/utils/am-i-in-popup";
+import { Network } from "./network";
 
 export const MainPage: FunctionComponent = () => {
   const [lightMode, setLightMode] = useState(false);
@@ -18,6 +20,7 @@ export const MainPage: FunctionComponent = () => {
     const isEnabled = async () => {
       const enabled = await lightModeEnabled();
       setLightMode(enabled);
+      setBackgroundImage(enabled, amIInPopUp());
     };
     isEnabled();
   }, [lightMode, setLightMode]);
@@ -44,6 +47,7 @@ export const MainPage: FunctionComponent = () => {
             <TxButtonView />
           </div>
         </CardBody>
+        <Network></Network>
       </Card>
     </HeaderLayout>
   );

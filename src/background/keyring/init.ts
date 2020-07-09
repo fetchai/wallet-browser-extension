@@ -27,7 +27,7 @@ import {
   FetchEveryAddressMsg,
   SetActiveAddressMsg,
   GetActiveAddressMsg,
-  GetDeleteAddressMsg
+  GetDeleteAddressMsg, SubmitSignedLedgerMessage
 } from "./messages";
 import { ROUTE } from "./constants";
 import { getHandler } from "./handler";
@@ -63,6 +63,7 @@ export function init(
   messageManager.registerMessage(RequestSignMsg);
   messageManager.registerMessage(GetRequestedMessage);
   messageManager.registerMessage(GetDeleteAddressMsg);
+  messageManager.registerMessage(SubmitSignedLedgerMessage);
   messageManager.registerMessage(ApproveSignMsg);
   messageManager.registerMessage(RejectSignMsg);
 

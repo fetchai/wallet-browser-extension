@@ -6,11 +6,8 @@ import { strongPassword } from "../../../../common/strong-password";
 import { observer } from "mobx-react";
 import { useIntl } from "react-intl";
 import flushPromises from "flush-promises";
-import { LedgerNanoMsg } from "../../../../background/ledger-nano";
-import { METHODS } from "../../../../background/ledger-nano/constants";
-import { sendMessage } from "../../../../common/message/send";
-import { BACKGROUND_PORT } from "../../../../common/message/constant";
 import { EncryptedKeyStructure } from "../../../../background/keyring/crypto";
+import LedgerNano from "../../other/ledger-nano";
 
 export interface Props {
   onRegister: (publicKeyHex: string, password: string) => void;
@@ -150,42 +147,57 @@ export const Hardware: FunctionComponent<Props> = observer(
 
     const getPublicKeyFromConnectedHardwareWallet = async () => {
       let error = false;
+      let errorMessage = "";
+      let ledger;
 
-      let msg = LedgerNanoMsg.create(METHODS.getCosmosAddress);
-
-      const address = await sendMessage(BACKGROUND_PORT, msg);
-
-      if (typeof address.errorMessage !== "undefined") {
-        error = true;
-        setHardwareErrorMessage(address.errorMessage);
+      try {
+        ledger = await LedgerNano.getInstance();
+        await ledger.getCosmosAddress();
+      } catch (error) {
+        errorMessage = error.message;
       }
 
-      msg = LedgerNanoMsg.create(METHODS.getPubKeyHex);
-
-      const publicKeyHex = await sendMessage(BACKGROUND_PORT, msg);
-
-      if (typeof publicKeyHex.errorMessage !== "undefined") {
+      if (errorMessage) {
         error = true;
-        setHardwareErrorMessage(publicKeyHex.errorMessage as string);
+        setHardwareErrorMessage(errorMessage);
+      }
+
+      let publicKeyHex;
+      try {
+        publicKeyHex = await (ledger as LedgerNano).getPubKeyHex();
+      } catch (error) {
+        errorMessage = error.message;
+      }
+
+      if (errorMessage) {
+        error = true;
+        setHardwareErrorMessage(errorMessage);
       }
 
       if (!error) {
         wipeFormErrors();
         await flushPromises();
         clearInterval(getPublicKeyFromConnectedHardwareWalletInterval);
-        setAddress(address.result as string);
-        setPublicKeyHex(publicKeyHex.result as string);
+        setAddress(publicKeyHex);
+        setPublicKeyHex(publicKeyHex);
       }
     };
 
     async function connectToHardwareWallet() {
       let error = false;
-      let msg = LedgerNanoMsg.create(METHODS.isSupportedVersion);
-      let result = await sendMessage(BACKGROUND_PORT, msg);
+      let errorMessage = "";
+      let ledger;
 
-      if (typeof result.errorMessage !== "undefined") {
+      try {
+        ledger = await LedgerNano.getInstance();
+        await ledger.isSupportedVersion();
+      } catch (error) {
+        errorMessage = error.message;
+      }
+
+      if (errorMessage) {
         error = true;
-        setHardwareErrorMessage(result.errorMessage);
+        setHardwareErrorMessage(errorMessage);
       }
 
       if (error) {
@@ -194,12 +206,15 @@ export const Hardware: FunctionComponent<Props> = observer(
         return;
       }
 
-      msg = LedgerNanoMsg.create(METHODS.isCosmosAppOpen);
-      result = await sendMessage(BACKGROUND_PORT, msg);
+      try {
+        await (ledger as LedgerNano).isCosmosAppOpen();
+      } catch (error) {
+        errorMessage = error.message;
+      }
 
-      if (typeof result.errorMessage !== "undefined") {
+      if (errorMessage) {
         error = true;
-        setHardwareErrorMessage(result.errorMessage);
+        setHardwareErrorMessage(errorMessage);
       }
 
       if (error) {
