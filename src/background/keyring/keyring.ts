@@ -105,6 +105,7 @@ export class KeyRing {
 
   public async setActiveAddress(address: string) {
     this.activeAddress = address;
+    await this.save();
   }
 
   public getActiveAddress(): string {

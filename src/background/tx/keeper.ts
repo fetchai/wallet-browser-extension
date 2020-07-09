@@ -51,6 +51,7 @@ export class BackgroundTxKeeper {
     let result: ResultBroadcastTx | ResultBroadcastTxCommit | undefined;
 
     try {
+      debugger;
       browser.notifications.create({
         type: "basic",
         iconUrl: browser.runtime.getURL("assets/fetch-logo.svg"),
@@ -63,7 +64,7 @@ export class BackgroundTxKeeper {
       } else {
         result = await rpc.broadcastTx(Buffer.from(txBytes, "hex"), mode);
       }
-
+       debugger;
       if (result.mode === "sync" || result.mode === "async") {
         if (result.code !== 0) {
           throw new Error(result.log);
@@ -79,6 +80,7 @@ export class BackgroundTxKeeper {
           throw new Error(result.deliverTx.log);
         }
       }
+       debugger;
       // AFB9A1A5871026052D2D49CEC6007D6CA57C0B00C214C06C45B16171D05F277F
       browser.notifications.create({
         type: "basic",
