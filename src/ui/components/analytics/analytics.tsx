@@ -1,11 +1,12 @@
-import { FunctionComponent, useEffect, useState } from "react";
+import { FunctionComponent, useEffect } from "react";
 import { observer } from "mobx-react";
 
-import ReactGA from "react-ga";
-import { GOOGLE_ANALYTICS_ID } from "../../../config";
+// import ReactGA from "react-ga";
+import { FIREBASECONFIG } from "../../../config";
 import * as React from "react";
 import { RouteComponentProps, withRouter } from "react-router";
 
+import * as firebase from "firebase/app";
 interface AnalyticsProps extends RouteComponentProps {
   children: any;
 }
@@ -16,11 +17,18 @@ interface AnalyticsProps extends RouteComponentProps {
 
 const Analytics: FunctionComponent<AnalyticsProps> = observer(
   ({ history, children }) => {
+    firebase.initializeApp(FIREBASECONFIG);
+    const analytics = firebase.analytics();
+
+    const logCurrentPage = (pathname: string) => {
+      analytics().setCurrentScreen(pathname);
+      // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+      // @ts-ignore
+      analytics().logEvent("screen_view");
+    };
 
     history.listen((location: { pathname: string }) => {
-      debugger;
-      ReactGA.set({ page: location.pathname });
-      ReactGA.pageview(location.pathname);
+      logCurrentPage(location.pathname);
     });
 
     //on mount
@@ -35,8 +43,6 @@ const Analytics: FunctionComponent<AnalyticsProps> = observer(
         window["initialLoad"] = true;
       }
     }, []);
-
-    ReactGA.initialize(GOOGLE_ANALYTICS_ID);
 
     return React.Children.only(children);
   }
