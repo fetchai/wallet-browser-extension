@@ -2,9 +2,7 @@ import { Key, KeyRing, KeyRingStatus } from "./keyring";
 
 import { ChainInfo, NativeChainInfos } from "../../chain-info";
 import { AsyncApprover } from "../../common/async-approver";
-import {
-  TxBuilderConfigPrimitive
-} from "./types";
+import { TxBuilderConfigPrimitive } from "./types";
 
 import { KVStore } from "../../common/kvstore";
 
@@ -150,6 +148,11 @@ export class KeyRingKeeper {
     return res;
   }
 
+
+  public setLastSignedHardwareMessage(message: string): void {
+    this.keyRing.lastSignedHardwareMessage = Buffer.from(message, "hex");
+  }
+
   public getEveryAddress() {
     return this.keyRing.getEveryAddress();
   }
@@ -227,7 +230,10 @@ export class KeyRingKeeper {
     await this.signApprover.request(id, { message });
 
     if (this.keyRing.isActiveAddressHardwareAssociated()) {
-      return await this.keyRing.triggerHardwareSigning(message);
+      if (!this.keyRing.lastSignedHardwareMessage)
+        throw new Error("Hardware linked signed message must be set.");
+
+      return this.keyRing.lastSignedHardwareMessage;
     } else {
       return await this.keyRing.sign(message);
     }

@@ -1,7 +1,7 @@
 import Ledger from "@lunie/cosmos-ledger/lib/cosmos-ledger";
-import { REQUIRED_COSMOS_APP_VERSION } from "../../config";
 import { PubKeySecp256k1 } from "@everett-protocol/cosmosjs/crypto";
 import semver from "semver";
+import { REQUIRED_COSMOS_APP_VERSION } from "../../../config";
 const TIMEOUT = 5;
 const TEST_MODE_ALLOWED = false;
 

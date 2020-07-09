@@ -1,5 +1,4 @@
 import React, { FunctionComponent, useEffect, useState } from "react";
-
 import { Dec } from "@everett-protocol/cosmosjs/common/decimal";
 import { observer } from "mobx-react";
 import { useStore } from "../../stores";
@@ -8,7 +7,6 @@ import { CoinUtils } from "../../../../common/coin-utils";
 import { Currency } from "../../../../chain-info";
 // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
 // @ts-ignore
-
 import {
   getCurrency,
   getCurrencyFromMinimalDenom,
@@ -16,12 +14,10 @@ import {
 } from "../../../../common/currency";
 import classnames from "classnames";
 import { FormattedMessage } from "react-intl";
-import { ToolTip } from "../../../components/tooltip";
 import { lightModeEnabled } from "../../../components/light-mode/light-mode";
 import { insertCommas } from "../../../../common/utils/insert-commas";
 import { Price } from "../../stores/price";
 import { divideByDecimals } from "../../../../common/utils/divide-decimals";
-
 // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
 // @ts-ignore
 import removeTrailingZeros from "remove-trailing-zeros";
@@ -208,7 +204,6 @@ export const AssetView: FunctionComponent = observer(() => {
       >
         {getCurrencyInDollars()}
       </div>
-      {/* TODO: Show the information that account is fetching. */}
       <div className={styleAsset.amount}>
         <div>
           <span className={dollarCurrencyIsDisplayed() ? "" : styleAsset.block}>
@@ -232,20 +227,6 @@ export const AssetView: FunctionComponent = observer(() => {
         <div className={styleAsset.indicatorIcon}>
           {accountStore.isAssetFetching && !accountStore.assets.length ? (
             <i className="fas fa-spinner fa-spin" />
-          ) : accountStore.lastAssetFetchingError ? (
-            <ToolTip
-              tooltip={
-                accountStore.lastAssetFetchingError.message ??
-                accountStore.lastAssetFetchingError.toString()
-              }
-              theme="dark"
-              trigger="hover"
-              options={{
-                placement: "top"
-              }}
-            >
-              <i className="fas fa-exclamation-triangle text-danger" />
-            </ToolTip>
           ) : null}
         </div>
       </div>

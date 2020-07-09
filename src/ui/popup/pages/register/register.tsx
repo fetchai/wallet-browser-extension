@@ -4,13 +4,12 @@ import { Input, TextArea } from "../../../components/form";
 import useForm from "react-hook-form";
 import style from "./style.module.scss";
 import classnames from "classnames";
-
 import { FormattedMessage, useIntl } from "react-intl";
 import { NunWords } from "./index";
 import { strongPassword } from "../../../../common/strong-password";
 import { EncryptedKeyStructure } from "../../../../background/keyring/crypto";
 import { useStore } from "../../stores";
-import {mnemonicToAddress} from "../../../../common/utils/mnemonic-to-address";
+import { mnemonicToAddress } from "../../../../common/utils/mnemonic-to-address";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const bip39 = require("bip39");
 
@@ -26,7 +25,6 @@ interface FormData {
  *
  *
  */
-
 export const RegisterInPage: FunctionComponent<{
   onRegister: (words: string, password: string, recovered: boolean) => void;
   requestChaneNumWords?: (numWords: NunWords) => void;
@@ -42,13 +40,16 @@ export const RegisterInPage: FunctionComponent<{
   ) => Promise<boolean>;
 }> = props => {
   const intl = useIntl();
-
   const { accountStore } = useStore();
-
   const { isRecover, isRegistering, verifyPassword, addressList } = props;
-  const { register, handleSubmit, setValue, getValues, errors } = useForm<
-    FormData
-  >({
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    getValues,
+    errors,
+    clearError
+  } = useForm<FormData>({
     defaultValues: {
       words: "",
       password: "",
@@ -63,8 +64,6 @@ export const RegisterInPage: FunctionComponent<{
       setValue("words", "");
     }
   }, [isRecover, props.words, setValue]);
-
-
 
   return (
     <div>
@@ -182,6 +181,9 @@ export const RegisterInPage: FunctionComponent<{
               ? "on-change-remove-error"
               : false
           )}
+          onChange={() => {
+            clearError(["confirmPassword", "password"]);
+          }}
           name="password"
           ref={register({
             required: intl.formatMessage({
@@ -218,12 +220,10 @@ export const RegisterInPage: FunctionComponent<{
               id: "register.create.input.confirm-password"
             })}
             type="password"
-            className={classnames(
-              style.password,
-              errors.confirmPassword && errors.confirmPassword.message
-                ? "on-change-remove-error"
-                : false
-            )}
+            className={classnames(style.password)}
+            onChange={() => {
+              clearError(["confirmPassword", "password"]);
+            }}
             name="confirmPassword"
             ref={register({
               required: intl.formatMessage({

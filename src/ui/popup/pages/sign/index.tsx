@@ -20,9 +20,9 @@ import {
   enableScroll,
   fitWindow
 } from "../../../../common/window";
-import {lightModeEnabled} from "../../../components/light-mode/light-mode";
-import { LedgerNanoMsg } from "../../../../background/ledger-nano";
-import { METHODS } from "../../../../background/ledger-nano/constants";
+import { lightModeEnabled } from "../../../components/light-mode/light-mode";
+import LedgerNano from "../../other/ledger-nano";
+import { SubmitSignedLedgerMessage } from "../../../../background/keyring/messages";
 import { sendMessage } from "../../../../common/message/send";
 import { BACKGROUND_PORT } from "../../../../common/message/constant";
 
@@ -65,12 +65,18 @@ export const SignPage: FunctionComponent<RouteComponentProps<{
       const hardwareLinked: boolean = await keyRingStore.isHardwareLinked();
       if (hardwareLinked) {
         let hardwareError = false;
+        let errorMessage = "";
+        let ledger;
 
-        const msg = LedgerNanoMsg.create(METHODS.isCosmosAppOpen);
-        const result = await sendMessage(BACKGROUND_PORT, msg);
+        try {
+          ledger = await LedgerNano.getInstance();
+          await ledger.isCosmosAppOpen();
+        } catch (error) {
+          errorMessage = error.message;
+        }
 
-        if (typeof result.errorMessage !== "undefined") {
-          setHardwareErrorMessage(result.errorMessage);
+        if (errorMessage) {
+          setHardwareErrorMessage(errorMessage);
           setIsNanoUnavailableAndRequired(true);
           hardwareError = true;
           return;
@@ -122,32 +128,51 @@ export const SignPage: FunctionComponent<RouteComponentProps<{
   };
 
   const onApproveClick = useCallback(async () => {
+    // theoretically may not yet be loaded.
+    if (!signing) {
+      return;
+    }
+
     const hardwareLinked: boolean = await keyRingStore.isHardwareLinked();
+
     if (hardwareLinked) {
-      const hardwareError = false;
-
-      // try {
-      //   await LedgerNano.testDevice();
-      // } catch (error) {
-      //   setHardwareErrorMessage(error.message);
-      //   hardwareError = true;
-      //   return;
-      // }
-
-      if (!hardwareError) {
-        setHardwareErrorMessage("");
-      }
+      return signHardwareMessage();
     }
 
-    if (signing.approve) {
-      await signing.approve();
-    }
+    await (signing as any).approve();
 
     // If this is called by injected wallet provider. Just close.
     if (external) {
       window.close();
     }
   }, [signing, external]);
+
+  const signHardwareMessage = async () => {
+    let ledger, signed;
+    let errorMessage = "";
+    let error = false;
+
+    setHardwareErrorMessage("");
+    try {
+      ledger = await LedgerNano.getInstance();
+      signed = await ledger.sign(Buffer.from(signing.message));
+    } catch (err) {
+      errorMessage = err.message;
+      error = true;
+    }
+
+    if (error || signed === null) {
+      await (signing as any).reject("Signing failed");
+    }
+
+    if (!errorMessage) {
+      const msg = SubmitSignedLedgerMessage.create(
+        (signed as Buffer).toString("hex")
+      );
+      await sendMessage(BACKGROUND_PORT, msg);
+      await (signing as any).approve();
+    }
+  };
 
   const onRejectClick = useCallback(async () => {
     if (signing.reject) {

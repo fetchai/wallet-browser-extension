@@ -4,6 +4,8 @@
  */
 import { BrowserKVStore } from "../../../common/kvstore";
 
+import { amIInPopUp } from "../../../common/utils/am-i-in-popup";
+
 const CLASS_NAME = "light-mode";
 export const STORAGE_KEY = "light-mode";
 import React from "react";
@@ -26,17 +28,6 @@ class LightMode extends React.Component<Props, State> {
     };
   }
 
-  /**
-   * Are we in currently in the default popup or not
-   */
-  amIInPopUp() {
-    // we look at the urls of theregister oor add account since they are currently the only things not done in the default popup
-    return (
-      !window.location.href.includes("add-account") &&
-      !window.location.href.includes("register")
-    );
-  }
-
   async componentDidMount(): Promise<void> {
     // set light mode status from local storage
     const result = await this.state.store.get(STORAGE_KEY);
@@ -44,14 +35,14 @@ class LightMode extends React.Component<Props, State> {
     // check the mode from storage
     let mode = typeof result !== "undefined" ? (result as boolean) : false;
 
-    if (!this.amIInPopUp()) {
+    if (!amIInPopUp()) {
       // for signup flow we currently don't allow
       mode = false;
     }
     this.setState({
       lightMode: mode
     });
-    setBackgroundImage(mode, this.amIInPopUp());
+    setBackgroundImage(mode, amIInPopUp());
   }
 
   render() {
@@ -119,4 +110,4 @@ function setLightMode(light: boolean, inPopUp: boolean, save = true) {
   }
 }
 
-export { setLightMode, lightModeEnabled, LightMode };
+export { setLightMode, lightModeEnabled, LightMode, setBackgroundImage };

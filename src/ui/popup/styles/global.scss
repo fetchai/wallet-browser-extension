@@ -137,10 +137,6 @@ body {
 
 .is-invalid::-webkit-input-placeholder {
   color: red;
-
-  &.focus {
-    color: white;
-  }
 }
 
 /*
@@ -150,24 +146,6 @@ only in light mode should placeholder text be red in the settings page password 
 .light-mode {
   .red::-webkit-input-placeholder {
     color: red;
-
-    &.focus {
-      color: white;
-    }
-  }
-}
-
-.on-change-remove-error:focus {
-  border-style: solid !important;
-  border-width: 2px !important;
-  border-color: white !important;
-  color: white !important;
-}
-
-.light-mode {
-  .on-change-remove-error:focus {
-    border-color: $light-mode-blue !important;
-    color: $light-mode-blue !important;
   }
 }
 
@@ -267,9 +245,6 @@ only in light mode should placeholder text be red in the settings page password 
 
 .lock-border {
   @extend .white-border;
-  // todo question: should we be able to see video through lock password input.
-  // uncomment beloe line across file if yes.
-  //background-image: linear-gradient(to top, #111117, #12121a) !important;
   border-radius: 5px;
   font-size: 18px;
 }
@@ -277,7 +252,6 @@ only in light mode should placeholder text be red in the settings page password 
 .lock-border:focus {
   @extend .white-border;
   background: none;
-  //background-image: linear-gradient(to top, #111117, #12121a) !important;;
   font-size: 18px;
 }
 
