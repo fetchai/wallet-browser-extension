@@ -8,12 +8,15 @@ const CopyWebpackPlugin = require("copy-webpack-plugin");
 const WriteFilePlugin = require("write-file-webpack-plugin");
 
 const isEnvDevelopment = process.env.NODE_ENV !== "production";
+
+
 const commonResolve = dir => ({
   extensions: [".ts", ".tsx", ".js", ".jsx", ".css", ".scss"],
   alias: {
     assets: path.resolve(__dirname, dir)
   }
 });
+
 const sassRule = {
   test: /(\.s?css)|(\.sass)$/,
   oneOf: [
