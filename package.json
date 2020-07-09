@@ -1,6 +1,6 @@
 {
   "name": "Fetch.ai",
-  "version": "0.4.7",
+  "version": "1.0.0",
   "description": "Fetch.ai Web wallet is a browser extension wallet for the Inter Blockchain ecosystem.",
   "main": "index.js",
   "scripts": {
@@ -11,7 +11,7 @@
     "lint-fix": "eslint --fix \"src/**/*\" webpack.config.js && prettier --write \"src/**/*\" webpack.config.js"
   },
   "keywords": [],
-  "author": "everett-protocol",
+  "author": "Fetch.ai",
   "license": "Apache-2.0",
   "dependencies": {
     "@ensdomains/resolver": "^0.2.4",
