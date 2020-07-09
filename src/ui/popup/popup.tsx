@@ -112,13 +112,13 @@ const StateRenderer: FunctionComponent<RouteComponentProps> = observer(
 );
 
 ReactDOM.render(
-  <Analytics>
-    <LightMode>
-      <AppIntlProvider>
-        <StoreProvider>
-          <NotificationStoreProvider>
-            <NotificationProvider>
-              <HashRouter>
+  <LightMode>
+    <AppIntlProvider>
+      <StoreProvider>
+        <NotificationStoreProvider>
+          <NotificationProvider>
+            <HashRouter>
+              <Analytics>
                 <Route exact path="/" component={StateRenderer} />
                 <Route
                   exact
@@ -172,12 +172,12 @@ ReactDOM.render(
                 />
                 <Route exact path="/fee/:id" component={FeePage} />
                 <Route path="/sign/:id" component={SignPage} />
-              </HashRouter>
-            </NotificationProvider>
-          </NotificationStoreProvider>
-        </StoreProvider>
-      </AppIntlProvider>
-    </LightMode>
-  </Analytics>,
+              </Analytics>
+            </HashRouter>
+          </NotificationProvider>
+        </NotificationStoreProvider>
+      </StoreProvider>
+    </AppIntlProvider>
+  </LightMode>,
   document.getElementById("app")
 );

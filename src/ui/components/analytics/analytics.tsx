@@ -1,51 +1,48 @@
 import { FunctionComponent, useEffect } from "react";
 import { observer } from "mobx-react";
-
 // import ReactGA from "react-ga";
 import { FIREBASECONFIG } from "../../../config";
 import * as React from "react";
 import { RouteComponentProps, withRouter } from "react-router";
 
+// Initialize Firebase
 import * as firebase from "firebase/app";
+firebase.initializeApp(FIREBASECONFIG);
+firebase.analytics();
+const analytics = firebase.analytics();
+
 interface AnalyticsProps extends RouteComponentProps {
   children: any;
 }
 
 /**
+ *
  * Google analytics
  */
-
 const Analytics: FunctionComponent<AnalyticsProps> = observer(
   ({ history, children }) => {
-    firebase.initializeApp(FIREBASECONFIG);
-    const analytics = firebase.analytics();
-
-    const logCurrentPage = (pathname: string) => {
-      analytics().setCurrentScreen(pathname);
-      // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-      // @ts-ignore
-      analytics().logEvent("screen_view");
-    };
 
     history.listen((location: { pathname: string }) => {
-      logCurrentPage(location.pathname);
+      analytics.setCurrentScreen(location.pathname);
     });
 
     //on mount
     useEffect(() => {
-      // record the first page load
-      // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-      // @ts-ignore
       if (typeof window.initialLoad === "undefined") {
-        ReactGA.pageview(location.pathname);
-        // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-        // @ts-ignore
         window["initialLoad"] = true;
       }
     }, []);
 
-    return React.Children.only(children);
+    return <>{children}</>;
   }
 );
+
+function buttonClick(){
+          analytics.logEvent("Button_Pressed", parameters: [
+  "screenName": "Log-in Screen",
+  "event": "Log-in Button Pressed",
+  "category": "Interaction"
+  ])
+}
 
 export default withRouter(Analytics);
