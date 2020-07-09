@@ -20,9 +20,9 @@ import {
   enableScroll,
   fitWindow
 } from "../../../../common/window";
-import { lightModeEnabled } from "../../light-mode";
+import { lightModeEnabled } from "../../../components/light-mode/light-mode";
 import LedgerNano from "../../other/ledger-nano";
-import { SubmitSignedLedgerMessage } from "../../../../background/keyring";
+import { SubmitSignedLedgerMessage } from "../../../../background/keyring/messages";
 import { sendMessage } from "../../../../common/message/send";
 import { BACKGROUND_PORT } from "../../../../common/message/constant";
 

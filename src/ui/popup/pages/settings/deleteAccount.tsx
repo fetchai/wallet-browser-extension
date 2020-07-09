@@ -2,8 +2,10 @@ import React, { FunctionComponent, useState } from "react";
 import { observer } from "mobx-react";
 import { useIntl } from "react-intl";
 import { useStore } from "../../stores";
-import { STORAGE_KEY } from "../../light-mode";
+import { STORAGE_KEY } from "../../../components/light-mode/light-mode";
+
 import style from "./style.module.scss";
+// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
 // @ts-ignore
 import OutsideClickHandler from "react-outside-click-handler";
 

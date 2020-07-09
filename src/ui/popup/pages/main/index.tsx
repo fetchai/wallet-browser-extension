@@ -8,7 +8,10 @@ import { AssetView } from "./asset";
 import classnames from "classnames";
 import { SignOutButton } from "./sign-out";
 import { SettingsButton } from "./settings";
-import { lightModeEnabled, setBackgroundImage } from "../../light-mode";
+import {
+  lightModeEnabled,
+  setBackgroundImage
+} from "../../../components/light-mode/light-mode";
 import { AddressBookManagerButton } from "./address-book-manager-button";
 import { amIInPopUp } from "../../../../common/utils/am-i-in-popup";
 import { Network } from "./network";
