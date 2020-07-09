@@ -1,6 +1,6 @@
 {
   "manifest_version": 2,
-  "name": "Fetch.ai Web Wallet",
+  "name": "Fetch.ai Web Wallet 2020",
   "description": "The Fetch.ai Web Wallet is a Chrome Extension for making interactions with the Fetch.ai Ledger super easy",
   "version": "1.0.0",
    "icons": { "96": "assets/favicon-96x96.png",

@@ -15,6 +15,7 @@
   "main.menu.settings": "Settings",
   "register.button.back": "Back",
   "main.network.connect-to": "Connected to:",
+  "main.network.error-connect-to": "error connecting to: ",
   "register.intro.button.new-account.title": "Create a new account",
   "register.intro.button.new-account.content": "Create a new wallet with a new seed",
   "register.intro.button.import-account.title": "Import existing account",
@@ -164,7 +165,6 @@
 
   "sign.list.message.cosmos-sdk/MsgSend.title": "Send",
   "sign.list.message.cosmos-sdk/MsgLock.title": "Send",
-  "sign.list.message.cosmos-sdk/MsgLock.title": "",
   "sign.list.message.cosmos-sdk/MsgSend.content": "<b>{recipient}</b> will receive <b>{amount}</b>",
   "sign.list.message.cosmos-sdk/MsgDelegate.title": "Delegate",
   "sign.list.message.cosmos-sdk/MsgDelegate.content": "Delegate <b>{amount}</b> to <b>{validator}</b>",
