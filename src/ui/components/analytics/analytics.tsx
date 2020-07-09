@@ -8,7 +8,6 @@ import { RouteComponentProps, withRouter } from "react-router";
 // Initialize Firebase
 import * as firebase from "firebase/app";
 firebase.initializeApp(FIREBASECONFIG);
-firebase.analytics();
 const analytics = firebase.analytics();
 
 interface AnalyticsProps extends RouteComponentProps {
@@ -21,7 +20,6 @@ interface AnalyticsProps extends RouteComponentProps {
  */
 const Analytics: FunctionComponent<AnalyticsProps> = observer(
   ({ history, children }) => {
-
     history.listen((location: { pathname: string }) => {
       analytics.setCurrentScreen(location.pathname);
     });
@@ -29,20 +27,14 @@ const Analytics: FunctionComponent<AnalyticsProps> = observer(
     //on mount
     useEffect(() => {
       if (typeof window.initialLoad === "undefined") {
+        // @ts-ignore
         window["initialLoad"] = true;
+        analytics.setCurrentScreen(location.pathname);
       }
     }, []);
 
     return <>{children}</>;
   }
 );
-
-function buttonClick(){
-          analytics.logEvent("Button_Pressed", parameters: [
-  "screenName": "Log-in Screen",
-  "event": "Log-in Button Pressed",
-  "category": "Interaction"
-  ])
-}
 
 export default withRouter(Analytics);
