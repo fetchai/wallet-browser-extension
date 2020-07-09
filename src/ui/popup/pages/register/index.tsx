@@ -114,7 +114,6 @@ export const AddAddressWizard: FunctionComponent<NewAddressWizardProps> = observ
 
     const readyToRegisterThroughHardwareWallet = async (): Promise<boolean> => {
       let error = false;
-
       const msg = LedgerNanoMsg.create(METHODS.isSupportedVersion);
       const result = await sendMessage(BACKGROUND_PORT, msg);
 

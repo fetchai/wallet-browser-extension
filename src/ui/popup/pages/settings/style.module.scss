@@ -85,14 +85,33 @@ $settings-width: 293px;
 }
 
 .input {
-  color: white;
-  background: none;
-  border-radius: 5px;
-  width: $settings-width;
-  margin-bottom: 10px;
-  text-indent: 8px;
+  font-size: 13px;
+  padding: 3px 0;
   border-width: 1px;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
+  width: 100%;
+  background: inherit;
+  color: #9ab4bf;
+  border-color: #9ab4bf;
+  text-indent: 5px;
+  border-radius: 5px;
+  box-shadow: none;
+
+  &.-webkit-input-placeholder {
+    /* Chrome/Opera/Safari/Edge */
+    color: #9ab4bf;
+  }
+
+  &.-moz-placeholder {
+    /* Firefox 19+ */
+    color: #9ab4bf;
+  }
+
+  &.-moz-placeholder {
+    /* Firefox 18- */
+    /*Firefox by default has an opacity object that usually is ideal to reset so it matches webkit*/
+    color: #9ab4bf;
+  }
 }
 
 :global(.light-mode) {

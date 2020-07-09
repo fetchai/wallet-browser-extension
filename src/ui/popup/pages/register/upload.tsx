@@ -286,6 +286,7 @@ export default class Upload extends React.Component<Props, State> {
           errorMessage: "Incorrect password",
           passwordError: true
         });
+        return;
       }
     }
 

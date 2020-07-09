@@ -11,8 +11,10 @@ import { useStore } from "../../stores";
  *
  */
 export const Network: FunctionComponent = observer(() => {
-  const { accountStore } = useStore();
   const intl = useIntl();
+
+  // active network which the wallet currently displays data for of list.
+  const { accountStore } = useStore();
 
   // active network which the wallet curently displays data for of list.
   const [activeNetwork, setActiveNetwork] = useState<string>("");
