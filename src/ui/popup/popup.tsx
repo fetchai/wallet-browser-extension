@@ -27,20 +27,15 @@ import { SignPage } from "./pages/sign";
 import { FeePage } from "./pages/fee";
 import Modal from "react-modal";
 import { SettingsPage } from "./pages/settings";
-import { LightMode } from "./light-mode";
 import { AddressBookManagerPage } from "./pages/address-book-manager";
 import { DeleteAddress } from "./pages/delete-address";
-// import Analytics from "../components/analytics/analytics";
-
-// Initialize Firebase
 import * as firebase from "firebase/app";
 import "firebase/analytics";
 import "firebase/auth";
-
+import { LightMode } from "../components/light-mode/light-mode";
 import { FIREBASECONFIG } from "../../config";
 firebase.initializeApp(FIREBASECONFIG);
 firebase.analytics();
-
 // Make sure that icon file will be included in bundle
 require("./public/assets/fetch-logo.svg");
 require("./public/assets/fetch-circular-icon.svg");

@@ -2,7 +2,7 @@ import React, { FunctionComponent, useEffect, useState } from "react";
 
 import styleIntro from "./intro.module.scss";
 import { FormattedMessage } from "react-intl";
-import { setLightMode } from "../../light-mode";
+import { setLightMode } from "../../../components/light-mode/light-mode";
 import classnames from "classnames";
 
 interface ButtonContent {

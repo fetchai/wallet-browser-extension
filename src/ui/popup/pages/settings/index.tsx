@@ -10,7 +10,7 @@ import Expand from "react-expand-animated";
 import { VERSION } from "../../../../config";
 import { useStore } from "../../stores";
 import { useIntl } from "react-intl";
-import { lightModeEnabled } from "../../light-mode";
+import { lightModeEnabled } from "../../../components/light-mode/light-mode";
 // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
 // @ts-ignore
 import classnames from "classnames";
