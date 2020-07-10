@@ -69,23 +69,20 @@ export interface ChainInfo {
   readonly coinType?: number;
 }
 
+/**
+ * ensure default endpoint is name of one of endpoints
+ */
 export const NativeChainInfos: ChainInfo[] = [
   {
     endpoints: [
       {
-        name: "agent-land-sandbox",
-        rpc: "http://rpc-agent-land.sandbox.fetch-ai.com:26657",
-        rest: "http://rest-agent-land.sandbox.fetch-ai.com:1317",
-        chainId: "agent-land"
-      },
-      {
         name: "agent-land",
-        rpc: "https://rpc-agent-land.fetch.ai:443",
-        rest: "https://rest-agent-land.fetch.ai:443",
+        rpc: " https://rpc-agent-land.prod.fetch-ai.com:443",
+        rest: " https://rest-agent-land.prod.fetch-ai.com:443",
         chainId: "agent-land"
       }
     ],
-    defaultEndpoint: "eae",
+    defaultEndpoint: "agent-land",
     nativeCurrency: "testfet",
     bip44: new BIP44(44, 118, 0),
     bech32Config: defaultBech32Config("cosmos"),

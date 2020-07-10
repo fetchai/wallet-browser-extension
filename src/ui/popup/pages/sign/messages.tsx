@@ -101,8 +101,8 @@ export function renderMessage(
     for (const coinPrimitive of msg.value.amount) {
       let amount = coinPrimitive.amount;
       let denom = coinPrimitive.denom;
-      // if it is minimal denom lets convert to regular denom to show user
 
+      // if it is minimal denom lets convert to regular denom to show user
       if (isMinimalDenom(denom)) {
         const currency = getCurrencyFromMinimalDenom(denom) as Currency;
         denom = currency.coinDenom;

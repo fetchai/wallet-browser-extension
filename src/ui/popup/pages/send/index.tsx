@@ -315,6 +315,7 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
             lightMode={lightMode}
           ></BackButton>
           <form
+            noValidate={true}
             //TODO change denom back from this to selected currency rather than being just called FET.
             onSubmit={e => {
               if (isValidENS(recipient)) {
@@ -421,6 +422,7 @@ export const SendPage: FunctionComponent<RouteComponentProps> = observer(
                 <div className={style.radioButtons}>
                   <p className={style.radioButtonsLabelLeft}>
                     <input
+                      formNoValidate={true}
                       type="radio"
                       name="react-tips"
                       value="option1"

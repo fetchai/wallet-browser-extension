@@ -1,6 +1,7 @@
 export const CoinGeckoAPIEndPoint = "https://api.coingecko.com/api/v3";
 export const CoinGeckoGetPrice = "/simple/price";
 export const AutoFetchingFiatValueInterval = 300 * 1000; // 5min
+// ensure that this version is same as manifest version
 export const VERSION = "1.0.0";
 export const AutoFetchingAssetsInterval = 15 * 1000; // 15sec
 export const ETHEREUM_CHAIN_ID = 4;
