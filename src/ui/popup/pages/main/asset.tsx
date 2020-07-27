@@ -14,14 +14,14 @@ import {
 } from "../../../../common/currency";
 import classnames from "classnames";
 import { FormattedMessage } from "react-intl";
-import { lightModeEnabled } from "../../light-mode";
-import { autorun } from "mobx";
+import { lightModeEnabled } from "../../../components/light-mode/light-mode";
 import { insertCommas } from "../../../../common/utils/insert-commas";
 import { Price } from "../../stores/price";
 import { divideByDecimals } from "../../../../common/utils/divide-decimals";
 // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
 // @ts-ignore
 import removeTrailingZeros from "remove-trailing-zeros";
+import { autorun } from "mobx";
 
 export const AssetView: FunctionComponent = observer(() => {
   const { chainStore, accountStore, priceStore } = useStore();
@@ -125,6 +125,7 @@ export const AssetView: FunctionComponent = observer(() => {
         if (typeof coin !== "undefined" && coin.denom === denom)
           return coin.amount.toString();
       }
+
       return undefined;
     }
 

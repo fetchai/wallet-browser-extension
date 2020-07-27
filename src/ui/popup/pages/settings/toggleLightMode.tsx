@@ -1,4 +1,4 @@
-import { setLightMode as setLightModeModule } from "../../light-mode";
+import { setLightMode as setLightModeModule } from "../../../components/light-mode/light-mode";
 import { Button, ButtonGroup } from "reactstrap";
 import classnames from "classnames";
 import style from "./style.module.scss";

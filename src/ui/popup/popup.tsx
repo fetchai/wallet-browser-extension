@@ -27,9 +27,9 @@ import { SignPage } from "./pages/sign";
 import { FeePage } from "./pages/fee";
 import Modal from "react-modal";
 import { SettingsPage } from "./pages/settings";
-import { LightMode } from "./light-mode";
 import { AddressBookManagerPage } from "./pages/address-book-manager";
 import { DeleteAddress } from "./pages/delete-address";
+import { LightMode } from "../components/light-mode/light-mode";
 
 
 // Initialize Firebase

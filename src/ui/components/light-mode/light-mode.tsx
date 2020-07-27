@@ -2,13 +2,14 @@
  * Default styles are dark mode, we add toggle to light mode hence light mode
  *
  */
-import { amIInPopUp } from "../../common/utils/am-i-in-popup";
+import { BrowserKVStore } from "../../../common/kvstore";
+
+import { amIInPopUp } from "../../../common/utils/am-i-in-popup";
 
 const CLASS_NAME = "light-mode";
 export const STORAGE_KEY = "light-mode";
 import React from "react";
 import classnames from "classnames";
-import { BrowserKVStore } from "../../common/kvstore";
 
 type State = {
   lightMode?: boolean;

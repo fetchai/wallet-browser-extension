@@ -53,7 +53,7 @@ import {
   useENS
 } from "../../../hooks/use-ens";
 import { SignOutButton } from "../main/sign-out";
-import { lightModeEnabled } from "../../light-mode";
+import { lightModeEnabled } from "../../../components/light-mode/light-mode";
 import { Currency } from "../../../../chain-info";
 import { ETHEREUM_CHAIN_ID, TOKEN_CONTRACT } from "../../../../config";
 import { BurnMessage, LockMessage } from "./transfer-msg";

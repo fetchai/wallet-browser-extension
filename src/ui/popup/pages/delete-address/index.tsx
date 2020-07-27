@@ -5,7 +5,7 @@ import { observer } from "mobx-react";
 // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
 // @ts-ignore
 import { useIntl } from "react-intl";
-import { lightModeEnabled } from "../../light-mode";
+import { lightModeEnabled } from "../../../components/light-mode/light-mode";
 import classnames from "classnames";
 import style from "./style.module.scss";
 import { Button } from "reactstrap";
