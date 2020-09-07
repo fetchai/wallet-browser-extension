@@ -8,6 +8,7 @@ import {
   RegularAddressItem,
   WalletTuple
 } from "./types";
+import { FETCH_PREFIX } from "../../chain-info";
 
 const Buffer = require("buffer/").Buffer;
 
@@ -172,7 +173,7 @@ export class KeyRing {
       address: privateKey
         .toPubKey()
         .toAddress()
-        .toBech32("cosmos"),
+        .toBech32(FETCH_PREFIX),
       hdWallet: false,
       encryptedKeyStructure: encryptedKeyStructure,
       mnemonic: mnemonic,
@@ -413,7 +414,7 @@ export class KeyRing {
   private addressFromPublicKeyHex(publicKeyHex: string): string {
     const pubKey = new PubKeySecp256k1(Buffer.from(publicKeyHex, "hex"));
     // todo  get prefix ffrom chaininfo as per // keeper.getChainInfo(getKeyMsg.chainId).bech32Config.bech32PrefixAccAddr
-    return pubKey.toAddress().toBech32("cosmos");
+    return pubKey.toAddress().toBech32(FETCH_PREFIX);
   }
 
   private loadKey(): Key {

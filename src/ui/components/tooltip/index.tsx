@@ -9,7 +9,7 @@ export interface ToolTipProps {
   tooltip: React.ReactNode;
   theme: "dark" | "bright";
   options?: PopperOptions;
-  trigger: "hover" | "click" | "static"; // If trigger is staic, visibilitiy is handled by show props.
+  trigger: "hover" | "click" | "static"; // If trigger is static, visibility is handled by show props.
   show?: boolean;
 }
 
@@ -30,7 +30,6 @@ export class ToolTip extends React.Component<ToolTipProps, ToolTipState> {
   private popper: Popper | null = null;
   private tooltipRef = React.createRef<HTMLDivElement>();
   private componentRef = React.createRef<HTMLDivElement>();
-
   private hover = false;
   private bodyClicked = false;
 

@@ -2,6 +2,7 @@ import Ledger from "@lunie/cosmos-ledger/lib/cosmos-ledger";
 import { PubKeySecp256k1 } from "@everett-protocol/cosmosjs/crypto";
 import semver from "semver";
 import { REQUIRED_COSMOS_APP_VERSION } from "../../../config";
+import {FETCH_PREFIX} from "../../../chain-info";
 const TIMEOUT = 5;
 const TEST_MODE_ALLOWED = false;
 
@@ -42,7 +43,7 @@ export default class LedgerNano {
   public async getCosmosAddress() {
     const publicKey = await (this.ledger as Ledger).getPubKey();
     const pubKeySecp256k1 = new PubKeySecp256k1(publicKey);
-    return pubKeySecp256k1.toAddress().toBech32("cosmos");
+    return pubKeySecp256k1.toAddress().toBech32(FETCH_PREFIX);
   }
 
   /**

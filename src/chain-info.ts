@@ -4,6 +4,8 @@ import {
   defaultBech32Config
 } from "@everett-protocol/cosmosjs/core/bech32Config";
 
+export const FETCH_PREFIX = "fetch";
+
 export interface Currency {
   coinDenom: string;
   coinMinimalDenom: string;
@@ -76,16 +78,16 @@ export const NativeChainInfos: ChainInfo[] = [
   {
     endpoints: [
       {
-        name: "agent-land",
-        rpc: " https://rpc-agent-land.prod.fetch-ai.com:443",
-        rest: " https://rest-agent-land.prod.fetch-ai.com:443",
-        chainId: "agent-land"
+        name: "sandbox-beacon-land",
+        rpc: "https://rpc-beacon-land.sandbox.fetch-ai.com",
+        rest: "https://rest-beacon-land.sandbox.fetch-ai.com",
+        chainId: "sandbox-beacon-land"
       }
     ],
-    defaultEndpoint: "agent-land",
+    defaultEndpoint: "sandbox-beacon-land",
     nativeCurrency: "testfet",
     bip44: new BIP44(44, 118, 0),
-    bech32Config: defaultBech32Config("cosmos"),
+    bech32Config: defaultBech32Config(FETCH_PREFIX),
     currencies: ["testfet"],
     feeCurrencies: ["testfet"],
     coinType: 118

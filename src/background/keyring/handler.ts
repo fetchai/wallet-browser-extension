@@ -32,6 +32,7 @@ import {
 } from "./messages";
 import { KeyRingKeeper } from "./keeper";
 import { Address } from "@everett-protocol/cosmosjs/crypto";
+import {FETCH_PREFIX} from "../../chain-info";
 
 const Buffer = require("buffer/").Buffer;
 
@@ -330,7 +331,7 @@ const handleGetKeyMsg: (
       algo: "secp256k1",
       pubKeyHex: Buffer.from(key.pubKey).toString("hex"),
       addressHex: Buffer.from(key.address).toString("hex"),
-      bech32Address: new Address(key.address).toBech32("cosmos")
+      bech32Address: new Address(key.address).toBech32(FETCH_PREFIX)
     };
   };
 };
