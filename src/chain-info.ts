@@ -78,13 +78,13 @@ export const NativeChainInfos: ChainInfo[] = [
   {
     endpoints: [
       {
-        name: "sandbox-beacon-land",
-        rpc: "https://rpc-beacon-land.sandbox.fetch-ai.com",
-        rest: "https://rest-beacon-land.sandbox.fetch-ai.com",
-        chainId: "sandbox-beacon-land"
+        name: "agent-land",
+        rpc: " https://rpc-agent-land.prod.fetch-ai.com:443",
+        rest: " https://rest-agent-land.prod.fetch-ai.com:443",
+        chainId: "agent-land"
       }
     ],
-    defaultEndpoint: "sandbox-beacon-land",
+    defaultEndpoint: "agent-land",
     nativeCurrency: "testfet",
     bip44: new BIP44(44, 118, 0),
     bech32Config: defaultBech32Config(FETCH_PREFIX),
