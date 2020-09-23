@@ -4,4 +4,4 @@
 node_modules
 dist
 prod
-/dist.zip
+/build.zip
