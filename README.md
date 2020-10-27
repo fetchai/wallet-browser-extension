@@ -1,6 +1,3 @@
-
-
-
 ## usage
 
 git clone the repository
@@ -20,7 +17,6 @@ npm run dev
 ```
 npm install && npm run build
 ``` 
-
 
 ### Run Cosmos locally
 
@@ -64,7 +60,6 @@ Navigate in Firefox to "about:debugging#/setup" then click "this firefox" then c
 .manifest file in dist directory.  It should fully work in Firefox. 
 
 ### To run with hardware wallet you must install Cosmos app as per instructions below
-
 ###  I have limited it during development to require cosmos app version 2> which can be installed as follows. 
 ###  change of configs (in config.ts) can be done to change required version (change variable "REQUIRED_COSMOS_APP_VERSION"),
 ###  which is ok with >= 1.5 
