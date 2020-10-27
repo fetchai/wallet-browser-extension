@@ -1,8 +1,8 @@
 {
   "manifest_version": 2,
-  "name": "Fetch.ai Cosmos Web Wallet",
-  "description": "The Fetch.ai Web Wallet is a Chrome Extension for making interactions with the new Fetch.ai Cosmos-based Ledger super easy",
-  "version": "1.0.0",
+  "name": "Fetch.ai v2.0 Web Wallet",
+  "description": "A web wallet for the Fetch.ai network running in your browser",
+  "version": "1.0.3",
    "icons": { "96": "assets/favicon-96x96.png",
            "16": "assets/favicon-16x16.png",
           "32": "assets/favicon-32x32.png" },

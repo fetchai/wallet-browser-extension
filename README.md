@@ -1,3 +1,6 @@
+
+
+
 ## usage
 
 git clone the repository
@@ -9,6 +12,15 @@ npm install
 ```
 npm run dev
 ```
+
+## Updating package in Chrome Extensions 
+
+- update version in three places 1) manifest 2) package.json and 3) config
+- build (below command) and then zip resultant prod folder
+```
+npm install && npm run build
+``` 
+
 
 ### Run Cosmos locally
 

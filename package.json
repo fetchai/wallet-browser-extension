@@ -1,6 +1,6 @@
 {
   "name": "Fetch.ai",
-  "version": "1.0.0",
+  "version": "1.0.3",
   "description": "Fetch.ai Web wallet is a browser extension wallet for the Inter Blockchain ecosystem.",
   "main": "index.js",
   "scripts": {

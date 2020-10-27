@@ -38,7 +38,7 @@
   "register.create.title": "Mnemonic Seed",
   "register.create.toggle.word12": "12 words",
   "register.create.toggle.word24": "24 words",
-  "register.create.input.password": "New Password (minimum 14 characters)",
+  "register.create.input.password": "New Password (minimum 8 characters)",
   "register.create.input.password.wallet": "Confirm wallet password",
   "register.create.input.password.error.required": "Password is required",
   "register.create.input.password.error.incorrect": "Password is not your wallet login password",

@@ -5,15 +5,11 @@
  * @ignore
  */
 export const strongPassword = (password: string): true | string => {
-  if (password.length < 14)
+  if (password.length < 8)
     return "register.create.input.password.error.too-short";
   if (password.match("[a-z]+") === null)
     return "register.create.input.password.error.no-lowercase";
   if (password.match("[A-Z]+") === null)
     return "register.create.input.password.error.no-uppercase";
-  if (password.match("[0-9]+") === null)
-    return "register.create.input.password.error.no-number";
-  if (password.match("[@_!#$£%^&*()<>?/\\|}{~:]") === null)
-    return "register.create.input.password.error.no-special-character";
   return true;
 };
