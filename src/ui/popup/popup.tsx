@@ -6,7 +6,7 @@ import { AppIntlProvider } from "./language";
 import "./styles/global.scss";
 import "../popup/pages/settings/style.module.scss";
 
-import { HashRouter, Route, RouteComponentProps } from "react-router-dom";
+import {HashRouter, Route, RouteComponentProps, useHistory} from "react-router-dom";
 import { AddAddressWizard, RegisterState } from "./pages/register";
 import { MainPage } from "./pages/main";
 import { LockPage } from "./pages/lock";
@@ -38,6 +38,10 @@ import "firebase/analytics";
 import "firebase/auth";
 
 import { FIREBASECONFIG } from "../../config";
+import {Lock} from "../components/lock/lock";
+
+
+
 firebase.initializeApp(FIREBASECONFIG);
 firebase.analytics();
 
@@ -127,6 +131,7 @@ ReactDOM.render(
         <NotificationStoreProvider>
           <NotificationProvider>
             <HashRouter>
+                        <Lock></Lock>
               <Route exact path="/" component={StateRenderer} />
               <Route
                 exact
@@ -176,6 +181,14 @@ ReactDOM.render(
                       history={history}
                     />
                   );
+                }}
+              />
+              <Route
+                exact
+                path="/lock"
+                render={() => {
+                console.log("in the lock page")
+                return <LockPage location={location} />;
                 }}
               />
               <Route exact path="/fee/:id" component={FeePage} />

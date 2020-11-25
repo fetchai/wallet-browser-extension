@@ -282,8 +282,8 @@ export const CoinInput: FunctionComponent<CoinInputProps> = props => {
           autoComplete="off"
         />
 
-        {getSelect()}
       </InputGroup>
+      {getSelect()}
       {error ? (
         <FormFeedback style={{ display: "block" }}>{error}</FormFeedback>
       ) : null}

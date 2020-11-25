@@ -146,6 +146,27 @@ export class SaveKeyRingMsg extends Message<{ success: boolean }> {
   }
 }
 
+export class SetLastActiveMsg extends Message<{ success: boolean }> {
+  public static type() {
+    return "set-last-active";
+  }
+
+  public static create(): SetLastActiveMsg {
+    return new SetLastActiveMsg();
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  validateBasic(): void {}
+
+  route(): string {
+    return ROUTE;
+  }
+
+  type(): string {
+    return SetLastActiveMsg.type();
+  }
+}
+
 export class ClearKeyRingMsg extends Message<{ status: KeyRingStatus }> {
   public static type() {
     return "clear-keyring";

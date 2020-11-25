@@ -275,7 +275,7 @@ $settings-width: 293px;
   display: block;
 }
 
-.customNetworkForm {
+.customNetworkForm, .lockDropdown {
   label {
     font-size: 10px;
     margin: 6px 0px 3px 4px;
@@ -283,7 +283,7 @@ $settings-width: 293px;
   }
 
   input,
-  output {
+  output, option {
     border-style: solid !important;
     font-size: 13px;
     padding: 3px 0;
@@ -299,6 +299,13 @@ $settings-width: 293px;
   button {
     margin-top: 22px;
   }
+}
+
+.lock-text {
+    padding-top: 10px;
+    margin-bottom: 8px;
+    color: #9ab4bf;
+    font-size: 12px;
 }
 
 .active {

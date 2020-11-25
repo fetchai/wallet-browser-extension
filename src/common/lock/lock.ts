@@ -1,13 +1,16 @@
-import {BrowserKVStore} from "../kvstore";
-import {LOCKUP_PERIOD} from "../../ui/components/lock/lock";
+import { BrowserKVStore } from "../kvstore";
+import {
+  DEFAULT_LOCKUP_PERIOD,
+  LOCKUP_PERIOD
+} from "../../ui/components/lock/lock";
 
-function setLockTimeOutPeriod(periodMillisecond: string) {
+export function setLockTimeOutPeriod(periodMillisecond: string) {
     const store = new BrowserKVStore("");
     store.set(LOCKUP_PERIOD, periodMillisecond);
 }
 
-async function getLockTimeOutPeriod(periodMillisecond: string) {
+export async function getLockTimeOutPeriod() {
     const store = new BrowserKVStore("");
-     return await store.get<any>(LOCKUP_PERIOD);
+     const storageResult =  await store.get<any>(LOCKUP_PERIOD);
+   return  typeof storageResult === "undefined" ? DEFAULT_LOCKUP_PERIOD : storageResult
   }
-}

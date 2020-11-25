@@ -1,44 +1,59 @@
-/**
- * Looks for all clicks
- *
- */
+import {KeyRingStatus} from "../../../background/keyring";
+
 export const LOCKUP_PERIOD  = "lockup-period";
-import React from "react";
-import classnames from "classnames";
+export const DEFAULT_LOCKUP_PERIOD  = 18000;
+import React, { FunctionComponent, useEffect } from "react";
+// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+// @ts-ignore
+import OutsideClickHandler from "react-outside-click-handler";
+import { useStore } from "../../popup/stores";
+// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+// @ts-ignore
+import { useHistory } from "react-router";
 
-
-type State = {
-  lightMode?: boolean;
-  store: BrowserKVStore;
-};
 
 type Props = {};
 
-class Lock extends React.Component<Props, State> {
-  constructor(props: any) {
-    super(props);
+const POLL_INTERVAL = 5000
 
-    this.state = {
-      store: store
-    };
-  }
-
-  componentWillUnmount(){
-
-  }
+export const Lock: FunctionComponent<Props> = () => {
+    const history = useHistory();
 
 
-  render() {
+useEffect(() => {
+  console.log('mount it 99!');
+    setInterval(redirectIfLocked, POLL_INTERVAL);
+}, []);
+
+
+/**
+ * Redirect to locked if they get locked by polling the backend.
+ */
+     const redirectIfLocked = async () => {
+
+        const keyRingStatus =  await keyRingStore.GetKeyRingStatus()
+
+         if(keyRingStatus === KeyRingStatus.LOCKED && history.location.pathname !== "/lock" ){
+             history.push("/lock");
+         }
+    }
+
+    const { keyRingStore } = useStore();
+
+    // The way that this works is that all clicks within the page that are not on
+    // this small spaceless component (all clicks on the application) tell the background that the
+    const activeNow = async (): Promise<void> => {
+        await keyRingStore.setLastActive()
+    }
+
     return (
+        <>
+            <OutsideClickHandler
+                onOutsideClick={activeNow}></OutsideClickHandler>
+        </>
+    )
 
-      <div
-        className={classnames(this.state.lightMode ? "light-mode" : "")}
-        id="light"
-      ></div>
-        {this.props.children}
-
-    );
-  }
 }
 
-export { setLockTimeOutPeriod  };
+
+

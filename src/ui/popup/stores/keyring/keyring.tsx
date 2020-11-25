@@ -7,6 +7,7 @@ import {
   KeyRingStatus,
   RestoreKeyRingMsg,
   SaveKeyRingMsg,
+  SetLastActiveMsg,
   CreateKeyMsg,
   UnlockKeyRingMsg,
   LockKeyRingMsg,
@@ -170,4 +171,14 @@ export class KeyRingStore {
     const msg = GetKeyRingStatusMsg.create();
     return (await task(sendMessage(BACKGROUND_PORT, msg))).keyRingStatus;
   }
+
+  /**
+   * when we get any click we set that the user is still active so the program does not lock
+   */
+  @actionAsync
+  public async setLastActive() {
+    const msg = SetLastActiveMsg.create();
+    await task(sendMessage(BACKGROUND_PORT, msg));
+  }
+
 }

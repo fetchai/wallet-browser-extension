@@ -33,6 +33,7 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
     const [collapsible2, setcollapsible2] = useState(false);
     const [collapsible3, setcollapsible3] = useState(false);
     const [collapsible2a, setcollapsible2a] = useState(false);
+    const [collapsible2c, setcollapsible2c] = useState(false);
     const [collapsible2b, setcollapsible2b] = useState(false);
 
     // this is used to hide the rest of the form if we are adding a custom endpoint, since that form occupies so much space.
@@ -118,6 +119,12 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
         setcollapsible2a(false);
       }
 
+      if (index === "2c") {
+        setcollapsible2c(prev => !prev);
+      } else {
+        setcollapsible2c(false);
+      }
+
       if (index === "2b") {
         setcollapsible2b(prev => !prev);
       } else {
@@ -172,7 +179,6 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
                 id: "settings.light-mode.pill.title"
               })}
             </h3>
-
             <Expand
               open={collapsible1a}
               duration={500}
@@ -258,6 +264,34 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
               transitions={DEFAULT_TRANSITIONS}
             >
               <ChangePassword />
+            </Expand>
+
+            <h3
+              className={classnames(style.subHeading, style.clickable)}
+              onClick={() => toggle("2c")}
+            >
+              {intl.formatMessage({
+                id: "settings.update-password.heading.change-inactive-lock"
+              })}
+            </h3>
+            <Expand
+              open={collapsible2c}
+              duration={500}
+              transitions={DEFAULT_TRANSITIONS}
+            >
+                <span className={style.lockText}>
+              {intl.formatMessage({
+                id: "settings.update-password.heading.change-inactive-lock-text"
+              })}
+                </span>
+              <select className={style.lockDropdown}>
+  <option value="valeur1">one minute</option>
+  <option value="valeur2">five minutes</option>
+  <option value="valeur3">one hour</option>
+  <option value="valeur1">a day</option>
+  <option value="valeur2" selected>a month</option>
+  <option value="valeur3">never</option>
+             </select>
             </Expand>
 
             <h3

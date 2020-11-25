@@ -102,6 +102,8 @@
 
   "settings.heading": "Settings",
   "settings.update-password.heading.change-password": "Change Password",
+  "settings.update-password.heading.change-inactive-lock": "Lock",
+  "settings.update-password.heading.change-inactive-lock-text": "inactivity lock",
   "settings.update-password.heading.reset": "Reset Application",
   "settings.update-password.button.delete": "Confirm",
   "settings.update-password.button.delete-confirm": "Reset Application",
