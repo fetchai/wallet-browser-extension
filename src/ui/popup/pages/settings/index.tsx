@@ -21,10 +21,33 @@ import { DeleteAccount } from "./deleteAccount";
 import { ToggleLightMode } from "./toggleLightMode";
 import { DEFAULT_TRANSITIONS } from "../../../../global-constants";
 
+import {
+  getLockTimeOutPeriod,
+  setLockTimeOutPeriod
+} from "../../../../common/lock/lock";
+
+//create your forceUpdate hook
+function useForceUpdate(){
+    const [, setValue] = useState(0); // integer state
+    return () => setValue((value: any) => ++value); // update the state to force render
+}
+
+export const enum LOCK_PERIODS {
+    ONE_MINUTE = 60000,
+    FIVE_MINUTES = 300000,
+    ONE_HOUR = 3600000,
+    ONE_DAY = 86400000,
+    ONE_MONTH = 18144000000,
+    NEVER = 9007199254740991
+}
+
+
+
 export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
   ({ history }) => {
     const { keyRingStore } = useStore();
     const intl = useIntl();
+    const forceUpdate = useForceUpdate();
 
     const [collapsible1, setcollapsible1] = useState(false);
     const [collapsible1a, setcollapsible1a] = useState(false);
@@ -33,6 +56,7 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
     const [collapsible2, setcollapsible2] = useState(false);
     const [collapsible3, setcollapsible3] = useState(false);
     const [collapsible2a, setcollapsible2a] = useState(false);
+    const [collapsible2c, setcollapsible2c] = useState(false);
     const [collapsible2b, setcollapsible2b] = useState(false);
 
     // this is used to hide the rest of the form if we are adding a custom endpoint, since that form occupies so much space.
@@ -43,6 +67,10 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
     const [lightMode, setLightMode] = useState(false);
 
     const [keyFile, setKeyFile] = useState("");
+
+    const [currentLockPeriod, setCurrentLockPeriod] = useState<
+      LOCK_PERIODS | undefined
+    >();
 
     useEffect(() => {
       const getFile = async () => {
@@ -56,6 +84,17 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
       getFile();
     }, []);
 
+
+    useEffect(() => {
+      const getLockPeriod = async () => {
+        const period = await getLockTimeOutPeriod();
+        setCurrentLockPeriod(period);
+        forceUpdate()
+      };
+
+      getLockPeriod();
+    }, []);
+
     useEffect(() => {
       const isEnabled = async () => {
         const enabled = await lightModeEnabled();
@@ -63,6 +102,15 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
       };
       isEnabled();
     }, [lightMode, setLightMode]);
+
+
+    const handleLockPeriodChange = (event: any) => {
+        const value = event.target.value as unknown as LOCK_PERIODS
+        setLockTimeOutPeriod(value)
+        setCurrentLockPeriod(value)
+        forceUpdate()
+      }
+
 
     /**
      * Collapsibiles are all toggled using this and then their "index" which is their name eg 2 or 2a.
@@ -116,6 +164,12 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
         setcollapsible2a(prev => !prev);
       } else {
         setcollapsible2a(false);
+      }
+
+      if (index === "2c") {
+        setcollapsible2c(prev => !prev);
+      } else {
+        setcollapsible2c(false);
       }
 
       if (index === "2b") {
@@ -172,7 +226,6 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
                 id: "settings.light-mode.pill.title"
               })}
             </h3>
-
             <Expand
               open={collapsible1a}
               duration={500}
@@ -258,6 +311,55 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
               transitions={DEFAULT_TRANSITIONS}
             >
               <ChangePassword />
+            </Expand>
+
+            <h3
+              className={classnames(style.subHeading, style.clickable)}
+              onClick={() => toggle("2c")}
+            >
+              {intl.formatMessage({
+                id: "settings.update-locked.heading.change-inactive-lock"
+              })}
+            </h3>
+            <Expand
+              open={collapsible2c}
+              duration={500}
+              transitions={DEFAULT_TRANSITIONS}
+            >
+
+                <span className={style.lockText}>
+              {intl.formatMessage({
+                id: "settings.update-locked.heading.change-inactive-lock-text"
+              })}
+                </span>
+              <select
+
+                  onChange={handleLockPeriodChange} className={classnames(style.lockDropdown, style.dropButton)}>
+
+   <option value={LOCK_PERIODS.ONE_MINUTE} selected={LOCK_PERIODS.ONE_MINUTE === currentLockPeriod} > {intl.formatMessage({
+                id: "settings.update-locked.select.one-minute"
+              })}</option>
+                       <option selected={LOCK_PERIODS.FIVE_MINUTES === currentLockPeriod} value={LOCK_PERIODS.FIVE_MINUTES}> {intl.formatMessage({
+                id: "settings.update-locked.select.five-minutes"
+              })}</option>
+
+  <option value={LOCK_PERIODS.ONE_HOUR} selected={LOCK_PERIODS.ONE_HOUR === currentLockPeriod}> {intl.formatMessage({
+                id: "settings.update-locked.select.one-hour"
+              })}</option>
+
+
+  <option value={LOCK_PERIODS.ONE_DAY} selected={LOCK_PERIODS.ONE_DAY === currentLockPeriod} >{intl.formatMessage({
+                id: "settings.update-locked.select.a-day"
+              })}</option>
+
+  <option value={LOCK_PERIODS.ONE_MONTH} selected={LOCK_PERIODS.ONE_MONTH === currentLockPeriod}>{intl.formatMessage({
+                id: "settings.update-locked.select.a-month"
+              })}</option>
+
+  <option value={LOCK_PERIODS.NEVER} selected={LOCK_PERIODS.NEVER === currentLockPeriod}>{intl.formatMessage({
+                id: "settings.update-locked.select.never"
+              })}</option>
+             </select>
             </Expand>
 
             <h3

@@ -7,7 +7,7 @@ import useForm from "react-hook-form";
 import { EmptyLayout } from "../../layouts/empty-layout";
 import style from "./style.module.scss";
 import queryString from "query-string";
-import { RouteComponentProps } from "react-router";
+import {RouteComponentProps, useHistory} from "react-router";
 
 require("../../public/assets/welcome.mp4");
 
@@ -35,6 +35,7 @@ export const LockPage: FunctionComponent<Pick<
   const intl = useIntl();
   const query = queryString.parse(location.search);
   const external = query.external ?? false;
+  const history = useHistory();
 
   // ignore light-mode when lock page mounted.
   useEffect(() => {
@@ -73,7 +74,7 @@ export const LockPage: FunctionComponent<Pick<
 
   return (
     <EmptyLayout style={{ height: "100%", padding: "0" }}>
-      <video className={style.video} autoPlay={true} muted={true} loop={true}>
+      <video className={classnames(style.video, "video")} autoPlay={true} muted={true} loop={true}>
         <source
           src={browser.runtime.getURL("/assets/" + "welcome.mp4")}
           type={"video/mp4"}
@@ -92,9 +93,11 @@ export const LockPage: FunctionComponent<Pick<
           setLoading(true);
           let status;
           try {
-            status = await keyRingStore.unlock(data.password);
-            // const passwordForDevelopmentOnly = "Password!12345";
-            // status = await keyRingStore.unlock(passwordForDevelopmentOnly);
+              status = await keyRingStore.unlock(data.password);
+
+              if(window.location.pathname !== "/")
+              history.push("/");
+
             if (external) {
               window.close();
             }

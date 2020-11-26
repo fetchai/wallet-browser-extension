@@ -3,6 +3,7 @@ import {
   EnableKeyRingMsg,
   RestoreKeyRingMsg,
   SaveKeyRingMsg,
+  SetLastActiveMsg,
   CreateKeyMsg,
   CreateHardwareKeyMsg,
   GetKeyMsg,
@@ -44,6 +45,7 @@ export function init(
   messageManager.registerMessage(GetKeyRingStatusMsg);
   messageManager.registerMessage(RestoreKeyRingMsg);
   messageManager.registerMessage(SaveKeyRingMsg);
+  messageManager.registerMessage(SetLastActiveMsg);
   messageManager.registerMessage(ClearKeyRingMsg);
   messageManager.registerMessage(IsHardwareLinkedMsg);
   messageManager.registerMessage(CreateKeyMsg);

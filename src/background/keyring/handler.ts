@@ -28,7 +28,7 @@ import {
   IsHardwareLinkedMsg,
   GetKeyRingStatusMsg,
   GetActiveAddressMsg,
-  SubmitSignedLedgerMessage
+  SubmitSignedLedgerMessage, SetLastActiveMsg
 } from "./messages";
 import { KeyRingKeeper } from "./keeper";
 import { Address } from "@everett-protocol/cosmosjs/crypto";
@@ -53,6 +53,8 @@ export const getHandler: (keeper: KeyRingKeeper) => Handler = (
         return handleRestoreKeyRingMsg(keeper)(msg as RestoreKeyRingMsg);
       case SaveKeyRingMsg:
         return handleSaveKeyRingMsg(keeper)(msg as SaveKeyRingMsg);
+      case SetLastActiveMsg:
+        return handleSetLastActiveMsg(keeper)(msg as SetLastActiveMsg);
       case ClearKeyRingMsg:
         return handleClearKeyRingMsg(keeper)(msg as ClearKeyRingMsg);
       case IsHardwareLinkedMsg:
@@ -186,6 +188,18 @@ const handleSaveKeyRingMsg: (
 ) => InternalHandler<SaveKeyRingMsg> = keeper => {
   return async () => {
     await keeper.save();
+    return {
+      success: true
+    };
+  };
+};
+
+
+const handleSetLastActiveMsg: (
+  keeper: KeyRingKeeper
+) => InternalHandler<SaveKeyRingMsg> = keeper => {
+  return async () => {
+    await keeper.setLastActive();
     return {
       success: true
     };

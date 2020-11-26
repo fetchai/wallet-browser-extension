@@ -8,6 +8,7 @@ import { KVStore } from "../../common/kvstore";
 
 import { openWindow } from "../../common/window";
 import { EncryptedKeyStructure } from "./crypto";
+import {TimeoutLock} from "./timeout-lock";
 
 export interface KeyHex {
   algo: string;
@@ -37,6 +38,12 @@ export class KeyRingKeeper {
   private readonly signApprover = new AsyncApprover<SignMessage>({
     defaultTimeout: 3 * 60 * 1000
   });
+
+
+
+
+  private timeout = new TimeoutLock(this);
+
 
   constructor(kvStore: KVStore) {
     this.keyRing = new KeyRing(kvStore);
@@ -255,4 +262,14 @@ export class KeyRingKeeper {
   rejectSign(id: string): void {
     this.signApprover.reject(id);
   }
+
+  /**
+   * call this when a user action occurs so we can lock when user is inactive
+   */
+  setLastActive(): void {
+    this.timeout.resestInactivePeriod();
+ }
+
+
+
 }
