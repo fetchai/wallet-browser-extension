@@ -1,7 +1,10 @@
 import {KeyRingStatus} from "../../../background/keyring";
+import { LOCK_PERIODS } from "../../popup/pages/settings";
 
 export const LOCKUP_PERIOD  = "lockup-period";
-export const DEFAULT_LOCKUP_PERIOD  = 18000;
+
+// dedault period after which inactivity will lock the wallet
+export const DEFAULT_LOCKUP_PERIOD  = LOCK_PERIODS.ONE_HOUR
 import React, { FunctionComponent, useEffect } from "react";
 // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
 // @ts-ignore
@@ -10,13 +13,13 @@ import { useStore } from "../../popup/stores";
 // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
 // @ts-ignore
 import { useHistory } from "react-router";
-
+import {LockPage} from "../../popup/pages/lock";
 
 type Props = {};
 
 const POLL_INTERVAL = 5000
 
-export const Lock: FunctionComponent<Props> = () => {
+export const Lock: FunctionComponent<Props> = (props) => {
     const history = useHistory();
 
 
@@ -34,14 +37,21 @@ useEffect(() => {
         const keyRingStatus =  await keyRingStore.GetKeyRingStatus()
 
          if(keyRingStatus === KeyRingStatus.LOCKED && history.location.pathname !== "/lock" ){
-             history.push("/lock");
+
+
+                       // this is really really hacky jusr if we are on lock page don't reload it.
+             if(!document.getElementById('app').classList.contains("video")){
+                 console.log("reload")
+                            history.push("/lock");
+
+             }
          }
     }
 
     const { keyRingStore } = useStore();
 
     // The way that this works is that all clicks within the page that are not on
-    // this small spaceless component (all clicks on the application) tell the background that the
+    // this small spaceless component (all clicks on the application since it occupies no space) tell the background to reset the count
     const activeNow = async (): Promise<void> => {
         await keyRingStore.setLastActive()
     }
@@ -50,6 +60,7 @@ useEffect(() => {
         <>
             <OutsideClickHandler
                 onOutsideClick={activeNow}></OutsideClickHandler>
+            {props.children}
         </>
     )
 

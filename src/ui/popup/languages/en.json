@@ -102,8 +102,16 @@
 
   "settings.heading": "Settings",
   "settings.update-password.heading.change-password": "Change Password",
-  "settings.update-password.heading.change-inactive-lock": "Lock",
-  "settings.update-password.heading.change-inactive-lock-text": "inactivity lock",
+  "settings.update-locked.heading.change-inactive-lock": "Lock",
+  "settings.update-locked.heading.change-inactive-lock-text": "lock inactive wallet after",
+  "settings.update-locked.select.never": "never",
+  "settings.update-locked.select.update-locked": "update locked",
+  "settings.update-locked.select.a-month": "a month",
+  "settings.update-locked.select.a-day": "a day",
+  "settings.update-locked.select.one-hour": "one hour",
+  "settings.update-locked.select.five-minutes": "five minutes",
+  "settings.update-locked.select.one-minute": "one minute",
+
   "settings.update-password.heading.reset": "Reset Application",
   "settings.update-password.button.delete": "Confirm",
   "settings.update-password.button.delete-confirm": "Reset Application",

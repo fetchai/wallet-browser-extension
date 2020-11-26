@@ -28,12 +28,8 @@ export class TimeoutLock {
     this.inactivePeriod += INTERVAL_MS
 
     const lockTimeoutPeriod = await getLockTimeOutPeriod();
-            console.log(" lockTimeoutPeriod",  lockTimeoutPeriod);
-            console.log(" this.inactivePeriod", this.inactivePeriod);
 
     if (this.inactivePeriod > lockTimeoutPeriod) {
-      console.log("AM LOCKING : lockTimeoutPeriod", lockTimeoutPeriod)
-      console.log("AM LOCKING : this.inactivePeriod", this.inactivePeriod)
       this.keyRingKeeper.lock();
       clearInterval(this.runTimeoutHandle)
     }

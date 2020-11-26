@@ -74,7 +74,7 @@ export const LockPage: FunctionComponent<Pick<
 
   return (
     <EmptyLayout style={{ height: "100%", padding: "0" }}>
-      <video className={style.video} autoPlay={true} muted={true} loop={true}>
+      <video className={classnames(style.video, "video")} autoPlay={true} muted={true} loop={true}>
         <source
           src={browser.runtime.getURL("/assets/" + "welcome.mp4")}
           type={"video/mp4"}

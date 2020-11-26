@@ -131,7 +131,7 @@ ReactDOM.render(
         <NotificationStoreProvider>
           <NotificationProvider>
             <HashRouter>
-                        <Lock></Lock>
+                <Lock>
               <Route exact path="/" component={StateRenderer} />
               <Route
                 exact
@@ -193,6 +193,7 @@ ReactDOM.render(
               />
               <Route exact path="/fee/:id" component={FeePage} />
               <Route path="/sign/:id" component={SignPage} />
+              </Lock>
             </HashRouter>
           </NotificationProvider>
         </NotificationStoreProvider>
