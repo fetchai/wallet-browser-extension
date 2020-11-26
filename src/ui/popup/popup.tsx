@@ -6,7 +6,7 @@ import { AppIntlProvider } from "./language";
 import "./styles/global.scss";
 import "../popup/pages/settings/style.module.scss";
 
-import {HashRouter, Route, RouteComponentProps, useHistory} from "react-router-dom";
+import {HashRouter, Route, RouteComponentProps} from "react-router-dom";
 import { AddAddressWizard, RegisterState } from "./pages/register";
 import { MainPage } from "./pages/main";
 import { LockPage } from "./pages/lock";
@@ -187,8 +187,8 @@ ReactDOM.render(
                 exact
                 path="/lock"
                 render={() => {
-                console.log("in the lock page")
-                return <LockPage location={location} />;
+                // @ts-ignore
+                    return <LockPage location={location} />;
                 }}
               />
               <Route exact path="/fee/:id" component={FeePage} />

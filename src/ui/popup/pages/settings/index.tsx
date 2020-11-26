@@ -21,20 +21,15 @@ import { DeleteAccount } from "./deleteAccount";
 import { ToggleLightMode } from "./toggleLightMode";
 import { DEFAULT_TRANSITIONS } from "../../../../global-constants";
 
-import {getLockTimeOutPeriod, setLockTimeOutPeriod} from "../../../../common/lock/lock";
-
-const maxInteger = Number.MAX_SAFE_INTEGER
+import {
+  getLockTimeOutPeriod,
+  setLockTimeOutPeriod
+} from "../../../../common/lock/lock";
 
 //create your forceUpdate hook
 function useForceUpdate(){
-    const [value, setValue] = useState(0); // integer state
-    return () => setValue(value => ++value); // update the state to force render
-}
-
-function getTopOfDropDown(){
-
-
-
+    const [, setValue] = useState(0); // integer state
+    return () => setValue((value: any) => ++value); // update the state to force render
 }
 
 export const enum LOCK_PERIODS {
@@ -93,7 +88,6 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
     useEffect(() => {
       const getLockPeriod = async () => {
         const period = await getLockTimeOutPeriod();
-        console.log("period on mount is ", period)
         setCurrentLockPeriod(period);
         forceUpdate()
       };
@@ -111,13 +105,8 @@ export const SettingsPage: FunctionComponent<RouteComponentProps> = observer(
 
 
     const handleLockPeriodChange = (event: any) => {
-
         const value = event.target.value as unknown as LOCK_PERIODS
-
         setLockTimeOutPeriod(value)
-        console.log("setLockTimeOutPeriod ", value)
-        console.log("currentLockPeriod ", currentLockPeriod)
-
         setCurrentLockPeriod(value)
         forceUpdate()
       }

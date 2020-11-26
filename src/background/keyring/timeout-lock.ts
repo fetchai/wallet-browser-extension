@@ -1,44 +1,39 @@
 import { KeyRingKeeper } from "./keeper";
-import { getLockTimeOutPeriod } from "../../common/lock/lock";
+import {getInactivePeriod, getLockTimeOutPeriod, setInactivePeriod} from "../../common/lock/lock";
 import {KeyRingStatus} from "./keyring";
 const INTERVAL_MS = 5000;
 
 export class TimeoutLock {
   private keyRingKeeper: KeyRingKeeper;
-  private inactivePeriod: number;
 
   constructor(keyRingKeeper: KeyRingKeeper) {
     this.keyRingKeeper = keyRingKeeper;
-    this.inactivePeriod = 0;
-    console.log(" this.inactivePeriod", this.inactivePeriod);
-
     setInterval(this.run.bind(this), INTERVAL_MS);
   }
 
   private runTimeoutHandle: number | undefined;
 
   private async run() {
-
     const status = this.keyRingKeeper.getKeyRingStatus()
-
     if(status !== KeyRingStatus.UNLOCKED){
       return;
     }
 
-    this.inactivePeriod += INTERVAL_MS
+   let inactivePeriod = await getInactivePeriod()
 
+   inactivePeriod += INTERVAL_MS
     const lockTimeoutPeriod = await getLockTimeOutPeriod();
 
-    if (this.inactivePeriod > lockTimeoutPeriod) {
+    if (inactivePeriod > lockTimeoutPeriod) {
+      await setInactivePeriod(0);
       this.keyRingKeeper.lock();
-      clearInterval(this.runTimeoutHandle)
+      clearInterval(this.runTimeoutHandle);
+    } else {
+      await setInactivePeriod(inactivePeriod);
     }
-
   }
 
   public resestInactivePeriod() {
-          console.log("resestInactivePeriod")
-    console.log(" this.inactivePeriod", this.inactivePeriod);
-          this.inactivePeriod = 0
+    setInactivePeriod(0)
   }
 }

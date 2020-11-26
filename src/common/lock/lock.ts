@@ -1,7 +1,7 @@
 import { BrowserKVStore } from "../kvstore";
 import {
-  DEFAULT_LOCKUP_PERIOD,
-  LOCKUP_PERIOD
+    DEFAULT_LOCKUP_PERIOD, LAST_ACTIVE,
+    LOCKUP_PERIOD
 } from "../../ui/components/lock/lock";
 import { LOCK_PERIODS } from "../../ui/popup/pages/settings";
 
@@ -13,7 +13,6 @@ export function setLockTimeOutPeriod(periodMillisecond: LOCK_PERIODS) {
 export async function getLockTimeOutPeriod() : Promise<LOCK_PERIODS> {
     const store = new BrowserKVStore("");
      const storageResult =  await store.get<any>(LOCKUP_PERIOD);
-     console.log("storageResult ", storageResult)
 
      if(typeof storageResult === "undefined") {
          return DEFAULT_LOCKUP_PERIOD
@@ -53,3 +52,15 @@ export async function getLockTimeOutPeriod() : Promise<LOCK_PERIODS> {
     }
    return result;
   }
+
+ export async function getInactivePeriod() : Promise<number> {
+      const store = new BrowserKVStore("");
+     const storageResult = await store.get<any>(LAST_ACTIVE);
+     return (typeof storageResult === "undefined" || storageResult === null) ?   0 : parseInt(storageResult)
+}
+
+
+export async function setInactivePeriod(inactivePeriodMS: number){
+     const store = new BrowserKVStore("");
+    store.set(LAST_ACTIVE, inactivePeriodMS.toString());
+}

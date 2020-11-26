@@ -2,6 +2,7 @@ import {KeyRingStatus} from "../../../background/keyring";
 import { LOCK_PERIODS } from "../../popup/pages/settings";
 
 export const LOCKUP_PERIOD  = "lockup-period";
+export const LAST_ACTIVE = "last-active";
 
 // dedault period after which inactivity will lock the wallet
 export const DEFAULT_LOCKUP_PERIOD  = LOCK_PERIODS.ONE_HOUR
@@ -13,7 +14,6 @@ import { useStore } from "../../popup/stores";
 // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
 // @ts-ignore
 import { useHistory } from "react-router";
-import {LockPage} from "../../popup/pages/lock";
 
 type Props = {};
 
@@ -39,11 +39,12 @@ useEffect(() => {
          if(keyRingStatus === KeyRingStatus.LOCKED && history.location.pathname !== "/lock" ){
 
 
-                       // this is really really hacky jusr if we are on lock page don't reload it.
-             if(!document.getElementById('app').classList.contains("video")){
+                       // this is really really hacky jusr if we are on lock page don't reload it as flickers on the page
+                  // we cannot base this on the path variable since the path variable was set up so that some blank paths can show multiple different
+                // page. a better way would have been to check the
+             if(!document.getElementsByClassName("video").length){
                  console.log("reload")
                             history.push("/lock");
-
              }
          }
     }
